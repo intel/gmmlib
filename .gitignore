@@ -1,0 +1,8 @@
+# compiled source#
+*.o
+*.a
+*.exe
+
+#
+*.orig
+*.rej

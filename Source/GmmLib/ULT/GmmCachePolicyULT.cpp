@@ -1,0 +1,167 @@
+/*==============================================================================
+Copyright(c) 2017 Intel Corporation
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files(the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and / or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+============================================================================*/
+
+#include "GmmCachePolicyULT.h"
+
+extern GMM_GLOBAL_CONTEXT *pGmmGlobalContext;
+using namespace std;
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Sets up common environment for Cache Policy fixture tests. this is called once per 
+/// test case before executing all tests under resource fixture test case. 
+/// It also calls SetupTestCase from CommonULT to initialize global context and others.
+///
+/////////////////////////////////////////////////////////////////////////////////////
+void CTestCachePolicy::SetUpTestCase()
+{
+    GfxPlatform.eProductFamily = IGFX_BROADWELL;
+    GfxPlatform.eRenderCoreFamily = IGFX_GEN8_CORE;
+
+    CommonULT::SetUpTestCase();
+
+    printf("%s\n", __FUNCTION__);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// cleans up once all the tests finish execution.  It also calls TearDownTestCase 
+/// from CommonULT to destroy global context and others.
+///
+/////////////////////////////////////////////////////////////////////////////////////
+void CTestCachePolicy::TearDownTestCase()
+{
+    printf("%s\n", __FUNCTION__);
+
+    CommonULT::TearDownTestCase();
+}
+
+void CTestCachePolicy::CheckL3CachePolicy()
+{
+    ASSERT_TRUE(pGmmGlobalContext);
+
+    const ULONG TargetCache_L3_LLC_ELLC = 0x3;
+
+
+    // Setup SKU/WA flags
+    pGmmGlobalContext->GetGtSysInfo()->L3CacheSizeInKb = 768; //768 KB
+
+    // Re-init cache policy based on above info
+    pGmmGlobalContext->GetCachePolicyObj()->InitCachePolicy();
+
+    // Check Usage MOCS index against MOCS settings
+    for(ULONG Usage = GMM_RESOURCE_USAGE_UNKNOWN; Usage < GMM_RESOURCE_USAGE_MAX; Usage++)
+    {
+        GMM_CACHE_POLICY_ELEMENT     ClientRequest = pGmmGlobalContext->GetCachePolicyElement((GMM_RESOURCE_USAGE_TYPE)Usage);
+        MEMORY_OBJECT_CONTROL_STATE  Mocs            = ClientRequest.MemoryObjectOverride;
+
+        // Not check WT/WB/UC since that doesn't really matter for L3        
+        if(ClientRequest.L3)
+        {
+            EXPECT_EQ(TargetCache_L3_LLC_ELLC, Mocs.Gen8.TargetCache) <<
+                "Usage# " << Usage << ": Incorrect L3 target cache setting";
+        }
+    }
+}
+
+
+TEST_F(CTestCachePolicy, TestL3CachePolicy)
+{
+    CheckL3CachePolicy();
+}
+
+
+void CTestCachePolicy::CheckLlcEdramCachePolicy()
+{
+    ASSERT_TRUE(pGmmGlobalContext);
+
+    const ULONG TargetCache_ELLC         = 0;
+    const ULONG TargetCache_LLC          = 1;
+    const ULONG TargetCache_LLC_ELLC     = 2;
+    const ULONG TargetCache_L3_LLC_ELLC  = 2;
+
+    const ULONG CC_UNCACHED             = 0x1;
+    const ULONG CC_CACHED_WT            = 0x2;
+    const ULONG CC_CACHED_WB            = 0x3;
+
+    // Setup SKU/WA flags
+    pGmmGlobalContext->GetGtSysInfo()->LLCCacheSizeInKb = 2 * 1024; //2 MB
+    pGmmGlobalContext->GetGtSysInfo()->EdramSizeInKb = 64 * 1024; //64 MB
+    const_cast<SKU_FEATURE_TABLE&>(pGmmGlobalContext->GetSkuTable()).FtrEDram = TRUE;
+
+    // Re-init cache policy with above info
+    pGmmGlobalContext->GetCachePolicyObj()->InitCachePolicy();
+
+    // Check Usage MOCS index against MOCS settings
+    for(ULONG Usage = GMM_RESOURCE_USAGE_UNKNOWN; Usage < GMM_RESOURCE_USAGE_MAX; Usage++)
+    {
+        GMM_CACHE_POLICY_ELEMENT     ClientRequest = pGmmGlobalContext->GetCachePolicyElement((GMM_RESOURCE_USAGE_TYPE)Usage);
+        MEMORY_OBJECT_CONTROL_STATE  Mocs            = ClientRequest.MemoryObjectOverride;
+
+        // Check for age
+        EXPECT_EQ(ClientRequest.AGE, Mocs.Gen8.Age) << "Usage# " << Usage << ": Incorrect AGE settings";
+
+        if(ClientRequest.L3)
+        {
+            // Already tested in another test
+            continue;
+        }
+
+        if(!ClientRequest.LLC && !ClientRequest.ELLC) // Uncached
+        {
+            EXPECT_EQ(CC_UNCACHED, Mocs.Gen8.CacheControl) <<
+                "Usage# " << Usage << ": Incorrect cache control setting";
+        }
+        else 
+        {
+            if(ClientRequest.WT) // Write-through
+            {
+                EXPECT_EQ(CC_CACHED_WT, Mocs.Gen8.CacheControl) <<
+                    "Usage# " << Usage << ": Incorrect cache control setting";
+            }
+            else // Write-back
+            {
+                EXPECT_EQ(CC_CACHED_WB, Mocs.Gen8.CacheControl) <<
+                    "Usage# " << Usage << ": Incorrect cache control setting";
+            }
+
+            if(ClientRequest.LLC && !ClientRequest.ELLC) // LLC only
+            {
+                EXPECT_EQ(TargetCache_LLC, Mocs.Gen8.TargetCache) <<
+                    "Usage# " << Usage << ": Incorrect target cache setting";
+            }
+            else if(!ClientRequest.LLC && ClientRequest.ELLC) // eLLC only
+            {
+                EXPECT_EQ(TargetCache_ELLC, Mocs.Gen8.TargetCache) <<
+                    "Usage# " << Usage << ": Incorrect target cache setting";
+            }
+            else if(ClientRequest.LLC && ClientRequest.ELLC)
+            {
+                EXPECT_EQ(TargetCache_LLC_ELLC, Mocs.Gen8.TargetCache) <<
+                    "Usage# " << Usage << ": Incorrect target cache setting";
+            }
+        }
+    }
+}
+
+TEST_F(CTestCachePolicy, TestLlcEdramCachePolicy)
+{
+    CheckLlcEdramCachePolicy();
+}
