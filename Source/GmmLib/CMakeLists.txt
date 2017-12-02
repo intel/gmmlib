@@ -450,6 +450,7 @@ foreach(lib_target ${TARGET_LIST})
 
     target_include_directories(${lib_target} INTERFACE 
         ${BS_DIR_GMMLIB}/inc
+        ${BS_DIR_INC}
         ${BS_DIR_INC}/common) 
 	
 endforeach()
