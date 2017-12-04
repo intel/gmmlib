@@ -77,16 +77,6 @@ typedef enum UMD_DMA_TYPE_REC
     UMD_TYPE_MAX    // this should always be the last one
 } UMD_DMA_TYPE;
 
-// Render Custom Error Codes
-typedef enum RENDER_CUSTOM_ERROR_REC
-{
-    RENDER_NO_CUSTOM_ERROR = 0,
-    RENDER_PAVP_DETECTED_ERROR,
-    RENDER_OPM_DETECTED_ERROR,
-
-    RENDER_MAX_ERROR    // this should always be the last one
-} RENDER_CUSTOM_ERROR;
-
 
 typedef enum DXVA_OPERATION_ENUM
 {

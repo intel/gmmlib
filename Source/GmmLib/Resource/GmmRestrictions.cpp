@@ -113,9 +113,6 @@ void GmmLib::GmmResourceInfoCommon::GetRestrictions(__GMM_BUFFER_TYPE& Restricti
 
         case RESOURCE_HW_CONTEXT:       
         case RESOURCE_TAG_PAGE:
-    #if _WIN32
-        case RESOURCE_PAVP_CLEAR_BUFFER:
-    #endif
             if (Surf.Flags.Info.TiledW || 
                 Surf.Flags.Info.TiledX || 
                 Surf.Flags.Info.TiledY)

@@ -83,7 +83,7 @@ typedef enum PERFTAG_CLASS_ENUM
     PERFTAG_CM                 = 0xA000,    // C for media
     PERFTAG_WIDI               = 0xB000,
     PERFTAG_OCL                = 0xC000,    // OpenCL
-    PERFTAG_PAVP               = 0xD000,    // PAVP key exchange
+    PERFTAG_RESERVED           = 0xD000,    
     PERFTAG_DXVA11             = 0xE000,    // DX11 Video
     PERFTAG_FRAME_CAPTURE      = 0xF000,    // Gfx Frame Capture
     PERFTAG_FRAME_CAPTURE_NV12 = 0xF100,    // Gfx Frame Capture with NV12 output

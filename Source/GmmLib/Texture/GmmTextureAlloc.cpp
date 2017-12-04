@@ -265,9 +265,6 @@ GMM_STATUS GmmLib::GmmTextureCalc::AllocateTexture(GMM_TEXTURE_INFO *pTexInfo)
         case RESOURCE_TAG_PAGE:
         case RESOURCE_OVERLAY_DMA:
         case RESOURCE_GTT_TRANSFER_REGION:
-    #if _WIN32
-        case RESOURCE_PAVP_CLEAR_BUFFER:
-    #endif
         case RESOURCE_GLOBAL_BUFFER:
         case RESOURCE_CURSOR:
         case RESOURCE_GFX_CLIENT_BUFFER:

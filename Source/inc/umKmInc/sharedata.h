@@ -304,7 +304,7 @@ typedef union __D3DDDI_PATCHLOCATIONLIST_DRIVERID
     struct
     {
         UINT UseGlobalGtt               : 1; // Indicates patch is to use global GTT space address (instead of PPGTT space).
-        UINT HasDecryptBits             : 1; // This cmd has a PAVP related decrypt bit
+        UINT HasDecryptBits             : 1; 
         UINT RenderTargetEnable         : 1; // Indicates this is an output surface that may need to be encrypted
         INT  DecryptBitDwordOffset      : 8; // signed offset (in # of DWORDS) from the patch location to where the cmd's decrypt bit is
         UINT DecryptBitNumber           : 5; // which bit to set in the dword specified by DecryptBitDwordOffset (0 - 31)
