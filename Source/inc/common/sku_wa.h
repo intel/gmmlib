@@ -41,8 +41,6 @@ Description:
 #define GLOBAL_WAFTR_ENABLED 1
 #endif
 
-#include "Driver_Model.h"       // For our XP and LH Macros
-
 // Prevent the following...
 // warning: ISO C++ prohibits anonymous structs [-pedantic]
 // warning: ISO C90 doesn't support unnamed structs/unions [-pedantic]
@@ -70,7 +68,7 @@ typedef struct _SKU_FEATURE_TABLE
     {
         unsigned int   FtrULT       : 1;  // Indicates ULT SKU
         unsigned int   FtrVERing    : 1;  // Separate Ring for VideoEnhancement commands
-        unsigned int   FtrVcs2      : 1;  // Second VCS engine supported on Gen8 to Gen10 (in some configurations); 
+        unsigned int   FtrVcs2      : 1;  // Second VCS engine supported on Gen8 to Gen10 (in some configurations);
         unsigned int   FtrLCIA      : 1;  // Indicates Atom (Low Cost Intel Architecture)
     };
 
@@ -118,7 +116,7 @@ typedef struct _SKU_FEATURE_TABLE
         unsigned int   FtrDisplayYTiling : 1; // For Y Tile Feature on Gen9+
 
 	};
-    
+
     struct
     {
         unsigned int   FtrS3D : 1;  // Stereoscopic 3D
@@ -439,26 +437,6 @@ typedef struct _WA_TABLE
 
 } WA_TABLE, *PWA_TABLE;
 
-#ifdef _USC_
-/*****************************************************************************\
-
-STRUCT:
-    HW_STATUS
-
-Description:
-    holds WA info for compiler
-
-\*****************************************************************************/
-struct HW_STATUS
-{
-    SKU_FEATURE_TABLE   SkuTable;
-    WA_TABLE            WaTable;
-
-    SKU_FEATURE_TABLE*  pSkuTable;
-    WA_TABLE*           pWaTable;
-};
-#endif //_USC_
-
 //********************************** SKU/WA Macros *************************************
 
 #if (defined(__MINIPORT) || defined(__KCH) || defined(__SOFTBIOS) || defined(__GRM) || defined(__PWRCONS))
@@ -478,13 +456,8 @@ struct HW_STATUS
 #define GFX_WRITE_SKU(x, y, z) (((HW_DEVICE_EXTENSION *)(x))->pHWStatusPage->pSkuTable->y = z)
 #endif // end LHDM
 #else
-#if XPDM
-#define GFX_IS_SKU(s, f) ((s)->pSkuTable->f)
-#define GFX_IS_WA(s, w)  ((s)->pWaTable->w)
-#else
 #define GFX_IS_SKU(s, f) ((s)->SkuTable.f)
 #define GFX_IS_WA(s, w)  ((s)->WaTable.w)
-#endif
 #endif
 #define GRAPHICS_IS_SKU(s, f) ((s)->f)
 #define GRAPHICS_IS_WA(s, w)  ((s)->w)

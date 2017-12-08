@@ -27,13 +27,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// @file GmmResourceInfoLin.h
-/// @brief This file contains the functions and members of GmmResourceInfo that is 
+/// @brief This file contains the functions and members of GmmResourceInfo that is
 ///        Linux specific.
 ///
 /////////////////////////////////////////////////////////////////////////////////////
 namespace GmmLib
 {
-    class NON_PAGED_SECTION GmmResourceInfoLin: 
+    class NON_PAGED_SECTION GmmResourceInfoLin:
                                 public GmmResourceInfoCommon
     {
 

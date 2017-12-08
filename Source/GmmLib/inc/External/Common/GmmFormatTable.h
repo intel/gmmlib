@@ -23,9 +23,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 // #pragma once <-- Don't use with this file! (Multi-inclusions, differnt uses.)
 
 // Format Group Selection...
-#if(defined(GMM_FORMAT_INCLUDE_ASTC_FORMATS_ONLY)) 
+#if(defined(GMM_FORMAT_INCLUDE_ASTC_FORMATS_ONLY))
     #define INCLUDE_ASTC_FORMATS
-#elif(defined(GMM_FORMAT_INCLUDE_SURFACESTATE_FORMATS_ONLY)) 
+#elif(defined(GMM_FORMAT_INCLUDE_SURFACESTATE_FORMATS_ONLY))
     #define INCLUDE_SURFACESTATE_FORMATS
 #else
     #define INCLUDE_ASTC_FORMATS
@@ -285,8 +285,8 @@ GMM_FORMAT( X32_TYPELESS_G8X24_UINT      ,  64,  1,  1, 1, R, x, 0x089, NC  ,   
 GMM_FORMAT( X8B8_UNORM_G8R8_SNORM        ,  32,  1,  1, 1, R, x, 0x0E6, NC  ,     ALWAYS      )
 GMM_FORMAT( Y8_UNORM                     ,   8,  1,  1, 1, R, x, 0x150, NC  ,     ALWAYS      )
 GMM_FORMAT( YCRCB_NORMAL                 ,  16,  1,  1, 1, R, x, 0x182, 0x3 ,     ALWAYS      )
-GMM_FORMAT( YCRCB_SWAPUV                 ,  16,  1,  1, 1, R, x, 0x18F, 0xC ,     ALWAYS      ) 
-GMM_FORMAT( YCRCB_SWAPUVY                ,  16,  1,  1, 1, R, x, 0x183, 0xD ,     ALWAYS      ) 
+GMM_FORMAT( YCRCB_SWAPUV                 ,  16,  1,  1, 1, R, x, 0x18F, 0xC ,     ALWAYS      )
+GMM_FORMAT( YCRCB_SWAPUVY                ,  16,  1,  1, 1, R, x, 0x183, 0xD ,     ALWAYS      )
 GMM_FORMAT( YCRCB_SWAPY                  ,  16,  1,  1, 1, R, x, 0x190, 0xB ,     ALWAYS      )
 #endif // INCLUDE_SURFACESTATE_FORMATS
 #ifdef INCLUDE_ASTC_FORMATS
@@ -365,7 +365,7 @@ GMM_FORMAT( ASTC_LDR_3D_6x6x6_FLT16      , 128,  6,  6, 6, x, A, 0x0ff, NC  ,   
 #endif // INCLUDE_ASTC_FORMATS
 #ifdef INCLUDE_MISC_FORMATS
 GMM_FORMAT( AUYV                         ,  32,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      )
-GMM_FORMAT( AYUV                         ,  32,  1,  1, 1, R, x,   NA , 0x9 ,     ALWAYS      ) 
+GMM_FORMAT( AYUV                         ,  32,  1,  1, 1, R, x,   NA , 0x9 ,     ALWAYS      )
 GMM_FORMAT( BAYER_BGGR8                  ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      ) // (0, 0) = B
 GMM_FORMAT( BAYER_BGGR16                 ,  16,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      ) // (0, 0) = B
 GMM_FORMAT( BAYER_GBRG8                  ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      ) // (0, 0) = G, (1, 0) = B
@@ -415,11 +415,11 @@ GMM_FORMAT( MFX_JPEG_YUV422H             ,   8,  1,  1, 1, R, x,   NA , NC  ,   
 GMM_FORMAT( MFX_JPEG_YUV422V             ,   8,  1,  1, 1, R, x,   NA , NC  ,     GEN(7)      )
 GMM_FORMAT( MFX_JPEG_YUV444              ,   8,  1,  1, 1, R, x,   NA , NC  ,     GEN(7)      )
 GMM_FORMAT( NV11                         ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      )
-GMM_FORMAT( NV12                         ,   8,  1,  1, 1, R, x,   NA , 0xF ,     ALWAYS      )  
-GMM_FORMAT( NV21                         ,   8,  1,  1, 1, R, x,   NA , 0xF ,     ALWAYS      )  
-GMM_FORMAT( P010                         ,  16,  1,  1, 1, R, x,   NA , 0x7 ,     ALWAYS      )  
+GMM_FORMAT( NV12                         ,   8,  1,  1, 1, R, x,   NA , 0xF ,     ALWAYS      )
+GMM_FORMAT( NV21                         ,   8,  1,  1, 1, R, x,   NA , 0xF ,     ALWAYS      )
+GMM_FORMAT( P010                         ,  16,  1,  1, 1, R, x,   NA , 0x7 ,     ALWAYS      )
 GMM_FORMAT( P012                         ,  16,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      )
-GMM_FORMAT( P016                         ,  16,  1,  1, 1, R, x,   NA , 0x8 ,     ALWAYS      )  
+GMM_FORMAT( P016                         ,  16,  1,  1, 1, R, x,   NA , 0x8 ,     ALWAYS      )
 GMM_FORMAT( P208                         ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      )
 GMM_FORMAT( R10G10B10_XR_BIAS_A2_UNORM   ,  32,  1,  1, 1, x, x,   NA , 0x18,     ALWAYS      ) // DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM
 GMM_FORMAT( R24G8_TYPELESS               ,  32,  1,  1, 1, x, x,   NA , NC  ,     ALWAYS      ) // DXGI_FORMAT_R24G8_TYPELESS (To differentiate between GENERIC_32BIT.)
@@ -433,7 +433,7 @@ GMM_FORMAT( Y16_UNORM                    ,  16,  1,  1, 1, x, x,   NA , NC  ,   
 #if (IGFX_GEN >= IGFX_GEN10)
 GMM_FORMAT( Y32_UNORM                    ,  32,  1,  1, 1, x, x,   NA , NC  ,     GEN(10)     ) // Y32 removed from Gen9 but still referenced in BSpec, only available Gen10+
 #endif
-GMM_FORMAT( Y216                         ,  64,  2,  1, 1, R, x,   NA,  0x5,      ALWAYS      ) 
+GMM_FORMAT( Y216                         ,  64,  2,  1, 1, R, x,   NA,  0x5,      ALWAYS      )
 GMM_FORMAT( Y416                         ,  64,  1,  1, 1, R, x,   NA , 0x6 ,     ALWAYS      ) // Packed 444 10/12/16 bit,
 GMM_FORMAT( YV12                         ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      )
 GMM_FORMAT( YVU9                         ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      )
@@ -458,22 +458,22 @@ GMM_FORMAT( WGBOX_PLANAR_YUV444          ,  32,  1,  1, 1, x, x,   NA , NC  ,   
 
 /*****************************************************************************\
   Usage:
-  File #include'ed into various areas of source code, to produce different 
+  File #include'ed into various areas of source code, to produce different
   things--various enums, struct/array-initializing code, etc.
 
   Format Names:
   Text should always match BSpec name where applicable.
-  The GMM_RESOURCE_FORMAT and GMM_SURFACESTATE_FORMAT enums are generated from 
+  The GMM_RESOURCE_FORMAT and GMM_SURFACESTATE_FORMAT enums are generated from
   this table.
 
-  Supported Conditionals(*) and Meaning: 
+  Supported Conditionals(*) and Meaning:
   GEN(X)........"Gen X or later" where X is text for IGFX_GEN[X]_CORE.
   SKU(FtrXxx)..."SKU FtrXxx is set".
   WA(WaXxx)....."WA WaXxx is set". Usually used with !/NOT prefix in table.
 
-  Conditionals: 
-  Inclusions making use of columns supporting conditionals (e.g. "RT", 
-  "Available") must wrap the inclusion with macro definitions to service the 
+  Conditionals:
+  Inclusions making use of columns supporting conditionals (e.g. "RT",
+  "Available") must wrap the inclusion with macro definitions to service the
   supported conditionals in the local source--e.g....
     #define GMM_FORMAT_GEN(X)      (GFX_GET_CURRENT_RENDERCORE(pHwDevExt->platform) >= IGFX_GEN##X##_CORE)
     #define GMM_FORMAT_SKU(FtrXxx) (GFX_IS_SKU(pHwDevExt, FtrXxx))

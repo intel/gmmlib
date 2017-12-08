@@ -23,7 +23,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #if (_DEBUG || _RELEASE_INTERNAL) && !__GMM_KMD__
-    // Not doing #if__cplusplus >= 201103L check because partial C++11 support may 
+    // Not doing #if__cplusplus >= 201103L check because partial C++11 support may
     // work for this. We also want to catch C++11 unavailability due to not setting
     // compiler options.
     #if (_MSC_VER >= 1800) // VS 2013+
@@ -38,9 +38,9 @@ OTHER DEALINGS IN THE SOFTWARE.
         #define STRING2(x) #x
         #define STRING(x) STRING2(x)
 
-        #if (defined __GNUC__) 
+        #if (defined __GNUC__)
             #pragma message "Detected g++ " STRING(__GNUC__) "." STRING(__GNUC_MINOR__) ". Minimum compiler version required for GmmLog is GCC 4.8.1. Disabling GmmLog."
-        #elif (defined __clang__) 
+        #elif (defined __clang__)
             #pragma message "Detected clang " STRING(__clang_major__) "." STRING(__clang_minor__) ". Minimum compiler version required for GmmLog is clang 3.5. Disabling GmmLog."
         #elif (defined _MSC_VER)
             #pragma message("Detected MSVC++ version " STRING(_MSC_VER) ". Minimum compiler version required for GmmLog is MSVC++ 1800. Disabling GmmLog")
@@ -55,8 +55,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define GMM_KMD_LOG_AVAILABLE 1
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// GMM_KMD_LOG 
-/// Gmm logging macro to log a message in KMD mode. Exmaple: 
+/// GMM_KMD_LOG
+/// Gmm logging macro to log a message in KMD mode. Exmaple:
 ///     GMM_KMD_LOG("Math Addition: %d + %d = %d \r\n", 1, 1, 2);
 /////////////////////////////////////////////////////////////////////////////////////
 #define GMM_KMD_LOG(message, ...)                                                                   \
@@ -68,11 +68,11 @@ OTHER DEALINGS IN THE SOFTWARE.
                                                                                                     \
             KmGenerateLogFileName(&FullFileName[0], format, FileName, CurrentProcessId);            \
                                                                                                     \
-            KM_FILE_IO_OBJ *pGmmKmdLog = KmFileOpen(pHwDevExt, FullFileName, FALSE, FALSE, TRUE);   \
+            KM_FILE_IO_OBJ *pGmmKmdLog = KmFileOpen(pHwDevExt, FullFileName, false, false, true);   \
             if (pGmmKmdLog != NULL)                                                                 \
             {                                                                                       \
                 KmFilePrintf(pGmmKmdLog, message, __VA_ARGS__);                                     \
-                KmFileClose(pGmmKmdLog, FALSE);                                                     \
+                KmFileClose(pGmmKmdLog, false);                                                     \
             }                                                                                       \
         }                                                                                           \
 
@@ -99,7 +99,7 @@ OTHER DEALINGS IN THE SOFTWARE.
     #define GMM_LOG_TO_FILE           "LogToFile"
     enum GmmLogLevel
     {
-        Off = 0, 
+        Off = 0,
         Trace,
         Info,
         Error, // default
@@ -116,7 +116,7 @@ namespace GmmLib
     {
         private:
             /// This enum determines where the log goes
-            enum GmmLogMethod 
+            enum GmmLogMethod
             {
                 ToOSLog,                                        ///< Log is sent to OS logging infrastructure (Debugger on Windows)
                 ToFile,                                         ///< Log is written to file
@@ -137,8 +137,8 @@ namespace GmmLib
             /// Creates a Logger singlton per process
             ///
             /// @remark
-            ///     If there are multiple modules loaded in one process, this singleton will be 
-            ///     per module. For example: D3D10 and D3D12 are all used in process A. Both D3D10 
+            ///     If there are multiple modules loaded in one process, this singleton will be
+            ///     per module. For example: D3D10 and D3D12 are all used in process A. Both D3D10
             ///     and D3D12 are built with GmmLib.lib. They are considered to be two modules and
             ///     each has a Logger instance (singleton).
             ///
@@ -169,15 +169,15 @@ extern GmmLib::Logger& GmmLoggerPerProc;
     // C file can be caught as compilation error.
 #endif //#ifdef __cplusplus
 
-#else // else Gmm Log not available 
+#else // else Gmm Log not available
 
-#define GMM_LOG_TRACE(message, ...) 
-#define GMM_LOG_TRACE_IF(expression, message, ...) 
+#define GMM_LOG_TRACE(message, ...)
+#define GMM_LOG_TRACE_IF(expression, message, ...)
 
-#define GMM_LOG_INFO(message, ...) 
-#define GMM_LOG_INFO_IF(expression, message, ...) 
+#define GMM_LOG_INFO(message, ...)
+#define GMM_LOG_INFO_IF(expression, message, ...)
 
-#define GMM_LOG_ERROR(message, ...) 
+#define GMM_LOG_ERROR(message, ...)
 #define GMM_LOG_ERROR_IF(expression, message, ...)
 
 #endif //#if _WIN32

@@ -20,7 +20,7 @@
 
 #this file should contain only compiler and linker flags
 
-SET (GMMLIB_COMPILER_FLAGS_COMMON 
+SET (GMMLIB_COMPILER_FLAGS_COMMON
     #general warnings
     -Wall
     -Winit-self
@@ -91,10 +91,10 @@ SET (GMMLIB_COMPILER_CXX_FLAGS_COMMON
     -fcheck-new
     -std=c++11
     )
-  
+
 SET (GMMLIB_COMPILER_FLAGS_DEBUG
     -O0
-    -DINSTR_GTUNE_EXT   
+    -DINSTR_GTUNE_EXT
     )
 
 SET (GMMLIB_COMPILER_FLAGS_RELEASE
@@ -111,9 +111,9 @@ SET (GMMLIB_COMPILER_FLAGS_RELEASE
  #   SET(CMAKE_AR "gcc-ar")
  #   SET(CMAKE_RANLIB "gcc-ranlib")
 #endif()
-	
+
 SET( GMMLIB_COMPILER_FLAGS_RELEASEINTERNAL  ${GMMLIB_COMPILER_FLAGS_RELEASE})
- 
+
 #set predefined compiler flags set
 add_compile_options("${GMMLIB_COMPILER_FLAGS_COMMON}")
 add_compile_options("$<$<CONFIG:Debug>:${GMMLIB_COMPILER_FLAGS_DEBUG}>")

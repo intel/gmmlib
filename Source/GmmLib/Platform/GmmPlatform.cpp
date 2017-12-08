@@ -24,7 +24,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 extern GMM_GLOBAL_CONTEXT *pGmmGlobalContext;
 
-LONG GmmLib::PlatformInfo::RefCount = 0;
+int32_t GmmLib::PlatformInfo::RefCount = 0;
 
 GmmLib::PlatformInfo::PlatformInfo(PLATFORM &Platform) {
     GMM_DPF_ENTER;
@@ -50,7 +50,7 @@ GmmLib::PlatformInfo::PlatformInfo(PLATFORM &Platform) {
     Data.FormatTable[GmmFormat].Supported =           ((Availability) != 0);                                 \
     if(((_Depth) > 1) || ((_Height) > 1) || ((_Width) > 1))                                             \
     {                                                                                                   \
-        Data.FormatTable[GmmFormat].Compressed = TRUE;                                                       \
+        Data.FormatTable[GmmFormat].Compressed = true;                                                       \
     }                                                                                                   \
 }
 
@@ -115,7 +115,7 @@ const GMM_PLATFORM_INFO* GMM_STDCALL __GmmGetOverridePlatformInfo()
 {
     __GMM_ASSERT(pGmmGlobalContext != NULL)
 
-    if (pGmmGlobalContext != NULL && pGmmGlobalContext->GetOverridePlatformInfoObj() != NULL) 
+    if (pGmmGlobalContext != NULL && pGmmGlobalContext->GetOverridePlatformInfoObj() != NULL)
     {
         return (const GMM_PLATFORM_INFO*)(&(pGmmGlobalContext->GetOverridePlatformInfoObj()->GetData()));
     }

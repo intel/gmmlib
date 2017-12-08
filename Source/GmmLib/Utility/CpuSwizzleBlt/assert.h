@@ -20,13 +20,12 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
 
-// File intended for same-folder-inclusion by CpuSwizzleBlt.c to reroute 
+// File intended for same-folder-inclusion by CpuSwizzleBlt.c to reroute
 // standard asserts when compiled in GMM.
 
 #pragma once
 
 #ifdef __GMM
-    #include "Driver_Model.h"
     #include "External/Common/GmmInternal.h"
     #define assert __GMM_ASSERT
 #else

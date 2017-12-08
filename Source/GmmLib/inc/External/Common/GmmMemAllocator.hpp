@@ -23,22 +23,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 #include "GmmUtil.h"
 
-#if __GMM_KMD__
-    #define NON_PAGED_SECTION __declspec(code_seg("$kerneltext$"))
+#include <stdlib.h>
 
-    void* GmmAllocKmdSystemMem(uint32_t Size, BOOLEAN bPageable, uint32_t Tag);
-    void GmmFreeKmdSystemMem(void* pMem, uint32_t Tag);
+#define NON_PAGED_SECTION
 
-    #define GMM_MALLOC(size)    GmmAllocKmdSystemMem((size), FALSE, GFX_COMPONENT_GMM_TAG)
-    #define GMM_FREE(p)         GmmFreeKmdSystemMem((p), GFX_COMPONENT_GMM_TAG)
-#else
-    #include <stdlib.h>
-
-    #define NON_PAGED_SECTION
-
-    #define GMM_MALLOC(size)    malloc(size)
-    #define GMM_FREE(p)         free(p)
-#endif
+#define GMM_MALLOC(size)    malloc(size)
+#define GMM_FREE(p)         free(p)
 
 /////////////////////////////////////////////////////////////
 /// Overrides new() and delete() to work with both user mode 

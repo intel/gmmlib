@@ -25,19 +25,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "GmmTextureCalc.h"
 /////////////////////////////////////////////////////////////////////////////////////
 /// @file GmmGen7TextureCalc.h
-/// @brief This file contains the common functions and members for texture calculations      
-///        on all GENs/Platforms 
+/// @brief This file contains the common functions and members for texture calculations
+///        on all GENs/Platforms
 /////////////////////////////////////////////////////////////////////////////////////
 namespace GmmLib
 {
     /////////////////////////////////////////////////////////////////////////
-    /// Contains texture calc functions and members for Gen7 platforms. 
+    /// Contains texture calc functions and members for Gen7 platforms.
     /// This class is derived from the base GmmTextureCalc class  so clients
     /// shouldn't have to ever interact  with this class directly.
     /////////////////////////////////////////////////////////////////////////
     class NON_PAGED_SECTION GmmGen7TextureCalc :
                                 public GmmTextureCalc
-    {     
+    {
         private:
             uint32_t                   GetTotal3DHeight(
                                         GMM_TEXTURE_INFO* pTexInfo);

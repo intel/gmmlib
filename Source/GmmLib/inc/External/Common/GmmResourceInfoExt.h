@@ -28,7 +28,7 @@ extern "C" {
 
 #if _WIN32
     #if (GMM_OGL || OGL || GMM_OCL || GMM_EXCITE)
-        typedef LONG NTSTATUS;
+        typedef int32_t NTSTATUS;
         #include <windows.h>
         #include <d3d9types.h>
         #include <d3dkmthk.h>
@@ -39,7 +39,7 @@ extern "C" {
 #pragma pack(push, 8)
 
 // Rotation bitmap fields
-#define GMM_KMD_ROTATE              0x00000001  // this is to inform KMD to enable 
+#define GMM_KMD_ROTATE              0x00000001  // this is to inform KMD to enable
                                                 // rotation in Full screen case
 
 // Color separation textures width division factors and array size
@@ -52,13 +52,13 @@ extern "C" {
 //      GMM_RESOURCE_MMC_INFO
 //
 // Description:
-//      This struct is used to describe Media Memory Compression information.  
+//      This struct is used to describe Media Memory Compression information.
 //---------------------------------------------------------------------------
 typedef enum GMM_RESOURCE_MMC_INFO_REC
 {
     GMM_MMC_DISABLED = 0,
     GMM_MMC_HORIZONTAL,
-    GMM_MMC_VERTICAL,  
+    GMM_MMC_VERTICAL,
 }GMM_RESOURCE_MMC_INFO;
 
 //===========================================================================
@@ -66,7 +66,7 @@ typedef enum GMM_RESOURCE_MMC_INFO_REC
 //      GMM_RESOURCE_MMC_HINT
 //
 // Description:
-//      This struct is used to indicate if Media Memory Compression is needed.  
+//      This struct is used to indicate if Media Memory Compression is needed.
 //---------------------------------------------------------------------------
 typedef enum GMM_RESOURCE_MMC_HINT_REC
 {
@@ -85,7 +85,7 @@ typedef enum GMM_MSAA_SAMPLE_PATTERN_REC
 {
     GMM_MSAA_DISABLED = 0,
     GMM_MSAA_STANDARD,
-    GMM_MSAA_CENTEROID, 
+    GMM_MSAA_CENTEROID,
     GMM_MSAA_REGULAR
 
 }GMM_MSAA_SAMPLE_PATTERN;
@@ -102,12 +102,12 @@ typedef enum GMM_TILE_RANGE_FLAG_ENUM
 //        GMM_RESOURCE_MSAA_INFO
 //
 // Description:
-//     This struct is used to describe MSAA information.  
+//     This struct is used to describe MSAA information.
 //---------------------------------------------------------------------------
 typedef struct GMM_RESOURCE_MSAA_INFO_REC
 {
     GMM_MSAA_SAMPLE_PATTERN     SamplePattern;
-    uint32_t                       NumSamples;
+    uint32_t                    NumSamples;
 }GMM_RESOURCE_MSAA_INFO;
 
 //===========================================================================
@@ -116,12 +116,12 @@ typedef struct GMM_RESOURCE_MSAA_INFO_REC
 //
 // Description:
 //     Various alignment units of an allocation.
-//     NOTE: H/VAlign and QPitch stored *UNCOMPRESSED* here, despite Gen9+ 
+//     NOTE: H/VAlign and QPitch stored *UNCOMPRESSED* here, despite Gen9+
 //           SURFACE_STATE using compressed!!!
 //---------------------------------------------------------------------------
-typedef struct GMM_RESOURCE_ALIGNMENT_REC 
+typedef struct GMM_RESOURCE_ALIGNMENT_REC
 {
-    BOOLEAN ArraySpacingSingleLod;  // Single-LOD/Full Array Spacing (B-Spec [IVB+] ARYSPC_LOD0/FULL)
+    uint8_t    ArraySpacingSingleLod;  // Single-LOD/Full Array Spacing (B-Spec [IVB+] ARYSPC_LOD0/FULL)
     uint32_t   BaseAlignment;          // Base Alignment
     uint32_t   HAlign, VAlign, DAlign; // Alignment Unit Width/Height/ (B-Spec HALIGN/VALIGN/DALIGN--i.e. "i * p, j * q, k * s")
     uint32_t   MipTailStartLod;        // Mip Tail (SKL+)
@@ -136,7 +136,7 @@ typedef struct GMM_RESOURCE_ALIGNMENT_REC
 //        GMM_PAGETABLE_MGR
 //
 // Description:
-//     This struct is used to describe page table manager.  
+//     This struct is used to describe page table manager.
 //     Forward Declaration: Defined in GmmPageTableMgr.h
 //---------------------------------------------------------------------------
 #ifdef __cplusplus
@@ -154,7 +154,7 @@ typedef struct GMM_RESOURCE_ALIGNMENT_REC
 //        GMM_RESOURCE_INFO
 //
 // Description:
-//     This struct is used to describe resource allocations.  
+//     This struct is used to describe resource allocations.
 //     Forward Declaration: Defined in GmmResourceInfo*.h
 //---------------------------------------------------------------------------
 #ifdef __cplusplus
@@ -187,7 +187,7 @@ typedef struct GMM_RESOURCE_ALIGNMENT_REC
 // typedef:
 //     GMM_S3D_OFFSET_INFO
 //
-// Description: 
+// Description:
 //     Contains offset info for S3D resources.
 //
 //--------------------------------------------------------------------------
@@ -203,19 +203,19 @@ typedef struct GMM_S3D_OFFSET_INFO_REC
 // typedef:
 //     GMM_S3D_INFO
 //
-// Description: 
+// Description:
 //     Describes properties of S3D feature.
 //
 //--------------------------------------------------------------------------
 typedef struct GMM_S3D_INFO_REC
 {
     uint32_t           DisplayModeHeight;    // Current display mode resolution
-    uint32_t           NumBlankActiveLines;  // Number of blank lines 
+    uint32_t           NumBlankActiveLines;  // Number of blank lines
     uint32_t           RFrameOffset;         // R frame offset
     uint32_t           BlankAreaOffset;      // Blank area offset
     uint32_t           TallBufferHeight;     // Tall buffer height
     uint32_t           TallBufferSize;       // Tall buffer size
-    BOOLEAN         IsRFrame;             // Flag indicating this is the R frame
+    uint8_t            IsRFrame;             // Flag indicating this is the R frame
 } GMM_S3D_INFO;
 
 //===========================================================================
@@ -236,19 +236,19 @@ typedef struct GMM_RESCREATE_PARAMS_REC
 
     GMM_RESOURCE_USAGE_TYPE             Usage;   // Intended use for this resource. See enumerated type.
 
-    union 
+    union
     {
-        uint32_t                 BaseWidth;         // Aligned width of buffer (aligned according to .Format)
+        uint32_t              BaseWidth;         // Aligned width of buffer (aligned according to .Format)
         GMM_GFX_SIZE_T        BaseWidth64;
 
-        // The HW buffer types, BUFFER and STRBUF, are arrays of user-defined 
-        // struct's. Their natural sizing parameters are (1) the struct size 
-        // and (2) the numer of array elements (i.e. the number of structs). 
-        // However, the GMM allows these to be allocated in either of two ways: 
-        // (1) Client computes total allocation size and passes via BaseWidth 
-        // (leaving ArraySize 0), or (2) Client passes natural sizing parameters 
-        // via BaseWidth and ArraySize. To make the latter more readable, 
-        // clients can use the BaseWidth union alias, BufferStructSize (as well 
+        // The HW buffer types, BUFFER and STRBUF, are arrays of user-defined
+        // struct's. Their natural sizing parameters are (1) the struct size
+        // and (2) the numer of array elements (i.e. the number of structs).
+        // However, the GMM allows these to be allocated in either of two ways:
+        // (1) Client computes total allocation size and passes via BaseWidth
+        // (leaving ArraySize 0), or (2) Client passes natural sizing parameters
+        // via BaseWidth and ArraySize. To make the latter more readable,
+        // clients can use the BaseWidth union alias, BufferStructSize (as well
         // as the GmmResGetBaseWidth alias, GmmResGetBufferStructSize).
         uint32_t                           BufferStructSize; // Note: If ever de-union'ing, mind the GmmResGetBufferStructSize #define.
     };
@@ -256,7 +256,7 @@ typedef struct GMM_RESCREATE_PARAMS_REC
     uint32_t                               BaseHeight;     // Aligned height of buffer (aligned according to .Format)
     uint32_t                               Depth;          // For 3D resources Depth>1, for 1D/2D, a default of 0 is uplifted to 1.
 
-    uint32_t                               MaxLod;    
+    uint32_t                               MaxLod;
     uint32_t                               ArraySize;      // A number of n-dimensional buffers can be allocated together.
 
     uint32_t                               BaseAlignment;
@@ -280,7 +280,7 @@ typedef struct GMM_RESCREATE_PARAMS_REC
         void                           *pDeviceContext;
     #endif
     uint32_t                               MaximumRenamingListLength;
-    BOOLEAN                             NoGfxMemory;
+    uint8_t                             NoGfxMemory;
     GMM_RESOURCE_INFO                   *pPreallocatedResInfo;
 
 } GMM_RESCREATE_PARAMS;
@@ -294,9 +294,9 @@ typedef struct GMM_RESCREATE_PARAMS_REC
 //     auxiliary surface
 //---------------------------------------------------------------------------
 // Usage :
-//     UMD client use this enum to request the aux offset and size. 
-//     using via GmmResGetAuxSurfaceOffset, GmmResGetSizeAuxSurface    
-//   
+//     UMD client use this enum to request the aux offset and size.
+//     using via GmmResGetAuxSurfaceOffset, GmmResGetSizeAuxSurface
+//
 //              RT buffer with Clear Color
 //      ________________________________________________
 //     |                                                |
@@ -310,7 +310,7 @@ typedef struct GMM_RESCREATE_PARAMS_REC
 //     |                                                |
 //     |                                                |
 //   A |                                                |
-//  -->|________________________________________________| 
+//  -->|________________________________________________|
 //     |                                  |             |
 //     |                                  |             |
 //     |             Tag plane            |             |
@@ -337,7 +337,7 @@ typedef struct GMM_RESCREATE_PARAMS_REC
 //     C. GmmResGetAuxSurfaceOffset(pRes, GMM_AUX_MCS_LCE or GMM_AUX_ZCS)
 //        GmmResGetSizeAuxSurface(pRes, GMM_AUX_SURF) will return the total aux size (CCS + CC + Padding), (HiZ/MCS + CC + Padding + CCS)
 //     Unified Depth buffer (Hiz+ ZCS+ Indirect ClearColor) can be similarly implemented by declaring new enums.
-//        e.g. GMM_AUX_HIZ, GMM_AUX_ZCS, GMM_AUX_HIZ_CC 
+//        e.g. GMM_AUX_HIZ, GMM_AUX_ZCS, GMM_AUX_HIZ_CC
 typedef enum
 {
     GMM_AUX_CCS,    // RT buffer's color control surface (Unpadded)
@@ -345,7 +345,7 @@ typedef enum
     GMM_AUX_UV_CCS, // color control surface for UV-plane
     GMM_AUX_CC,     // clear color value (4kb granularity)
     GMM_AUX_COMP_STATE, // Media compression state (cacheline aligned 64B)
-    GMM_AUX_HIZ,    // HiZ surface for unified Depth buffer 
+    GMM_AUX_HIZ,    // HiZ surface for unified Depth buffer
     GMM_AUX_MCS,    // multi-sample control surface for unified MSAA
     GMM_AUX_MCS_LCE, // CCS for lossless MSAA compression
     GMM_AUX_ZCS,    // CCS for Depth Z compression
@@ -359,7 +359,7 @@ typedef enum
 // Description:
 //     Describes a GmmResCpuBlt operation.
 //---------------------------------------------------------------------------
-typedef struct GMM_RES_COPY_BLT_REC 
+typedef struct GMM_RES_COPY_BLT_REC
 {
     struct // GPU Surface Description...
     {
@@ -389,7 +389,7 @@ typedef struct GMM_RES_COPY_BLT_REC
         uint32_t           Slices;         // Number of slices being copied; 0 = 1 = "N/A or single slice".
         uint32_t           BytesPerPixel;  // Number of bytes to copy, per pixel; 0 = "Same as Sys.PixelPitch".
         //uint32_t         MsaaSamples;    // Number of samples to copy per pixel; 0 = 1 = "N/A or single sample".
-        BOOLEAN         Upload;         // TRUE = Sys-->Gpu; FALSE = Gpu-->Sys.
+        uint8_t            Upload;         // true = Sys-->Gpu; false = Gpu-->Sys.
     }               Blt;                // Description of the BLT being performed.
 } GMM_RES_COPY_BLT;
 
@@ -407,24 +407,24 @@ typedef enum
     GMM_MAPPING_GEN9_YS_TO_STDSWIZZLE,
 } GMM_GET_MAPPING_TYPE;
 
-typedef struct GMM_GET_MAPPING_REC 
+typedef struct GMM_GET_MAPPING_REC
 {
     GMM_GET_MAPPING_TYPE    Type;
 
-    struct 
+    struct
     {
         GMM_GFX_SIZE_T      VirtualOffset;
         GMM_GFX_SIZE_T      PhysicalOffset;
         GMM_GFX_SIZE_T      Size;
     }                   Span, __NextSpan;
 
-    struct 
+    struct
     {
-        struct 
+        struct
         {
             uint32_t               Width, Height, Depth; // in Uncompressed Pixels
         }                   Element, Tile;
-        struct 
+        struct
         {
             GMM_GFX_SIZE_T      Physical, Virtual;
         }                   Slice0MipOffset, SlicePitch;
@@ -439,19 +439,19 @@ typedef struct GMM_GET_MAPPING_REC
 //                      GMM_RESOURCE_INFO API
 //
 //***************************************************************************
-BOOLEAN             GMM_STDCALL GmmIsPlanar(GMM_RESOURCE_FORMAT Format);
-BOOLEAN             GMM_STDCALL GmmIsP0xx(GMM_RESOURCE_FORMAT Format);
-BOOLEAN             GMM_STDCALL GmmIsUVPacked(GMM_RESOURCE_FORMAT Format);
+uint8_t             GMM_STDCALL GmmIsPlanar(GMM_RESOURCE_FORMAT Format);
+uint8_t             GMM_STDCALL GmmIsP0xx(GMM_RESOURCE_FORMAT Format);
+uint8_t             GMM_STDCALL GmmIsUVPacked(GMM_RESOURCE_FORMAT Format);
 #define                         GmmIsYUVPlanar GmmIsPlanar // TODO(Benign): Support old name until we have a chance to correct in UMD(s) using this. No longer YUV since there are now RGB planar formats.
-BOOLEAN             GMM_STDCALL GmmIsCompressed(GMM_RESOURCE_FORMAT Format);
-BOOLEAN             GMM_STDCALL GmmGetUseGlobalGtt(GMM_HW_COMMAND_STREAMER cs, GMM_HW_COMMAND Command, D3DDDI_PATCHLOCATIONLIST_DRIVERID *pDriverId);
-BOOLEAN             GMM_STDCALL GmmIsYUVPacked(GMM_RESOURCE_FORMAT Format);
-BOOLEAN             GMM_STDCALL GmmIsRedecribedPlanes(GMM_RESOURCE_INFO *pGmmResource);
-BOOLEAN             GMM_STDCALL GmmResApplyExistingSysMem(GMM_RESOURCE_INFO *pGmmResource, void *pExistingSysMem, GMM_GFX_SIZE_T ExistingSysMemSize);
-BOOLEAN             GMM_STDCALL GmmIsStdTilingSupported(GMM_RESCREATE_PARAMS *pCreateParams);
+uint8_t             GMM_STDCALL GmmIsCompressed(GMM_RESOURCE_FORMAT Format);
+uint8_t             GMM_STDCALL GmmGetUseGlobalGtt(GMM_HW_COMMAND_STREAMER cs, GMM_HW_COMMAND Command, D3DDDI_PATCHLOCATIONLIST_DRIVERID *pDriverId);
+uint8_t             GMM_STDCALL GmmIsYUVPacked(GMM_RESOURCE_FORMAT Format);
+uint8_t             GMM_STDCALL GmmIsRedecribedPlanes(GMM_RESOURCE_INFO *pGmmResource);
+uint8_t             GMM_STDCALL GmmResApplyExistingSysMem(GMM_RESOURCE_INFO *pGmmResource, void *pExistingSysMem, GMM_GFX_SIZE_T ExistingSysMemSize);
+uint8_t             GMM_STDCALL GmmIsStdTilingSupported(GMM_RESCREATE_PARAMS *pCreateParams);
 GMM_RESOURCE_INFO*  GMM_STDCALL GmmResCopy(GMM_RESOURCE_INFO *pGmmResource);
 void                GMM_STDCALL GmmResMemcpy(void *pDst, void *pSrc);
-BOOLEAN             GMM_STDCALL GmmResCpuBlt(GMM_RESOURCE_INFO *pGmmResource, GMM_RES_COPY_BLT *pBlt);
+uint8_t             GMM_STDCALL GmmResCpuBlt(GMM_RESOURCE_INFO *pGmmResource, GMM_RES_COPY_BLT *pBlt);
 GMM_RESOURCE_INFO*  GMM_STDCALL GmmResCreate(GMM_RESCREATE_PARAMS *pCreateParams);
 void                GMM_STDCALL GmmResFree(GMM_RESOURCE_INFO *pGmmResource);
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetSizeMainSurface(const GMM_RESOURCE_INFO *pResourceInfo);
@@ -462,8 +462,8 @@ uint32_t               GMM_STDCALL GmmResGetArraySize(GMM_RESOURCE_INFO *pGmmRes
 uint32_t               GMM_STDCALL GmmResGetAuxBitsPerPixel(GMM_RESOURCE_INFO *pGmmResource);
 uint32_t               GMM_STDCALL GmmResGetAuxPitch(GMM_RESOURCE_INFO *pGmmResource);
 uint32_t               GMM_STDCALL GmmResGetAuxQPitch(GMM_RESOURCE_INFO *pGmmResource);
-BOOLEAN             GMM_STDCALL GmmResIs64KBPageSuitable(GMM_RESOURCE_INFO *pGmmResource);
-uint32_t               GMM_STDCALL GmmResGetAuxSurfaceOffset(GMM_RESOURCE_INFO *pGmmResource, GMM_UNIFIED_AUX_TYPE GmmAuxType); 
+uint8_t                GMM_STDCALL GmmResIs64KBPageSuitable(GMM_RESOURCE_INFO *pGmmResource);
+uint32_t               GMM_STDCALL GmmResGetAuxSurfaceOffset(GMM_RESOURCE_INFO *pGmmResource, GMM_UNIFIED_AUX_TYPE GmmAuxType);
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetAuxSurfaceOffset64(GMM_RESOURCE_INFO *pGmmResource, GMM_UNIFIED_AUX_TYPE GmmAuxType);
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetSizeAuxSurface(GMM_RESOURCE_INFO *pGmmResource, GMM_UNIFIED_AUX_TYPE GmmAuxType);
 uint32_t               GMM_STDCALL GmmResGetAuxHAlign(GMM_RESOURCE_INFO *pGmmResource);
@@ -484,8 +484,8 @@ GMM_RESOURCE_FLAG   GMM_STDCALL GmmResGetResourceFlags(const GMM_RESOURCE_INFO *
 GMM_GFX_ADDRESS     GMM_STDCALL GmmResGetGfxAddress(GMM_RESOURCE_INFO *pGmmResource);
 uint32_t               GMM_STDCALL GmmResGetHAlign(GMM_RESOURCE_INFO *pGmmResource);
 #define                         GmmResGetLockPitch GmmResGetRenderPitch // Support old name until UMDs drop use.
-BOOLEAN             GMM_STDCALL GmmResGetMappingSpanDesc(GMM_RESOURCE_INFO *pGmmResource, GMM_GET_MAPPING *pMapping);
-uint32_t               GMM_STDCALL GmmResGetMaxLod(GMM_RESOURCE_INFO *pGmmResource);
+uint8_t                GMM_STDCALL GmmResGetMappingSpanDesc(GMM_RESOURCE_INFO *pGmmResource, GMM_GET_MAPPING *pMapping);
+uint32_t            GMM_STDCALL GmmResGetMaxLod(GMM_RESOURCE_INFO *pGmmResource);
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetStdLayoutSize(GMM_RESOURCE_INFO *pGmmResource);
 uint32_t               GMM_STDCALL GmmResGetSurfaceStateMipTailStartLod(GMM_RESOURCE_INFO *pGmmResource);
 uint32_t               GMM_STDCALL GmmResGetSurfaceStateTileAddressMappingMode(GMM_RESOURCE_INFO *pGmmResource);
@@ -507,54 +507,54 @@ uint32_t               GMM_STDCALL GmmResGetRenderPitchIn64KBTiles(GMM_RESOURCE_
 uint32_t               GMM_STDCALL GmmResGetRenderPitchTiles(GMM_RESOURCE_INFO *pGmmResource);
 GMM_RESOURCE_FORMAT GMM_STDCALL GmmResGetResourceFormat(GMM_RESOURCE_INFO *pGmmResource);
 GMM_RESOURCE_TYPE   GMM_STDCALL GmmResGetResourceType(GMM_RESOURCE_INFO *pGmmResource);
-uint32_t               GMM_STDCALL GmmResGetRotateInfo(GMM_RESOURCE_INFO *pGmmResource);
+uint32_t                GMM_STDCALL GmmResGetRotateInfo(GMM_RESOURCE_INFO *pGmmResource);
 GMM_MSAA_SAMPLE_PATTERN GMM_STDCALL GmmResGetSamplePattern(GMM_RESOURCE_INFO *pGmmResource);
-uint32_t               GMM_STDCALL GmmResGetSizeOfStruct(void);
+uint32_t                GMM_STDCALL GmmResGetSizeOfStruct(void);
 GMM_SURFACESTATE_FORMAT GMM_STDCALL GmmResGetSurfaceStateFormat(GMM_RESOURCE_INFO *pGmmResource);
 GMM_SURFACESTATE_FORMAT GMM_STDCALL GmmGetSurfaceStateFormat(GMM_RESOURCE_FORMAT Format);
 uint32_t               GMM_STDCALL GmmResGetSurfaceStateHAlign(GMM_RESOURCE_INFO *pGmmResource);
 uint32_t               GMM_STDCALL GmmResGetSurfaceStateVAlign(GMM_RESOURCE_INFO *pGmmResource);
 uint32_t               GMM_STDCALL GmmResGetSurfaceStateTiledResourceMode(GMM_RESOURCE_INFO *pGmmResource);
-void*               GMM_STDCALL GmmResGetSystemMemPointer(GMM_RESOURCE_INFO *pGmmResource, BOOLEAN IsD3DDdiAllocation);
+void*               GMM_STDCALL GmmResGetSystemMemPointer(GMM_RESOURCE_INFO *pGmmResource, uint8_t IsD3DDdiAllocation);
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetSystemMemSize( GMM_RESOURCE_INFO*  pRes );
-uint32_t               GMM_STDCALL GmmResGetTallBufferHeight(GMM_RESOURCE_INFO *pResourceInfo);
-uint32_t               GMM_STDCALL GmmResGetMipHeight(GMM_RESOURCE_INFO *pResourceInfo, uint32_t MipLevel);
+uint32_t            GMM_STDCALL GmmResGetTallBufferHeight(GMM_RESOURCE_INFO *pResourceInfo);
+uint32_t            GMM_STDCALL GmmResGetMipHeight(GMM_RESOURCE_INFO *pResourceInfo, uint32_t MipLevel);
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetMipWidth(GMM_RESOURCE_INFO *pResourceInfo, uint32_t MipLevel);
-uint32_t               GMM_STDCALL GmmResGetMipDepth(GMM_RESOURCE_INFO *pResourceInfo, uint32_t MipLevel);
-BOOLEAN             GMM_STDCALL GmmResGetCornerTexelMode(GMM_RESOURCE_INFO *pGmmResource);
+uint32_t            GMM_STDCALL GmmResGetMipDepth(GMM_RESOURCE_INFO *pResourceInfo, uint32_t MipLevel);
+uint8_t                GMM_STDCALL GmmResGetCornerTexelMode(GMM_RESOURCE_INFO *pGmmResource);
 GMM_TEXTURE_LAYOUT  GMM_STDCALL GmmResGetTextureLayout(GMM_RESOURCE_INFO *pGmmResource);
 GMM_TILE_TYPE       GMM_STDCALL GmmResGetTileType(GMM_RESOURCE_INFO *pGmmResource);
-uint32_t               GMM_STDCALL GmmResGetVAlign(GMM_RESOURCE_INFO *pGmmResource);
-BOOLEAN             GMM_STDCALL GmmResIsArraySpacingSingleLod(GMM_RESOURCE_INFO *pGmmResource);
-BOOLEAN             GMM_STDCALL GmmResIsASTC(GMM_RESOURCE_INFO *pGmmResource);
-BOOLEAN             GMM_STDCALL GmmResIsLockDiscardCompatible(GMM_RESOURCE_INFO *pGmmResource);
-BOOLEAN             GMM_STDCALL GmmResIsMediaMemoryCompressed(GMM_RESOURCE_INFO *pGmmResource, uint32_t ArrayIndex);
-BOOLEAN             GMM_STDCALL GmmResIsMsaaFormatDepthStencil(GMM_RESOURCE_INFO *pGmmResource);
-BOOLEAN             GMM_STDCALL GmmResIsSvm(GMM_RESOURCE_INFO *pGmmResource);
-void                GMM_STDCALL GmmResSetMmcMode(GMM_RESOURCE_INFO *pGmmResource, GMM_RESOURCE_MMC_INFO Mode, uint32_t ArrayIndex);
-void                GMM_STDCALL GmmResSetMmcHint(GMM_RESOURCE_INFO *pGmmResource, GMM_RESOURCE_MMC_HINT Hint, uint32_t ArrayIndex);
+uint32_t            GMM_STDCALL GmmResGetVAlign(GMM_RESOURCE_INFO *pGmmResource);
+uint8_t             GMM_STDCALL GmmResIsArraySpacingSingleLod(GMM_RESOURCE_INFO *pGmmResource);
+uint8_t             GMM_STDCALL GmmResIsASTC(GMM_RESOURCE_INFO *pGmmResource);
+uint8_t             GMM_STDCALL GmmResIsLockDiscardCompatible(GMM_RESOURCE_INFO *pGmmResource);
+uint8_t             GMM_STDCALL GmmResIsMediaMemoryCompressed(GMM_RESOURCE_INFO *pGmmResource, uint32_t ArrayIndex);
+uint8_t             GMM_STDCALL GmmResIsMsaaFormatDepthStencil(GMM_RESOURCE_INFO *pGmmResource);
+uint8_t             GMM_STDCALL GmmResIsSvm(GMM_RESOURCE_INFO *pGmmResource);
+void             GMM_STDCALL GmmResSetMmcMode(GMM_RESOURCE_INFO *pGmmResource, GMM_RESOURCE_MMC_INFO Mode, uint32_t ArrayIndex);
+void             GMM_STDCALL GmmResSetMmcHint(GMM_RESOURCE_INFO *pGmmResource, GMM_RESOURCE_MMC_HINT Hint, uint32_t ArrayIndex);
 GMM_RESOURCE_MMC_HINT  GMM_STDCALL GmmResGetMmcHint(GMM_RESOURCE_INFO *pGmmResource, uint32_t ArrayIndex);
-BOOLEAN             GMM_STDCALL GmmResIsColorSeparation(GMM_RESOURCE_INFO *pGmmResource);
-uint32_t               GMM_STDCALL GmmResTranslateColorSeparationX(GMM_RESOURCE_INFO *pGmmResource, uint32_t x);
-uint32_t               GMM_STDCALL GmmResGetColorSeparationArraySize(GMM_RESOURCE_INFO *pGmmResource);
-uint32_t               GMM_STDCALL GmmResGetColorSeparationPhysicalWidth(GMM_RESOURCE_INFO *pGmmResource);
-BOOLEAN             GMM_STDCALL GmmResGetSetHardwareProtection(GMM_RESOURCE_INFO *pGmmResource, BOOLEAN GetIsEncrypted, BOOLEAN SetIsEncrypted);
-uint32_t               GMM_STDCALL GmmResGetMaxGpuVirtualAddressBits(GMM_RESOURCE_INFO *pGmmResource);
-BOOLEAN             GMM_STDCALL GmmIsSurfaceFaultable(GMM_RESOURCE_INFO *pGmmResource);
-uint32_t               GMM_STDCALL GmmResGetMaximumRenamingListLength(GMM_RESOURCE_INFO* pGmmResource);
+uint8_t                GMM_STDCALL GmmResIsColorSeparation(GMM_RESOURCE_INFO *pGmmResource);
+uint32_t            GMM_STDCALL GmmResTranslateColorSeparationX(GMM_RESOURCE_INFO *pGmmResource, uint32_t x);
+uint32_t            GMM_STDCALL GmmResGetColorSeparationArraySize(GMM_RESOURCE_INFO *pGmmResource);
+uint32_t            GMM_STDCALL GmmResGetColorSeparationPhysicalWidth(GMM_RESOURCE_INFO *pGmmResource);
+uint8_t             GMM_STDCALL GmmResGetSetHardwareProtection(GMM_RESOURCE_INFO *pGmmResource, uint8_t GetIsEncrypted, uint8_t SetIsEncrypted);
+uint32_t            GMM_STDCALL GmmResGetMaxGpuVirtualAddressBits(GMM_RESOURCE_INFO *pGmmResource);
+uint8_t                GMM_STDCALL GmmIsSurfaceFaultable(GMM_RESOURCE_INFO *pGmmResource);
+uint32_t            GMM_STDCALL GmmResGetMaximumRenamingListLength(GMM_RESOURCE_INFO* pGmmResource);
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetPlanarGetXOffset(GMM_RESOURCE_INFO *pGmmResource, GMM_YUV_PLANE Plane);
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetPlanarGetYOffset(GMM_RESOURCE_INFO *pGmmResource, GMM_YUV_PLANE Plane);
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetPlanarAuxOffset(GMM_RESOURCE_INFO *pGmmResource, uint32_t ArrayIndex, GMM_UNIFIED_AUX_TYPE Plane);
 
 //=====================================================================================================
-// TODO(Benign): 
-// vpg-compute-neo depot is outside of gfx-development/mainline so keep old interface for compatiblity. 
+// TODO(Benign):
+// vpg-compute-neo depot is outside of gfx-development/mainline so keep old interface for compatiblity.
 // Remove when neo project moves to new interface
-uint32_t               GMM_STDCALL GmmResGetRenderSize(GMM_RESOURCE_INFO *pResourceInfo);
+uint32_t            GMM_STDCALL GmmResGetRenderSize(GMM_RESOURCE_INFO *pResourceInfo);
 #define             GmmResGetAllocationSize GmmResGetRenderSize
 #define             GmmResGetAllocationSize64 GmmResGetSizeSurface
 #define             GmmResGetMainSurfaceSize GmmResGetSizeMainSurface
-uint32_t               GMM_STDCALL GmmResGetAuxSurfaceSize(GMM_RESOURCE_INFO *pGmmResource, GMM_UNIFIED_AUX_TYPE GmmAuxType);
+uint32_t            GMM_STDCALL GmmResGetAuxSurfaceSize(GMM_RESOURCE_INFO *pGmmResource, GMM_UNIFIED_AUX_TYPE GmmAuxType);
 //=====================================================================================================
 //forward declarations
 struct GMM_TEXTURE_INFO_REC;
@@ -566,7 +566,7 @@ struct GMM_TEXTURE_INFO_REC;
 #define GMM_TEXTURE_INFO struct GMM_TEXTURE_INFO_REC
 
 
-// TODO: Allows UMD to override some parameters. Remove these functions once GMM comprehends UMD usage model and 
+// TODO: Allows UMD to override some parameters. Remove these functions once GMM comprehends UMD usage model and
 // can support them properly.
 void                GMM_STDCALL GmmResOverrideAllocationSize(GMM_RESOURCE_INFO *pGmmResource, GMM_GFX_SIZE_T Size);
 void                GMM_STDCALL GmmResOverrideAllocationPitch(GMM_RESOURCE_INFO *pGmmResource, GMM_GFX_SIZE_T Pitch);
@@ -590,18 +590,18 @@ void                GMM_STDCALL GmmResOverrideAllocationMaxLod(GMM_RESOURCE_INFO
 //////////////////////////////////////////////////////////////////////////////////////
 // GmmCachePolicy.c
 //////////////////////////////////////////////////////////////////////////////////////
-MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmCachePolicyGetMemoryObject(GMM_RESOURCE_INFO *pResInfo , 
+MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmCachePolicyGetMemoryObject(GMM_RESOURCE_INFO *pResInfo ,
                                                                     GMM_RESOURCE_USAGE_TYPE Usage);
 GMM_PTE_CACHE_CONTROL_BITS  GMM_STDCALL GmmCachePolicyGetPteType(GMM_RESOURCE_USAGE_TYPE Usage);
 GMM_RESOURCE_USAGE_TYPE     GMM_STDCALL GmmCachePolicyGetResourceUsage(GMM_RESOURCE_INFO *pResInfo );
 MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmCachePolicyGetOriginalMemoryObject(GMM_RESOURCE_INFO *pResInfo);
-BOOLEAN                     GMM_STDCALL GmmCachePolicyIsUsagePTECached(GMM_RESOURCE_USAGE_TYPE Usage);
+uint8_t                     GMM_STDCALL GmmCachePolicyIsUsagePTECached(GMM_RESOURCE_USAGE_TYPE Usage);
 void                        GMM_STDCALL GmmCachePolicyOverrideResourceUsage(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage);
-uint32_t                       GMM_STDCALL GmmCachePolicyGetMaxMocsIndex();
-uint32_t                       GMM_STDCALL GmmCachePolicyGetMaxL1HdcMocsIndex();
+uint32_t                    GMM_STDCALL GmmCachePolicyGetMaxMocsIndex();
+uint32_t                    GMM_STDCALL GmmCachePolicyGetMaxL1HdcMocsIndex();
 
 
-void                    GMM_STDCALL GmmResSetPrivateData(GMM_RESOURCE_INFO *pGmmResource, void *pPrivateData);
+void                        GMM_STDCALL GmmResSetPrivateData(GMM_RESOURCE_INFO *pGmmResource, void *pPrivateData);
 
 // Hack to define and undefine typedef name to avoid redefinition of the
 // typedef.  Part 2.

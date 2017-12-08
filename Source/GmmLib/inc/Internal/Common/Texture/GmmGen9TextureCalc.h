@@ -31,13 +31,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace GmmLib
 {
     /////////////////////////////////////////////////////////////////////////
-    /// Contains texture calc functions and members for Gen9 platforms. 
+    /// Contains texture calc functions and members for Gen9 platforms.
     /// This class is derived from the base GmmTextureCalc class  so clients
     /// shouldn't have to ever interact  with this class directly.
     /////////////////////////////////////////////////////////////////////////
     class NON_PAGED_SECTION GmmGen9TextureCalc :
                                 public GmmTextureCalc
-    {   
+    {
         private:
             void                    Fill1DTexOffsetAddress(
                                         GMM_TEXTURE_INFO *pTexInfo);
@@ -60,7 +60,7 @@ namespace GmmLib
 
             uint32_t                   Get2DMipMapTotalHeight(
                                         GMM_TEXTURE_INFO *pTexInfo);
-            
+
             virtual uint32_t           GetMipTailByteOffset(
                                         GMM_TEXTURE_INFO *pTexInfo,
                                         uint32_t            MipLevel);

@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 class CTestGen9Resource : public CTestResource
 {
-protected: 
+protected:
     void                FillExpectedPitch();
     void                FillExpectedPitchInTiles();
     void                FillExpectedHAlign();
@@ -37,7 +37,7 @@ protected:
 
     void                FillExpectedMipOffsets();
 
-public: 
+public:
     static void SetUpTestCase();
     static void TearDownTestCase();
 
@@ -55,10 +55,10 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////
     void GetAlignmentAndTileDimensionsForCCS(TEST_BPP Bpp, TEST_TILE_TYPE Tiling, TEST_RESOURCE_TYPE ResType,
-                                        ULONG &TileDimX, ULONG &TileDimY, ULONG & TileDimZ,
-                                        ULONG &WidthDivisor, ULONG &HeightDivisor)
+                                        uint32_t &TileDimX, uint32_t &TileDimY, uint32_t & TileDimZ,
+                                        uint32_t &WidthDivisor, uint32_t &HeightDivisor)
     {
-        const ULONG RT2DTileSize[TEST_TILE_MAX][TEST_BPP_MAX][3] = {
+        const uint32_t RT2DTileSize[TEST_TILE_MAX][TEST_BPP_MAX][3] = {
             { { 64, 1, 1 },{ 64, 1, 1 },{ 64, 1, 1 },{ 64, 1, 1 },{ 64, 1, 1 } },                  //Linear - no Tile Size, but min PitchAlign = 64 (cacheLine size)
             { { 512, 8, 1 },{ 512, 8,1 },{ 512, 8,1 },{ 512, 8, 1 },{ 512, 8, 1 } },                //TileX
             { { 128, 32, 1 },{ 128, 32, 1 },{ 128, 32, 1 },{ 128, 32, 1 },{ 128, 32, 1 } },        //TileY
@@ -66,14 +66,14 @@ public:
             { { 64, 64, 1 },{ 128, 32, 1 },{ 128, 32,1 },{ 256, 16, 1 },{ 256, 16, 1 } }           //TileYf
         };
 
-        const ULONG RT3DTileSize[TEST_TILE_MAX][TEST_BPP_MAX][3] = {
+        const uint32_t RT3DTileSize[TEST_TILE_MAX][TEST_BPP_MAX][3] = {
             { { 64, 1, 1 },{ 64, 1, 1 },{ 64, 1, 1 },{ 64, 1, 1 },{ 64, 1, 1 } },                 //Linear - no Tile Size, but min PitchAlign = 64 (cacheLine size)
             { { 512, 8, 1 },{ 512, 8, 1 },{ 512, 8, 1 },{ 512, 8, 1 },{ 512, 8, 1 } },            //TileX
             { { 128, 32, 1 },{ 128, 32, 1 },{ 128, 32, 1 },{ 128, 32, 1 },{ 128, 32, 1 } },       //TileY
             { { 64, 32, 32 },{ 64, 32, 32 },{ 128, 32, 16 },{ 256, 16, 16 },{ 512, 16, 16 } },    //TileYs
             { { 16, 16, 16 },{ 16, 16, 16 },{ 32, 16, 8 },{ 64, 8, 8 },{ 64, 8, 8 } }             //TileYf
         };
-        UINT TileDim[3] = { RT2DTileSize[Tiling][Bpp][0], RT2DTileSize[Tiling][Bpp][1], RT2DTileSize[Tiling][Bpp][2] };
+        uint32_t TileDim[3] = { RT2DTileSize[Tiling][Bpp][0], RT2DTileSize[Tiling][Bpp][1], RT2DTileSize[Tiling][Bpp][2] };
         if (ResType == TEST_RESOURCE_3D)
         {
             TileDim[0] = RT3DTileSize[Tiling][Bpp][0];
@@ -84,7 +84,7 @@ public:
         TileDimY = TileDim[1];
         TileDimZ = TileDim[2];
 
-        ULONG ExpectedCCSBpp = 1;              //1 byte per pixel (contains 4 2b-CCS, 
+        uint32_t ExpectedCCSBpp = 1;              //1 byte per pixel (contains 4 2b-CCS,
                                                //Each 2b covers 2CLs = 128B RT)
         /***
         2b-CCS  per 2CLs of RT (2:1 compression ie 2CL->1CL)
@@ -101,23 +101,23 @@ public:
 
         Finally CCS needs to be Tile-aligned (TileY)
         ***/
-        const UINT RTWidthDivisor[2][TEST_BPP_MAX] = { { 1, 1, 16, 8, 4 },{ 1, 1, 8, 4, 2 } }; //Divisor for TileX, TileY
-        const UINT RTHeightDivisor[2] = { 8, 16 };
-        ULONG Idx = (Tiling == TEST_TILEX) ? 0 : 1;
+        const uint32_t RTWidthDivisor[2][TEST_BPP_MAX] = { { 1, 1, 16, 8, 4 },{ 1, 1, 8, 4, 2 } }; //Divisor for TileX, TileY
+        const uint32_t RTHeightDivisor[2] = { 8, 16 };
+        uint32_t Idx = (Tiling == TEST_TILEX) ? 0 : 1;
 
         WidthDivisor = RTWidthDivisor[Idx][Bpp];
         HeightDivisor = RTHeightDivisor[Idx];
     }
 
     /////////////////////////////////////////////////////////////////////////////////////
-    /// Verifies if Mip tail start Lod matches the expected value. Fails test if value 
+    /// Verifies if Mip tail start Lod matches the expected value. Fails test if value
     /// doesn't match
     ///
     /// @param[in]  ResourceInfo: ResourceInfo returned by GmmLib
     /// @param[in]  ExpectedValue: expected value to check against
     /////////////////////////////////////////////////////////////////////////////////////
     template <bool Verify>
-    void VerifyResourceMipTailStartLod(GMM_RESOURCE_INFO &ResourceInfo, ULONG ExpectedValue)
+    void VerifyResourceMipTailStartLod(GMM_RESOURCE_INFO &ResourceInfo, uint32_t ExpectedValue)
     {
         if (Verify)
         {

@@ -70,9 +70,9 @@ namespace GmmLib
     {
     private:
     #if defined( __ghs__)
-        static std::atomic<int>          RefCount; 
+        static std::atomic<int>          RefCount;
     #else
-        static LONG                      RefCount;
+        static int32_t                      RefCount;
     #endif
         GMM_CLIENT                       ClientType;
         GMM_PLATFORM_INFO_CLASS*         pPlatformInfo;
@@ -81,7 +81,7 @@ namespace GmmLib
         SKU_FEATURE_TABLE                SkuTable;
         WA_TABLE                         WaTable;
         GT_SYSTEM_INFO                   GtSysInfo;
-    #if(defined(__GMM_KMD__)) 
+    #if(defined(__GMM_KMD__))
         GMM_GTT_CONTEXT              GttContext;
     #endif
 
@@ -103,39 +103,33 @@ namespace GmmLib
         }                            Override;
     #endif
 
-    #if(defined(__GMM_KMD__)) 
+    #if(defined(__GMM_KMD__))
         uint64_t           IA32ePATTable;
         GMM_PRIVATE_PAT     PrivatePATTable[GMM_NUM_PAT_ENTRIES];
-        LONG                PrivatePATTableMemoryType[GMM_NUM_GFX_PAT_TYPES];
+        int32_t                PrivatePATTableMemoryType[GMM_NUM_GFX_PAT_TYPES];
     #endif
 
-    #if(_WIN32 && (_DEBUG || _RELEASE_INTERNAL))
-        struct
-        {
-            BOOLEAN IsSurfaceFaultable;
-        } FaultingInfo[GMM_RESOURCE_USAGE_MAX];
-#endif
         // Padding Percentage limit on 64KB paged resource
         uint32_t               AllowedPaddingFor64KbPagesPercentage;
-        UINT64              InternalGpuVaMax;
+        uint64_t              InternalGpuVaMax;
 
     public :
         //Constructors and destructors
         Context();
         ~Context();
 
-        static LONG IncrementRefCount()  // Returns the current RefCount and then increment it
+        static int32_t IncrementRefCount()  // Returns the current RefCount and then increment it
         {
 #if defined(_WIN32)
             return(InterlockedIncrement(&RefCount) - 1);  //InterLockedIncrement() returns incremented value
 #elif defined(__linux__) ||  defined(__QNX__)
             return(__sync_fetch_and_add(&RefCount, 1));
-#elif defined( __ghs__) 
+#elif defined( __ghs__)
             return(RefCount.fetch_add(1));
 #endif
         }
 
-        static LONG DecrementRefCount()
+        static int32_t DecrementRefCount()
         {
             int CurrentValue = 0;
             int TargetValue = 0;
@@ -167,12 +161,12 @@ namespace GmmLib
                                     GMM_CLIENT ClientType);
 
         void GMM_STDCALL DestroyContext();
-                   
+
 
         //Inline functions
         /////////////////////////////////////////////////////////////////////////
         /// Returns the client type e.g. DX, OCL, OGL etc.
-        /// @return   client type 
+        /// @return   client type
         /////////////////////////////////////////////////////////////////////////
         GMM_INLINE GMM_CLIENT  GMM_STDCALL  GetClientType()
         {
@@ -180,7 +174,7 @@ namespace GmmLib
         }
 
         /////////////////////////////////////////////////////////////////////////
-        /// Returns the PlatformInfo 
+        /// Returns the PlatformInfo
         /// @return   PlatformInfo
         /////////////////////////////////////////////////////////////////////////
         GMM_INLINE GMM_PLATFORM_INFO&  GMM_STDCALL  GetPlatformInfo()
@@ -286,54 +280,32 @@ namespace GmmLib
             return (AllowedPaddingFor64KbPagesPercentage);
         }
 
-        UINT64& GetInternalGpuVaRangeLimit()
+        uint64_t& GetInternalGpuVaRangeLimit()
         {
             return InternalGpuVaMax;
         }
-
-    #ifdef _WIN32
-       
-
-    #if(_DEBUG || _RELEASE_INTERNAL)
-        /////////////////////////////////////////////////////////////////////////
-        /// Get faulting info for a given resource usage type
-        /////////////////////////////////////////////////////////////////////////
-        GMM_INLINE BOOLEAN GetFaultingInfo(GMM_RESOURCE_USAGE_TYPE Usage)
-        {
-            return (FaultingInfo[Usage].IsSurfaceFaultable);
-        }
-
-        /////////////////////////////////////////////////////////////////////////
-        /// Get faulting info for a given resource usage type
-        /////////////////////////////////////////////////////////////////////////
-        GMM_INLINE void SetFaultingInfo(GMM_RESOURCE_USAGE_TYPE Usage, BOOLEAN Value)
-        {
-            FaultingInfo[Usage].IsSurfaceFaultable = Value;
-        }
-    #endif
-    #endif
 
         // KMD specific inline functions
     #ifdef __GMM_KMD__
 
         /////////////////////////////////////////////////////////////////////////
         /// Returns private PAT table memory type for a given PAT type
-        /// @return   PAT Memory type 
+        /// @return   PAT Memory type
         /////////////////////////////////////////////////////////////////////////
-        GMM_INLINE LONG  GMM_STDCALL GetPrivatePATTableMemoryType(GMM_GFX_PAT_TYPE PatType)
+        GMM_INLINE int32_t  GMM_STDCALL GetPrivatePATTableMemoryType(GMM_GFX_PAT_TYPE PatType)
         {
             return (PrivatePATTableMemoryType[PatType]);
         }
 
         /////////////////////////////////////////////////////////////////////////
         /// Returns private PAT table memory type array ptr
-        /// @return   PAT Memory type array ptr 
+        /// @return   PAT Memory type array ptr
         /////////////////////////////////////////////////////////////////////////
-        GMM_INLINE LONG*  GMM_STDCALL GetPrivatePATTableMemoryType()
+        GMM_INLINE int32_t*  GMM_STDCALL GetPrivatePATTableMemoryType()
         {
             return (PrivatePATTableMemoryType);
         }
-        
+
 
         /////////////////////////////////////////////////////////////////////////
         /// Returns private PAT table array ptr
@@ -390,7 +362,7 @@ namespace GmmLib
         }
 
         /////////////////////////////////////////////////////////////////////////
-        /// Resets  the sku Table after  GmmInitContext() could have changed them 
+        /// Resets  the sku Table after  GmmInitContext() could have changed them
         /// since original latching
         ////////////////////////////////////////////////////////////////////////
         GMM_INLINE void SetSkuTable(SKU_FEATURE_TABLE SkuTable)
@@ -399,7 +371,7 @@ namespace GmmLib
         }
 
         /////////////////////////////////////////////////////////////////////////
-        /// Resets  the Wa Table after  GmmInitContext() could have changed them 
+        /// Resets  the Wa Table after  GmmInitContext() could have changed them
         /// since original latching
         ////////////////////////////////////////////////////////////////////////
         GMM_INLINE void SetWaTable(WA_TABLE WaTable)
@@ -408,7 +380,7 @@ namespace GmmLib
         }
 
     #if(_DEBUG || _RELEASE_INTERNAL)
-        
+
         /////////////////////////////////////////////////////////////////////////
         /// Returns the override platform info class object ptr
         /// @return   PlatformInfo class object ptr
@@ -419,7 +391,7 @@ namespace GmmLib
         }
 
         /////////////////////////////////////////////////////////////////////////
-        /// Returns the override Platform info ptr to kmd   
+        /// Returns the override Platform info ptr to kmd
         /// @return   override PlatformInfo ref
         ////////////////////////////////////////////////////////////////////////
         GMM_INLINE GMM_PLATFORM_INFO& GMM_STDCALL GetOverridePlatformInfo()
@@ -428,7 +400,7 @@ namespace GmmLib
         }
 
         /////////////////////////////////////////////////////////////////////////
-        /// Set the override platform info calc ptr   
+        /// Set the override platform info calc ptr
         ////////////////////////////////////////////////////////////////////////
         GMM_INLINE void SetOverridePlatformInfoObj(GMM_PLATFORM_INFO_CLASS *pPlatformInfoObj)
         {
@@ -436,7 +408,7 @@ namespace GmmLib
         }
 
         /////////////////////////////////////////////////////////////////////////
-        /// Returns the override Texture calc ptr to kmd   
+        /// Returns the override Texture calc ptr to kmd
         /// @return   override Texture calc ptr
         ////////////////////////////////////////////////////////////////////////
         GMM_INLINE GMM_TEXTURE_CALC* GetOverrideTextureCalc()
@@ -445,7 +417,7 @@ namespace GmmLib
         }
 
         /////////////////////////////////////////////////////////////////////////
-        /// Set the override Texture calc ptr   
+        /// Set the override Texture calc ptr
         ////////////////////////////////////////////////////////////////////////
         GMM_INLINE void SetOverrideTextureCalc(GMM_TEXTURE_CALC *pTextureCalc)
         {
@@ -484,7 +456,7 @@ extern "C" {
     const GT_SYSTEM_INFO*           GmmGetGtSysInfo(GMM_GLOBAL_CONTEXT *pGmmLibContext);
 
 #ifdef __GMM_KMD__
-    LONG                GmmGetPrivatePATTableMemoryType(GMM_GLOBAL_CONTEXT *pGmmLibContext, GMM_GFX_PAT_TYPE PatType);
+    int32_t                GmmGetPrivatePATTableMemoryType(GMM_GLOBAL_CONTEXT *pGmmLibContext, GMM_GFX_PAT_TYPE PatType);
     GMM_PRIVATE_PAT     GmmGetPrivatePATEntry(GMM_GLOBAL_CONTEXT *pGmmLibContext, uint32_t  PatIndex);
     GMM_CONTEXT*        GmmGetGmmKmdContext(GMM_GLOBAL_CONTEXT *pGmmLibContext);
     GMM_GTT_CONTEXT*    GmmGetGttContext(GMM_GLOBAL_CONTEXT *pGmmLibContext);

@@ -78,7 +78,7 @@ OTHER DEALINGS IN THE SOFTWARE.
   #ifndef __ghs__
     #define C_ASSERT(e) typedef char UNIQUENAME(STATIC_ASSERT_)[(e)?1:-1]
   #else
-    #define C_ASSERT(e) //TODO ghs instr compilation fix 
+    #define C_ASSERT(e) //TODO ghs instr compilation fix
   #endif
 #endif
 

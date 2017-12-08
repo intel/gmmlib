@@ -25,25 +25,25 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Internal/Common/GmmLibInc.h"
 /////////////////////////////////////////////////////////////////////////////////////
 /// @file GmmTextureCalc.h
-/// @brief This file contains the common functions and members for texture calculations      
-///        on all GENs/Platforms 
+/// @brief This file contains the common functions and members for texture calculations
+///        on all GENs/Platforms
 /////////////////////////////////////////////////////////////////////////////////////
 namespace GmmLib
 {
-    
+
     /////////////////////////////////////////////////////////////////////////
-    /// Contains texture calc functions and members that are common across all 
-    /// platform implementation.  This is an abstract class and provides a 
+    /// Contains texture calc functions and members that are common across all
+    /// platform implementation.  This is an abstract class and provides a
     /// uniform interface to all the texture clients and provides gen specific
     /// texture allocation through derived concrete GmmGenXTextureCalc class.
     /////////////////////////////////////////////////////////////////////////
-    class NON_PAGED_SECTION GmmTextureCalc : 
+    class NON_PAGED_SECTION GmmTextureCalc :
                                 public GmmMemAllocator
-    {     
+    {
         private:
 
-            static LONG RefCount;
-            static LONG OverrideRefCount;
+            static int32_t RefCount;
+            static int32_t OverrideRefCount;
 
             GMM_STATUS      FillTexBlockMem(
                                 GMM_TEXTURE_INFO    *pTexInfo,
@@ -53,7 +53,7 @@ namespace GmmLib
                                 GMM_TEXTURE_INFO* pTexInfo,
                                 __GMM_BUFFER_TYPE* pBuff);
 
-            BOOLEAN         ValidateTexInfo(
+            bool         ValidateTexInfo(
                                 GMM_TEXTURE_INFO  *pTexInfo,
                                 __GMM_BUFFER_TYPE *pRestrictions);
 
@@ -64,7 +64,7 @@ namespace GmmLib
         protected:
             /* Function prototypes */
 
-            
+
             virtual GMM_STATUS  GMM_STDCALL FillTexPlanar(
                                 GMM_TEXTURE_INFO    *pTexInfo,
                                 __GMM_BUFFER_TYPE   *pRestrictions);
@@ -76,8 +76,8 @@ namespace GmmLib
 
             void            FillTexPlanar_SetTilingBasedOnRequiredAlignment(
                                 GMM_TEXTURE_INFO    *pTexInfo,
-                                uint32_t               YHeight, BOOLEAN YHeightAlignmentNeeded,
-                                uint32_t               VHeight, BOOLEAN VHeightAlignmentNeeded);
+                                uint32_t               YHeight, bool YHeightAlignmentNeeded,
+                                uint32_t               VHeight, bool VHeightAlignmentNeeded);
 
             void            FillPlanarOffsetAddress(
                                 GMM_TEXTURE_INFO   *pTexInfo);
@@ -140,7 +140,7 @@ namespace GmmLib
         public:
             /* Constructors */
             // "Creates GmmTextureCalc object based on platform ID"
-            static GmmTextureCalc* Create(PLATFORM Platform, BOOLEAN Override);
+            static GmmTextureCalc* Create(PLATFORM Platform, uint8_t Override);
 
             static void IncrementRefCount()
             {
@@ -152,7 +152,7 @@ namespace GmmLib
                     //TODO[Android]
             }
 
-            static LONG DecrementRefCount()
+            static int32_t DecrementRefCount()
             {
                 #if defined(__GMM_KMD__) || _WIN32
                     return(InterlockedDecrement(&RefCount));
@@ -167,11 +167,11 @@ namespace GmmLib
 
             }
 
-            virtual ~GmmTextureCalc()  
+            virtual ~GmmTextureCalc()
             {
 
             }
-            
+
             /* Function prototypes */
             GMM_STATUS      AllocateTexture(GMM_TEXTURE_INFO *pTexInfo);
             virtual GMM_STATUS      FillTexCCS(GMM_TEXTURE_INFO *pBaseSurf, GMM_TEXTURE_INFO *pTexInfo);
@@ -185,14 +185,14 @@ namespace GmmLib
                                 uint32_t NumSamples);
 
             uint32_t           ExpandWidth(
-                                uint32_t Width, 
-                                uint32_t UnitAlignment, 
+                                uint32_t Width,
+                                uint32_t UnitAlignment,
                                 uint32_t NumSamples);
 
             void            GetCompressionBlockDimensions(
-                                GMM_RESOURCE_FORMAT Format, 
-                                uint32_t *pWidth, 
-                                uint32_t *pHeight, 
+                                GMM_RESOURCE_FORMAT Format,
+                                uint32_t *pWidth,
+                                uint32_t *pHeight,
                                 uint32_t *pDepth);
 
             GMM_STATUS      GetTexRenderOffset(
@@ -238,7 +238,7 @@ namespace GmmLib
             }
 
             virtual uint32_t  GMM_STDCALL ScaleTextureWidth(GMM_TEXTURE_INFO* pTexInfo,
-                                                         uint32_t Width) 
+                                                         uint32_t Width)
             {
                 __GMM_ASSERT(pTexInfo != NULL);
 
@@ -254,7 +254,7 @@ namespace GmmLib
             }
 
             virtual uint32_t  GMM_STDCALL ScaleTextureHeight(GMM_TEXTURE_INFO* pTexInfo,
-                                                        uint32_t Height) 
+                                                        uint32_t Height)
             {
                 GMM_UNREFERENCED_PARAMETER(pTexInfo);
                 return Height /= 16;

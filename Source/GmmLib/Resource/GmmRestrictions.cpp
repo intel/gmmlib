@@ -23,45 +23,45 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Internal/Common/GmmLibInc.h"
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// Checks that clients only set Presentable flag during a resource allocation, ONLY 
+/// Checks that clients only set Presentable flag during a resource allocation, ONLY
 /// when a platform supported render target is selected in ::GMM_RESOURCE_FORMAT enum.
 ///
-/// @return TRUE if displayable, FALSE otherwise.
+/// @return true if displayable, false otherwise.
 /////////////////////////////////////////////////////////////////////////////////////
-BOOLEAN GmmLib::GmmResourceInfoCommon::IsPresentableformat()
+bool GmmLib::GmmResourceInfoCommon::IsPresentableformat()
 {
     const GMM_PLATFORM_INFO* pPlatform;
     const GMM_FORMAT_ENTRY*  FormatTable = NULL;
 
     GMM_DPF_ENTER;
-    __GMM_ASSERTPTR(pGmmGlobalContext, FALSE);
-    
+    __GMM_ASSERTPTR(pGmmGlobalContext, false);
+
     pPlatform = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
     FormatTable = &(pPlatform->FormatTable[0]);
 
-    if (Surf.Flags.Gpu.Presentable == FALSE)
+    if (Surf.Flags.Gpu.Presentable == false)
     {
         // When Presentable flag is not set, no reason to check for valid RT
-        // platform supported format. Safe to return TRUE.
-        return TRUE;
+        // platform supported format. Safe to return true.
+        return true;
     }
 
-    if ((Surf.Format > GMM_FORMAT_INVALID) && 
+    if ((Surf.Format > GMM_FORMAT_INVALID) &&
             (Surf.Format < GMM_RESOURCE_FORMATS))
     {
         if ((FormatTable[Surf.Format].RenderTarget) &&
             (FormatTable[Surf.Format].Supported))
         {
-            return TRUE;
+            return true;
         }
         else
         {
-            GMM_ASSERTDPF(0,"Present flag can only be set w/ a format!");         
-            return FALSE;
+            GMM_ASSERTDPF(0,"Present flag can only be set w/ a format!");
+            return false;
         }
     }
 
-    return FALSE;    
+    return false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -82,11 +82,11 @@ void GmmLib::GmmResourceInfoCommon::GetRestrictions(__GMM_BUFFER_TYPE& Restricti
     // Check that at least one usage flag is set for allocations other than
     // Primary/Shadow/Staging.
     memset(&ZeroGpuFlags.Gpu, 0, sizeof(ZeroGpuFlags.Gpu));
-    if ((Surf.Type <= RESOURCE_KMD_CHECK_START || 
-         Surf.Type >= RESOURCE_KMD_CHECK_END) && 
+    if ((Surf.Type <= RESOURCE_KMD_CHECK_START ||
+         Surf.Type >= RESOURCE_KMD_CHECK_END) &&
         !memcmp(&Surf.Flags.Gpu, &ZeroGpuFlags.Gpu, sizeof(ZeroGpuFlags.Gpu)))
     {
-        GMM_ASSERTDPF(0,"No GPU Usage specified!"); 
+        GMM_ASSERTDPF(0,"No GPU Usage specified!");
         return;
     }
 
@@ -111,13 +111,13 @@ void GmmLib::GmmResourceInfoCommon::GetRestrictions(__GMM_BUFFER_TYPE& Restricti
             GetGenericRestrictions(&Restrictions);
             break;
 
-        case RESOURCE_HW_CONTEXT:       
+        case RESOURCE_HW_CONTEXT:
         case RESOURCE_TAG_PAGE:
-            if (Surf.Flags.Info.TiledW || 
-                Surf.Flags.Info.TiledX || 
+            if (Surf.Flags.Info.TiledW ||
+                Surf.Flags.Info.TiledX ||
                 Surf.Flags.Info.TiledY)
             {
-                GMM_ASSERTDPF(0,"Tiled Pref specified for RESOURCE_LINEAR!"); 
+                GMM_ASSERTDPF(0,"Tiled Pref specified for RESOURCE_LINEAR!");
                 return;
             }
             GetLinearRestrictions(&Restrictions);
@@ -131,7 +131,7 @@ void GmmLib::GmmResourceInfoCommon::GetRestrictions(__GMM_BUFFER_TYPE& Restricti
 
         case RESOURCE_NNDI:
             Restrictions = pPlatform->Nndi;
-            break;           
+            break;
 
         case RESOURCE_HARDWARE_MBM:
         case RESOURCE_IFFS_MAPTOGTT:
@@ -145,7 +145,7 @@ void GmmLib::GmmResourceInfoCommon::GetRestrictions(__GMM_BUFFER_TYPE& Restricti
             {
                 Restrictions = pPlatform->HardwareMBM;
             }
-            break; 
+            break;
 
         case RESOURCE_CURSOR:
         case RESOURCE_PWR_CONTEXT:
@@ -172,13 +172,13 @@ void GmmLib::GmmResourceInfoCommon::GetRestrictions(__GMM_BUFFER_TYPE& Restricti
 
         default:
             GetGenericRestrictions(&Restrictions);
-            GMM_ASSERTDPF(0,"Unkown Resource type");     
+            GMM_ASSERTDPF(0,"Unkown Resource type");
     }
 
     // Apply any specific WA
 
     if (((Surf.Flags.Wa.ILKNeedAvcMprRowStore32KAlign)) ||
-        ((Surf.Flags.Wa.ILKNeedAvcDmvBuffer32KAlign)))   
+        ((Surf.Flags.Wa.ILKNeedAvcDmvBuffer32KAlign)))
     {
         Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, GMM_KBYTE(32));
     }
@@ -195,12 +195,12 @@ void GmmLib::GmmResourceInfoCommon::GetRestrictions(__GMM_BUFFER_TYPE& Restricti
         Restrictions.Alignment      = PAGE_SIZE;
         Restrictions.PitchAlignment = PAGE_SIZE;
     }
-    
+
     if (Surf.Flags.Gpu.TiledResource)
     {
-        // Need at least 64KB alignment to track tile mappings (h/w or s/w tracking).        
+        // Need at least 64KB alignment to track tile mappings (h/w or s/w tracking).
         Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, GMM_KBYTE(64));
-        
+
         // Buffer tiled resources are trivially divided into 64KB tiles => Pitch must divide into 64KB tiles
         if (Surf.Type == RESOURCE_BUFFER)
         {
@@ -213,9 +213,9 @@ void GmmLib::GmmResourceInfoCommon::GetRestrictions(__GMM_BUFFER_TYPE& Restricti
         }
     }
 
-    // Each plane of Y0-Y1-UV0-UV1 layout must be 4KB aligned to meet media 
-    // version of SURFACE_STATE req. No X,Y offsets. Align to 2KB since height 
-    // is alwasy even, b/c valign >= 2. 
+    // Each plane of Y0-Y1-UV0-UV1 layout must be 4KB aligned to meet media
+    // version of SURFACE_STATE req. No X,Y offsets. Align to 2KB since height
+    // is alwasy even, b/c valign >= 2.
     if (Surf.Flags.Info.YUVShaderFriendlyLayout)
     {
         Restrictions.PitchAlignment = GFX_ALIGN(Restrictions.PitchAlignment, GMM_KBYTE(2));
@@ -228,20 +228,20 @@ void GmmLib::GmmResourceInfoCommon::GetRestrictions(__GMM_BUFFER_TYPE& Restricti
          Surf.Flags.Info.TiledYf))
     {
         Restrictions.Alignment = GMM_MBYTE(1);
-    }  
+    }
 
-    if (Surf.Flags.Info.RenderCompressed || 
+    if (Surf.Flags.Info.RenderCompressed ||
         Surf.Flags.Info.MediaCompressed)
     {
         Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, GMM_KBYTE(16));
     }
 }
 
-  
+
 //=============================================================================
-// 
+//
 // Function: GmmResGetRestrictions
-// 
+//
 // Desc: This routine returns resource restrictions
 //
 // Parameters:
@@ -251,16 +251,16 @@ void GmmLib::GmmResourceInfoCommon::GetRestrictions(__GMM_BUFFER_TYPE& Restricti
 //
 // Returns:
 //      VOID
-//         
+//
 //-----------------------------------------------------------------------------
 void GMM_STDCALL GmmResGetRestrictions(GMM_RESOURCE_INFO*    pResourceInfo,
-                                       __GMM_BUFFER_TYPE*    pRestrictions) 
+                                       __GMM_BUFFER_TYPE*    pRestrictions)
 {
     pResourceInfo->GetRestrictions(*pRestrictions);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// Returns the best restrictions by comparing two buffer types. Each buffer type 
+/// Returns the best restrictions by comparing two buffer types. Each buffer type
 /// carries alignment and size restrictions.
 ///
 /// @param[in]  pFirstBuffer: Contains surface alignment and size restrictions
@@ -278,7 +278,7 @@ __GMM_BUFFER_TYPE *GmmLib::GmmResourceInfoCommon::GetBestRestrictions(__GMM_BUFF
         *pFirstBuffer = *pSecondBuffer;
         return pFirstBuffer;
     }
-   
+
     pFirstBuffer->Alignment            = GFX_MAX(pFirstBuffer->Alignment,
                                                  pSecondBuffer->Alignment);
 
@@ -315,15 +315,15 @@ __GMM_BUFFER_TYPE *GmmLib::GmmResourceInfoCommon::GetBestRestrictions(__GMM_BUFF
     pFirstBuffer->MaxWidth             = GFX_MIN(pFirstBuffer->MaxWidth,
                                                  pSecondBuffer->MaxWidth);
 
-    pFirstBuffer->NeedPow2LockAlignment   = pFirstBuffer->NeedPow2LockAlignment | 
-                                            pSecondBuffer->NeedPow2LockAlignment;   
+    pFirstBuffer->NeedPow2LockAlignment   = pFirstBuffer->NeedPow2LockAlignment |
+                                            pSecondBuffer->NeedPow2LockAlignment;
 
     GMM_DPF_EXIT;
     return pFirstBuffer;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// Returns restrictions for 1D, 2D, 3D textures depending on how the surface 
+/// Returns restrictions for 1D, 2D, 3D textures depending on how the surface
 /// may possibliy be used.
 ///
 /// @param[out]  pBuff: Restrictions filled in this struct
@@ -341,7 +341,7 @@ void GmmLib::GmmResourceInfoCommon::GetGenericRestrictions(__GMM_BUFFER_TYPE *pB
     }
 
     if(Surf.Flags.Gpu.Texture)
-    {   
+    {
         if (Surf.Type == RESOURCE_BUFFER)
         {
             *pBuff = pPlatformResource->BufferType;
@@ -349,7 +349,7 @@ void GmmLib::GmmResourceInfoCommon::GetGenericRestrictions(__GMM_BUFFER_TYPE *pB
         else if (Surf.Type == RESOURCE_CUBE)
         {
             *pBuff = pPlatformResource->CubeSurface;
-        }    
+        }
         else if (Surf.Type == RESOURCE_3D)
         {
             *pBuff = pPlatformResource->Texture3DSurface;
@@ -363,9 +363,9 @@ void GmmLib::GmmResourceInfoCommon::GetGenericRestrictions(__GMM_BUFFER_TYPE *pB
             }
         }
     }
-    if( Surf.Flags.Gpu.RenderTarget || 
-        Surf.Flags.Gpu.CCS || 
-        Surf.Flags.Gpu.MCS) 
+    if( Surf.Flags.Gpu.RenderTarget ||
+        Surf.Flags.Gpu.CCS ||
+        Surf.Flags.Gpu.MCS)
     {
         // Gen7 onwards, bound by SURFACE_STATE constraints.
         if (Surf.Type == RESOURCE_BUFFER)
@@ -375,8 +375,8 @@ void GmmLib::GmmResourceInfoCommon::GetGenericRestrictions(__GMM_BUFFER_TYPE *pB
         else if (Surf.Type == RESOURCE_CUBE)
         {
             *pBuff = pPlatformResource->CubeSurface;
-        }    
-        else if (Surf.Type == RESOURCE_3D)  
+        }
+        else if (Surf.Type == RESOURCE_3D)
         {
             *pBuff = pPlatformResource->Texture3DSurface;
         }
@@ -414,9 +414,9 @@ void GmmLib::GmmResourceInfoCommon::GetGenericRestrictions(__GMM_BUFFER_TYPE *pB
         // Media buffer
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->MotionComp);
     }
-    if( Surf.Flags.Gpu.State || 
-        Surf.Flags.Gpu.InstructionFlat || 
-        Surf.Flags.Gpu.ScratchFlat) 
+    if( Surf.Flags.Gpu.State ||
+        Surf.Flags.Gpu.InstructionFlat ||
+        Surf.Flags.Gpu.ScratchFlat)
     {
         // indirect state
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->Vertex);
@@ -429,42 +429,42 @@ void GmmLib::GmmResourceInfoCommon::GetGenericRestrictions(__GMM_BUFFER_TYPE *pB
     }
     if(Surf.Flags.Gpu.Constant)
     {
-        // 
+        //
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->Constant);
     }
     if(Surf.Flags.Gpu.Stream)
     {
-        // 
+        //
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->Stream);
     }
     if(Surf.Flags.Gpu.InterlacedScan)
     {
-        // 
+        //
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->InterlacedScan);
     }
     if(Surf.Flags.Gpu.TextApi)
     {
-        // 
+        //
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->TextApi);
     }
     if(Surf.Flags.Gpu.SeparateStencil)
     {
-        // 
+        //
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->Stencil);
     }
     if(Surf.Flags.Gpu.HiZ)
     {
-        // 
+        //
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->HiZ);
     }
     if(Surf.Flags.Gpu.Video)
     {
-        // 
+        //
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->Video);
     }
     if(Surf.Flags.Gpu.StateDx9ConstantBuffer)
     {
-        // 
+        //
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->StateDx9ConstantBuffer);
     }
     if(Surf.Flags.Gpu.Overlay)
@@ -491,7 +491,7 @@ void GmmLib::GmmResourceInfoCommon::GetGenericRestrictions(__GMM_BUFFER_TYPE *pB
     }
 
      //Non Aligned ExistingSysMem  Special cases.
-    if((Surf.Flags.Info.ExistingSysMem && 
+    if((Surf.Flags.Info.ExistingSysMem &&
        (!Surf.ExistingSysMem.IsGmmAllocated) &&
        (!Surf.ExistingSysMem.IsPageAligned)))
     {
@@ -504,14 +504,14 @@ void GmmLib::GmmResourceInfoCommon::GetGenericRestrictions(__GMM_BUFFER_TYPE *pB
                 //Use combination of BufferType, NoRestriction to support large buffer with minimal pitch alignment
                 *pBuff = pPlatformResource->BufferType;
                 pBuff->PitchAlignment       = pPlatformResource->NoRestriction.PitchAlignment;
-                pBuff->LockPitchAlignment   = pPlatformResource->NoRestriction.LockPitchAlignment; 
+                pBuff->LockPitchAlignment   = pPlatformResource->NoRestriction.LockPitchAlignment;
                 pBuff->RenderPitchAlignment = pPlatformResource->NoRestriction.LockPitchAlignment;
                 pBuff->MinPitch             = pPlatformResource->NoRestriction.MinPitch;
             }
-           
+
             //[To DO] Handle other types when needed!
-            
-        } 
+
+        }
         /*
         else if(Surf.Flags.Gpu.Texture)
         {
@@ -527,9 +527,9 @@ void GmmLib::GmmResourceInfoCommon::GetGenericRestrictions(__GMM_BUFFER_TYPE *pB
 }
 
 //=============================================================================
-// 
+//
 // Function: __GmmPlatformResetRestrictions
-// 
+//
 // Desc: This routine initializes a __GMM_BUFFER_TYPE. Once this function is
 //       called, the caller has a invalid restrictions.
 //
@@ -537,7 +537,7 @@ void GmmLib::GmmResourceInfoCommon::GetGenericRestrictions(__GMM_BUFFER_TYPE *pB
 //      pRestriction ==> Restrictions
 // Returns:
 //      VOID
-//         
+//
 //-----------------------------------------------------------------------------
 void __GmmPlatformResetRestrictions(__GMM_BUFFER_TYPE *pRestriction)
 {
@@ -546,7 +546,7 @@ void __GmmPlatformResetRestrictions(__GMM_BUFFER_TYPE *pRestriction)
 
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// Internal function returns the best restrictions depending on how the surface may 
+/// Internal function returns the best restrictions depending on how the surface may
 /// possibly be used.
 ///
 /// @param[in]  pTexInfo: ptr to ::GMM_TEXTURE_INFO,
@@ -564,11 +564,11 @@ void GmmLib::GmmTextureCalc::GetTexRestrictions(GMM_TEXTURE_INFO*      pTexInfo,
     ResourceInfo.OverrideSurfaceFormat(pTexInfo->Format);
     ResourceInfo.OverrideSurfaceType(pTexInfo->Type);
     ResourceInfo.OverrideGmmLibContext(pGmmGlobalContext);
-    
+
     #if(_DEBUG || _RELEASE_INTERNAL)
         ResourceInfo.OverridePlatform(pTexInfo->Platform);
     #endif
-   
+
     GmmResGetRestrictions(&ResourceInfo, pRestrictions);
 
     GMM_DPF_EXIT;
@@ -582,7 +582,7 @@ void GmmLib::GmmTextureCalc::GetTexRestrictions(GMM_TEXTURE_INFO*      pTexInfo,
 GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
 {
     const GMM_PLATFORM_INFO   *pPlatform;
-    
+
     // Handle Minimal Restriction ExistingSysMem Requirements...
     GMM_GFX_SIZE_T AdditionalPaddingBytes =  0;
     GMM_GFX_SIZE_T AdditionalPaddingRows =   0;
@@ -596,7 +596,7 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
 
     GMM_DPF_ENTER;
 
-    pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo); 
+    pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
     pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo);
 
     Height = pTexInfo->BaseHeight;
@@ -630,28 +630,28 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
     }
 
 
-    if(!pTexInfo->Pitch) 
+    if(!pTexInfo->Pitch)
     {
         __GMM_ASSERT(pTexInfo->Type == RESOURCE_1D); // Clients can leave pitch zero for 1D, and we'll fill-in...
         pTexInfo->Pitch = Width * (pTexInfo->BitsPerPixel >> 3);
     }
 
     __GMM_ASSERT( // Currently limiting our support...
-        pTexInfo->Flags.Gpu.NoRestriction || 
-        pTexInfo->Flags.Gpu.Index || 
-        pTexInfo->Flags.Gpu.RenderTarget || 
-        pTexInfo->Flags.Gpu.Texture || 
+        pTexInfo->Flags.Gpu.NoRestriction ||
+        pTexInfo->Flags.Gpu.Index ||
+        pTexInfo->Flags.Gpu.RenderTarget ||
+        pTexInfo->Flags.Gpu.Texture ||
         pTexInfo->Flags.Gpu.Vertex);
 
     __GMM_ASSERT( // Trivial, Linear Surface...
-        ((pTexInfo->Type == RESOURCE_BUFFER) || (pTexInfo->Type == RESOURCE_1D) || (pTexInfo->Type == RESOURCE_2D) ) && 
-        (pTexInfo->MaxLod == 0) && 
-        !GMM_IS_TILED(pPlatform->TileInfo[pTexInfo->TileMode]) && 
-        !GmmIsPlanar(pTexInfo->Format) && 
+        ((pTexInfo->Type == RESOURCE_BUFFER) || (pTexInfo->Type == RESOURCE_1D) || (pTexInfo->Type == RESOURCE_2D) ) &&
+        (pTexInfo->MaxLod == 0) &&
+        !GMM_IS_TILED(pPlatform->TileInfo[pTexInfo->TileMode]) &&
+        !GmmIsPlanar(pTexInfo->Format) &&
         ((pTexInfo->ArraySize <= 1) || (pTexInfo->Type == RESOURCE_BUFFER)));
 
     __GMM_ASSERT( // Valid Surface...
-        (Width > 0) && 
+        (Width > 0) &&
         !((pTexInfo->Type == RESOURCE_BUFFER) && GmmIsYUVPacked(pTexInfo->Format)));
 
     // Convert to compression blocks, if applicable...
@@ -659,20 +659,20 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
     {
         pTextureCalc->GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
-        Width = GFX_CEIL_DIV(Width, CompressWidth);   
+        Width = GFX_CEIL_DIV(Width, CompressWidth);
         Height = GFX_CEIL_DIV(Height, CompressHeight);
     }
 
     __GMM_ASSERT( // Valid Surface Follow-Up...
         (pTexInfo->Pitch >=  (Width * (pTexInfo->BitsPerPixel >> 3))));
 
-    if(!pTexInfo->Flags.Gpu.NoRestriction && !pTexInfo->Flags.Info.SVM && !pTexInfo->Flags.Info.Linear) 
+    if(!pTexInfo->Flags.Gpu.NoRestriction && !pTexInfo->Flags.Info.SVM && !pTexInfo->Flags.Info.Linear)
     {
         if(pTexInfo->Flags.Gpu.Index) /////////////////////////////////////////////////////////
         {
             __GMM_ASSERT(!(
-                pTexInfo->Flags.Gpu.RenderTarget || 
-                pTexInfo->Flags.Gpu.Texture || 
+                pTexInfo->Flags.Gpu.RenderTarget ||
+                pTexInfo->Flags.Gpu.Texture ||
                 pTexInfo->Flags.Gpu.Vertex)); // Can explore if needed what combo's make sense--and how req's should combine.
 
             // BSpec.3DSTATE_INDEX_BUFFER...
@@ -690,8 +690,8 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
         if(pTexInfo->Flags.Gpu.Vertex) ////////////////////////////////////////////////////////
         {
             __GMM_ASSERT(!(
-                pTexInfo->Flags.Gpu.Index || 
-                pTexInfo->Flags.Gpu.RenderTarget || 
+                pTexInfo->Flags.Gpu.Index ||
+                pTexInfo->Flags.Gpu.RenderTarget ||
                 pTexInfo->Flags.Gpu.Texture
                 )); // Can explore if needed what combo's make sense--and how req's should combine.
 
@@ -699,7 +699,7 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
             UPDATE_BASE_ALIGNMENT(1); // VB's have member alignment requirements--but it's up to UMD to enforce.
             UPDATE_PADDING(1);
         }
-        
+
         if(pTexInfo->Flags.Gpu.RenderTarget) //////////////////////////////////////////////////
         {
             uint32_t ElementSize;
@@ -717,17 +717,17 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
 
             if (pGmmGlobalContext->GetWaTable().WaNoMinimizedTrivialSurfacePadding)
             {
-                if(pTexInfo->Type == RESOURCE_BUFFER) 
+                if(pTexInfo->Type == RESOURCE_BUFFER)
                 {
                     if (pGmmGlobalContext->GetWaTable().WaNoBufferSamplerPadding)
                     {
                         // Client agreeing to take responsibility for flushing L3 after sampling/etc.
-                    } 
-                    else 
+                    }
+                    else
                     {
-                        // GMM currently receives GENERIC_8BIT for 
-                        // RESOURCE_BUFFER creations, so we have to assume the 
-                        // worst-case sample size of 128-bit (unless we alter 
+                        // GMM currently receives GENERIC_8BIT for
+                        // RESOURCE_BUFFER creations, so we have to assume the
+                        // worst-case sample size of 128-bit (unless we alter
                         // our interface meaning):
                         uint32_t ElementSize = 16;
 
@@ -735,80 +735,80 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
                         UPDATE_PADDING(ElementSize * ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) == IGFX_GEN8_CORE) ? 512 : 256));
                         UPDATE_ADDITIONAL_BYTES(16);
                     }
-                } 
+                }
                 else // RESOURCE_1D/2D...
                 {
                     /* BSpec mentions sampler needs Alignment Unit padding--
-                        but sampler arch confirms that's overly conservative 
-                        padding--and for trivial (linear, single-subresource) 
-                        2D's, even-row (quad-row on BDW.A0) plus additional 
-                        64B padding is sufficient. (E.g. pitch overfetch will 
+                        but sampler arch confirms that's overly conservative
+                        padding--and for trivial (linear, single-subresource)
+                        2D's, even-row (quad-row on BDW.A0) plus additional
+                        64B padding is sufficient. (E.g. pitch overfetch will
                         be caught by subsequent rows or the additional 64B. */
 
                     __GMM_ASSERT((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN8_CORE));
 
-                    if(GmmIsCompressed(pTexInfo->Format)) 
+                    if(GmmIsCompressed(pTexInfo->Format))
                     {
                         // BSpec: "For compressed textures...padding at the bottom of the surface is to an even compressed row."
                         UPDATE_PADDING(pTexInfo->Pitch * 2); // (Sampler arch confirmed that even-row is sufficient on BDW despite BDW's 4x4 sampling, since this req is from L2 instead of L1.)
-                    } 
-                    else 
+                    }
+                    else
                     {
                         UPDATE_PADDING(pTexInfo->Pitch * ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) == IGFX_GEN8_CORE) ? 4 : 2)); // Sampler Fetch Rows: BDW ? 4 : 2
                     }
 
                     // BSpec "For packed YUV, 96 bpt, 48 bpt, and 24 bpt surface formats, additional padding is required."
-                    if( GmmIsYUVPacked(pTexInfo->Format) || (pTexInfo->BitsPerPixel == 96) || (pTexInfo->BitsPerPixel == 48) || (pTexInfo->BitsPerPixel == 24)) 
+                    if( GmmIsYUVPacked(pTexInfo->Format) || (pTexInfo->BitsPerPixel == 96) || (pTexInfo->BitsPerPixel == 48) || (pTexInfo->BitsPerPixel == 24))
                     {
                         UPDATE_ADDITIONAL_BYTES(16);
                         UPDATE_ADDITIONAL_ROWS(1);
                     }
 
-                    /* BSpec: "For linear surfaces, additional padding of 64 
-                        bytes is required at the bottom of the surface." 
-                        (Sampler arch confirmed the 64 bytes can overlap with 
+                    /* BSpec: "For linear surfaces, additional padding of 64
+                        bytes is required at the bottom of the surface."
+                        (Sampler arch confirmed the 64 bytes can overlap with
                         the other "additional 16 bytes" mentions in that section.) */
                     UPDATE_ADDITIONAL_BYTES(64);
                 }
-            } 
-            else 
+            }
+            else
             {
-                /* BSpec: [DevBDW:B0+]: For SURFTYPE_BUFFER, SURFTYPE_1D, and 
-                    SURFTYPE_2D non-array, non-MSAA, non-mip-mapped surfaces in 
-                    linear memory, the only padding requirement is to the next 
+                /* BSpec: [DevBDW:B0+]: For SURFTYPE_BUFFER, SURFTYPE_1D, and
+                    SURFTYPE_2D non-array, non-MSAA, non-mip-mapped surfaces in
+                    linear memory, the only padding requirement is to the next
                     aligned 64-byte boundary beyond the end of the surface. */
                 UPDATE_END_ALIGNMENT(64);
             }
         }
-    } 
+    }
     else // Gpu.NoRestriction...
     {
-        // Clients specify NoRestriction at their own risk--e.g. it can be 
-        // appropriate when using IA-Coherent L3 combined with L3 being in 
-        // unified/"Rest" mode (where there won't be write-->read-only 
+        // Clients specify NoRestriction at their own risk--e.g. it can be
+        // appropriate when using IA-Coherent L3 combined with L3 being in
+        // unified/"Rest" mode (where there won't be write-->read-only
         // collisions on unintentionally shared cachelines).
     }
 
     {    //Finally calculate surf size
         GMM_GFX_SIZE_T OriginalEnd, RequiredSize;
 
-        ExistingSysMem.pVirtAddress    = 
+        ExistingSysMem.pVirtAddress    =
                     (ExistingSysMem.pExistingSysMem  & (PAGE_SIZE - 1))               ?
-                        ((GMM_VOIDPTR64) GFX_ALIGN(ExistingSysMem.pExistingSysMem , 
+                        ((GMM_VOIDPTR64) GFX_ALIGN(ExistingSysMem.pExistingSysMem ,
                             BaseAlignment))                                                 :
                         ExistingSysMem.pExistingSysMem ;
 
-        ExistingSysMem.pGfxAlignedVirtAddress = 
+        ExistingSysMem.pGfxAlignedVirtAddress =
             (GMM_VOIDPTR64) GFX_ALIGN(
-                (UINT64) ExistingSysMem.pVirtAddress, PAGE_SIZE);
+                (uint64_t) ExistingSysMem.pVirtAddress, PAGE_SIZE);
 
         __GMM_ASSERT((ExistingSysMem.pVirtAddress % BaseAlignment) == 0);
 
         RequiredSize = pTexInfo->Pitch * Height;
 
-        RequiredSize = 
-            GFX_ALIGN(RequiredSize, SizePadding) + 
-            (AdditionalPaddingRows * pTexInfo->Pitch) + 
+        RequiredSize =
+            GFX_ALIGN(RequiredSize, SizePadding) +
+            (AdditionalPaddingRows * pTexInfo->Pitch) +
             AdditionalPaddingBytes;
 
         OriginalEnd = ExistingSysMem.pVirtAddress + RequiredSize;
@@ -817,7 +817,7 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
         //Ensure sufficient ExistingSysMem available.
         if(ExistingSysMem.Size < RequiredSize)
         {
-            return GMM_ERROR; 
+            return GMM_ERROR;
         }
 
         Surf.Size = RequiredSize;

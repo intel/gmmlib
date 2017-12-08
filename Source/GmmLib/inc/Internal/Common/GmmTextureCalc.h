@@ -26,22 +26,22 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "GmmLibInc.h"
 /////////////////////////////////////////////////////////////////////////////////////
 /// @file GmmTextureCalc.h
-/// @brief This file contains the common functions and members for texture calculations      
-///        on all GENs/Platforms 
+/// @brief This file contains the common functions and members for texture calculations
+///        on all GENs/Platforms
 /////////////////////////////////////////////////////////////////////////////////////
 namespace GmmLib
 {
     /////////////////////////////////////////////////////////////////////////
-    /// Contains texture calc functions and members that are common across all platform 
+    /// Contains texture calc functions and members that are common across all platform
     /// implementation.  This class is inherited by gen specific class so
     /// so clients shouldn't have to ever interact  with this class directly.
     /////////////////////////////////////////////////////////////////////////
-    class NON_PAGED_SECTION GmmTextureCalc : 
+    class NON_PAGED_SECTION GmmTextureCalc :
                 public GmmMemAllocator
     {
-        // GMMLIB2_TODO: 
+        // GMMLIB2_TODO:
         // 1) Change it to protected when all functions are part of the class
-        // 2) Mode Gen specific implementation in derived class later.     
+        // 2) Mode Gen specific implementation in derived class later.
         private:
 
         protected:
@@ -61,11 +61,11 @@ namespace GmmLib
 
             }
 
-            ~GmmTextureCalc()  
+            ~GmmTextureCalc()
             {
 
             }
-            
+
             /* Function prototypes */
 
             //GmmTextureAlloc.cpp
@@ -81,7 +81,7 @@ namespace GmmLib
                             __GMM_BUFFER_TYPE *pBufferType);
 
             void        GmmTexGetRestrictions(
-                            GMM_TEXTURE_INFO* pTexInfo, 
+                            GMM_TEXTURE_INFO* pTexInfo,
                             __GMM_BUFFER_TYPE* pBuff);
 
             GMM_STATUS  GMM_STDCALL __GmmTexFillPlanar(
@@ -90,10 +90,10 @@ namespace GmmLib
 
             void        __GmmTexFillPlanar_SetTilingBasedOnRequiredAlignment(
                             GMM_TEXTURE_INFO    *pTexInfo,
-                            uint32_t               YHeight, BOOLEAN YHeightAlignmentNeeded,
-                            uint32_t               VHeight, BOOLEAN VHeightAlignmentNeeded);
+                            uint32_t               YHeight, bool YHeightAlignmentNeeded,
+                            uint32_t               VHeight, bool VHeightAlignmentNeeded);
 
-            BOOLEAN     __GmmTexValidateTexInfo(
+            bool     __GmmTexValidateTexInfo(
                             GMM_TEXTURE_INFO  *pTexInfo,
                             __GMM_BUFFER_TYPE *pRestrictions);
 
@@ -106,19 +106,19 @@ namespace GmmLib
             //GmmTexture.cpp
 
             uint32_t       __GmmExpandHeight(
-                            uint32_t Height, 
-                            uint32_t UnitAlignment, 
+                            uint32_t Height,
+                            uint32_t UnitAlignment,
                             uint32_t NumSamples);
 
             uint32_t       __GmmExpandWidth(
-                            uint32_t Width, 
-                            uint32_t UnitAlignment, 
+                            uint32_t Width,
+                            uint32_t UnitAlignment,
                             uint32_t NumSamples);
 
             void        __GmmGetElementDimensions(
-                            GMM_RESOURCE_FORMAT Format, 
-                            uint32_t *pWidth, 
-                            uint32_t *pHeight, 
+                            GMM_RESOURCE_FORMAT Format,
+                            uint32_t *pWidth,
+                            uint32_t *pHeight,
                             uint32_t *pDepth);
 
             void        __GmmFillPlanarOffsetAddress(

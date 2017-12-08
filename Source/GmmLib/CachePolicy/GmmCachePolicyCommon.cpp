@@ -23,12 +23,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Internal/Common/GmmLibInc.h"
 #include "External/Common/GmmCachePolicy.h"
 
-LONG GmmLib::GmmCachePolicyCommon::RefCount = 0;
+int32_t GmmLib::GmmCachePolicyCommon::RefCount = 0;
 
 #if _WIN32
 /////////////////////////////////////////////////////////////////////////////////////
 /// This function will read registry keys and override cache policy
-///                               
+///
 /////////////////////////////////////////////////////////////////////////////////////
 // OverrideCachePolicy can take over a minute to compile when optimizations
 // are enabled. As this is only needed during init time for non-Release builds,
@@ -37,19 +37,19 @@ LONG GmmLib::GmmCachePolicyCommon::RefCount = 0;
 #pragma optimize("", off)
 void GmmLib::GmmCachePolicyCommon::OverrideCachePolicy()
 {
-    ULONG UsageCount = 0;
+    uint32_t UsageCount = 0;
 
-    INT  DefaultEnable = 0, DefaultLLC = 0, DefaultELLC = 0, DefaultL3 = 0;
-    INT  DefaultAge = 0, DefaultWT = 0, DefaultAOM = 0, DefaultLeCC_SCC = 0;
-    INT  DefaultL3_SCC = 0, DefaultSCF = 0, DefaultHDCL1 = 0, DefaultSSO = 0;
-    INT  DefaultCoS = 0;
+    int32_t  DefaultEnable = 0, DefaultLLC = 0, DefaultELLC = 0, DefaultL3 = 0;
+    int32_t  DefaultAge = 0, DefaultWT = 0, DefaultAOM = 0, DefaultLeCC_SCC = 0;
+    int32_t  DefaultL3_SCC = 0, DefaultSCF = 0, DefaultHDCL1 = 0, DefaultSSO = 0;
+    int32_t  DefaultCoS = 0;
 
     // Variables used in the REG_OVERRIDE macro block
-    INT  Enable = 0, LLC = -1, ELLC = -1, L3 = -1, Age = -1, WT = -1, AOM = -1, LeCC_SCC = -1, L3_SCC = -1, SCF = -1, SSO = -1, CoS = -1, HDCL1 = -1;
+    int32_t  Enable = 0, LLC = -1, ELLC = -1, L3 = -1, Age = -1, WT = -1, AOM = -1, LeCC_SCC = -1, L3_SCC = -1, SCF = -1, SSO = -1, CoS = -1, HDCL1 = -1;
 
 #define READ_DEFAULT_OVERRIDE(CacheParam)                                             \
 {                                                                                     \
-    if (REGISTRY_OVERRIDE_READ(OverrideDefaults ,CacheParam) == FALSE)                \
+    if (REGISTRY_OVERRIDE_READ(OverrideDefaults ,CacheParam) == false)                \
     {                                                                                 \
         CacheParam = -1;                                                              \
     }                                                                                 \
@@ -112,7 +112,7 @@ void GmmLib::GmmCachePolicyCommon::OverrideCachePolicy()
 }
 
 #ifdef __GMM_KMD__
-    ULONG GenerateKeys = 0;
+    uint32_t GenerateKeys = 0;
     REGISTRY_OVERRIDE_READ(, GenerateKeys);
 #endif
     REGISTRY_OVERRIDE_READ(OverrideDefaults, Enable); DefaultEnable = Enable;
@@ -171,11 +171,11 @@ GmmLib::GmmCachePolicyCommon::GmmCachePolicyCommon(GMM_CACHE_POLICY_ELEMENT *pCa
     this->pCachePolicy = pCachePolicy;
 }
 
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 /// Returns the wanted memory type for this usage.
-///                               
-/// @param[in]      CachePolicy: cache policy for a usage 
-///             
+///
+/// @param[in]      CachePolicy: cache policy for a usage
+///
 /// @return         wanted memory type
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_GFX_MEMORY_TYPE GmmLib::GmmCachePolicyCommon::GetWantedMemoryType(GMM_CACHE_POLICY_ELEMENT CachePolicy)
@@ -198,12 +198,12 @@ GMM_GFX_MEMORY_TYPE GmmLib::GmmCachePolicyCommon::GetWantedMemoryType(GMM_CACHE_
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// Generates memory object based on resource usage
-///                               
+///
 /// @param[in]     pResInfo: Resource info for resource , can be null
 /// @param[in]     Usage: Current usage for resource
 ///
 /// @return        MEMORY_OBJECT_CONTROL_STATE:    Populated memory object
-///     
+///
 /////////////////////////////////////////////////////////////////////////////////////
 MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmCachePolicyCommon::CachePolicyGetOriginalMemoryObject(GMM_RESOURCE_INFO *pResInfo)
 {
@@ -240,7 +240,7 @@ MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmCachePolicyCommon::CachePolic
         pResInfo->GetResFlags().Info.XAdapter &&
         Usage != GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE)
     {
-        __GMM_ASSERT(FALSE);
+        __GMM_ASSERT(false);
     }
 
     if (!pResInfo ||
@@ -259,7 +259,7 @@ MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmCachePolicyCommon::CachePolic
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// Generates PTE based on resource usage
-///                               
+///
 /// @param[in]     Usage: type of usage
 ///
 /// @return        GMM_PTE_CACHE_CONTROL_BITS: Populated PTE

@@ -35,12 +35,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 /// @param[in]  Platform: Specify the information about the PlatformInfo object to be created
 /// @param[in]  Override: Indicates if Override should be used (KMD and Debug/Release-Internal Only)
 /// @return     PlatformInfo object
-///////////////////////////////////////////////////////////////////////////////////// 
-GmmLib::PlatformInfo* GmmLib::PlatformInfo::Create(PLATFORM Platform, BOOLEAN Override)
+/////////////////////////////////////////////////////////////////////////////////////
+GmmLib::PlatformInfo* GmmLib::PlatformInfo::Create(PLATFORM Platform, bool Override)
 {
     GMM_DPF_ENTER;
 
-    if (Override == FALSE)
+    if (Override == false)
     {
         GmmLib::PlatformInfo::IncrementRefCount();
         if (pGmmGlobalContext->GetPlatformInfoObj() != NULL)
@@ -102,7 +102,7 @@ GmmLib::GmmCachePolicyCommon* GmmLib::GmmCachePolicyCommon::Create()
     {
         pGmmCachePolicy = new GmmLib::GmmGen8CachePolicy(CachePolicy);
     }
-   
+
     if (!pGmmCachePolicy)
     {
         GMM_DPF_CRITICAL("unable to allocate memory for CachePolicy Object");
@@ -112,14 +112,14 @@ GmmLib::GmmCachePolicyCommon* GmmLib::GmmCachePolicyCommon::Create()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// Creates GmmLib-wide global TextureCalc object based on PlatformID, which will 
+/// Creates GmmLib-wide global TextureCalc object based on PlatformID, which will
 /// be used by GmmResourceInfo* class for populating GMM_TEXTURE_INFO
 ///
 /// @param[in]  Platform: PLATFORM contains platform ID
 ///
 /// @return     Returns an instance of GmmTextureCalc's derived class
 /////////////////////////////////////////////////////////////////////////////////////
-GmmLib::GmmTextureCalc* GmmLib::GmmTextureCalc::Create(PLATFORM Platform, BOOLEAN Override)
+GmmLib::GmmTextureCalc* GmmLib::GmmTextureCalc::Create(PLATFORM Platform, uint8_t Override)
 {
     if (!Override)
     {

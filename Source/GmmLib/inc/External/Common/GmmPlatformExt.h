@@ -21,21 +21,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
 #pragma once
 
-#ifndef SHORT
-#if !defined TYPEDEF_DEFINED_SHORT
-#define TYPEDEF_DEFINED_SHORT 1
-typedef short int SHORT; // TODO(Benign): Clean/remove
-#endif
-#endif
-
-#ifndef UCHAR
-#if !defined TYPEDEF_DEFINED_UCHAR
-#define TYPEDEF_DEFINED_UCHAR 1
-typedef unsigned char UCHAR; // TODO(Benign): Clean/remove
-#endif
-#endif
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif /*__cplusplus*/
@@ -44,12 +29,9 @@ extern "C" {
 #pragma pack(push, 8)
 
 #ifndef __GMM_KMD__
-    #ifndef PHYSICAL_ADDRESS
-    #define PHYSICAL_ADDRESS LARGE_INTEGER
-    #endif
     #ifndef PAGE_SIZE
     #define PAGE_SIZE 4096
-    #endif 
+    #endif
 #endif /*__GMM_KMD__*/
 
 //===========================================================================
@@ -57,22 +39,22 @@ extern "C" {
 //        GMM_FORMAT_ENTRY
 //
 // Description:
-//      This struct is used to describe each surface format in the 
+//      This struct is used to describe each surface format in the
 //      GMM_RESOURCE_FORMAT enum. Each surface format is desginated as a
 //      supported format on the running platform, as well as if the format is
 //      renderable.
-//     
+//
 //---------------------------------------------------------------------------
 typedef struct GMM_FORMAT_ENTRY_REC
 {
-    struct 
+    struct
     {
         uint32_t               ASTC         : 1;
         uint32_t               Compressed   : 1;
         uint32_t               RenderTarget : 1;
         uint32_t               Supported    : 1;
     };
-    struct 
+    struct
     {
         uint16_t                BitsPer;
         uint8_t                 Depth;
@@ -104,11 +86,11 @@ typedef enum GMM_TILE_MODE_ENUM
     // Legacy Tile Modes
     LEGACY_TILE_X,
     LEGACY_TILE_Y,
-    // Tile-W is a 64x64 tile swizzled 
-    // onto a 128x32 Tile-Y. 
+    // Tile-W is a 64x64 tile swizzled
+    // onto a 128x32 Tile-Y.
     // For allocation purposes Tile-W
     // can be treated like Tile-Y
-    //     TILE_W 
+    //     TILE_W
 
     // Tiled Resource Modes (SKL+)
     DEFINE_TILE_BPEs( YF_1D     ),
@@ -142,10 +124,10 @@ typedef struct __TEX_ALIGNMENT
 //        GMM_TEXTURE_ALIGN
 //
 // Description:
-//      The following struct describes the texture mip map unit alignment 
+//      The following struct describes the texture mip map unit alignment
 //      required for each map format. The alignment values are platform
 //      dependent.
-//     
+//
 //---------------------------------------------------------------------------
 typedef struct GMM_TEXTURE_ALIGN_REC
 {
@@ -163,11 +145,11 @@ typedef struct GMM_TEXTURE_ALIGN_REC
 //        __GMM_BUFFER_TYPE_REC
 //
 // Description:
-//     This structure represents a buffer type. Common buffer types are 
+//     This structure represents a buffer type. Common buffer types are
 //     Display buffers, Color buffers, Linear buffers and ring buffers.
-//     Each buffer type has platform specific size, dimension  and alignment 
+//     Each buffer type has platform specific size, dimension  and alignment
 //     restricions that are stored here.
-//     
+//
 //---------------------------------------------------------------------------
 typedef struct __GMM_BUFFER_TYPE_REC
 {
@@ -175,18 +157,18 @@ typedef struct __GMM_BUFFER_TYPE_REC
     uint32_t           PitchAlignment;         // Pitch Alignment restriction.
     uint32_t           RenderPitchAlignment;   // Pitch Alignment for render surface
     uint32_t           LockPitchAlignment;     // Pitch Alignment for locked surface
-    uint32_t           MinPitch;               // Minimum pitch 
+    uint32_t           MinPitch;               // Minimum pitch
     GMM_GFX_SIZE_T  MaxPitch;               // Maximum pitch
     GMM_GFX_SIZE_T  MinAllocationSize;      // Minimum Allocation size requirement
-                
+
     uint32_t           MinHeight;              // Mininum height in bytes
     GMM_GFX_SIZE_T  MinWidth;               // Minimum width in bytes
     uint32_t           MinDepth;               // Minimum depth  (only for volume)
     GMM_GFX_SIZE_T  MaxHeight;              // Maximum height in bytes
     GMM_GFX_SIZE_T  MaxWidth;               // Maximum Width in bytes
-    uint32_t           MaxDepth;               // Maximum depth  (only for volume)   
-    uint32_t           MaxArraySize;       
-    BOOLEAN         NeedPow2LockAlignment;  // Locking surface need to be power of 2 aligned
+    uint32_t           MaxDepth;               // Maximum depth  (only for volume)
+    uint32_t           MaxArraySize;
+    uint8_t         NeedPow2LockAlignment;  // Locking surface need to be power of 2 aligned
 } __GMM_BUFFER_TYPE;
 
 //===========================================================================
@@ -212,7 +194,7 @@ typedef struct __GMM_PLATFORM_RESOURCE_REC
     __GMM_BUFFER_TYPE    Index;            // Index Buffer restrictions
     __GMM_BUFFER_TYPE    Constant;         //
     __GMM_BUFFER_TYPE    StateDx9ConstantBuffer; // Dx9 Constant Buffer pool restrictions
-    
+
     __GMM_BUFFER_TYPE    Texture2DSurface; // 2D texture surface
     __GMM_BUFFER_TYPE    Texture2DLinearSurface; // 2D Linear media surface
     __GMM_BUFFER_TYPE    Texture3DSurface; // 3D texture surface
@@ -223,27 +205,27 @@ typedef struct __GMM_PLATFORM_RESOURCE_REC
     __GMM_BUFFER_TYPE    Depth;            // Depth Buffer Restriction
     __GMM_BUFFER_TYPE    Stencil;          // Stencil Buffer Restrictions
     __GMM_BUFFER_TYPE    HiZ;              // Hierarchical Depth Buffer Resrictions
-    __GMM_BUFFER_TYPE    Stream;           // 
+    __GMM_BUFFER_TYPE    Stream;           //
 
     __GMM_BUFFER_TYPE    Video;            // Video Planar surface restrictions
     __GMM_BUFFER_TYPE    MotionComp;       // Motion Compensation buffer
-    
+
     __GMM_BUFFER_TYPE    Overlay;          // Overlay Buffer
-    __GMM_BUFFER_TYPE    Nndi;             // Non native display buffer restrictions 
+    __GMM_BUFFER_TYPE    Nndi;             // Non native display buffer restrictions
     __GMM_BUFFER_TYPE    ASyncFlipSurface; // ASync flip chain Buffers
 
     __GMM_BUFFER_TYPE    HardwareMBM;      // Buffer Restrictions
 
-    __GMM_BUFFER_TYPE    InterlacedScan;   // 
-    __GMM_BUFFER_TYPE    TextApi;          // 
+    __GMM_BUFFER_TYPE    InterlacedScan;   //
+    __GMM_BUFFER_TYPE    TextApi;          //
 
     __GMM_BUFFER_TYPE    Linear;           // Linear(Generic) Buffer restrictions
     __GMM_BUFFER_TYPE    Cursor;           // Cursor surface restrictions
     __GMM_BUFFER_TYPE    NoRestriction;    // Motion Comp Buffer
-    
+
     __GMM_BUFFER_TYPE    XAdapter;         // Cross adapter linear buffer restrictions
 
-    GMM_TEXTURE_ALIGN    TexAlign;         // Alignment Units for Texture Maps 
+    GMM_TEXTURE_ALIGN    TexAlign;         // Alignment Units for Texture Maps
 
     //
     // various tile dimension based on platform
@@ -273,7 +255,7 @@ typedef struct __GMM_PLATFORM_RESOURCE_REC
     uint32_t                SamplerFetchGranularityWidth;
     uint32_t                SamplerFetchGranularityHeight;
 
-    INT64                SurfaceMaxSize; // INT64 - Surface size is 64 bit for all configurations
+    int64_t                SurfaceMaxSize; // int64_t - Surface size is 64 bit for all configurations
     uint32_t                MaxGpuVirtualAddressBitsPerResource;
     uint32_t                MaxSLMSize;
 }__GMM_PLATFORM_RESOURCE, GMM_PLATFORM_INFO;

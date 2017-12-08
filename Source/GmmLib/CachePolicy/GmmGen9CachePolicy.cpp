@@ -32,14 +32,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 #endif
 
 //=============================================================================
-// 
+//
 // Function: __GmmGen9InitCachePolicy
-// 
+//
 // Desc: This function initializes the cache policy
-//                               
-// Parameters: pCachePolicy  -> Ptr to array to be populated with the 
+//
+// Parameters: pCachePolicy  -> Ptr to array to be populated with the
 //             mapping of usages -> cache settings.
-//             
+//
 // Return: GMM_STATUS
 //
 //-----------------------------------------------------------------------------
@@ -124,7 +124,7 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::InitCachePolicy() {
         }
 #else // First entries for !MESA_MOCS
         {
-            BOOLEAN LLC = (pGmmGlobalContext->GetGtSysInfo()->LLCCacheSizeInKb > 0); // aka "Core -vs- Atom".
+            bool LLC = (pGmmGlobalContext->GetGtSysInfo()->LLCCacheSizeInKb > 0); // aka "Core -vs- Atom".
 
             #if !defined(I915_GEN9_MOCS)
             {
@@ -161,23 +161,23 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::InitCachePolicy() {
         // Process the cache policy and fill in the look up table
         for(uint32_t Usage = 0; Usage < GMM_RESOURCE_USAGE_MAX ; Usage++)
         {
-            BOOLEAN     CachePolicyError = FALSE;
+            bool     CachePolicyError = false;
             uint32_t       PTEValue = 0;
-            INT         CPTblIdx = -1;
+            int32_t         CPTblIdx = -1;
             uint32_t       j = 0;
             GMM_CACHE_POLICY_TBL_ELEMENT UsageEle = { 0 };
-            UsageEle.LeCC.Reserved = 0; // Reserved bits zeroe'd, this is so we 
+            UsageEle.LeCC.Reserved = 0; // Reserved bits zeroe'd, this is so we
                                         // we can compare the unioned LeCC.DwordValue.
             UsageEle.LeCC.SCF = pCachePolicy[Usage].SCF;
             UsageEle.LeCC.PFM = 0; // TODO: decide what the page faulting mode should be
             UsageEle.LeCC.SCC = 0;
             UsageEle.LeCC.ESC = 0;
             if (pCachePolicy[Usage].LeCC_SCC)
-            { 
+            {
                 UsageEle.LeCC.SCC = pCachePolicy[Usage].LeCC_SCC;
                 UsageEle.LeCC.ESC = ENABLE_SKIP_CACHING_CONTROL;
             }
-            UsageEle.LeCC.AOM = pCachePolicy[Usage].AOM;            
+            UsageEle.LeCC.AOM = pCachePolicy[Usage].AOM;
             UsageEle.LeCC.LRUM = pCachePolicy[Usage].AGE;
 
             // default to LLC/ELLC target cache.
@@ -189,7 +189,7 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::InitCachePolicy() {
             {
                 UsageEle.LeCC.AOM = 0;
                 UsageEle.LeCC.LRUM = 0;
-                UsageEle.LeCC.Cacheability = LeCC_UNCACHEABLE; // To avoid side effects use 01b even though 01b(UC) 11b(WB) are equivalent option   
+                UsageEle.LeCC.Cacheability = LeCC_UNCACHEABLE; // To avoid side effects use 01b even though 01b(UC) 11b(WB) are equivalent option
 
                 #if !defined(I915_GEN9_MOCS)
                     UsageEle.LeCC.TargetCache = TC_LLC; // No LLC for Broxton, but we still set it to LLC since it is needed for IA coherency cases
@@ -217,15 +217,15 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::InitCachePolicy() {
                 }
             }
 
-            UsageEle.L3.Reserved = 0; // Reserved bits zeroe'd, this is so we 
-                                      // we can compare the unioned L3.UshortValue.            
+            UsageEle.L3.Reserved = 0; // Reserved bits zeroe'd, this is so we
+                                      // we can compare the unioned L3.UshortValue.
             UsageEle.L3.ESC = DISABLE_SKIP_CACHING_CONTROL;
             UsageEle.L3.SCC = 0;
             UsageEle.L3.Cacheability = pCachePolicy[Usage].L3 ?  L3_WB_CACHEABLE : L3_UNCACHEABLE;
             if (pCachePolicy[Usage].L3_SCC)
             {
                 UsageEle.L3.ESC = ENABLE_SKIP_CACHING_CONTROL;
-                UsageEle.L3.SCC = (USHORT)pCachePolicy[Usage].L3_SCC;
+                UsageEle.L3.SCC = (uint16_t)pCachePolicy[Usage].L3_SCC;
             }
             for (j = 0; j <= CurrentMaxIndex; j++)
             {
@@ -233,46 +233,46 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::InitCachePolicy() {
                 if (TblEle->LeCC.DwordValue == UsageEle.LeCC.DwordValue &&
                     TblEle->L3.UshortValue == UsageEle.L3.UshortValue)
                 {
-                    CPTblIdx = j; 
+                    CPTblIdx = j;
                     break;
                 }
-                
+
             }
 
             // Didn't find the caching settings in one of the already programmed lookup table entries.
             // Need to add a new lookup table entry.
             if (CPTblIdx == -1)
-            {                
+            {
                 if (CurrentMaxIndex < GMM_GEN9_MAX_NUMBER_MOCS_INDEXES - 1) {
                     GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &(pCachePolicyTlbElement[++CurrentMaxIndex]);
                     CPTblIdx = CurrentMaxIndex;
-                
+
                     TblEle->LeCC.DwordValue = UsageEle.LeCC.DwordValue;
                     TblEle->L3.UshortValue = UsageEle.L3.UshortValue;
                 }
-                else 
+                else
                 {
-                    // Too many unique caching combinations to program the 
-                    // MOCS lookup table. 
-                    CachePolicyError = TRUE;
+                    // Too many unique caching combinations to program the
+                    // MOCS lookup table.
+                    CachePolicyError = true;
                     GMM_ASSERTDPF("Cache Policy Init Error: Invalid Cache Programming, too many unique caching combinations"
                                   "(we only support GMM_GEN_MAX_NUMBER_MOCS_INDEXES = %d)", GMM_GEN9_MAX_NUMBER_MOCS_INDEXES);
                     // Set cache policy index to uncached.
                     CPTblIdx = 0;
                 }
             }
-            
+
             if (!GetUsagePTEValue(pCachePolicy[Usage], Usage, &PTEValue))
             {
-                CachePolicyError = TRUE;
+                CachePolicyError = true;
             }
 
             pCachePolicy[Usage].PTE.DwordValue = PTEValue;
 
             pCachePolicy[Usage].MemoryObjectOverride.Gen9.Index = CPTblIdx;
-            
+
             pCachePolicy[Usage].Override = ALWAYS_OVERRIDE;
-            
+
             if( CachePolicyError )
             {
                 GMM_ASSERTDPF("Cache Policy Init Error: Invalid Cache Programming - Element %d", Usage);
@@ -295,7 +295,7 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::InitCachePolicy() {
 ///    PAT5 = WC
 ///    PAT6 = WC
 ///    PAT7 = WC
-///  HLD says to set to PAT0/1 to WC, but since we don't have a WC in GPU, 
+///  HLD says to set to PAT0/1 to WC, but since we don't have a WC in GPU,
 ///  WC option is same as UC. Hence setting PAT0 or PAT1 to UC.
 ///  Unused PAT's (5,6,7) are set to WC.
 ///
@@ -308,15 +308,15 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::SetupPAT()
     uint32_t       i = 0;
 
     GMM_GFX_MEMORY_TYPE GfxMemType = GMM_GFX_UC_WITH_FENCE;
-    // No optional selection on Age or Target Cache because for an SVM-OS Age and 
+    // No optional selection on Age or Target Cache because for an SVM-OS Age and
     // Target Cache would not work [for an SVM-OS the Page Table is shared with IA
-    // and we don't have control of the PAT Idx]. If there is a strong ask from D3D 
-    // or the performance analysis team, Age could be added. 
+    // and we don't have control of the PAT Idx]. If there is a strong ask from D3D
+    // or the performance analysis team, Age could be added.
     // Add Class of Service when required.
     GMM_GFX_TARGET_CACHE GfxTargetCache = GMM_GFX_TC_ELLC_LLC;
-    UCHAR                Age = 1;
-    UCHAR                ServiceClass = 0;
-    LONG                 *pPrivatePATTableMemoryType = NULL;
+    uint8_t                Age = 1;
+    uint8_t                ServiceClass = 0;
+    int32_t                 *pPrivatePATTableMemoryType = NULL;
 
     pPrivatePATTableMemoryType = pGmmGlobalContext->GetPrivatePATTableMemoryType();
 
@@ -327,7 +327,7 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::SetupPAT()
         pPrivatePATTableMemoryType[i] = -1;
     }
 
-    // Set values for GmmGlobalInfo PrivatePATTable        
+    // Set values for GmmGlobalInfo PrivatePATTable
     for (i = 0; i < GMM_NUM_PAT_ENTRIES; i++)
     {
         GMM_PRIVATE_PAT     PAT = { 0 };
@@ -351,7 +351,7 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::SetupPAT()
                     GfxMemType = GMM_GFX_WB;
                     if (GFX_IS_ATOM_PLATFORM)
                     {
-                        PAT.PreGen10.Snoop = TRUE;
+                        PAT.PreGen10.Snoop = 1;
                     }
                     pPrivatePATTableMemoryType[GMM_GFX_PAT_WB_COHERENT] = PAT0;
                 }
@@ -366,7 +366,7 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::SetupPAT()
                 GfxMemType = GMM_GFX_WB;
                 if (GFX_IS_ATOM_PLATFORM)
                 {
-                    PAT.PreGen10.Snoop = TRUE;
+                    PAT.PreGen10.Snoop = 1;
                 }
                 pPrivatePATTableMemoryType[GMM_GFX_PAT_WB_COHERENT] = PAT0;
             }
@@ -378,7 +378,7 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::SetupPAT()
                 GfxMemType = GMM_GFX_WB;
                 if (GFX_IS_ATOM_PLATFORM)
                 {
-                    PAT.PreGen10.Snoop = TRUE;
+                    PAT.PreGen10.Snoop = 1;
                 }
                 pPrivatePATTableMemoryType[GMM_GFX_PAT_WB_COHERENT] = PAT1;
             }

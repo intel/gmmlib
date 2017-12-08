@@ -23,7 +23,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 #ifdef __cplusplus
 
-namespace GmmLib 
+namespace GmmLib
 {
     class NON_PAGED_SECTION PlatformInfoGen10 : public PlatformInfo
     {

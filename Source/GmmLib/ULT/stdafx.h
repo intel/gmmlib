@@ -27,10 +27,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 #ifndef _WIN32
-#include "../../inc/portable_windef.h"
 #include "../../inc/portable_compiler.h"
 #endif
-
 
 #include "targetver.h"
 #include <stdio.h>
@@ -72,7 +70,7 @@ extern "C" {
 #define NT_SUCCESS(Status)                      ((NTSTATUS)(Status) >= 0)
 #endif
 
-#ifndef STATUS_UNSUCCESSFUL 
+#ifndef STATUS_UNSUCCESSFUL
 #define STATUS_UNSUCCESSFUL ((NTSTATUS)0xC0000001L)
 #endif
 
@@ -82,4 +80,4 @@ extern "C" {
 
 extern int g_argc;
 extern char** g_argv;
-                                          
+

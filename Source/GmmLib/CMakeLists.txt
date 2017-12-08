@@ -203,12 +203,11 @@ set(HEADERS_
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmDebug.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmFormatTable.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmGttExt.h
-	${BS_DIR_GMMLIB}/inc/External/Common/GmmHw.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmInfo.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmInfoExt.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmInternal.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmMemAllocator.hpp
-	
+
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmPlatformExt.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmProto.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmResourceFlags.h
@@ -299,7 +298,6 @@ source_group("Header Files\\External\\Common" FILES
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmDebug.h
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmFormatTable.h
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmGttExt.h
-			${BS_DIR_GMMLIB}/inc/External/Common/GmmHw.h
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmInfo.h
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmInfoExt.h
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmInternal.h

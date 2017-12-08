@@ -34,19 +34,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 #ifndef __GMM_ASSERT
     // Needs to be defined before including this file. If not defined, then
     // we'll nop these macros.
-    #define __GMM_ASSERT(expr) 
-    #define GMM_ASSERTDPF(expr, ret) 
+    #define __GMM_ASSERT(expr)
+    #define GMM_ASSERTDPF(expr, ret)
     #define __GMM_ASSERTPTR(expr, ret)
 #endif
 
 //Forward declaration
-GMM_GFX_SIZE_T  __GmmTexGetMipWidth(GMM_TEXTURE_INFO *pTexInfo, uint32_t MipLevel);
+GMM_GFX_SIZE_T     __GmmTexGetMipWidth(GMM_TEXTURE_INFO *pTexInfo, uint32_t MipLevel);
 uint32_t           __GmmTexGetMipHeight(GMM_TEXTURE_INFO *pTexInfo, uint32_t MipLevel);
 uint32_t           __GmmTexGetMipDepth(GMM_TEXTURE_INFO *pTexInfo, uint32_t MipLevel);
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// @file GmmResourceInfoCommon.h
-/// @brief This file contains the functions and members of GmmResourceInfo that is 
+/// @brief This file contains the functions and members of GmmResourceInfo that is
 ///       common for both Linux and Windows.
 ///
 /////////////////////////////////////////////////////////////////////////////////////
@@ -58,20 +58,20 @@ namespace GmmLib
     /// Windows specific class, so clients shouldn't have to ever interact
     /// with this class directly.
     /////////////////////////////////////////////////////////////////////////
-    class NON_PAGED_SECTION GmmResourceInfoCommon: 
+    class NON_PAGED_SECTION GmmResourceInfoCommon:
                             public GmmMemAllocator
     {
-        protected:  
-            /// Type of Client type using the library. Can be used by GmmLib to 
+        protected:
+            /// Type of Client type using the library. Can be used by GmmLib to
             /// implement client specific functionality.
-            GMM_CLIENT                          ClientType; 
+            GMM_CLIENT                          ClientType;
             GMM_TEXTURE_INFO                    Surf;                       ///< Contains info about the surface being created
             GMM_TEXTURE_INFO                    AuxSurf;                    ///< Contains info about the auxiliary surface if using Unified Auxiliary surfaces.
             GMM_TEXTURE_INFO                    AuxSecSurf;                 ///< For multi-Aux surfaces (eg: unified lossless MSAA compression, Z compression), contains info about the secondary auxiliary surface
             GMM_TEXTURE_INFO                    PlaneSurf[GMM_MAX_PLANE];   ///< Contains info for each plane for tiled Ys/Yf planar resources
             GMM_TEXTURE_INFO                    PlaneAuxSurf[GMM_MAX_PLANE];   ///< Contains auxiliary surface info for each plane for tiled Ys/Yf planar resources
 
-            uint32_t                               RotateInfo;     
+            uint32_t                            RotateInfo;
             GMM_EXISTING_SYS_MEM                ExistingSysMem;     ///< Info about resources initialized with existing system memory
             GMM_GFX_ADDRESS                     IsolatedGfxAddress; ///< PIGMS address (WDDM1.x only)
             GMM_GFX_ADDRESS                     SvmAddress;         ///< Driver managed SVM address
@@ -84,13 +84,13 @@ namespace GmmLib
 
         protected:
             /* Function prototypes */
-            BOOLEAN             IsPresentableformat();
+            bool                IsPresentableformat();
             // Move GMM Restrictions to it's own class?
             void                GetGenericRestrictions(__GMM_BUFFER_TYPE *pBuff);
             __GMM_BUFFER_TYPE*  GetBestRestrictions(__GMM_BUFFER_TYPE *pFirstBuffer, const __GMM_BUFFER_TYPE *pSecondBuffer);
-            virtual BOOLEAN     CopyClientParams(GMM_RESCREATE_PARAMS &CreateParams);
-            BOOLEAN             RedescribePlanes();
-            BOOLEAN             ReAdjustPlaneProperties(BOOLEAN IsAuxSurf);
+            virtual uint8_t     CopyClientParams(GMM_RESCREATE_PARAMS &CreateParams);
+            bool                RedescribePlanes();
+            bool                ReAdjustPlaneProperties(bool IsAuxSurf);
 
             /* Inline functions */
 
@@ -127,11 +127,11 @@ namespace GmmLib
             /////////////////////////////////////////////////////////////////////////////////////
             /// Checks where the restrictions are invalid or not
             /// @param[in]  pRestriction Restrictions to check
-            /// @return     TRUE if restriction is invalid. FALSE otherwise.
+            /// @return     true if restriction is invalid. false otherwise.
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE BOOLEAN IsRestrictionInvalid(__GMM_BUFFER_TYPE *pRestriction)
+            GMM_INLINE bool IsRestrictionInvalid(__GMM_BUFFER_TYPE *pRestriction)
             {
-                return ((pRestriction->MinDepth == 0xffffffff) ? TRUE : FALSE);
+                return ((pRestriction->MinDepth == 0xffffffff) ? true : false);
             }
 
             /////////////////////////////////////////////////////////////////////////////////////
@@ -168,7 +168,7 @@ namespace GmmLib
                 pGmmLibContext(),
                 pPrivateData()
             {
-                
+
             }
 
             GmmResourceInfoCommon& operator=(const GmmResourceInfoCommon& rhs)
@@ -196,33 +196,33 @@ namespace GmmLib
 
             /* Function prototypes */
             GMM_STATUS              GMM_STDCALL Create(Context &GmmLibContext, GMM_RESCREATE_PARAMS &CreateParams);
-            BOOLEAN                 GMM_STDCALL ValidateParams();
+            uint8_t                 GMM_STDCALL ValidateParams();
             void                    GMM_STDCALL GetRestrictions(__GMM_BUFFER_TYPE& Restrictions);
-            uint32_t                   GMM_STDCALL GetPaddedWidth(uint32_t MipLevel);
-            uint32_t                   GMM_STDCALL GetPaddedHeight(uint32_t MipLevel);
-            uint32_t                   GMM_STDCALL GetPaddedPitch(uint32_t MipLevel);
-            uint32_t                   GMM_STDCALL GetQPitch();
+            uint32_t                GMM_STDCALL GetPaddedWidth(uint32_t MipLevel);
+            uint32_t                GMM_STDCALL GetPaddedHeight(uint32_t MipLevel);
+            uint32_t                GMM_STDCALL GetPaddedPitch(uint32_t MipLevel);
+            uint32_t                GMM_STDCALL GetQPitch();
             GMM_STATUS              GMM_STDCALL GetOffset(GMM_REQ_OFFSET_INFO &ReqInfo);
-            BOOLEAN                 GMM_STDCALL CpuBlt(GMM_RES_COPY_BLT *pBlt);
-            BOOLEAN                 GMM_STDCALL GetMappingSpanDesc(GMM_GET_MAPPING *pMapping);
-            BOOLEAN                 GMM_STDCALL Is64KBPageSuitable();
-            void                    GMM_STDCALL GetTiledResourceMipPacking(UINT *pNumPackedMips,
-                                                                           UINT *pNumTilesForPackedMips);
-            uint32_t                   GMM_STDCALL GetPackedMipTailStartLod();
-            BOOLEAN                 GMM_STDCALL GetDisplayFastClearSupport();
-            BOOLEAN                 GMM_STDCALL GetDisplayCompressionSupport();
+            uint8_t                 GMM_STDCALL CpuBlt(GMM_RES_COPY_BLT *pBlt);
+            uint8_t                 GMM_STDCALL GetMappingSpanDesc(GMM_GET_MAPPING *pMapping);
+            uint8_t                 GMM_STDCALL Is64KBPageSuitable();
+            void                    GMM_STDCALL GetTiledResourceMipPacking(uint32_t *pNumPackedMips,
+                                                                           uint32_t *pNumTilesForPackedMips);
+            uint32_t                GMM_STDCALL GetPackedMipTailStartLod();
+            uint8_t                 GMM_STDCALL GetDisplayFastClearSupport();
+            uint8_t                 GMM_STDCALL GetDisplayCompressionSupport();
 
 
             /* inline functions */
 
             /////////////////////////////////////////////////////////////////////////////////////
-            /// Returns the system memory pointer. It selectively returns either the natural 
-            /// pointer or a value appriopriately page aligned for D3DDI_ALLOCATIONINFO, 
+            /// Returns the system memory pointer. It selectively returns either the natural
+            /// pointer or a value appriopriately page aligned for D3DDI_ALLOCATIONINFO,
             /// depending on what the caller request.
             /// @param[in]      IsD3DDdiAllocation: Specifies where allocation was made by a D3D client
             /// @return         Pointer to system memory. NULL if not available.
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE void* GMM_STDCALL GetSystemMemPointer(BOOLEAN IsD3DDdiAllocation)
+            GMM_INLINE void* GMM_STDCALL GetSystemMemPointer(uint8_t IsD3DDdiAllocation)
             {
                 if (IsD3DDdiAllocation)
                 {
@@ -453,7 +453,7 @@ namespace GmmLib
             }
 
             /////////////////////////////////////////////////////////////////////////////////////
-            /// Returns distance in bytes between array elements (or pseudo-array-elements--e.g. 
+            /// Returns distance in bytes between array elements (or pseudo-array-elements--e.g.
             /// cube faces, MSFMT_MSS sample planes).
             /// @return    QPitch
             /////////////////////////////////////////////////////////////////////////////////////
@@ -517,7 +517,7 @@ namespace GmmLib
                 else
                 {
                     // Surf.TileMode not set correctly
-                    __GMM_ASSERT(FALSE);
+                    __GMM_ASSERT(false);
                     PitchInTiles = 0;
                 }
 
@@ -598,7 +598,7 @@ namespace GmmLib
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE GMM_TILE_TYPE GMM_STDCALL GetTileType()
             {
-                if (Surf.Flags.Info.TiledW) 
+                if (Surf.Flags.Info.TiledW)
                 {
                     return GMM_TILED_W;
                 }
@@ -612,7 +612,7 @@ namespace GmmLib
                 {
                     return GMM_TILED_Y;
                 }
-                
+
                 return GMM_NOT_TILED;
             }
 
@@ -680,7 +680,7 @@ namespace GmmLib
 
                 return
                     (ArrayIndex < GMM_MAX_MMC_INDEX) ?
-                        (GMM_RESOURCE_MMC_INFO)Surf.MmcMode[ArrayIndex] : 
+                        (GMM_RESOURCE_MMC_INFO)Surf.MmcMode[ArrayIndex] :
                             GMM_MMC_DISABLED;
             }
 
@@ -703,22 +703,22 @@ namespace GmmLib
             /////////////////////////////////////////////////////////////////////////////////////
             /// Returns whether Media Memory Compression enabled or not.
             /// @param[in]  ArrayIndex ArrayIndex for which this info is needed
-            /// @return     TRUE (enabled), FALSE (disabled) 
+            /// @return     1 (enabled), 0 (disabled)
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE BOOLEAN GMM_STDCALL IsMediaMemoryCompressed(uint32_t ArrayIndex)
+            GMM_INLINE uint8_t GMM_STDCALL IsMediaMemoryCompressed(uint32_t ArrayIndex)
             {
                 __GMM_ASSERT(ArrayIndex < GMM_MAX_MMC_INDEX);
 
                 return
                     (ArrayIndex < GMM_MAX_MMC_INDEX) ?
-                        Surf.MmcMode[ArrayIndex] != GMM_MMC_DISABLED : 
-                            FALSE;
+                        Surf.MmcMode[ArrayIndex] != GMM_MMC_DISABLED :
+                            0;
             }
 
             /////////////////////////////////////////////////////////////////////////////////////
             /// Returns mmc hints.
             /// @param[in]  ArrayIndex ArrayIndex for which this info is needed
-            /// @return     TRUE/FALSE
+            /// @return     1/0
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE GMM_RESOURCE_MMC_HINT GMM_STDCALL GetMmcHint(uint32_t ArrayIndex)
             {
@@ -730,7 +730,7 @@ namespace GmmLib
             /// Sets mmc hints.
             /// @param[in]  Hint Mmc hint to store
             /// @param[in]  ArrayIndex ArrayIndex for which this info is needed
-            /// @return     TRUE/FALSE
+            /// @return     true/false
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE void GMM_STDCALL SetMmcHint(GMM_RESOURCE_MMC_HINT Hint, uint32_t ArrayIndex)
             {
@@ -738,7 +738,7 @@ namespace GmmLib
                 __GMM_ASSERT(GMM_MMC_HINT_ON == 0);
                 __GMM_ASSERT(GMM_MMC_HINT_OFF == 1);
 
-                Surf.MmcHint[ArrayIndex] = static_cast<UCHAR>(Hint);
+                Surf.MmcHint[ArrayIndex] = static_cast<uint8_t>(Hint);
             }
 
             /////////////////////////////////////////////////////////////////////////////////////
@@ -790,7 +790,7 @@ namespace GmmLib
             GMM_INLINE GMM_GFX_SIZE_T GMM_STDCALL GetPlanarAuxOffset(uint32_t ArrayIndex, GMM_UNIFIED_AUX_TYPE GmmAuxType)
             {
                 GMM_GFX_SIZE_T Offset = 0;
-                
+
                 __GMM_ASSERT(ArrayIndex < Surf.ArraySize);
                 __GMM_ASSERT(GmmIsPlanar(Surf.Format));
 
@@ -908,9 +908,9 @@ namespace GmmLib
 
             /////////////////////////////////////////////////////////////////////////////////////
             /// Returns whether resource uses LOD0-only or Full array spacing
-            /// @return     TRUE/FALSE
+            /// @return     1/0
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE BOOLEAN GMM_STDCALL IsArraySpacingSingleLod()
+            GMM_INLINE uint8_t GMM_STDCALL IsArraySpacingSingleLod()
             {
                 __GMM_ASSERT(GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) < IGFX_GEN8_CORE);
                 return Surf.Alignment.ArraySpacingSingleLod;
@@ -918,9 +918,9 @@ namespace GmmLib
 
             /////////////////////////////////////////////////////////////////////////////////////
             /// Returns whether resource is ASTC
-            /// @return     TRUE/FALSE
+            /// @return     1/0
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE BOOLEAN GMM_STDCALL IsASTC()
+            GMM_INLINE uint8_t GMM_STDCALL IsASTC()
             {
                 GMM_RESOURCE_FORMAT Format;
                 Format = Surf.Format;
@@ -932,11 +932,11 @@ namespace GmmLib
             }
 
             /////////////////////////////////////////////////////////////////////////////////////
-            /// Returns indication of whether resource uses the MSFMT_DEPTH_STENCIL Multisampled 
+            /// Returns indication of whether resource uses the MSFMT_DEPTH_STENCIL Multisampled
             /// Surface Storage Format.
-            /// @return     TRUE/FALSE
+            /// @return     1/0
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE BOOLEAN GMM_STDCALL IsMsaaFormatDepthStencil()
+            GMM_INLINE uint8_t GMM_STDCALL IsMsaaFormatDepthStencil()
             {
                 // Gen7 MSAA (non-Depth/Stencil) render targets use (MSFMT_DEPTH_MSS) array
                 // expansion instead of (MSFMT_DEPTH_STENCIL) Width/Height expansion.
@@ -947,11 +947,11 @@ namespace GmmLib
 
             /////////////////////////////////////////////////////////////////////////////////////
             /// Returns indication of whether resource is SVM or not
-            /// @return     TRUE/FALSE
+            /// @return     1/0
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE BOOLEAN GMM_STDCALL IsSvm()
+            GMM_INLINE uint8_t GMM_STDCALL IsSvm()
             {
-                return static_cast<BOOLEAN>(Surf.Flags.Info.SVM);
+                return static_cast<uint8_t>(Surf.Flags.Info.SVM);
             }
 
             /////////////////////////////////////////////////////////////////////////////////////
@@ -1018,7 +1018,7 @@ namespace GmmLib
             }
 
             /////////////////////////////////////////////////////////////////////////////////////
-            /// Returns the number of bytes that are required to back this padded and aligned 
+            /// Returns the number of bytes that are required to back this padded and aligned
             /// resource. The calculation takes into consideration more than simply width
             /// height and bits per pixel. Width padding (stride), pixel formats, inter-plane
             /// padding depts/array-size and so on also for part of the list of factors.
@@ -1111,7 +1111,7 @@ namespace GmmLib
                         }
                     }
                 }
-                else if(GmmAuxType == GMM_AUX_CC && 
+                else if(GmmAuxType == GMM_AUX_CC &&
                         Surf.Flags.Gpu.IndirectClearColor &&
                         Surf.Flags.Gpu.HiZ)
                 {
@@ -1182,15 +1182,15 @@ namespace GmmLib
             }
 
             /////////////////////////////////////////////////////////////////////////
-            /// This function returns or sets the value of the hardware protected flag 
+            /// This function returns or sets the value of the hardware protected flag
             /// associated with the given GMM resource within same process.
             /// @param[in]  GetIsEncrypted: Read encryption status
             /// @param[in]  SetIsEncrypted: Write encryption status
             /// @return     Whether surface is encrypted or not
             /////////////////////////////////////////////////////////////////////////
-            virtual GMM_INLINE BOOLEAN GMM_STDCALL GetSetHardwareProtection(BOOLEAN GetIsEncrypted, BOOLEAN SetIsEncrypted)
+            virtual GMM_INLINE uint8_t GMM_STDCALL GetSetHardwareProtection(uint8_t GetIsEncrypted, uint8_t SetIsEncrypted)
             {
-                BOOLEAN IsEncrypted = FALSE;
+                uint8_t IsEncrypted = 0;
 
                 if (GetIsEncrypted)
                 {
@@ -1206,13 +1206,13 @@ namespace GmmLib
 
             /////////////////////////////////////////////////////////////////////////
             /// Returns the size of the surface in StdLayout format
-            /// @return  Size in bytes of Standard Layout version of surface.   
+            /// @return  Size in bytes of Standard Layout version of surface.
             /////////////////////////////////////////////////////////////////////////
-            GMM_INLINE GMM_GFX_SIZE_T GMM_STDCALL GetStdLayoutSize() 
+            GMM_INLINE GMM_GFX_SIZE_T GMM_STDCALL GetStdLayoutSize()
             {
                 GMM_REQ_OFFSET_INFO GetOffset = {};
 
-                GetOffset.ReqStdLayout = TRUE;
+                GetOffset.ReqStdLayout = true;
                 GetOffset.StdLayout.Offset = static_cast<GMM_GFX_SIZE_T>(-1); // Special Req for StdLayout Size
                 this->GetOffset(GetOffset);
 
@@ -1221,9 +1221,9 @@ namespace GmmLib
 
             /////////////////////////////////////////////////////////////////////////
             /// Returns whether resource is color separated target
-            /// @return  TRUE if the resource is color separated target, FALSE otherwise   
+            /// @return  1 if the resource is color separated target, 0 otherwise
             /////////////////////////////////////////////////////////////////////////
-            GMM_INLINE BOOLEAN GMM_STDCALL IsColorSeparation()
+            GMM_INLINE uint8_t GMM_STDCALL IsColorSeparation()
             {
                 return Surf.Flags.Gpu.ColorSeparation || Surf.Flags.Gpu.ColorSeparationRGBX;
             }
@@ -1231,7 +1231,7 @@ namespace GmmLib
             /////////////////////////////////////////////////////////////////////////
             /// Translate packed source x coordinate to color separation target x coordinate
             /// @param[in]  x: X coordinate
-            /// @return   Translated color separation target x coordinate  
+            /// @return   Translated color separation target x coordinate
             /////////////////////////////////////////////////////////////////////////
             GMM_INLINE uint32_t GMM_STDCALL TranslateColorSeparationX(uint32_t x)
             {
@@ -1288,13 +1288,13 @@ namespace GmmLib
 
             /////////////////////////////////////////////////////////////////////////
             /// Returns whether surface can be faulted on
-            /// @return   TRUE is surface can be faulted on
+            /// @return   1 is surface can be faulted on
             /////////////////////////////////////////////////////////////////////////
-            virtual GMM_INLINE BOOLEAN GMM_STDCALL IsSurfaceFaultable()
+            virtual GMM_INLINE uint8_t GMM_STDCALL IsSurfaceFaultable()
             {
-                return FALSE;
+                return 0;
             }
-     
+
             /////////////////////////////////////////////////////////////////////////////////////
             /// Returns the cache policy usage associated with this surface.
             /// @return     Cache Policy Usage
@@ -1319,7 +1319,7 @@ namespace GmmLib
                 if (Surf.Flags.Info.XAdapter &&
                     GetCachePolicyUsage() != GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE)
                 {
-                    __GMM_ASSERT(FALSE);
+                    __GMM_ASSERT(false);
                 }
 
                 if ((CachePolicy[GetCachePolicyUsage()].Override & CachePolicy[GetCachePolicyUsage()].IDCode) ||
@@ -1345,7 +1345,7 @@ namespace GmmLib
             }
 
             /////////////////////////////////////////////////////////////////////////////////////
-            /// Returns the Tile Address Mapping Mode, for SURFACE_STATE programming and is 
+            /// Returns the Tile Address Mapping Mode, for SURFACE_STATE programming and is
             /// applicable only for 3D surface
             /// @return     Tile Address Mapping Mode
             /////////////////////////////////////////////////////////////////////////////////////
@@ -1356,7 +1356,7 @@ namespace GmmLib
 
 
             /////////////////////////////////////////////////////////////////////////////////////
-            /// Returns the surface state value for Standard Tiling Mode Extension 
+            /// Returns the surface state value for Standard Tiling Mode Extension
             /// @return     Standard Tiling Mode Extension
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE uint32_t GMM_STDCALL GetStdTilingModeExtSurfaceState()
@@ -1377,7 +1377,7 @@ namespace GmmLib
             /// Returns the surface state value for Resource Format
             /// @return     Resource Format
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE GMM_SURFACESTATE_FORMAT GMM_STDCALL GetResourceFormatSurfaceState() 
+            GMM_INLINE GMM_SURFACESTATE_FORMAT GMM_STDCALL GetResourceFormatSurfaceState()
             {
                 GMM_RESOURCE_FORMAT Format;
 
@@ -1708,5 +1708,5 @@ namespace GmmLib
 
     };
 
-} // namespace GmmLib  
+} // namespace GmmLib
 #endif // #ifdef __cplusplus

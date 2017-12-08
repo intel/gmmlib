@@ -75,7 +75,7 @@ void CTestGen9Resource::TearDownTestCase()
 TEST_F(CTestGen9Resource, Test1DLinearResource)
 {
     // Horizontal pixel alignment
-    const ULONG HAlign = 64;
+    const uint32_t HAlign = 64;
 
     GMM_RESCREATE_PARAMS gmmParams = {};
     gmmParams.Type = RESOURCE_1D;
@@ -84,7 +84,7 @@ TEST_F(CTestGen9Resource, Test1DLinearResource)
     gmmParams.Flags.Gpu.Texture = 1;
 
     // Allocate 1x1 surface
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -94,9 +94,9 @@ TEST_F(CTestGen9Resource, Test1DLinearResource)
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
 
-        UINT AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
-        UINT PitchInBytes = AlignedWidth * GetBppValue(bpp);
-        UINT AlignedSize = GMM_ULT_ALIGN(PitchInBytes, PAGE_SIZE);
+        uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
+        uint32_t PitchInBytes = AlignedWidth * GetBppValue(bpp);
+        uint32_t AlignedSize = GMM_ULT_ALIGN(PitchInBytes, PAGE_SIZE);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<false>(ResourceInfo, 0); // N/A for 1D
@@ -108,7 +108,7 @@ TEST_F(CTestGen9Resource, Test1DLinearResource)
 
 
     // Allocate more than 1 page
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -118,9 +118,9 @@ TEST_F(CTestGen9Resource, Test1DLinearResource)
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
 
-        UINT AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
-        UINT PitchInBytes = AlignedWidth * GetBppValue(bpp);
-        UINT AlignedSize = GMM_ULT_ALIGN(PitchInBytes, PAGE_SIZE);
+        uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
+        uint32_t PitchInBytes = AlignedWidth * GetBppValue(bpp);
+        uint32_t AlignedSize = GMM_ULT_ALIGN(PitchInBytes, PAGE_SIZE);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<false>(ResourceInfo, 0); // N/A for 1D
@@ -135,7 +135,7 @@ TEST_F(CTestGen9Resource, Test1DLinearResource)
 TEST_F(CTestGen9Resource, Test1DLinearResourceArrays)
 {
     // Horizontal pixel alignment
-    const ULONG HAlign = 64;
+    const uint32_t HAlign = 64;
 
     GMM_RESCREATE_PARAMS gmmParams = {};
     gmmParams.Type = RESOURCE_1D;
@@ -145,7 +145,7 @@ TEST_F(CTestGen9Resource, Test1DLinearResourceArrays)
     gmmParams.ArraySize = 4;
 
     // Allocate more than 1 page
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -155,9 +155,9 @@ TEST_F(CTestGen9Resource, Test1DLinearResourceArrays)
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
 
-        UINT AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
-        UINT PitchInBytes = AlignedWidth * GetBppValue(bpp);
-        UINT AlignedSize = GMM_ULT_ALIGN(PitchInBytes * gmmParams.ArraySize, PAGE_SIZE);
+        uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
+        uint32_t PitchInBytes = AlignedWidth * GetBppValue(bpp);
+        uint32_t AlignedSize = GMM_ULT_ALIGN(PitchInBytes * gmmParams.ArraySize, PAGE_SIZE);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<false>(ResourceInfo, 0); // N/A for 1D
@@ -172,7 +172,7 @@ TEST_F(CTestGen9Resource, Test1DLinearResourceArrays)
 TEST_F(CTestGen9Resource, Test1DLinearResourceMips)
 {
     // Horizontal pixel alignment
-    const ULONG HAlign = 64;
+    const uint32_t HAlign = 64;
 
     GMM_RESCREATE_PARAMS gmmParams = {};
     gmmParams.Type = RESOURCE_1D;
@@ -182,7 +182,7 @@ TEST_F(CTestGen9Resource, Test1DLinearResourceMips)
     gmmParams.MaxLod = 5;
 
     // Allocate 256x1 surface
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -192,14 +192,14 @@ TEST_F(CTestGen9Resource, Test1DLinearResourceMips)
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
 
-        UINT AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
+        uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
         for(int mip = 1; mip <= gmmParams.MaxLod; mip++)
         {
             // Since 1D doesn't have a height, mips are just based on width
             AlignedWidth += GMM_ULT_ALIGN(gmmParams.BaseWidth64 >> mip, HAlign);
         }
-        UINT PitchInBytes = AlignedWidth * GetBppValue(bpp);
-        UINT AlignedSize = GMM_ULT_ALIGN(PitchInBytes, PAGE_SIZE);
+        uint32_t PitchInBytes = AlignedWidth * GetBppValue(bpp);
+        uint32_t AlignedSize = GMM_ULT_ALIGN(PitchInBytes, PAGE_SIZE);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<false>(ResourceInfo, 0); // N/A for 1D
@@ -219,7 +219,7 @@ TEST_F(CTestGen9Resource, Test1DLinearResourceMips)
         EXPECT_EQ(0, OffsetInfo.Render.ZOffset);
 
         // All mips should be right after one another linearly
-        ULONG StartOfMip = 0;
+        uint32_t StartOfMip = 0;
         for (int mip = 1; mip <= gmmParams.MaxLod; mip++)
         {
             OffsetInfo = {};
@@ -238,7 +238,7 @@ TEST_F(CTestGen9Resource, Test1DLinearResourceMips)
 /// @brief ULT for 1D TileYs Resource  -TRMODE_64KB
 TEST_F(CTestGen9Resource, Test1DTileYsResource)
 {
-    const ULONG TileSize[TEST_BPP_MAX] = { 65536, 32768, 16384, 8192, 4096 };
+    const uint32_t TileSize[TEST_BPP_MAX] = { 65536, 32768, 16384, 8192, 4096 };
 
     GMM_RESCREATE_PARAMS gmmParams = {};
     gmmParams.Type = RESOURCE_1D;
@@ -247,7 +247,7 @@ TEST_F(CTestGen9Resource, Test1DTileYsResource)
     gmmParams.Flags.Gpu.Texture = 1;
 
     // Allocate 1x1 surface
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -257,9 +257,9 @@ TEST_F(CTestGen9Resource, Test1DTileYsResource)
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
 
-        UINT AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[i]);
-        UINT PitchInBytes = AlignedWidth * GetBppValue(bpp);
-        UINT AlignedSize = GMM_ULT_ALIGN(PitchInBytes, PAGE_SIZE);
+        uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[i]);
+        uint32_t PitchInBytes = AlignedWidth * GetBppValue(bpp);
+        uint32_t AlignedSize = GMM_ULT_ALIGN(PitchInBytes, PAGE_SIZE);
 
         VerifyResourceHAlign<true>(ResourceInfo, TileSize[i]);
         VerifyResourceVAlign<false>(ResourceInfo, 0); // N/A for 1D
@@ -272,7 +272,7 @@ TEST_F(CTestGen9Resource, Test1DTileYsResource)
     // Allocate more than 1 "tile", where applicable. Max width of the surface can only be
     // 16K (see RENDER_SURFACE_STATE). Depending on the bpp, 16K width may not use more than
     // 1 "tile" (only 64/128 will use "multi-tile").
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -282,9 +282,9 @@ TEST_F(CTestGen9Resource, Test1DTileYsResource)
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
 
-        UINT AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[i]);
-        UINT PitchInBytes = AlignedWidth * GetBppValue(bpp);
-        UINT AlignedSize = GMM_ULT_ALIGN(PitchInBytes, PAGE_SIZE);
+        uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[i]);
+        uint32_t PitchInBytes = AlignedWidth * GetBppValue(bpp);
+        uint32_t AlignedSize = GMM_ULT_ALIGN(PitchInBytes, PAGE_SIZE);
 
         VerifyResourceHAlign<true>(ResourceInfo, TileSize[i]);
         VerifyResourceVAlign<false>(ResourceInfo, 0); // N/A for 1D
@@ -298,7 +298,7 @@ TEST_F(CTestGen9Resource, Test1DTileYsResource)
 /// @brief ULT for 1D TileYS Resource Arrays
 TEST_F(CTestGen9Resource, Test1DTileYsResourceArrays)
 {
-    const ULONG TileSize[TEST_BPP_MAX] = { 65536, 32768, 16384, 8192, 4096 };
+    const uint32_t TileSize[TEST_BPP_MAX] = { 65536, 32768, 16384, 8192, 4096 };
 
     GMM_RESCREATE_PARAMS gmmParams = {};
     gmmParams.Type = RESOURCE_1D;
@@ -308,7 +308,7 @@ TEST_F(CTestGen9Resource, Test1DTileYsResourceArrays)
     gmmParams.ArraySize = 4;
 
     // Allocate more than 1 page
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -318,9 +318,9 @@ TEST_F(CTestGen9Resource, Test1DTileYsResourceArrays)
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
 
-        UINT AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[i]);
-        UINT PitchInBytes = AlignedWidth * GetBppValue(bpp);
-        UINT AlignedSize = GMM_ULT_ALIGN(PitchInBytes * gmmParams.ArraySize, PAGE_SIZE);
+        uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[i]);
+        uint32_t PitchInBytes = AlignedWidth * GetBppValue(bpp);
+        uint32_t AlignedSize = GMM_ULT_ALIGN(PitchInBytes * gmmParams.ArraySize, PAGE_SIZE);
 
         VerifyResourceHAlign<true>(ResourceInfo, TileSize[i]);
         VerifyResourceVAlign<false>(ResourceInfo, 0); // N/A for 1D
@@ -334,8 +334,8 @@ TEST_F(CTestGen9Resource, Test1DTileYsResourceArrays)
 /// @brief ULT for 1D Mipped TileYS Resource
 TEST_F(CTestGen9Resource, Test1DTileYsResourceMips)
 {
-    const ULONG TileSize[TEST_BPP_MAX] = { 65536, 32768, 16384, 8192, 4096 };
-    const ULONG Mts[TEST_BPP_MAX]      = { 32768, 16384, 8192,  4096, 2048 };
+    const uint32_t TileSize[TEST_BPP_MAX] = { 65536, 32768, 16384, 8192, 4096 };
+    const uint32_t Mts[TEST_BPP_MAX]      = { 32768, 16384, 8192,  4096, 2048 };
 
     GMM_RESCREATE_PARAMS gmmParams = {};
     gmmParams.Type = RESOURCE_1D;
@@ -345,7 +345,7 @@ TEST_F(CTestGen9Resource, Test1DTileYsResourceMips)
     gmmParams.MaxLod = 5;
 
     // Allocate all mips in 1 tile or multiple tiles, depending on the bpp
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -355,8 +355,8 @@ TEST_F(CTestGen9Resource, Test1DTileYsResourceMips)
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
 
-        ULONG MaxMip;
-        ULONG MipTailStart = gmmParams.MaxLod;
+        uint32_t MaxMip;
+        uint32_t MipTailStart = gmmParams.MaxLod;
         for (MaxMip = 0; MaxMip <= gmmParams.MaxLod; MaxMip++)
         {
             if ((gmmParams.BaseWidth64 >> MaxMip) <= Mts[i])
@@ -366,15 +366,15 @@ TEST_F(CTestGen9Resource, Test1DTileYsResourceMips)
             }
         }
 
-        ULONG AlignedWidth = 0;
+        uint32_t AlignedWidth = 0;
         for (int mip = 0; mip <= MaxMip; mip++)
         {
             // Since 1D doesn't have a height, mips are just based on width
             AlignedWidth += GMM_ULT_ALIGN(gmmParams.BaseWidth64 >> mip, TileSize[i]);;
         }
 
-        UINT PitchInBytes = AlignedWidth * GetBppValue(bpp);
-        UINT AlignedSize = GMM_ULT_ALIGN(PitchInBytes, PAGE_SIZE);
+        uint32_t PitchInBytes = AlignedWidth * GetBppValue(bpp);
+        uint32_t AlignedSize = GMM_ULT_ALIGN(PitchInBytes, PAGE_SIZE);
 
         VerifyResourceHAlign<true>(ResourceInfo, TileSize[i]);
         VerifyResourceVAlign<false>(ResourceInfo, 0); // N/A for 1D
@@ -384,7 +384,7 @@ TEST_F(CTestGen9Resource, Test1DTileYsResourceMips)
         VerifyResourceQPitch<false>(ResourceInfo, 0); // N/A for non-arrayed
 
         // All mips should be right after one another linearly, until the miptail
-        ULONG StartOfMip = 0;
+        uint32_t StartOfMip = 0;
         int mip;
         for (mip = 0; mip < MaxMip; mip++)
         {
@@ -399,8 +399,8 @@ TEST_F(CTestGen9Resource, Test1DTileYsResourceMips)
             EXPECT_EQ(0, OffsetInfo.Render.ZOffset);
         }
 
-        ULONG MipTailOffsets[GMM_ULT_MAX_MIPMAP] = { 32768, 16384, 8192, 4096, 2048, 1024, 768, 512, 448, 384, 320, 256, 192, 128, 64 };
-        // Check for offset inside miptails. 
+        uint32_t MipTailOffsets[GMM_ULT_MAX_MIPMAP] = { 32768, 16384, 8192, 4096, 2048, 1024, 768, 512, 448, 384, 320, 256, 192, 128, 64 };
+        // Check for offset inside miptails.
         EXPECT_EQ(MipTailStart, ResourceInfo.GetPackedMipTailStartLod());
         StartOfMip += GMM_ULT_ALIGN(gmmParams.BaseWidth64 >> (mip - 1), TileSize[i]) * GetBppValue(bpp); // Start of MipTail
         for (int slot = 0 ; mip <= gmmParams.MaxLod; mip++, slot++)
@@ -420,7 +420,7 @@ TEST_F(CTestGen9Resource, Test1DTileYsResourceMips)
 /// @brief ULT for 1D TileYs Resource  -TRMODE_4KB
 TEST_F(CTestGen9Resource, Test1DTileYfResource)
 {
-    const ULONG TileSize[TEST_BPP_MAX] = { 4096, 2048, 1024, 512, 256 };
+    const uint32_t TileSize[TEST_BPP_MAX] = { 4096, 2048, 1024, 512, 256 };
 
     GMM_RESCREATE_PARAMS gmmParams = {};
     gmmParams.Type = RESOURCE_1D;
@@ -429,7 +429,7 @@ TEST_F(CTestGen9Resource, Test1DTileYfResource)
     gmmParams.Flags.Gpu.Texture = 1;
 
     // Allocate 1x1 surface
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -439,9 +439,9 @@ TEST_F(CTestGen9Resource, Test1DTileYfResource)
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
 
-        UINT AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[i]);
-        UINT PitchInBytes = AlignedWidth * GetBppValue(bpp);
-        UINT AlignedSize = GMM_ULT_ALIGN(PitchInBytes, PAGE_SIZE);
+        uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[i]);
+        uint32_t PitchInBytes = AlignedWidth * GetBppValue(bpp);
+        uint32_t AlignedSize = GMM_ULT_ALIGN(PitchInBytes, PAGE_SIZE);
 
         VerifyResourceHAlign<true>(ResourceInfo, TileSize[i]);
         VerifyResourceVAlign<false>(ResourceInfo, 0); // N/A for 1D
@@ -452,7 +452,7 @@ TEST_F(CTestGen9Resource, Test1DTileYfResource)
     }
 
     // Allocate more than 1 "tile"
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -462,9 +462,9 @@ TEST_F(CTestGen9Resource, Test1DTileYfResource)
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
 
-        UINT AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[i]);
-        UINT PitchInBytes = AlignedWidth * GetBppValue(bpp);
-        UINT AlignedSize = GMM_ULT_ALIGN(PitchInBytes, PAGE_SIZE);
+        uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[i]);
+        uint32_t PitchInBytes = AlignedWidth * GetBppValue(bpp);
+        uint32_t AlignedSize = GMM_ULT_ALIGN(PitchInBytes, PAGE_SIZE);
 
         VerifyResourceHAlign<true>(ResourceInfo, TileSize[i]);
         VerifyResourceVAlign<false>(ResourceInfo, 0); // N/A for 1D
@@ -478,7 +478,7 @@ TEST_F(CTestGen9Resource, Test1DTileYfResource)
 /// @brief ULT for 1D TileYF Resource Arrays
 TEST_F(CTestGen9Resource, Test1DTileYfResourceArrays)
 {
-    const ULONG TileSize[TEST_BPP_MAX] = { 4096, 2048, 1024, 512, 256 };
+    const uint32_t TileSize[TEST_BPP_MAX] = { 4096, 2048, 1024, 512, 256 };
 
     GMM_RESCREATE_PARAMS gmmParams = {};
     gmmParams.Type = RESOURCE_1D;
@@ -488,7 +488,7 @@ TEST_F(CTestGen9Resource, Test1DTileYfResourceArrays)
     gmmParams.ArraySize = 4;
 
     // Allocate more than 1 page
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -498,9 +498,9 @@ TEST_F(CTestGen9Resource, Test1DTileYfResourceArrays)
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
 
-        UINT AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[i]);
-        UINT PitchInBytes = AlignedWidth * GetBppValue(bpp);
-        UINT AlignedSize = GMM_ULT_ALIGN(PitchInBytes * gmmParams.ArraySize, PAGE_SIZE);
+        uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[i]);
+        uint32_t PitchInBytes = AlignedWidth * GetBppValue(bpp);
+        uint32_t AlignedSize = GMM_ULT_ALIGN(PitchInBytes * gmmParams.ArraySize, PAGE_SIZE);
 
         VerifyResourceHAlign<true>(ResourceInfo, TileSize[i]);
         VerifyResourceVAlign<false>(ResourceInfo, 0); // N/A for 1D
@@ -514,8 +514,8 @@ TEST_F(CTestGen9Resource, Test1DTileYfResourceArrays)
 /// @brief ULT for 1D Mipped TileYF Resource
 TEST_F(CTestGen9Resource, Test1DTileYfResourceMips)
 {
-    const ULONG TileSize[TEST_BPP_MAX] = { 4096, 2048, 1024, 512, 256 };
-    const ULONG Mts[TEST_BPP_MAX]      = { 2048, 1024, 512,  256, 128 };
+    const uint32_t TileSize[TEST_BPP_MAX] = { 4096, 2048, 1024, 512, 256 };
+    const uint32_t Mts[TEST_BPP_MAX]      = { 2048, 1024, 512,  256, 128 };
 
     GMM_RESCREATE_PARAMS gmmParams = {};
     gmmParams.Type = RESOURCE_1D;
@@ -525,7 +525,7 @@ TEST_F(CTestGen9Resource, Test1DTileYfResourceMips)
     gmmParams.MaxLod = 8;
 
     // Allocate all mips in 1 tile or multiple tiles, depending on the bpp
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -535,8 +535,8 @@ TEST_F(CTestGen9Resource, Test1DTileYfResourceMips)
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
 
-        ULONG MaxMip;
-        ULONG MipTailStart = gmmParams.MaxLod;
+        uint32_t MaxMip;
+        uint32_t MipTailStart = gmmParams.MaxLod;
         for (MaxMip = 0; MaxMip <= gmmParams.MaxLod; MaxMip++)
         {
             if ((gmmParams.BaseWidth64 >> MaxMip) <= Mts[i])
@@ -546,15 +546,15 @@ TEST_F(CTestGen9Resource, Test1DTileYfResourceMips)
             }
         }
 
-        ULONG AlignedWidth = 0;
+        uint32_t AlignedWidth = 0;
         for (int mip = 0; mip <= MaxMip; mip++)
         {
             // Since 1D doesn't have a height, mips are just based on width
             AlignedWidth += GMM_ULT_ALIGN(gmmParams.BaseWidth64 >> mip, TileSize[i]);
         }
 
-        UINT PitchInBytes = AlignedWidth * GetBppValue(bpp);
-        UINT AlignedSize = GMM_ULT_ALIGN(PitchInBytes, PAGE_SIZE);
+        uint32_t PitchInBytes = AlignedWidth * GetBppValue(bpp);
+        uint32_t AlignedSize = GMM_ULT_ALIGN(PitchInBytes, PAGE_SIZE);
 
         VerifyResourceHAlign<true>(ResourceInfo, TileSize[i]);
         VerifyResourceVAlign<false>(ResourceInfo, 0); // N/A for 1D
@@ -564,7 +564,7 @@ TEST_F(CTestGen9Resource, Test1DTileYfResourceMips)
         VerifyResourceQPitch<false>(ResourceInfo, 0); // N/A for non-arrayed
 
                                                       // All mips should be right after one another linearly, until the miptail
-        ULONG StartOfMip = 0;
+        uint32_t StartOfMip = 0;
         int mip;
         for (mip = 0; mip < MaxMip; mip++)
         {
@@ -579,8 +579,8 @@ TEST_F(CTestGen9Resource, Test1DTileYfResourceMips)
             EXPECT_EQ(0, OffsetInfo.Render.ZOffset);
         }
 
-        ULONG MipTailOffsets[12] = { 2048, 1024, 768, 512, 448, 384, 320, 256, 192, 128, 64, 0 };
-        // Check for offset inside miptails. 
+        uint32_t MipTailOffsets[12] = { 2048, 1024, 768, 512, 448, 384, 320, 256, 192, 128, 64, 0 };
+        // Check for offset inside miptails.
         EXPECT_EQ(MipTailStart, ResourceInfo.GetPackedMipTailStartLod());
         StartOfMip += GMM_ULT_ALIGN(gmmParams.BaseWidth64 >> (mip - 1), TileSize[i]) * GetBppValue(bpp); // Start of MipTail
         for (int slot = 0; mip <= gmmParams.MaxLod; mip++, slot++)
@@ -603,10 +603,10 @@ TEST_F(CTestGen9Resource, Test1DTileYfResourceMips)
 TEST_F(CTestGen9Resource, Test2DTileYsResource)
 {
 
-    const ULONG HAlign[TEST_BPP_MAX] = { 256, 256, 128, 128, 64 };
-    const ULONG VAlign[TEST_BPP_MAX] = { 256, 128, 128, 64, 64 };
+    const uint32_t HAlign[TEST_BPP_MAX] = { 256, 256, 128, 128, 64 };
+    const uint32_t VAlign[TEST_BPP_MAX] = { 256, 128, 128, 64, 64 };
 
-    const ULONG TileSize[TEST_BPP_MAX][2] = { { 256, 256 },
+    const uint32_t TileSize[TEST_BPP_MAX][2] = { { 256, 256 },
                                               {512, 128 },
                                               {512, 128},
                                               {1024,64},
@@ -620,7 +620,7 @@ TEST_F(CTestGen9Resource, Test2DTileYsResource)
     gmmParams.Flags.Gpu.Texture = 1;
 
     //Allocate 1x1 surface
-    for(UINT i = 0; i < TEST_BPP_MAX; i++)
+    for(uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -640,7 +640,7 @@ TEST_F(CTestGen9Resource, Test2DTileYsResource)
 
     // Allocate surface that requires multi tiles in two dimension
     // Allocate 2 tiles in X dimension
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -661,7 +661,7 @@ TEST_F(CTestGen9Resource, Test2DTileYsResource)
     }
 
     // Allocate 2 tiles in X/Y dimension
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -685,17 +685,17 @@ TEST_F(CTestGen9Resource, Test2DTileYsResource)
 /// @brief ULT for 2D TileYs Resource with Mips
 TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
 {
-    const ULONG HAlign[TEST_BPP_MAX] = { 256, 256, 128, 128, 64 };
-    const ULONG VAlign[TEST_BPP_MAX] = { 256, 128, 128, 64, 64 };
+    const uint32_t HAlign[TEST_BPP_MAX] = { 256, 256, 128, 128, 64 };
+    const uint32_t VAlign[TEST_BPP_MAX] = { 256, 128, 128, 64, 64 };
 
-    const ULONG TileSize[TEST_BPP_MAX][2] = { { 256, 256 },
+    const uint32_t TileSize[TEST_BPP_MAX][2] = { { 256, 256 },
                                               { 512, 128 },
                                               { 512, 128 },
                                               { 1024, 64 },
                                               { 1024, 64 } };
 
-    const ULONG MtsWidth[TEST_BPP_MAX] = { 128, 128, 64, 64, 32 };
-    const ULONG MtsHeight[TEST_BPP_MAX] = { 256, 128, 128, 64, 64 };
+    const uint32_t MtsWidth[TEST_BPP_MAX] = { 128, 128, 64, 64, 32 };
+    const uint32_t MtsHeight[TEST_BPP_MAX] = { 256, 128, 128, 64, 64 };
 
     GMM_RESCREATE_PARAMS gmmParams = {};
     gmmParams.Type = RESOURCE_2D;
@@ -706,25 +706,25 @@ TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
     gmmParams.MaxLod = 5;
     gmmParams.ArraySize = 4;
 
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
-        ULONG AlignedWidth = 0;
-        ULONG AlignedHeight = 0;
-        ULONG ExpectedPitch = 0;
-        ULONG MipTailStartLod = 0;
+        uint32_t AlignedWidth = 0;
+        uint32_t AlignedHeight = 0;
+        uint32_t ExpectedPitch = 0;
+        uint32_t MipTailStartLod = 0;
         // Valigned Mip Heights
-        ULONG Mip0Height = 0;
-        ULONG Mip1Height = 0;
-        ULONG Mip2Height = 0;
-        ULONG Mip3Height = 0;
-        ULONG Mip4Height = 0;
-        ULONG Mip5Height = 0;
-        ULONG Mip2Higher = 0;    // Sum of aligned heights of Mip2 and above
-        ULONG MipTailHeight = 0;
+        uint32_t Mip0Height = 0;
+        uint32_t Mip1Height = 0;
+        uint32_t Mip2Height = 0;
+        uint32_t Mip3Height = 0;
+        uint32_t Mip4Height = 0;
+        uint32_t Mip5Height = 0;
+        uint32_t Mip2Higher = 0;    // Sum of aligned heights of Mip2 and above
+        uint32_t MipTailHeight = 0;
         // Haligned Mip Widths
-        ULONG Mip0Width = 0;
-        ULONG Mip1Width = 0;
-        ULONG Mip2Width = 0;
+        uint32_t Mip0Width = 0;
+        uint32_t Mip1Width = 0;
+        uint32_t Mip2Width = 0;
 
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -739,16 +739,16 @@ TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
 
         // find the miptail start level
         {
-            UINT MipWidth = gmmParams.BaseWidth64;
-            UINT MipHeight = gmmParams.BaseHeight;
+            uint32_t MipWidth = gmmParams.BaseWidth64;
+            uint32_t MipHeight = gmmParams.BaseHeight;
             while (!(MipWidth <= MtsWidth[i] && MipHeight <= MtsHeight[i]))
             {
                 MipTailStartLod++;
-                MipWidth = (ULONG) (GMM_ULT_MAX(1, gmmParams.BaseWidth64 >> MipTailStartLod));
+                MipWidth = (uint32_t) (GMM_ULT_MAX(1, gmmParams.BaseWidth64 >> MipTailStartLod));
                 MipHeight = GMM_ULT_MAX(1, gmmParams.BaseHeight >> MipTailStartLod);
             }
         }
-        
+
         // Mip resource Aligned Width calculation
         Mip0Width = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign[i]);
         Mip1Width = GMM_ULT_ALIGN(gmmParams.BaseWidth64 >> 1, HAlign[i]);
@@ -785,7 +785,7 @@ TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
             Mip2Higher = Mip2Height + Mip3Height + MipTailHeight;
         }
 
-        ULONG MaxHeight = GMM_ULT_MAX(Mip1Height, Mip2Higher);
+        uint32_t MaxHeight = GMM_ULT_MAX(Mip1Height, Mip2Higher);
         AlignedHeight = Mip0Height + MaxHeight;
         AlignedHeight = GMM_ULT_ALIGN(AlignedHeight, VAlign[i]);
 
@@ -793,16 +793,16 @@ TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
         ExpectedPitch = GMM_ULT_ALIGN(ExpectedPitch, GMM_BYTES(32));
         VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
 
-        VerifyResourcePitchInTiles<true>(ResourceInfo, static_cast<ULONG>(ExpectedPitch / TileSize[i][0]));
+        VerifyResourcePitchInTiles<true>(ResourceInfo, static_cast<uint32_t>(ExpectedPitch / TileSize[i][0]));
         VerifyResourceSize<true>(ResourceInfo, GMM_ULT_ALIGN(ExpectedPitch * AlignedHeight * gmmParams.ArraySize, PAGE_SIZE));
         VerifyResourceQPitch<false>(ResourceInfo, AlignedHeight);
 
         // Mip 0 offsets, offset is 0,0
         GMM_REQ_OFFSET_INFO ReqInfo = { 0 };
         ReqInfo.MipLevel = 0;
-        ReqInfo.ReqRender = TRUE;
+        ReqInfo.ReqRender = true;
         ResourceInfo.GetOffset(ReqInfo);
-        ULONG Mip0Size = ExpectedPitch * Mip0Height;
+        uint32_t Mip0Size = ExpectedPitch * Mip0Height;
         EXPECT_EQ(0, ReqInfo.Render.Offset64);
         EXPECT_EQ(0, ReqInfo.Render.XOffset);
         EXPECT_EQ(0, ReqInfo.Render.YOffset);
@@ -810,9 +810,9 @@ TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
         // Mip 1 offsets
         ReqInfo = { 0 };
         ReqInfo.MipLevel = 1;
-        ReqInfo.ReqRender = TRUE;
+        ReqInfo.ReqRender = true;
         ResourceInfo.GetOffset(ReqInfo);
-        ULONG Mip1Offset = Mip0Size;
+        uint32_t Mip1Offset = Mip0Size;
         EXPECT_EQ(Mip1Offset, ReqInfo.Render.Offset64);
         EXPECT_EQ(0, ReqInfo.Render.XOffset);
         EXPECT_EQ(0, ReqInfo.Render.YOffset);
@@ -820,12 +820,12 @@ TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
         // Mip 2 offset
         ReqInfo = { 0 };
         ReqInfo.MipLevel = 2;
-        ReqInfo.ReqRender = TRUE;
+        ReqInfo.ReqRender = true;
         ResourceInfo.GetOffset(ReqInfo);
-        ULONG Mip2Offset = Mip1Width * GetBppValue(bpp) + Mip0Height * ExpectedPitch;
-        ULONG Mip2X = GFX_ALIGN_FLOOR(ULONG(Mip2Offset % ExpectedPitch), TileSize[i][0]);
-        ULONG Mip2Y = GFX_ALIGN_FLOOR(ULONG(Mip2Offset / ExpectedPitch), TileSize[i][1]);
-        ULONG Mip2RenderAlignedOffset = Mip2Y * ExpectedPitch + (Mip2X / TileSize[i][0]) * (TileSize[i][0] * TileSize[i][1]);
+        uint32_t Mip2Offset = Mip1Width * GetBppValue(bpp) + Mip0Height * ExpectedPitch;
+        uint32_t Mip2X = GFX_ALIGN_FLOOR(uint32_t(Mip2Offset % ExpectedPitch), TileSize[i][0]);
+        uint32_t Mip2Y = GFX_ALIGN_FLOOR(uint32_t(Mip2Offset / ExpectedPitch), TileSize[i][1]);
+        uint32_t Mip2RenderAlignedOffset = Mip2Y * ExpectedPitch + (Mip2X / TileSize[i][0]) * (TileSize[i][0] * TileSize[i][1]);
         EXPECT_EQ(Mip2RenderAlignedOffset, ReqInfo.Render.Offset64);
         switch (bpp)
         {
@@ -856,9 +856,9 @@ TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
         // Mip 3 offset
         ReqInfo = { 0 };
         ReqInfo.MipLevel = 3;
-        ReqInfo.ReqRender = TRUE;
+        ReqInfo.ReqRender = true;
         ResourceInfo.GetOffset(ReqInfo);
-        ULONG Mip3Offset = 0;
+        uint32_t Mip3Offset = 0;
         switch (bpp)
         {
         case TEST_BPP_8:
@@ -889,17 +889,17 @@ TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
         default:
             break;
         }
-        ULONG Mip3X = GFX_ALIGN_FLOOR(ULONG(Mip3Offset % ExpectedPitch), TileSize[i][0]);
-        ULONG Mip3Y = GFX_ALIGN_FLOOR(ULONG(Mip3Offset / ExpectedPitch), TileSize[i][1]);
-        ULONG Mip3RenderAlignedOffset = Mip3Y * ExpectedPitch + (Mip3X / TileSize[i][0]) * (TileSize[i][0] * TileSize[i][1]);
+        uint32_t Mip3X = GFX_ALIGN_FLOOR(uint32_t(Mip3Offset % ExpectedPitch), TileSize[i][0]);
+        uint32_t Mip3Y = GFX_ALIGN_FLOOR(uint32_t(Mip3Offset / ExpectedPitch), TileSize[i][1]);
+        uint32_t Mip3RenderAlignedOffset = Mip3Y * ExpectedPitch + (Mip3X / TileSize[i][0]) * (TileSize[i][0] * TileSize[i][1]);
         EXPECT_EQ(Mip3RenderAlignedOffset, ReqInfo.Render.Offset64);
 
         // Mip 4 offset
         ReqInfo = { 0 };
         ReqInfo.MipLevel = 4;
-        ReqInfo.ReqRender = TRUE;
+        ReqInfo.ReqRender = true;
         ResourceInfo.GetOffset(ReqInfo);
-        ULONG Mip4Offset = 0;
+        uint32_t Mip4Offset = 0;
         switch (bpp)
         {
         case TEST_BPP_8:
@@ -930,17 +930,17 @@ TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
         default:
             break;
         }
-        ULONG Mip4X = GFX_ALIGN_FLOOR(ULONG(Mip4Offset % ExpectedPitch), TileSize[i][0]);
-        ULONG Mip4Y = GFX_ALIGN_FLOOR(ULONG(Mip4Offset / ExpectedPitch), TileSize[i][1]);
-        ULONG Mip4RenderAlignedOffset = Mip4Y * ExpectedPitch + (Mip4X / TileSize[i][0]) * (TileSize[i][0] * TileSize[i][1]);
+        uint32_t Mip4X = GFX_ALIGN_FLOOR(uint32_t(Mip4Offset % ExpectedPitch), TileSize[i][0]);
+        uint32_t Mip4Y = GFX_ALIGN_FLOOR(uint32_t(Mip4Offset / ExpectedPitch), TileSize[i][1]);
+        uint32_t Mip4RenderAlignedOffset = Mip4Y * ExpectedPitch + (Mip4X / TileSize[i][0]) * (TileSize[i][0] * TileSize[i][1]);
         EXPECT_EQ(Mip4RenderAlignedOffset, ReqInfo.Render.Offset64);
 
         // Mip 5 offset
         ReqInfo = { 0 };
         ReqInfo.MipLevel = 4;
-        ReqInfo.ReqRender = TRUE;
+        ReqInfo.ReqRender = true;
         ResourceInfo.GetOffset(ReqInfo);
-        ULONG Mip5Offset = 0;
+        uint32_t Mip5Offset = 0;
         switch (bpp)
         {
         case TEST_BPP_8:
@@ -971,9 +971,9 @@ TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
         default:
             break;
         }
-        ULONG Mip5X = GFX_ALIGN_FLOOR(ULONG(Mip4Offset % ExpectedPitch), TileSize[i][0]);
-        ULONG Mip5Y = GFX_ALIGN_FLOOR(ULONG(Mip4Offset / ExpectedPitch), TileSize[i][1]);
-        ULONG Mip5RenderAlignedOffset = Mip5Y * ExpectedPitch + (Mip5X / TileSize[i][0]) * (TileSize[i][0] * TileSize[i][1]);
+        uint32_t Mip5X = GFX_ALIGN_FLOOR(uint32_t(Mip4Offset % ExpectedPitch), TileSize[i][0]);
+        uint32_t Mip5Y = GFX_ALIGN_FLOOR(uint32_t(Mip4Offset / ExpectedPitch), TileSize[i][1]);
+        uint32_t Mip5RenderAlignedOffset = Mip5Y * ExpectedPitch + (Mip5X / TileSize[i][0]) * (TileSize[i][0] * TileSize[i][1]);
         EXPECT_EQ(Mip5RenderAlignedOffset, ReqInfo.Render.Offset64);
     }
 }
@@ -981,10 +981,10 @@ TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
 /// @brief ULT for 2D TileYf Resource
 TEST_F(CTestGen9Resource, Test2DTileYfResource)
 {
-    const ULONG HAlign[TEST_BPP_MAX] = { 64, 64, 32, 32, 16 };
-    const ULONG VAlign[TEST_BPP_MAX] = { 64, 32, 32, 16, 16 };
+    const uint32_t HAlign[TEST_BPP_MAX] = { 64, 64, 32, 32, 16 };
+    const uint32_t VAlign[TEST_BPP_MAX] = { 64, 32, 32, 16, 16 };
 
-    const ULONG TileSize[TEST_BPP_MAX][2] = { { 64, 64 },
+    const uint32_t TileSize[TEST_BPP_MAX][2] = { { 64, 64 },
                                               { 128, 32 },
                                               { 128, 32 },
                                               { 256, 16 },
@@ -998,7 +998,7 @@ TEST_F(CTestGen9Resource, Test2DTileYfResource)
     gmmParams.Flags.Gpu.Texture = 1;
 
     //Allocate 1x1 surface
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -1018,7 +1018,7 @@ TEST_F(CTestGen9Resource, Test2DTileYfResource)
 
     // Allocate surface that requires multi tiles in two dimension
     // Allocate 2 tiles in X dimension
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -1039,7 +1039,7 @@ TEST_F(CTestGen9Resource, Test2DTileYfResource)
     }
 
     // Allocate 2 tiles in X/Y dimension
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -1063,17 +1063,17 @@ TEST_F(CTestGen9Resource, Test2DTileYfResource)
 /// @brief ULT for 2D TileYf Mipped Resource
 TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
 {
-    const ULONG HAlign[TEST_BPP_MAX] = { 64, 64, 32, 32, 16 };
-    const ULONG VAlign[TEST_BPP_MAX] = { 64, 32, 32, 16, 16 };
+    const uint32_t HAlign[TEST_BPP_MAX] = { 64, 64, 32, 32, 16 };
+    const uint32_t VAlign[TEST_BPP_MAX] = { 64, 32, 32, 16, 16 };
 
-    const ULONG TileSize[TEST_BPP_MAX][2] = { { 64, 64 },
+    const uint32_t TileSize[TEST_BPP_MAX][2] = { { 64, 64 },
                                               { 128, 32 },
                                               { 128, 32 },
                                               { 256, 16 },
                                               { 256, 16 } };
 
-    const ULONG MtsWidth[TEST_BPP_MAX] = { 32, 32, 16, 16, 8 };
-    const ULONG MtsHeight[TEST_BPP_MAX] = { 64, 32, 32, 16, 16 };
+    const uint32_t MtsWidth[TEST_BPP_MAX] = { 32, 32, 16, 16, 8 };
+    const uint32_t MtsHeight[TEST_BPP_MAX] = { 64, 32, 32, 16, 16 };
 
     GMM_RESCREATE_PARAMS gmmParams = {};
     gmmParams.Type = RESOURCE_2D;
@@ -1084,25 +1084,25 @@ TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
     gmmParams.MaxLod = 4;
     gmmParams.ArraySize = 4;
 
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
-        ULONG AlignedWidth = 0;
-        ULONG AlignedHeight = 0;
-        ULONG ExpectedPitch = 0;
-        ULONG MipTailStartLod = 0;
+        uint32_t AlignedWidth = 0;
+        uint32_t AlignedHeight = 0;
+        uint32_t ExpectedPitch = 0;
+        uint32_t MipTailStartLod = 0;
         // Valigned Mip Heights
-        ULONG Mip0Height = 0;
-        ULONG Mip1Height = 0;
-        ULONG Mip2Height = 0;
-        ULONG Mip3Height = 0;
-        ULONG Mip4Height = 0;
-        ULONG Mip5Height = 0;
-        ULONG Mip2Higher = 0;    // Sum of aligned heights of Mip2 and above
-        ULONG MipTailHeight = 0;
+        uint32_t Mip0Height = 0;
+        uint32_t Mip1Height = 0;
+        uint32_t Mip2Height = 0;
+        uint32_t Mip3Height = 0;
+        uint32_t Mip4Height = 0;
+        uint32_t Mip5Height = 0;
+        uint32_t Mip2Higher = 0;    // Sum of aligned heights of Mip2 and above
+        uint32_t MipTailHeight = 0;
         // Haligned Mip Widths
-        ULONG Mip0Width = 0;
-        ULONG Mip1Width = 0;
-        ULONG Mip2Width = 0;
+        uint32_t Mip0Width = 0;
+        uint32_t Mip1Width = 0;
+        uint32_t Mip2Width = 0;
 
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -1117,12 +1117,12 @@ TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
 
         // find the miptail start level
         {
-            UINT MipWidth = gmmParams.BaseWidth64;
-            UINT MipHeight = gmmParams.BaseHeight;
+            uint32_t MipWidth = gmmParams.BaseWidth64;
+            uint32_t MipHeight = gmmParams.BaseHeight;
             while (!(MipWidth <= MtsWidth[i] && MipHeight <= MtsHeight[i]))
             {
                 MipTailStartLod++;
-                MipWidth = (ULONG)(GMM_ULT_MAX(1, gmmParams.BaseWidth64 >> MipTailStartLod));
+                MipWidth = (uint32_t)(GMM_ULT_MAX(1, gmmParams.BaseWidth64 >> MipTailStartLod));
                 MipHeight = GMM_ULT_MAX(1, gmmParams.BaseHeight >> MipTailStartLod);
             }
         }
@@ -1144,7 +1144,7 @@ TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
             // Block height...Mip0Height + Max(Mip1Height, Sum of Mip2Height..MipnHeight)
             Mip1Height = GMM_ULT_ALIGN(gmmParams.BaseHeight >> 1, VAlign[i]);
             Mip2Height = Mip2Higher = GMM_ULT_ALIGN(gmmParams.BaseHeight >> 2, VAlign[i]);
-            
+
             Mip1Width = GMM_ULT_ALIGN(gmmParams.BaseWidth64 >> 1, HAlign[i]);
             Mip2Width = GMM_ULT_ALIGN(gmmParams.BaseWidth64 >> 2, HAlign[i]);
             AlignedWidth = GMM_ULT_MAX(Mip0Width, Mip1Width + Mip2Width);
@@ -1158,13 +1158,13 @@ TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
             // Miptail started lod
             MipTailHeight = VAlign[i];
             Mip2Higher = Mip2Height + Mip3Height + MipTailHeight;
-            
+
             Mip1Width = GMM_ULT_ALIGN(gmmParams.BaseWidth64 >> 1, HAlign[i]);
             Mip2Width = GMM_ULT_ALIGN(gmmParams.BaseWidth64 >> 2, HAlign[i]);
             AlignedWidth = GMM_ULT_MAX(Mip0Width, Mip1Width + Mip2Width);
         }
 
-        ULONG MaxHeight = GMM_ULT_MAX(Mip1Height, Mip2Higher);
+        uint32_t MaxHeight = GMM_ULT_MAX(Mip1Height, Mip2Higher);
         AlignedHeight = Mip0Height + MaxHeight;
         AlignedHeight = GMM_ULT_ALIGN(AlignedHeight, VAlign[i]);
 
@@ -1172,16 +1172,16 @@ TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
         ExpectedPitch = GMM_ULT_ALIGN(ExpectedPitch, GMM_BYTES(32));
         VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
 
-        VerifyResourcePitchInTiles<true>(ResourceInfo, static_cast<ULONG>(ExpectedPitch / TileSize[i][0]));
+        VerifyResourcePitchInTiles<true>(ResourceInfo, static_cast<uint32_t>(ExpectedPitch / TileSize[i][0]));
         VerifyResourceSize<true>(ResourceInfo, GMM_ULT_ALIGN(ExpectedPitch * AlignedHeight * gmmParams.ArraySize, PAGE_SIZE));
         VerifyResourceQPitch<false>(ResourceInfo, AlignedHeight);
 
         // Mip 0 offsets, offset is 0,0
         GMM_REQ_OFFSET_INFO ReqInfo = { 0 };
         ReqInfo.MipLevel = 0;
-        ReqInfo.ReqRender = TRUE;
+        ReqInfo.ReqRender = true;
         ResourceInfo.GetOffset(ReqInfo);
-        ULONG Mip0Size = ExpectedPitch * Mip0Height;
+        uint32_t Mip0Size = ExpectedPitch * Mip0Height;
         EXPECT_EQ(0, ReqInfo.Render.Offset64);
         EXPECT_EQ(0, ReqInfo.Render.XOffset);
         EXPECT_EQ(0, ReqInfo.Render.YOffset);
@@ -1189,9 +1189,9 @@ TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
         // Mip 1 offsets
         ReqInfo = { 0 };
         ReqInfo.MipLevel = 1;
-        ReqInfo.ReqRender = TRUE;
+        ReqInfo.ReqRender = true;
         ResourceInfo.GetOffset(ReqInfo);
-        ULONG Mip1Offset = Mip0Size;
+        uint32_t Mip1Offset = Mip0Size;
         switch (bpp)
         {
         case TEST_BPP_8:
@@ -1218,14 +1218,14 @@ TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
             break;
         }
         EXPECT_EQ(Mip1Offset, ReqInfo.Render.Offset64);
-        
-        
+
+
         // Mip 2 offset
         ReqInfo = { 0 };
         ReqInfo.MipLevel = 2;
-        ReqInfo.ReqRender = TRUE;
+        ReqInfo.ReqRender = true;
         ResourceInfo.GetOffset(ReqInfo);
-        ULONG Mip2Offset = Mip1Width * GetBppValue(bpp) + Mip0Height * ExpectedPitch;
+        uint32_t Mip2Offset = Mip1Width * GetBppValue(bpp) + Mip0Height * ExpectedPitch;
         switch (bpp)
         {
         case TEST_BPP_8:
@@ -1251,17 +1251,17 @@ TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
         default:
             break;
         }
-        ULONG Mip2X = GFX_ALIGN_FLOOR(ULONG(Mip2Offset % ExpectedPitch), TileSize[i][0]);
-        ULONG Mip2Y = GFX_ALIGN_FLOOR(ULONG(Mip2Offset / ExpectedPitch), TileSize[i][1]);
-        ULONG Mip2RenderAlignedOffset = Mip2Y * ExpectedPitch + (Mip2X / TileSize[i][0]) * (TileSize[i][0] * TileSize[i][1]);
+        uint32_t Mip2X = GFX_ALIGN_FLOOR(uint32_t(Mip2Offset % ExpectedPitch), TileSize[i][0]);
+        uint32_t Mip2Y = GFX_ALIGN_FLOOR(uint32_t(Mip2Offset / ExpectedPitch), TileSize[i][1]);
+        uint32_t Mip2RenderAlignedOffset = Mip2Y * ExpectedPitch + (Mip2X / TileSize[i][0]) * (TileSize[i][0] * TileSize[i][1]);
         EXPECT_EQ(Mip2RenderAlignedOffset, ReqInfo.Render.Offset64);
-        
+
         // Mip 3 offset
         ReqInfo = { 0 };
         ReqInfo.MipLevel = 3;
-        ReqInfo.ReqRender = TRUE;
+        ReqInfo.ReqRender = true;
         ResourceInfo.GetOffset(ReqInfo);
-        ULONG Mip3Offset = 0;
+        uint32_t Mip3Offset = 0;
         switch (bpp)
         {
         case TEST_BPP_8:
@@ -1292,17 +1292,17 @@ TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
         default:
             break;
         }
-        ULONG Mip3X = GFX_ALIGN_FLOOR(ULONG(Mip3Offset % ExpectedPitch), TileSize[i][0]);
-        ULONG Mip3Y = GFX_ALIGN_FLOOR(ULONG(Mip3Offset / ExpectedPitch), TileSize[i][1]);
-        ULONG Mip3RenderAlignedOffset = Mip3Y * ExpectedPitch + (Mip3X / TileSize[i][0]) * (TileSize[i][0] * TileSize[i][1]);
+        uint32_t Mip3X = GFX_ALIGN_FLOOR(uint32_t(Mip3Offset % ExpectedPitch), TileSize[i][0]);
+        uint32_t Mip3Y = GFX_ALIGN_FLOOR(uint32_t(Mip3Offset / ExpectedPitch), TileSize[i][1]);
+        uint32_t Mip3RenderAlignedOffset = Mip3Y * ExpectedPitch + (Mip3X / TileSize[i][0]) * (TileSize[i][0] * TileSize[i][1]);
         EXPECT_EQ(Mip3RenderAlignedOffset, ReqInfo.Render.Offset64);
-        
+
         // Mip 4 offset
         ReqInfo = { 0 };
         ReqInfo.MipLevel = 4;
-        ReqInfo.ReqRender = TRUE;
+        ReqInfo.ReqRender = true;
         ResourceInfo.GetOffset(ReqInfo);
-        ULONG Mip4Offset = 0;
+        uint32_t Mip4Offset = 0;
         switch (bpp)
         {
         case TEST_BPP_8:
@@ -1333,9 +1333,9 @@ TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
         default:
             break;
         }
-        ULONG Mip4X = GFX_ALIGN_FLOOR(ULONG(Mip4Offset % ExpectedPitch), TileSize[i][0]);
-        ULONG Mip4Y = GFX_ALIGN_FLOOR(ULONG(Mip4Offset / ExpectedPitch), TileSize[i][1]);
-        ULONG Mip4RenderAlignedOffset = Mip4Y * ExpectedPitch + (Mip4X / TileSize[i][0]) * (TileSize[i][0] * TileSize[i][1]);
+        uint32_t Mip4X = GFX_ALIGN_FLOOR(uint32_t(Mip4Offset % ExpectedPitch), TileSize[i][0]);
+        uint32_t Mip4Y = GFX_ALIGN_FLOOR(uint32_t(Mip4Offset / ExpectedPitch), TileSize[i][1]);
+        uint32_t Mip4RenderAlignedOffset = Mip4Y * ExpectedPitch + (Mip4X / TileSize[i][0]) * (TileSize[i][0] * TileSize[i][1]);
         EXPECT_EQ(Mip4RenderAlignedOffset, ReqInfo.Render.Offset64);
 
     }
@@ -1347,8 +1347,8 @@ TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
 TEST_F(CTestGen9Resource, Test3DLinearResource)
 {
     // Horizontal/Vertical pixel alignment
-    const ULONG HAlign               = 16;
-    const ULONG VAlign               = 4;
+    const uint32_t HAlign               = 16;
+    const uint32_t VAlign               = 4;
 
     GMM_RESCREATE_PARAMS gmmParams   = {};
     gmmParams.Type                   = RESOURCE_3D;
@@ -1357,7 +1357,7 @@ TEST_F(CTestGen9Resource, Test3DLinearResource)
     gmmParams.Flags.Gpu.Texture      = 1;
 
     // Allocate 1x1x1 surface
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp              = static_cast<TEST_BPP>(i);
         gmmParams.Format          = SetResourceFormat(bpp);
@@ -1365,18 +1365,18 @@ TEST_F(CTestGen9Resource, Test3DLinearResource)
         gmmParams.BaseHeight      = 0x1;
         gmmParams.Depth           = 0x1;
 
-        const UINT MinPitch       = 32;
-        const UINT PitchAlignment = 32;
+        const uint32_t MinPitch       = 32;
+        const uint32_t PitchAlignment = 32;
 
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
 
-        const UINT AlignedWidth  = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
-        const UINT AlignedHeight = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
-        UINT PitchInBytes        = AlignedWidth * GetBppValue(bpp);
+        const uint32_t AlignedWidth  = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
+        const uint32_t AlignedHeight = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
+        uint32_t PitchInBytes        = AlignedWidth * GetBppValue(bpp);
         PitchInBytes             = GMM_ULT_MAX(PitchInBytes, MinPitch);
         PitchInBytes             = GMM_ULT_ALIGN(PitchInBytes, PitchAlignment);
-        const UINT AlignedSize   = GMM_ULT_ALIGN(PitchInBytes * AlignedHeight, PAGE_SIZE);
+        const uint32_t AlignedSize   = GMM_ULT_ALIGN(PitchInBytes * AlignedHeight, PAGE_SIZE);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign);
@@ -1386,7 +1386,7 @@ TEST_F(CTestGen9Resource, Test3DLinearResource)
     }
 
     // Allocate 256 x 256 x 256
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp              = static_cast<TEST_BPP>(i);
         gmmParams.Format          = SetResourceFormat(bpp);
@@ -1394,18 +1394,18 @@ TEST_F(CTestGen9Resource, Test3DLinearResource)
         gmmParams.BaseHeight      = 256;
         gmmParams.Depth           = 256;
 
-        const UINT MinPitch       = 32;
-        const UINT PitchAlignment = 32;
+        const uint32_t MinPitch       = 32;
+        const uint32_t PitchAlignment = 32;
 
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
 
-        const UINT AlignedWidth  = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
-        const UINT AlignedHeight = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
-        UINT PitchInBytes        = AlignedWidth * GetBppValue(bpp);
+        const uint32_t AlignedWidth  = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
+        const uint32_t AlignedHeight = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
+        uint32_t PitchInBytes        = AlignedWidth * GetBppValue(bpp);
         PitchInBytes             = GFX_MAX(PitchInBytes, MinPitch);
         PitchInBytes             = GMM_ULT_ALIGN(PitchInBytes, PitchAlignment);
-        const UINT AlignedSize   = GMM_ULT_ALIGN(PitchInBytes * AlignedHeight * gmmParams.Depth, PAGE_SIZE);
+        const uint32_t AlignedSize   = GMM_ULT_ALIGN(PitchInBytes * AlignedHeight * gmmParams.Depth, PAGE_SIZE);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign);
@@ -1419,9 +1419,9 @@ TEST_F(CTestGen9Resource, Test3DLinearResource)
 TEST_F(CTestGen9Resource, Test3DTileXResource)
 {
     // Horizontal/Vertical pixel alignment
-    const ULONG HAlign                    = 16;
-    const ULONG VAlign                    = 4;
-    const ULONG TileSize[TEST_BPP_MAX][3] = { {512, 8, 1},
+    const uint32_t HAlign                    = 16;
+    const uint32_t VAlign                    = 4;
+    const uint32_t TileSize[TEST_BPP_MAX][3] = { {512, 8, 1},
                                               {512, 8, 1},
                                               {512, 8, 1},
                                               {512, 8, 1},
@@ -1434,7 +1434,7 @@ TEST_F(CTestGen9Resource, Test3DTileXResource)
     gmmParams.Flags.Gpu.Texture           = 1;
 
     // Allocate 1x1x1 surface
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp          = static_cast<TEST_BPP>(i);
         gmmParams.Format      = SetResourceFormat(bpp);
@@ -1454,7 +1454,7 @@ TEST_F(CTestGen9Resource, Test3DTileXResource)
     }
 
     // Allocate 2 tiles in X dimension
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp          = static_cast<TEST_BPP>(i);
         gmmParams.Format      = SetResourceFormat(bpp);
@@ -1474,7 +1474,7 @@ TEST_F(CTestGen9Resource, Test3DTileXResource)
     }
 
     // Allocate 2 tiles in X/Y dimension
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp          = static_cast<TEST_BPP>(i);
         gmmParams.Format      = SetResourceFormat(bpp);
@@ -1494,7 +1494,7 @@ TEST_F(CTestGen9Resource, Test3DTileXResource)
     }
 
     // Allocate 2 tiles in X/Y/Z dimension
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp          = static_cast<TEST_BPP>(i);
         gmmParams.Format      = SetResourceFormat(bpp);
@@ -1518,9 +1518,9 @@ TEST_F(CTestGen9Resource, Test3DTileXResource)
 TEST_F(CTestGen9Resource, Test3DTileYResource)
 {
     // Horizontal/Vertical pixel alignment
-    const ULONG HAlign                    = 16;
-    const ULONG VAlign                    = 4;
-    const ULONG TileSize[TEST_BPP_MAX][3] = { {128, 32, 1},
+    const uint32_t HAlign                    = 16;
+    const uint32_t VAlign                    = 4;
+    const uint32_t TileSize[TEST_BPP_MAX][3] = { {128, 32, 1},
                                               {128, 32, 1},
                                               {128, 32, 1},
                                               {128, 32, 1},
@@ -1533,7 +1533,7 @@ TEST_F(CTestGen9Resource, Test3DTileYResource)
     gmmParams.Flags.Gpu.Texture           = 1;
 
     // Allocate 1x1x1 surface
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp              = static_cast<TEST_BPP>(i);
         gmmParams.Format          = SetResourceFormat(bpp);
@@ -1541,14 +1541,14 @@ TEST_F(CTestGen9Resource, Test3DTileYResource)
         gmmParams.BaseHeight      = 0x1;
         gmmParams.Depth           = 0x1;
 
-        const UINT MinPitch       = 32;
-        const UINT PitchAlignment = 32;
+        const uint32_t MinPitch       = 32;
+        const uint32_t PitchAlignment = 32;
 
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
 
-        const UINT AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
-        UINT PitchInBytes       = AlignedWidth * GetBppValue(bpp);
+        const uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
+        uint32_t PitchInBytes       = AlignedWidth * GetBppValue(bpp);
         PitchInBytes            = GFX_MAX(PitchInBytes, MinPitch);
         PitchInBytes            = GMM_ULT_ALIGN(PitchInBytes, PitchAlignment);
         PitchInBytes            = GMM_ULT_ALIGN(PitchInBytes, TileSize[i][0]);
@@ -1562,7 +1562,7 @@ TEST_F(CTestGen9Resource, Test3DTileYResource)
     }
 
     // Allocate 2 tiles in X dimension
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp              = static_cast<TEST_BPP>(i);
         gmmParams.Format          = SetResourceFormat(bpp);
@@ -1570,14 +1570,14 @@ TEST_F(CTestGen9Resource, Test3DTileYResource)
         gmmParams.BaseHeight      = 0x1;
         gmmParams.Depth           = 0x1;
 
-        const UINT MinPitch       = 32;
-        const UINT PitchAlignment = 32;
+        const uint32_t MinPitch       = 32;
+        const uint32_t PitchAlignment = 32;
 
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
 
-        const UINT AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
-        UINT PitchInBytes       = AlignedWidth * GetBppValue(bpp);
+        const uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
+        uint32_t PitchInBytes       = AlignedWidth * GetBppValue(bpp);
         PitchInBytes            = GFX_MAX(PitchInBytes, MinPitch);
         PitchInBytes            = GMM_ULT_ALIGN(PitchInBytes, PitchAlignment);
         PitchInBytes            = GMM_ULT_ALIGN(PitchInBytes, TileSize[i][0]);
@@ -1591,7 +1591,7 @@ TEST_F(CTestGen9Resource, Test3DTileYResource)
     }
 
     // Allocate 2 tiles in X/Y dimension
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp              = static_cast<TEST_BPP>(i);
         gmmParams.Format          = SetResourceFormat(bpp);
@@ -1599,14 +1599,14 @@ TEST_F(CTestGen9Resource, Test3DTileYResource)
         gmmParams.BaseHeight      = TileSize[i][1] + 1;
         gmmParams.Depth           = 0x1;
 
-        const UINT MinPitch       = 32;
-        const UINT PitchAlignment = 32;
+        const uint32_t MinPitch       = 32;
+        const uint32_t PitchAlignment = 32;
 
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
 
-        const UINT AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
-        UINT PitchInBytes       = AlignedWidth * GetBppValue(bpp);
+        const uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
+        uint32_t PitchInBytes       = AlignedWidth * GetBppValue(bpp);
         PitchInBytes            = GFX_MAX(PitchInBytes, MinPitch);
         PitchInBytes            = GMM_ULT_ALIGN(PitchInBytes, PitchAlignment);
         PitchInBytes            = GMM_ULT_ALIGN(PitchInBytes, TileSize[i][0]);
@@ -1620,7 +1620,7 @@ TEST_F(CTestGen9Resource, Test3DTileYResource)
     }
 
     // Allocate 2 tiles in X/Y/Z dimension
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp              = static_cast<TEST_BPP>(i);
         gmmParams.Format          = SetResourceFormat(bpp);
@@ -1628,14 +1628,14 @@ TEST_F(CTestGen9Resource, Test3DTileYResource)
         gmmParams.BaseHeight      = TileSize[i][1] + 1;
         gmmParams.Depth           = TileSize[i][2] + 1;
 
-        const UINT MinPitch       = 32;
-        const UINT PitchAlignment = 32;
+        const uint32_t MinPitch       = 32;
+        const uint32_t PitchAlignment = 32;
 
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
 
-        const UINT AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
-        UINT PitchInBytes       = AlignedWidth * GetBppValue(bpp);
+        const uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
+        uint32_t PitchInBytes       = AlignedWidth * GetBppValue(bpp);
         PitchInBytes            = GFX_MAX(PitchInBytes, MinPitch);
         PitchInBytes            = GMM_ULT_ALIGN(PitchInBytes, PitchAlignment);
         PitchInBytes            = GMM_ULT_ALIGN(PitchInBytes, TileSize[i][0]);
@@ -1653,10 +1653,10 @@ TEST_F(CTestGen9Resource, Test3DTileYResource)
 TEST_F(CTestGen9Resource, Test3DTileYsResource)
 {
     // Horizontal/Vertical pixel alignment
-    const ULONG HAlign[TEST_BPP_MAX]      = {64, 32, 32, 32, 16};
-    const ULONG VAlign[TEST_BPP_MAX]      = {32, 32, 32, 16, 16};
+    const uint32_t HAlign[TEST_BPP_MAX]      = {64, 32, 32, 32, 16};
+    const uint32_t VAlign[TEST_BPP_MAX]      = {32, 32, 32, 16, 16};
 
-    const ULONG TileSize[TEST_BPP_MAX][3] = { {64, 32, 32},
+    const uint32_t TileSize[TEST_BPP_MAX][3] = { {64, 32, 32},
                                               {64, 32, 32},
                                               {128, 32, 16},
                                               {256, 16, 16},
@@ -1670,7 +1670,7 @@ TEST_F(CTestGen9Resource, Test3DTileYsResource)
     gmmParams.Flags.Gpu.Texture           = 1;
 
     // Allocate 1x1x1 surface
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp          = static_cast<TEST_BPP>(i);
         gmmParams.Format      = SetResourceFormat(bpp);
@@ -1691,7 +1691,7 @@ TEST_F(CTestGen9Resource, Test3DTileYsResource)
     }
 
     // Allocate 2 tiles in X dimension
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp          = static_cast<TEST_BPP>(i);
         gmmParams.Format      = SetResourceFormat(bpp);
@@ -1712,7 +1712,7 @@ TEST_F(CTestGen9Resource, Test3DTileYsResource)
     }
 
     // Allocate 2 tiles in X/Y dimension
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp          = static_cast<TEST_BPP>(i);
         gmmParams.Format      = SetResourceFormat(bpp);
@@ -1733,7 +1733,7 @@ TEST_F(CTestGen9Resource, Test3DTileYsResource)
     }
 
     // Allocate 2 tiles in X/Y/Z dimension
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp          = static_cast<TEST_BPP>(i);
         gmmParams.Format      = SetResourceFormat(bpp);
@@ -1758,20 +1758,20 @@ TEST_F(CTestGen9Resource, Test3DTileYsResource)
 TEST_F(CTestGen9Resource, Test3DTileYsMippedResource)
 {
     // Horizontal/Vertical pixel alignment
-    const ULONG HAlign[TEST_BPP_MAX]      = {64, 32, 32, 32, 16};
-    const ULONG VAlign[TEST_BPP_MAX]      = {32, 32, 32, 16, 16};
+    const uint32_t HAlign[TEST_BPP_MAX]      = {64, 32, 32, 32, 16};
+    const uint32_t VAlign[TEST_BPP_MAX]      = {32, 32, 32, 16, 16};
 
-    const ULONG TileSize[TEST_BPP_MAX][3] = { {64, 32, 32},
+    const uint32_t TileSize[TEST_BPP_MAX][3] = { {64, 32, 32},
                                               {64, 32, 32},
                                               {128, 32, 16},
                                               {256, 16, 16},
                                               {256, 16, 16} };
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
-        const ULONG ResourceWidth      = 0x100;
-        const ULONG ResourceHeight     = 0x100;
-        const ULONG ResourceDepth      = 0x100;
-        const ULONG MaxLod             = 0x5;
+        const uint32_t ResourceWidth      = 0x100;
+        const uint32_t ResourceHeight     = 0x100;
+        const uint32_t ResourceDepth      = 0x100;
+        const uint32_t MaxLod             = 0x5;
 
         TEST_BPP bpp                   = static_cast<TEST_BPP>(i);
         GMM_RESCREATE_PARAMS gmmParams = {};
@@ -1789,8 +1789,8 @@ TEST_F(CTestGen9Resource, Test3DTileYsMippedResource)
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
 
-        const ULONG Pitch      = ResourceWidth * GetBppValue(bpp);
-        const ULONG Mip0Height = ResourceHeight;
+        const uint32_t Pitch      = ResourceWidth * GetBppValue(bpp);
+        const uint32_t Mip0Height = ResourceHeight;
 
         // Mip0
         GMM_REQ_OFFSET_INFO OffsetInfo = {};
@@ -1809,10 +1809,10 @@ TEST_F(CTestGen9Resource, Test3DTileYsMippedResource)
         OffsetInfo.MipLevel    = 1;
         ResourceInfo.GetOffset(OffsetInfo);
 
-        const ULONG SizeOfMip0 = Pitch * ResourceHeight * TileSize[i][2];
-        const ULONG Mip1Offset = SizeOfMip0;
-        const ULONG Mip1Width  = ResourceWidth >> 1;
-        const ULONG Mip1Height = ResourceHeight >> 1;
+        const uint32_t SizeOfMip0 = Pitch * ResourceHeight * TileSize[i][2];
+        const uint32_t Mip1Offset = SizeOfMip0;
+        const uint32_t Mip1Width  = ResourceWidth >> 1;
+        const uint32_t Mip1Height = ResourceHeight >> 1;
 
         EXPECT_EQ(Mip1Offset, OffsetInfo.Render.Offset64);
         EXPECT_EQ(0, OffsetInfo.Render.XOffset);
@@ -1825,8 +1825,8 @@ TEST_F(CTestGen9Resource, Test3DTileYsMippedResource)
         OffsetInfo.MipLevel    = 2;
         ResourceInfo.GetOffset(OffsetInfo);
 
-        const ULONG Mip2Height = ResourceHeight >> 2;
-        const ULONG Mip2Offset = Mip1Offset + Mip1Width * GetBppValue(bpp) / TileSize[i][0] * GMM_KBYTE(64);
+        const uint32_t Mip2Height = ResourceHeight >> 2;
+        const uint32_t Mip2Offset = Mip1Offset + Mip1Width * GetBppValue(bpp) / TileSize[i][0] * GMM_KBYTE(64);
 
         EXPECT_EQ(Mip2Offset, OffsetInfo.Render.Offset64);
         EXPECT_EQ(0, OffsetInfo.Render.XOffset);
@@ -1839,9 +1839,9 @@ TEST_F(CTestGen9Resource, Test3DTileYsMippedResource)
         OffsetInfo.MipLevel    = 3;
         ResourceInfo.GetOffset(OffsetInfo);
 
-        const ULONG Mip3Y      = (Mip0Height + Mip2Height) * TileSize[i][2];
-        const ULONG Mip3X      = Mip1Width;
-        const ULONG Mip3Offset = Mip3Y * Pitch + Mip3X * GetBppValue(bpp) / TileSize[i][0] * GMM_KBYTE(64);
+        const uint32_t Mip3Y      = (Mip0Height + Mip2Height) * TileSize[i][2];
+        const uint32_t Mip3X      = Mip1Width;
+        const uint32_t Mip3Offset = Mip3Y * Pitch + Mip3X * GetBppValue(bpp) / TileSize[i][0] * GMM_KBYTE(64);
 
         EXPECT_EQ(Mip3Offset, OffsetInfo.Render.Offset64);
         EXPECT_EQ(bpp == TEST_BPP_8 ? 32 : 0, OffsetInfo.Render.XOffset);
@@ -1854,10 +1854,10 @@ TEST_F(CTestGen9Resource, Test3DTileYsMippedResource)
         OffsetInfo.MipLevel    = 4;
         ResourceInfo.GetOffset(OffsetInfo);
 
-        const ULONG Mip3Height = ResourceHeight >> 3;
-        const ULONG Mip4Y      = (Mip0Height + Mip2Height + Mip3Height) * TileSize[i][2];
-        const ULONG Mip4X      = Mip1Width;
-        const ULONG Mip4Offset = Mip4Y * Pitch + Mip4X * GetBppValue(bpp) / TileSize[i][0] * GMM_KBYTE(64);
+        const uint32_t Mip3Height = ResourceHeight >> 3;
+        const uint32_t Mip4Y      = (Mip0Height + Mip2Height + Mip3Height) * TileSize[i][2];
+        const uint32_t Mip4X      = Mip1Width;
+        const uint32_t Mip4Offset = Mip4Y * Pitch + Mip4X * GetBppValue(bpp) / TileSize[i][0] * GMM_KBYTE(64);
 
         switch (bpp)
         {
@@ -1901,10 +1901,10 @@ TEST_F(CTestGen9Resource, Test3DTileYsMippedResource)
         OffsetInfo.MipLevel    = 5;
         ResourceInfo.GetOffset(OffsetInfo);
 
-        const ULONG Mip4Height = ResourceHeight >> 4;
-        const ULONG Mip5Y      = (Mip0Height + Mip2Height + Mip3Height + Mip4Height) * TileSize[i][2];
-        const ULONG Mip5X      = Mip1Width;
-        const ULONG Mip5Offset = Mip5Y * Pitch + Mip4X * GetBppValue(bpp) / TileSize[i][0] * GMM_KBYTE(64);
+        const uint32_t Mip4Height = ResourceHeight >> 4;
+        const uint32_t Mip5Y      = (Mip0Height + Mip2Height + Mip3Height + Mip4Height) * TileSize[i][2];
+        const uint32_t Mip5X      = Mip1Width;
+        const uint32_t Mip5Offset = Mip5Y * Pitch + Mip4X * GetBppValue(bpp) / TileSize[i][0] * GMM_KBYTE(64);
 
         switch (bpp)
         {
@@ -1948,9 +1948,9 @@ TEST_F(CTestGen9Resource, Test3DTileYsMippedResource)
 TEST_F(CTestGen9Resource, Test3DTileYfResource)
 {
     // Horizontal/Vertical pixel alignment
-    const ULONG HAlign[TEST_BPP_MAX]      = {16, 8, 8, 8, 4};
-    const ULONG VAlign[TEST_BPP_MAX]      = {16, 16, 16, 8, 8};
-    const ULONG TileSize[TEST_BPP_MAX][3] = { {16, 16, 16},
+    const uint32_t HAlign[TEST_BPP_MAX]      = {16, 8, 8, 8, 4};
+    const uint32_t VAlign[TEST_BPP_MAX]      = {16, 16, 16, 8, 8};
+    const uint32_t TileSize[TEST_BPP_MAX][3] = { {16, 16, 16},
                                               {16, 16, 16},
                                               {32, 16, 8},
                                               {64, 8, 8},
@@ -1963,14 +1963,14 @@ TEST_F(CTestGen9Resource, Test3DTileYfResource)
     gmmParams.Flags.Gpu.Texture           = 1;
 
     // Allocate 1x1x1 surface
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp                = static_cast<TEST_BPP>(i);
         gmmParams.Format            = SetResourceFormat(bpp);
         gmmParams.BaseWidth64       = 0x1;
         gmmParams.BaseHeight        = 0x1;
         gmmParams.Depth             = 0x1;
-        const UINT PitchAlignment   = 32;
+        const uint32_t PitchAlignment   = 32;
 
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
@@ -1984,14 +1984,14 @@ TEST_F(CTestGen9Resource, Test3DTileYfResource)
     }
 
     // Allocate 2 tiles in X dimension
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp              = static_cast<TEST_BPP>(i);
         gmmParams.Format          = SetResourceFormat(bpp);
         gmmParams.BaseWidth64     = (TileSize[i][0] / GetBppValue(bpp)) + 1;
         gmmParams.BaseHeight      = 0x1;
         gmmParams.Depth           = 0x1;
-        const UINT PitchAlignment = 32;
+        const uint32_t PitchAlignment = 32;
 
 
         GMM_RESOURCE_INFO ResourceInfo;
@@ -2006,14 +2006,14 @@ TEST_F(CTestGen9Resource, Test3DTileYfResource)
     }
 
     // Allocate 2 tiles in X/Y dimension
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp                = static_cast<TEST_BPP>(i);
         gmmParams.Format            = SetResourceFormat(bpp);
         gmmParams.BaseWidth64       = (TileSize[i][0] / GetBppValue(bpp)) + 1;
         gmmParams.BaseHeight        = TileSize[i][1] + 1;
         gmmParams.Depth             = 0x1;
-        const UINT PitchAlignment   = 32;
+        const uint32_t PitchAlignment   = 32;
 
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
@@ -2027,14 +2027,14 @@ TEST_F(CTestGen9Resource, Test3DTileYfResource)
     }
 
     // Allocate 2 tiles in X/Y/Z dimension
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp                = static_cast<TEST_BPP>(i);
         gmmParams.Format            = SetResourceFormat(bpp);
         gmmParams.BaseWidth64       = (TileSize[i][0] / GetBppValue(bpp)) + 1;
         gmmParams.BaseHeight        = TileSize[i][1] + 1;
         gmmParams.Depth             = TileSize[i][2] + 1;
-        const UINT PitchAlignment   = 32;
+        const uint32_t PitchAlignment   = 32;
 
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
@@ -2052,8 +2052,8 @@ TEST_F(CTestGen9Resource, Test3DTileYfResource)
 /// @brief ULT for Cube Linear Resource
 TEST_F(CTestGen9Resource, TestCubeLinearResource)
 {
-    const ULONG HAlign = 16;
-    const ULONG VAlign = 4;
+    const uint32_t HAlign = 16;
+    const uint32_t VAlign = 4;
 
     GMM_RESCREATE_PARAMS gmmParams = {};
     gmmParams.Type = RESOURCE_CUBE;
@@ -2062,7 +2062,7 @@ TEST_F(CTestGen9Resource, TestCubeLinearResource)
     gmmParams.Flags.Gpu.Texture = 1;
 
     // Allocate 1x1
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -2076,11 +2076,11 @@ TEST_F(CTestGen9Resource, TestCubeLinearResource)
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign);
 
-        ULONG ExpectedPitch = GMM_ULT_MAX(GMM_BYTES(32), HAlign * GetBppValue(bpp));   // Min Pitch = 32 bytes
+        uint32_t ExpectedPitch = GMM_ULT_MAX(GMM_BYTES(32), HAlign * GetBppValue(bpp));   // Min Pitch = 32 bytes
         VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);                     // As wide as 1 tile
         VerifyResourcePitchInTiles<false>(ResourceInfo, 1);                         // not applicable
 
-        ULONG ExpectedQPitch = VAlign;
+        uint32_t ExpectedQPitch = VAlign;
         VerifyResourceQPitch<true>(ResourceInfo, ExpectedQPitch);       // Each face should be VAlign rows apart within a tile
 
         VerifyResourceSize<true>(ResourceInfo,                          // PitchInBytes * Rows where Rows = __GMM_MAX_CUBE_FACE x QPitch, then aligned PAGE_SIZE
@@ -2088,7 +2088,7 @@ TEST_F(CTestGen9Resource, TestCubeLinearResource)
                                  __GMM_MAX_CUBE_FACE * ExpectedQPitch,
                                  PAGE_SIZE));
 
-        for (UINT CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
+        for (uint32_t CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
         {
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
@@ -2105,7 +2105,7 @@ TEST_F(CTestGen9Resource, TestCubeLinearResource)
 
     // Allocate arbitrary size (X/Y dimension not applicable as linear surface)
     // Width and Height must be equal
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -2119,12 +2119,12 @@ TEST_F(CTestGen9Resource, TestCubeLinearResource)
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign);
 
-        ULONG ExpectedPitch = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign) * GetBppValue(bpp);    // HAligned-width in bytes.
+        uint32_t ExpectedPitch = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign) * GetBppValue(bpp);    // HAligned-width in bytes.
         ExpectedPitch = GMM_ULT_ALIGN(ExpectedPitch, GMM_BYTES(32));
         VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
         VerifyResourcePitchInTiles<false>(ResourceInfo, 2);             // not applicable
 
-        ULONG ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
+        uint32_t ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
         VerifyResourceQPitch<true>(ResourceInfo, ExpectedQPitch);       // Each face should be Valigned-BaseHeight rows apart
 
         VerifyResourceSize<true>(ResourceInfo,                          // PitchInBytes * Rows where Rows = __GMM_MAX_CUBE_FACE x QPitch, then aligned PAGE_SIZE
@@ -2132,7 +2132,7 @@ TEST_F(CTestGen9Resource, TestCubeLinearResource)
                                  __GMM_MAX_CUBE_FACE * ExpectedQPitch,
                                  PAGE_SIZE));
 
-        for (UINT CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
+        for (uint32_t CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
         {
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
@@ -2151,11 +2151,11 @@ TEST_F(CTestGen9Resource, TestCubeLinearResource)
 /// @brief ULT for Cube Linear Mipped Resource Array
 TEST_F(CTestGen9Resource, TestCubeLinearMippedResourceArray)
 {
-    const ULONG HAlign = 16;
-    const ULONG VAlign = 4;
-    const ULONG MaxLod = 9;
-    const ULONG ResWidth = 0x401;
-    const ULONG MaxArraySize = 0x10;
+    const uint32_t HAlign = 16;
+    const uint32_t VAlign = 4;
+    const uint32_t MaxLod = 9;
+    const uint32_t ResWidth = 0x401;
+    const uint32_t MaxArraySize = 0x10;
 
 
     GMM_RESCREATE_PARAMS gmmParams = {};
@@ -2168,16 +2168,16 @@ TEST_F(CTestGen9Resource, TestCubeLinearMippedResourceArray)
 
     // Allocate arbitrary size (X/Y dimension not applicable as linear surface)
     // Width and Height must be equal
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         struct  //Cache the value for verifying array elements/Cube face offset/Mip Offset
         {
-            ULONGLONG Offset;  // Note : absolute mip offset
+            uint64_t Offset;  // Note : absolute mip offset
         } RenderOffset[GMM_ULT_MAX_MIPMAP] = {};
 
         TEST_BPP bpp            = static_cast<TEST_BPP>(i);
         gmmParams.Format        = SetResourceFormat(bpp);
-        gmmParams.BaseWidth64   = ResWidth;              // 1024 + 1, help ult HAlign/VAlign/Pitch alignment logic as well.                 
+        gmmParams.BaseWidth64   = ResWidth;              // 1024 + 1, help ult HAlign/VAlign/Pitch alignment logic as well.
         gmmParams.BaseHeight    = gmmParams.BaseWidth64;  // Heigth must be equal to width.
         gmmParams.Depth         = 0x1;
 
@@ -2200,9 +2200,9 @@ TEST_F(CTestGen9Resource, TestCubeLinearMippedResourceArray)
 
         // Mip 0
         // Mip 0 decides the pitch of the entire surface
-        const ULONG  AlignedWidthMip0 = GMM_ULT_ALIGN(ResWidth, HAlign);                           // HAlign width in pixel
-        const ULONG  AlignedHeightMip0 = GMM_ULT_ALIGN(ResWidth, VAlign);
-        ULONG ExpectedPitch = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign) * GetBppValue(bpp);    // HAligned-width in bytes.
+        const uint32_t  AlignedWidthMip0 = GMM_ULT_ALIGN(ResWidth, HAlign);                           // HAlign width in pixel
+        const uint32_t  AlignedHeightMip0 = GMM_ULT_ALIGN(ResWidth, VAlign);
+        uint32_t ExpectedPitch = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign) * GetBppValue(bpp);    // HAligned-width in bytes.
         ExpectedPitch = GMM_ULT_ALIGN(ExpectedPitch, GMM_BYTES(32));
         VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
         VerifyResourcePitchInTiles<false>(ResourceInfo, 2);                                     // Not applicable
@@ -2235,11 +2235,11 @@ TEST_F(CTestGen9Resource, TestCubeLinearMippedResourceArray)
         //cache Mip 1 offset
         RenderOffset[1].Offset = AlignedHeightMip0 * ExpectedPitch; //Absolute base
 
-        const ULONG  AlignedWidthMip1 = GMM_ULT_ALIGN(ResWidth >> 1, HAlign);              // Align width in pixel to HAlign
-        const ULONG  AlignedHeightMip1 = GMM_ULT_ALIGN(ResWidth >> 1, VAlign);
+        const uint32_t  AlignedWidthMip1 = GMM_ULT_ALIGN(ResWidth >> 1, HAlign);              // Align width in pixel to HAlign
+        const uint32_t  AlignedHeightMip1 = GMM_ULT_ALIGN(ResWidth >> 1, VAlign);
 
-        ULONG HeightOfMip;
-        ULONG HeightLinesLevel2 = 0;
+        uint32_t HeightOfMip;
+        uint32_t HeightLinesLevel2 = 0;
 
         // Mips 2-9 should be stacked on the right of Mip1 as shown in figure above.
         for (int i = 2; i <= MaxLod; i++)
@@ -2266,18 +2266,18 @@ TEST_F(CTestGen9Resource, TestCubeLinearMippedResourceArray)
             HeightLinesLevel2 += HeightOfMip;
         }
 
-        ULONG Max2DHeight = GMM_ULT_MAX(AlignedHeightMip1, HeightLinesLevel2);
-        ULONG ExpectedQPitch = GFX_ALIGN_NP2(AlignedHeightMip0 + Max2DHeight, VAlign);
-        VerifyResourceQPitch<true>(ResourceInfo, ExpectedQPitch);       // Each face should be Valigned-BaseHeight rows apart 
+        uint32_t Max2DHeight = GMM_ULT_MAX(AlignedHeightMip1, HeightLinesLevel2);
+        uint32_t ExpectedQPitch = GFX_ALIGN_NP2(AlignedHeightMip0 + Max2DHeight, VAlign);
+        VerifyResourceQPitch<true>(ResourceInfo, ExpectedQPitch);       // Each face should be Valigned-BaseHeight rows apart
 
         VerifyResourceSize<true>(ResourceInfo,                          // PitchInBytes * Rows where Rows = __GMM_MAX_CUBE_FACE x QPitch, then aligned to tile boundary
             GMM_ULT_ALIGN(ExpectedPitch *
             MaxArraySize * __GMM_MAX_CUBE_FACE * ExpectedQPitch, PAGE_SIZE));
 
         // Verify each array element's  Mip offset, Cube face offset etc.
-        for (UINT ArrayIndex = 0; ArrayIndex < __GMM_MAX_CUBE_FACE; ArrayIndex++)
+        for (uint32_t ArrayIndex = 0; ArrayIndex < __GMM_MAX_CUBE_FACE; ArrayIndex++)
         {
-            for (UINT CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
+            for (uint32_t CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
             {
                 GMM_REQ_OFFSET_INFO OffsetInfo = {};
                 OffsetInfo.ReqRender = 1;
@@ -2292,20 +2292,20 @@ TEST_F(CTestGen9Resource, TestCubeLinearMippedResourceArray)
                 EXPECT_EQ(0, OffsetInfo.Render.YOffset);                // Y Offset should be 0 as linear surf
                 EXPECT_EQ(0, OffsetInfo.Render.ZOffset);                // Z offset N/A should be 0
 
-                ULONG CubeFaceBaseOffset = ((6 * ArrayIndex) + CubeFaceIndex) * (ExpectedQPitch * ExpectedPitch);
+                uint32_t CubeFaceBaseOffset = ((6 * ArrayIndex) + CubeFaceIndex) * (ExpectedQPitch * ExpectedPitch);
 
                 //Verify mip offsets in each cube face
-                for (UINT Lod = 0; Lod <= MaxLod; Lod++)
+                for (uint32_t Lod = 0; Lod <= MaxLod; Lod++)
                 {
                     OffsetInfo.MipLevel = Lod;
                     ResourceInfo.GetOffset(OffsetInfo);
 
-                    ULONG MipOffset = CubeFaceBaseOffset + RenderOffset[Lod].Offset;
+                    uint32_t MipOffset = CubeFaceBaseOffset + RenderOffset[Lod].Offset;
 
-                    ULONG OffsetX = MipOffset % ExpectedPitch;
-                    ULONG OffsetY = MipOffset / ExpectedPitch;
+                    uint32_t OffsetX = MipOffset % ExpectedPitch;
+                    uint32_t OffsetY = MipOffset / ExpectedPitch;
 
-                    ULONG RenderAlignOffset = OffsetY * ExpectedPitch + OffsetX;
+                    uint32_t RenderAlignOffset = OffsetY * ExpectedPitch + OffsetX;
 
                     EXPECT_EQ(RenderAlignOffset, OffsetInfo.Render.Offset64);   // Render offset absolute address on which cube face begins.
                     EXPECT_EQ(0, OffsetInfo.Render.XOffset);                    // X Offset should be 0 as linear surf
@@ -2332,10 +2332,10 @@ TEST_F(CTestGen9Resource, TestCubeTileXResource)
     //      5          |    - z     |
     //===============================
 
-    const ULONG HAlign = 16;
-    const ULONG VAlign = 4;
+    const uint32_t HAlign = 16;
+    const uint32_t VAlign = 4;
 
-    const ULONG TileSize[1][2] = { 512, 8 };
+    const uint32_t TileSize[1][2] = { 512, 8 };
 
     GMM_RESCREATE_PARAMS gmmParams = {};
     gmmParams.Type = RESOURCE_CUBE;
@@ -2344,7 +2344,7 @@ TEST_F(CTestGen9Resource, TestCubeTileXResource)
     gmmParams.Flags.Gpu.Texture = 1;
 
     // Allocate 1x1 surface so that it occupies 1 Tile in X dimension
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -2357,11 +2357,11 @@ TEST_F(CTestGen9Resource, TestCubeTileXResource)
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign);
-        ULONG ExpectedPitch = TileSize[0][0];
+        uint32_t ExpectedPitch = TileSize[0][0];
         VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch); // As wide as 1 tile
         VerifyResourcePitchInTiles<true>(ResourceInfo, 1);      // 1 tile wide
 
-        ULONG ExpectedQPitch = VAlign;
+        uint32_t ExpectedQPitch = VAlign;
         VerifyResourceQPitch<true>(ResourceInfo, ExpectedQPitch);        // Each face should be VAlign rows apart within a tile
 
         VerifyResourceSize<true>(ResourceInfo,                          // PitchInBytes * Rows where Rows = __GMM_MAX_CUBE_FACE x QPitch, then aligned to tile boundary
@@ -2369,7 +2369,7 @@ TEST_F(CTestGen9Resource, TestCubeTileXResource)
                                  GMM_ULT_ALIGN(__GMM_MAX_CUBE_FACE * ExpectedQPitch,
                                            TileSize[0][1]));
 
-        for (UINT CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
+        for (uint32_t CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
         {
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
@@ -2388,7 +2388,7 @@ TEST_F(CTestGen9Resource, TestCubeTileXResource)
 
     // Allocate 2 tiles in X dimension.
     // Width and Height must be equal
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -2402,11 +2402,11 @@ TEST_F(CTestGen9Resource, TestCubeTileXResource)
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign);
 
-        ULONG  ExpectedPitch = TileSize[0][0] * 2;                      // As wide as 2 tile
+        uint32_t  ExpectedPitch = TileSize[0][0] * 2;                      // As wide as 2 tile
         VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
         VerifyResourcePitchInTiles<true>(ResourceInfo, 2);             // 2 tile wide
 
-        ULONG ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
+        uint32_t ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
         VerifyResourceQPitch<true>(ResourceInfo, ExpectedQPitch);       // Each face should be Valigned-BaseHeight rows apart
 
         VerifyResourceSize<true>(ResourceInfo,                          // PitchInBytes * Rows where Rows = __GMM_MAX_CUBE_FACE x QPitch, then aligned to tile boundary
@@ -2414,7 +2414,7 @@ TEST_F(CTestGen9Resource, TestCubeTileXResource)
                                  GMM_ULT_ALIGN(__GMM_MAX_CUBE_FACE * ExpectedQPitch,
                                  TileSize[0][1]));
 
-        for (UINT CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
+        for (uint32_t CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
         {
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
@@ -2445,10 +2445,10 @@ TEST_F(CTestGen9Resource, TestCubeTileYResource)
     //      5          |    - z     |
     //===============================
 
-    const ULONG HAlign = 16;
-    const ULONG VAlign = 4;
+    const uint32_t HAlign = 16;
+    const uint32_t VAlign = 4;
 
-    const ULONG TileSize[1][2] = { 128, 32 } ;
+    const uint32_t TileSize[1][2] = { 128, 32 } ;
 
     GMM_RESCREATE_PARAMS gmmParams  = {};
     gmmParams.Type                  = RESOURCE_CUBE;
@@ -2457,7 +2457,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYResource)
     gmmParams.Flags.Gpu.Texture     = 1;
 
     // Allocate 1x1 surface within a tile.
-    for (UINT i = 0; i < TEST_BPP_128; i++)  //TEST_BPP_128 cannot fit in a tile as HAlign = 16
+    for (uint32_t i = 0; i < TEST_BPP_128; i++)  //TEST_BPP_128 cannot fit in a tile as HAlign = 16
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -2475,7 +2475,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYResource)
         VerifyResourceSize<true>(ResourceInfo, GMM_KBYTE(4));    // All 6 faces should be accomated in a tile.
         VerifyResourceQPitch<true>(ResourceInfo, VAlign);        // Each face should be VAlign rows apart within a tile
 
-        for (UINT CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
+        for (uint32_t CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
         {
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
@@ -2490,7 +2490,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYResource)
 
     // Allocate 2 tiles in X dimension.
     // Width and Height of Cube must be equal
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -2504,11 +2504,11 @@ TEST_F(CTestGen9Resource, TestCubeTileYResource)
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign);
 
-        ULONG  ExpectedPitch = TileSize[0][0] * 2;                      // As wide as 2 tile
+        uint32_t  ExpectedPitch = TileSize[0][0] * 2;                      // As wide as 2 tile
         VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
         VerifyResourcePitchInTiles<true>(ResourceInfo, 2);             // 2 tile wide
 
-        ULONG ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
+        uint32_t ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
         VerifyResourceQPitch<true>(ResourceInfo, ExpectedQPitch);       // Each face should be Valigned-BaseHeight rows apart
 
         VerifyResourceSize<true>(ResourceInfo,                          // PitchInBytes * Rows where Rows = __GMM_MAX_CUBE_FACE x QPitch, then aligned to tile boundary
@@ -2517,7 +2517,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYResource)
                                            TileSize[0][1]));
 
 
-        for (UINT CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
+        for (uint32_t CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
         {
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
@@ -2547,10 +2547,10 @@ TEST_F(CTestGen9Resource, TestCubeTileYsResource)
     //      5          |    - z     |
     //===============================
 
-    const ULONG HAlign[TEST_BPP_MAX] = { 256, 256, 128, 128, 64 };
-    const ULONG VAlign[TEST_BPP_MAX] = { 256, 128, 128,  64, 64 };
+    const uint32_t HAlign[TEST_BPP_MAX] = { 256, 256, 128, 128, 64 };
+    const uint32_t VAlign[TEST_BPP_MAX] = { 256, 128, 128,  64, 64 };
 
-    const ULONG TileSize[TEST_BPP_MAX][2] = { {  256, 256 },
+    const uint32_t TileSize[TEST_BPP_MAX][2] = { {  256, 256 },
                                               {  512, 128 },
                                               {  512, 128 },
                                               { 1024,  64 },
@@ -2564,7 +2564,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYsResource)
     gmmParams.Flags.Gpu.Texture = 1;
 
     // Allocate 1x1 surface so that it occupies 1 Tile in X dimension
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -2578,18 +2578,18 @@ TEST_F(CTestGen9Resource, TestCubeTileYsResource)
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
 
-        ULONG ExpectedPitch = TileSize[i][0];
+        uint32_t ExpectedPitch = TileSize[i][0];
         VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch); // As wide as 1 tile
         VerifyResourcePitchInTiles<true>(ResourceInfo, 1);      // 1 tile wide
 
-        ULONG ExpectedQPitch = VAlign[i];
+        uint32_t ExpectedQPitch = VAlign[i];
         VerifyResourceQPitch<true>(ResourceInfo, ExpectedQPitch);        // Each face should be VAlign rows apart within a tile
 
         VerifyResourceSize<true>(ResourceInfo,                          // PitchInBytes * Rows where Rows = __GMM_MAX_CUBE_FACE x QPitch, then aligned to tile boundary
                                  ExpectedPitch *
                                  __GMM_MAX_CUBE_FACE * ExpectedQPitch);
 
-        for (UINT CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
+        for (uint32_t CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
         {
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
@@ -2606,7 +2606,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYsResource)
 
     // Allocate 2 tiles in X dimension.
     // Width and Height must be equal
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -2620,18 +2620,18 @@ TEST_F(CTestGen9Resource, TestCubeTileYsResource)
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
 
-        ULONG  ExpectedPitch = TileSize[i][0] * 2;                      // As wide as 2 tile
+        uint32_t  ExpectedPitch = TileSize[i][0] * 2;                      // As wide as 2 tile
         VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
         VerifyResourcePitchInTiles<true>(ResourceInfo, 2);             // 2 tile wide
 
-        ULONG ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign[i]);
+        uint32_t ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign[i]);
         VerifyResourceQPitch<true>(ResourceInfo, ExpectedQPitch);       // Each face should be Valigned-BaseHeight rows apart
 
         VerifyResourceSize<true>(ResourceInfo,                          // PitchInBytes * Rows where Rows = __GMM_MAX_CUBE_FACE x QPitch, then aligned to tile boundary
                                 ExpectedPitch *
                                 __GMM_MAX_CUBE_FACE * ExpectedQPitch);
 
-        for (UINT CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
+        for (uint32_t CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
         {
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
@@ -2660,10 +2660,10 @@ TEST_F(CTestGen9Resource, TestCubeTileYfResource)
     //      5          |    - z     |
     //===============================
 
-    const ULONG HAlign[TEST_BPP_MAX] = { 64, 64, 32, 32, 16 };
-    const ULONG VAlign[TEST_BPP_MAX] = { 64, 32, 32, 16, 16 };
+    const uint32_t HAlign[TEST_BPP_MAX] = { 64, 64, 32, 32, 16 };
+    const uint32_t VAlign[TEST_BPP_MAX] = { 64, 32, 32, 16, 16 };
 
-    const ULONG TileSize[TEST_BPP_MAX][2] = { {   64,  64 },
+    const uint32_t TileSize[TEST_BPP_MAX][2] = { {   64,  64 },
                                               {  128,  32 },
                                               {  128,  32 },
                                               {  256,  16 },
@@ -2677,7 +2677,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYfResource)
     gmmParams.Flags.Gpu.Texture = 1;
 
     // Allocate 1x1 surface so that it occupies 1 Tile in X dimension
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -2691,18 +2691,18 @@ TEST_F(CTestGen9Resource, TestCubeTileYfResource)
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
 
-        ULONG ExpectedPitch = TileSize[i][0];
+        uint32_t ExpectedPitch = TileSize[i][0];
         VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch); // As wide as 1 tile
         VerifyResourcePitchInTiles<true>(ResourceInfo, 1);      // 1 tile wide
 
-        ULONG ExpectedQPitch = VAlign[i];
+        uint32_t ExpectedQPitch = VAlign[i];
         VerifyResourceQPitch<true>(ResourceInfo, ExpectedQPitch);        // Each face should be VAlign rows apart within a tile
 
         VerifyResourceSize<true>(ResourceInfo,                          // PitchInBytes * Rows where Rows = __GMM_MAX_CUBE_FACE x QPitch, then aligned to tile boundary
                                  ExpectedPitch *
                                  __GMM_MAX_CUBE_FACE * ExpectedQPitch);
 
-        for (UINT CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
+        for (uint32_t CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
         {
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
@@ -2719,7 +2719,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYfResource)
 
     // Allocate 2 tiles in X dimension.
     // Width and Height must be equal
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
@@ -2733,18 +2733,18 @@ TEST_F(CTestGen9Resource, TestCubeTileYfResource)
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
 
-        ULONG  ExpectedPitch = TileSize[i][0] * 2;                      // As wide as 2 tile
+        uint32_t  ExpectedPitch = TileSize[i][0] * 2;                      // As wide as 2 tile
         VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
         VerifyResourcePitchInTiles<true>(ResourceInfo, 2);             // 2 tile wide
 
-        ULONG ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign[i]);
+        uint32_t ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign[i]);
         VerifyResourceQPitch<true>(ResourceInfo, ExpectedQPitch);       // Each face should be Valigned-BaseHeight rows apart
 
         VerifyResourceSize<true>(ResourceInfo,                          // PitchInBytes * Rows where Rows = __GMM_MAX_CUBE_FACE x QPitch, then aligned to tile boundary
                                 ExpectedPitch *
                                 __GMM_MAX_CUBE_FACE * ExpectedQPitch);
 
-        for (UINT CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
+        for (uint32_t CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
         {
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
@@ -2763,10 +2763,10 @@ TEST_F(CTestGen9Resource, TestCubeTileYfResource)
 /// @brief ULT for Cube TileY Mipped Resource Array
 TEST_F(CTestGen9Resource, TestCubeTileYMippedResourceArray)
 {
-    const ULONG HAlign = 16;
-    const ULONG VAlign = 4;
+    const uint32_t HAlign = 16;
+    const uint32_t VAlign = 4;
 
-    const ULONG TileSize[2] = { 128, 32 };
+    const uint32_t TileSize[2] = { 128, 32 };
     enum  Coords { X = 0, Y = 1 };
 
     GMM_RESCREATE_PARAMS gmmParams = {};
@@ -2776,15 +2776,15 @@ TEST_F(CTestGen9Resource, TestCubeTileYMippedResourceArray)
     gmmParams.Flags.Gpu.Texture = 1;
 
     // Allocate CUBE surface
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
-        const ULONG ResWidth = 0x201;
-        const ULONG MaxLod  = 0x9;
-        const ULONG MaxArraySize = 0x10;
+        const uint32_t ResWidth = 0x201;
+        const uint32_t MaxLod  = 0x9;
+        const uint32_t MaxArraySize = 0x10;
 
         struct  //Cache the value for verifying array elements/Cube face offset/Mip Offset
         {
-            ULONGLONG Offset;  // Note : absolute mip offset
+            uint64_t Offset;  // Note : absolute mip offset
         } RenderOffset[GMM_ULT_MAX_MIPMAP];
 
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
@@ -2814,9 +2814,9 @@ TEST_F(CTestGen9Resource, TestCubeTileYMippedResourceArray)
 
         //Mip 0
         //Mip 0 decides the pitch of the entire resource.
-        const ULONG  AlignedWidthMip0 = GMM_ULT_ALIGN(ResWidth, HAlign);                           // HAlign width in pixel
-        const ULONG  AlignedHeightMip0 = GMM_ULT_ALIGN(ResWidth, VAlign);
-        ULONG  ExpectedPitch = GMM_ULT_ALIGN(AlignedWidthMip0 * GetBppValue(bpp), TileSize[X]);    // Align AlignedWidthMip0 to 128 bytes
+        const uint32_t  AlignedWidthMip0 = GMM_ULT_ALIGN(ResWidth, HAlign);                           // HAlign width in pixel
+        const uint32_t  AlignedHeightMip0 = GMM_ULT_ALIGN(ResWidth, VAlign);
+        uint32_t  ExpectedPitch = GMM_ULT_ALIGN(AlignedWidthMip0 * GetBppValue(bpp), TileSize[X]);    // Align AlignedWidthMip0 to 128 bytes
         VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
         VerifyResourcePitchInTiles<true>(ResourceInfo, ExpectedPitch / TileSize[X]);            // Pitch/TileY-Width
 
@@ -2848,11 +2848,11 @@ TEST_F(CTestGen9Resource, TestCubeTileYMippedResourceArray)
         //cache Mip 1 offset
         RenderOffset[1].Offset = AlignedHeightMip0 * ExpectedPitch; //Absolute base
 
-        const ULONG  AlignedWidthMip1 = GMM_ULT_ALIGN(ResWidth >> 1, HAlign);              // Align width in pixel to HAlign
-        const ULONG  AlignedHeightMip1 = GMM_ULT_ALIGN(ResWidth >> 1, VAlign);
+        const uint32_t  AlignedWidthMip1 = GMM_ULT_ALIGN(ResWidth >> 1, HAlign);              // Align width in pixel to HAlign
+        const uint32_t  AlignedHeightMip1 = GMM_ULT_ALIGN(ResWidth >> 1, VAlign);
 
-        ULONG HeightOfMip;
-        ULONG HeightLinesLevel2 = 0;
+        uint32_t HeightOfMip;
+        uint32_t HeightLinesLevel2 = 0;
 
         // Mips 2-9 should be stacked on the right of Mip1 as shown in figure above.
         for (int i = 2; i <= MaxLod; i++)
@@ -2871,7 +2871,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYMippedResourceArray)
             EXPECT_EQ((AlignedWidthMip1 * GetBppValue(bpp)) % TileSize[X], OffsetInfo.Render.XOffset);          // Aligns with Mip0 at X = 0
             EXPECT_EQ((AlignedHeightMip0 + HeightLinesLevel2) % TileSize[Y], OffsetInfo.Render.YOffset);        // AlignedHeightMip0 % TileY-Height
             EXPECT_EQ(0, OffsetInfo.Render.ZOffset);
-            
+
             //cache Mip i'th offset
             RenderOffset[i].Offset = (AlignedHeightMip0 + HeightLinesLevel2) * ExpectedPitch +
                                         (AlignedWidthMip1 * GetBppValue(bpp));
@@ -2879,18 +2879,18 @@ TEST_F(CTestGen9Resource, TestCubeTileYMippedResourceArray)
             HeightLinesLevel2 += HeightOfMip;
         }
 
-        ULONG Max2DHeight = GMM_ULT_MAX(AlignedHeightMip1, HeightLinesLevel2);
-        ULONG ExpectedQPitch = GFX_ALIGN_NP2(AlignedHeightMip0 + Max2DHeight, VAlign);
-        VerifyResourceQPitch<true>(ResourceInfo, ExpectedQPitch);       // Each face should be Valigned-BaseHeight rows apart 
+        uint32_t Max2DHeight = GMM_ULT_MAX(AlignedHeightMip1, HeightLinesLevel2);
+        uint32_t ExpectedQPitch = GFX_ALIGN_NP2(AlignedHeightMip0 + Max2DHeight, VAlign);
+        VerifyResourceQPitch<true>(ResourceInfo, ExpectedQPitch);       // Each face should be Valigned-BaseHeight rows apart
 
         VerifyResourceSize<true>(ResourceInfo,                          // PitchInBytes * Rows where Rows = __GMM_MAX_CUBE_FACE x QPitch, then aligned to tile boundary
                                  ExpectedPitch *
                                  GMM_ULT_ALIGN(MaxArraySize * __GMM_MAX_CUBE_FACE * ExpectedQPitch, TileSize[Y]));
 
         // Verify each array element's  Mip offset, Cube face offset etc.
-        for (UINT ArrayIndex = 0; ArrayIndex < __GMM_MAX_CUBE_FACE; ArrayIndex++)
+        for (uint32_t ArrayIndex = 0; ArrayIndex < __GMM_MAX_CUBE_FACE; ArrayIndex++)
         {
-            for (UINT CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
+            for (uint32_t CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
             {
                 GMM_REQ_OFFSET_INFO OffsetInfo = {};
                 OffsetInfo.ReqRender = 1;
@@ -2901,30 +2901,30 @@ TEST_F(CTestGen9Resource, TestCubeTileYMippedResourceArray)
                 //Verify cube face offsets
                 EXPECT_EQ(GMM_ULT_ALIGN_FLOOR(((6 * ArrayIndex) + CubeFaceIndex) * ExpectedQPitch, TileSize[Y]) * ExpectedPitch,
                           OffsetInfo.Render.Offset64);                  // Render offset is tile's base address on which cube face begins.
-                EXPECT_EQ(0, OffsetInfo.Render.XOffset);                // X Offset should be 0 
+                EXPECT_EQ(0, OffsetInfo.Render.XOffset);                // X Offset should be 0
                 EXPECT_EQ((((6 * ArrayIndex) + CubeFaceIndex) * ExpectedQPitch) % TileSize[Y],
                     OffsetInfo.Render.YOffset);                         // Y Offset should be (CubeFaceIndex * QPitch) % TileHeight
                 EXPECT_EQ(0, OffsetInfo.Render.ZOffset);                // Z offset N/A should be 0
 
-                ULONG CubeFaceBaseOffset = ((6 * ArrayIndex) + CubeFaceIndex) * (ExpectedQPitch * ExpectedPitch);
+                uint32_t CubeFaceBaseOffset = ((6 * ArrayIndex) + CubeFaceIndex) * (ExpectedQPitch * ExpectedPitch);
 
                 //Verify mip offsets in each cube face
-                for (UINT Lod = 0; Lod <= MaxLod; Lod++)
+                for (uint32_t Lod = 0; Lod <= MaxLod; Lod++)
                 {
                     OffsetInfo.MipLevel = Lod;
                     ResourceInfo.GetOffset(OffsetInfo);
 
-                    ULONG MipOffset = CubeFaceBaseOffset + RenderOffset[Lod].Offset;
+                    uint32_t MipOffset = CubeFaceBaseOffset + RenderOffset[Lod].Offset;
 
-                    ULONG OffsetX = MipOffset % ExpectedPitch;
-                    ULONG TileAlignedOffsetX = GMM_ULT_ALIGN_FLOOR(OffsetX, TileSize[X]);
+                    uint32_t OffsetX = MipOffset % ExpectedPitch;
+                    uint32_t TileAlignedOffsetX = GMM_ULT_ALIGN_FLOOR(OffsetX, TileSize[X]);
                     OffsetX -= TileAlignedOffsetX;
 
-                    ULONG OffsetY = MipOffset / ExpectedPitch;
-                    ULONG TileAlignedOffsetY = GMM_ULT_ALIGN_FLOOR(OffsetY, TileSize[Y]);
+                    uint32_t OffsetY = MipOffset / ExpectedPitch;
+                    uint32_t TileAlignedOffsetY = GMM_ULT_ALIGN_FLOOR(OffsetY, TileSize[Y]);
                     OffsetY -= TileAlignedOffsetY;
 
-                    ULONG RenderAlignOffset =
+                    uint32_t RenderAlignOffset =
                         TileAlignedOffsetY * ExpectedPitch +
                         (TileAlignedOffsetX / TileSize[X]) * PAGE_SIZE;
 
@@ -2945,22 +2945,22 @@ TEST_F(CTestGen9Resource, TestCubeTileYsMippedResourceArray)
 {
     enum  Coords { X = 0, Y = 1 };
 
-    const ULONG HAlign[TEST_BPP_MAX] = { 256, 256, 128, 128, 64 };
-    const ULONG VAlign[TEST_BPP_MAX] = { 256, 128, 128, 64, 64 };
+    const uint32_t HAlign[TEST_BPP_MAX] = { 256, 256, 128, 128, 64 };
+    const uint32_t VAlign[TEST_BPP_MAX] = { 256, 128, 128, 64, 64 };
 
-    const ULONG TileSize[TEST_BPP_MAX][2] = {   { 256, 256 },
+    const uint32_t TileSize[TEST_BPP_MAX][2] = {   { 256, 256 },
                                                 { 512, 128 },
                                                 { 512, 128 },
                                                 { 1024, 64 },
                                                 { 1024, 64 } };
 
-    const ULONG MaxMipTailSize[TEST_BPP_MAX][2] = { { 128, 256 },
+    const uint32_t MaxMipTailSize[TEST_BPP_MAX][2] = { { 128, 256 },
                                                     { 128, 128 },
                                                     {  64, 128 },
                                                     {  64,  64 },
                                                     {  32,  64 } };
 
-    const ULONG MipTailSlotSize[GMM_ULT_MAX_MIPTAIL_SLOTS] = {
+    const uint32_t MipTailSlotSize[GMM_ULT_MAX_MIPTAIL_SLOTS] = {
                                                             GMM_KBYTE(32),
                                                             GMM_KBYTE(16),
                                                             GMM_KBYTE(8),
@@ -2978,7 +2978,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYsMippedResourceArray)
                                                             GMM_BYTES(64)
                                                           };
 
-    const TEST_MIPTAIL_SLOT_OFFSET MipTailSlotOffsets[GMM_ULT_MAX_MIPTAIL_SLOTS][TEST_BPP_MAX] = 
+    const TEST_MIPTAIL_SLOT_OFFSET MipTailSlotOffsets[GMM_ULT_MAX_MIPTAIL_SLOTS][TEST_BPP_MAX] =
     {
     /*  |       8 bpe    |      16 bpe   |     32 bpe    |     64 bpe   |     128 bpe    | */
         { { 128,   0, 0 }, { 128,  0, 0 }, { 64,  0, 0 }, { 64,  0, 0 }, { 32,  0, 0 } },
@@ -2987,9 +2987,9 @@ TEST_F(CTestGen9Resource, TestCubeTileYsMippedResourceArray)
         { {  0,   64, 0 }, {   0, 32, 0 }, {  0, 32, 0 }, {  0, 16, 0 }, {  0, 16, 0 } },
         { {  32,   0, 0 }, {  32,  0, 0 }, { 16,  0, 0 }, { 16,  0, 0 }, {  8,  0, 0 } },
         { {  16,  32, 0 }, {  16, 16, 0 }, {  8, 16, 0 }, {  8,  8, 0 }, {  4,  8, 0 } },
-        { {   0,  48, 0 }, {   0, 24, 0 }, {  0, 24, 0 }, {  0, 12, 0 }, {  0, 12, 0 } },   
-        { {   0,  32, 0 }, {   0, 16, 0 }, {  0, 16, 0 }, {  0,  8, 0 }, {  0,  8, 0 } },   
-        { {  16,  16, 0 }, {  16,  8, 0 }, {  8,  8, 0 }, {  8,  4, 0 }, {  4,  4, 0 } },   
+        { {   0,  48, 0 }, {   0, 24, 0 }, {  0, 24, 0 }, {  0, 12, 0 }, {  0, 12, 0 } },
+        { {   0,  32, 0 }, {   0, 16, 0 }, {  0, 16, 0 }, {  0,  8, 0 }, {  0,  8, 0 } },
+        { {  16,  16, 0 }, {  16,  8, 0 }, {  8,  8, 0 }, {  8,  4, 0 }, {  4,  4, 0 } },
         { {  16,   0, 0 }, {  16,  0, 0 }, {  8,  0, 0 }, {  8,  0, 0 }, {  4,  0, 0 } },
         { {   0,  16, 0 }, {   0,  8, 0 }, {  0,  8, 0 }, {  0,  4, 0 }, {  0,  4, 0 } },
         { {   0,  12, 0 }, {   8,  4, 0 }, {  4,  4, 0 }, {  6,  0, 0 }, {  3,  0, 0 } },
@@ -3007,20 +3007,20 @@ TEST_F(CTestGen9Resource, TestCubeTileYsMippedResourceArray)
     gmmParams.Flags.Gpu.Texture     = 1;
 
     // Allocate CUBE surface
-    for (UINT i = 0; i < TEST_BPP_MAX; i++)
+    for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
     {
-        const ULONG ResWidth = 0x1001;
-        const ULONG MaxLod = 0x9;
-        const ULONG MaxArraySize = 0x10;
+        const uint32_t ResWidth = 0x1001;
+        const uint32_t MaxLod = 0x9;
+        const uint32_t MaxArraySize = 0x10;
 
         struct  //Cache the value for verifying array elements/Cube face offset/Mip Offset
         {
-            ULONGLONG Offset;  // Note : absolute mip offset
+            uint64_t Offset;  // Note : absolute mip offset
         } RenderOffset[GMM_ULT_MAX_MIPMAP];
 
         TEST_BPP bpp = static_cast<TEST_BPP>(i);
         gmmParams.Format = SetResourceFormat(bpp);
-        gmmParams.BaseWidth64 = ResWidth;                                 
+        gmmParams.BaseWidth64 = ResWidth;
         gmmParams.BaseHeight = gmmParams.BaseWidth64;                     // Heigth must be equal to width.
         gmmParams.Depth = 0x1;
         gmmParams.MaxLod = MaxLod;
@@ -3045,9 +3045,9 @@ TEST_F(CTestGen9Resource, TestCubeTileYsMippedResourceArray)
 
         //Mip 0
         //Mip 0 decides the pitch of the entire resource.
-        const ULONG  AlignedWidthMip0 = GMM_ULT_ALIGN(ResWidth, HAlign[i]);                           // HAlign width in pixel
-        const ULONG  AlignedHeightMip0 = GMM_ULT_ALIGN(ResWidth, VAlign[i]);
-        ULONG  ExpectedPitch = GMM_ULT_ALIGN(AlignedWidthMip0 * GetBppValue(bpp), TileSize[i][X]);    // Align AlignedWidthMip0 to Tile width
+        const uint32_t  AlignedWidthMip0 = GMM_ULT_ALIGN(ResWidth, HAlign[i]);                           // HAlign width in pixel
+        const uint32_t  AlignedHeightMip0 = GMM_ULT_ALIGN(ResWidth, VAlign[i]);
+        uint32_t  ExpectedPitch = GMM_ULT_ALIGN(AlignedWidthMip0 * GetBppValue(bpp), TileSize[i][X]);    // Align AlignedWidthMip0 to Tile width
         VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
         VerifyResourcePitchInTiles<true>(ResourceInfo, ExpectedPitch / TileSize[i][X]);            // Pitch/Tile-Width
 
@@ -3079,13 +3079,13 @@ TEST_F(CTestGen9Resource, TestCubeTileYsMippedResourceArray)
         //cache Mip 1 offset
         RenderOffset[1].Offset = AlignedHeightMip0 * ExpectedPitch; //Absolute base
 
-        const ULONG  AlignedWidthMip1 = GMM_ULT_ALIGN(ResWidth >> 1, HAlign[i]);              // Align width in pixel to HAlign
-        const ULONG  AlignedHeightMip1 = GMM_ULT_ALIGN(ResWidth >> 1, VAlign[i]);
+        const uint32_t  AlignedWidthMip1 = GMM_ULT_ALIGN(ResWidth >> 1, HAlign[i]);              // Align width in pixel to HAlign
+        const uint32_t  AlignedHeightMip1 = GMM_ULT_ALIGN(ResWidth >> 1, VAlign[i]);
 
-        // Determine MipTail start LOD 
-        ULONG ExpectedMipTailStartLod = 0;
+        // Determine MipTail start LOD
+        uint32_t ExpectedMipTailStartLod = 0;
         {
-            ULONG MipWidth, MipHeight;
+            uint32_t MipWidth, MipHeight;
             MipWidth = MipHeight = ResWidth;
             while ((ExpectedMipTailStartLod < MaxLod) &&
                 !((MipWidth <= MaxMipTailSize[i][X]) &&
@@ -3097,11 +3097,11 @@ TEST_F(CTestGen9Resource, TestCubeTileYsMippedResourceArray)
                 MipHeight = MipHeight >> 1;
             }
         }
-        
+
         VerifyResourceMipTailStartLod<true>(ResourceInfo, ExpectedMipTailStartLod);
 
-        ULONG HeightOfMip;
-        ULONG HeightLinesLevel2 = 0;
+        uint32_t HeightOfMip;
+        uint32_t HeightLinesLevel2 = 0;
 
         // Mips[2,MipTailStartLod - 1] should be stacked on the right of Mip1 as shown in figure above.
         for (int Lod = 2; Lod < ExpectedMipTailStartLod; Lod++)
@@ -3136,10 +3136,10 @@ TEST_F(CTestGen9Resource, TestCubeTileYsMippedResourceArray)
             OffsetInfo.MipLevel = Lod;
             ResourceInfo.GetOffset(OffsetInfo);
 
-            ULONGLONG ExpectedRenderAlignOffset = 
-                    (AlignedHeightMip0 + HeightLinesLevel2) * (ULONGLONG)ExpectedPitch +   // Render offset is tile's base address on which mip begins
+            uint64_t ExpectedRenderAlignOffset =
+                    (AlignedHeightMip0 + HeightLinesLevel2) * (uint64_t)ExpectedPitch +   // Render offset is tile's base address on which mip begins
                         (AlignedWidthMip1 * GetBppValue(bpp) / TileSize[i][X]) * GMM_KBYTE(64);
-            
+
             EXPECT_EQ(ExpectedRenderAlignOffset, OffsetInfo.Render.Offset64);
             EXPECT_EQ(MipTailSlotOffsets[Lod - ExpectedMipTailStartLod][i].X * GetBppValue(bpp), OffsetInfo.Render.XOffset);
             EXPECT_EQ(MipTailSlotOffsets[Lod - ExpectedMipTailStartLod][i].Y, OffsetInfo.Render.YOffset);
@@ -3153,17 +3153,17 @@ TEST_F(CTestGen9Resource, TestCubeTileYsMippedResourceArray)
             HeightLinesLevel2 += TileSize[i][Y];
         }
 
-        ULONG Max2DHeight = GMM_ULT_MAX(AlignedHeightMip1, HeightLinesLevel2);
-        ULONG ExpectedQPitch = GFX_ALIGN_NP2(AlignedHeightMip0 + Max2DHeight, VAlign[i]);
-        VerifyResourceQPitch<true>(ResourceInfo, ExpectedQPitch);       // Each face should be Valigned-BaseHeight rows apart 
+        uint32_t Max2DHeight = GMM_ULT_MAX(AlignedHeightMip1, HeightLinesLevel2);
+        uint32_t ExpectedQPitch = GFX_ALIGN_NP2(AlignedHeightMip0 + Max2DHeight, VAlign[i]);
+        VerifyResourceQPitch<true>(ResourceInfo, ExpectedQPitch);       // Each face should be Valigned-BaseHeight rows apart
 
         VerifyResourceSize<true>(ResourceInfo,                          // PitchInBytes * Rows where Rows = __GMM_MAX_CUBE_FACE x QPitch, then aligned to tile boundary
-                                (ULONGLONG)ExpectedPitch * MaxArraySize * __GMM_MAX_CUBE_FACE * ExpectedQPitch);
+                                (uint64_t)ExpectedPitch * MaxArraySize * __GMM_MAX_CUBE_FACE * ExpectedQPitch);
 
         // Verify each array element's  Mip offset, Cube face offset etc.
-        for (UINT ArrayIndex = 0; ArrayIndex < MaxArraySize; ArrayIndex++)
+        for (uint32_t ArrayIndex = 0; ArrayIndex < MaxArraySize; ArrayIndex++)
         {
-            for (UINT CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
+            for (uint32_t CubeFaceIndex = 0; CubeFaceIndex < __GMM_MAX_CUBE_FACE; CubeFaceIndex++)
             {
                 GMM_REQ_OFFSET_INFO OffsetInfo = {};
                 OffsetInfo.ReqRender = 1;
@@ -3172,28 +3172,28 @@ TEST_F(CTestGen9Resource, TestCubeTileYsMippedResourceArray)
                 ResourceInfo.GetOffset(OffsetInfo);
 
                 //Verify cube face offsets
-                EXPECT_EQ((((6 * ArrayIndex) + CubeFaceIndex) * ExpectedQPitch) * (ULONGLONG)ExpectedPitch,
+                EXPECT_EQ((((6 * ArrayIndex) + CubeFaceIndex) * ExpectedQPitch) * (uint64_t)ExpectedPitch,
                            OffsetInfo.Render.Offset64);                  // Render offset is tile's base address on which cube face begins.
-                EXPECT_EQ(0, OffsetInfo.Render.XOffset);                // X Offset should be 0 
+                EXPECT_EQ(0, OffsetInfo.Render.XOffset);                // X Offset should be 0
                 EXPECT_EQ(0, OffsetInfo.Render.YOffset);                // Y Offset should be 0
                 EXPECT_EQ(0, OffsetInfo.Render.ZOffset);                // Z offset N/A should be 0
 
-                ULONGLONG CubeFaceBaseOffset = ((6 * ArrayIndex) + CubeFaceIndex) * (ExpectedQPitch * (ULONGLONG)ExpectedPitch);
+                uint64_t CubeFaceBaseOffset = ((6 * ArrayIndex) + CubeFaceIndex) * (ExpectedQPitch * (uint64_t)ExpectedPitch);
 
                 //Verify mip offsets in each cube face
-                // Mips[0,MipTailStartLod - 1] 
+                // Mips[0,MipTailStartLod - 1]
                 for (int Lod = 0; Lod < ExpectedMipTailStartLod; Lod++)
                 {
                     OffsetInfo.MipLevel = Lod;
                     ResourceInfo.GetOffset(OffsetInfo);
 
-                    ULONGLONG MipOffset = CubeFaceBaseOffset + RenderOffset[Lod].Offset;
+                    uint64_t MipOffset = CubeFaceBaseOffset + RenderOffset[Lod].Offset;
 
-                    ULONG TileAlignedOffsetX = MipOffset % ExpectedPitch;
-                    ULONG TileAlignedOffsetY = MipOffset / ExpectedPitch;
+                    uint32_t TileAlignedOffsetX = MipOffset % ExpectedPitch;
+                    uint32_t TileAlignedOffsetY = MipOffset / ExpectedPitch;
 
-                    ULONGLONG ExpectedRenderAlignOffset =
-                        TileAlignedOffsetY * (ULONGLONG)ExpectedPitch +
+                    uint64_t ExpectedRenderAlignOffset =
+                        TileAlignedOffsetY * (uint64_t)ExpectedPitch +
                         (TileAlignedOffsetX / TileSize[i][X]) * GMM_KBYTE(64);
 
                     EXPECT_EQ(ExpectedRenderAlignOffset, OffsetInfo.Render.Offset64);   // Render offset is tile's base address on which cube face begins.
@@ -3209,9 +3209,9 @@ TEST_F(CTestGen9Resource, TestCubeTileYsMippedResourceArray)
                     OffsetInfo.MipLevel = Lod;
                     ResourceInfo.GetOffset(OffsetInfo);
 
-                    ULONGLONG MipOffset = CubeFaceBaseOffset + RenderOffset[Lod].Offset;
+                    uint64_t MipOffset = CubeFaceBaseOffset + RenderOffset[Lod].Offset;
 
-                    ULONGLONG ExpectedRenderAlignOffset = GMM_ULT_ALIGN_FLOOR(MipOffset, GMM_KBYTE(64));
+                    uint64_t ExpectedRenderAlignOffset = GMM_ULT_ALIGN_FLOOR(MipOffset, GMM_KBYTE(64));
 
                     EXPECT_EQ(ExpectedRenderAlignOffset, OffsetInfo.Render.Offset64);
                     EXPECT_EQ(MipTailSlotOffsets[Lod - ExpectedMipTailStartLod][i].X * GetBppValue(bpp), OffsetInfo.Render.XOffset);
@@ -3237,11 +3237,11 @@ TEST_F(CTestGen9Resource, TestPlanar2DTileYf)
 
 int BuildInputIterator(std::vector<std::tuple<int, int, int, bool, int, int>> &List, int maxTestDimension, int TestArray)
 {
-    for (UINT i = TEST_LINEAR; i < TEST_TILE_MAX; i++)
-        for (UINT j = TEST_BPP_8; j < TEST_BPP_MAX; j++)
-            for (UINT k = TEST_RESOURCE_1D; k < TEST_RESOURCE_MAX; k++)
-                for (UINT l = 0; l < maxTestDimension; l++)
-                    for (UINT m = 0; m < TestArray; m++)
+    for (uint32_t i = TEST_LINEAR; i < TEST_TILE_MAX; i++)
+        for (uint32_t j = TEST_BPP_8; j < TEST_BPP_MAX; j++)
+            for (uint32_t k = TEST_RESOURCE_1D; k < TEST_RESOURCE_MAX; k++)
+                for (uint32_t l = 0; l < maxTestDimension; l++)
+                    for (uint32_t m = 0; m < TestArray; m++)
                 {
                     List.emplace_back(std::make_tuple(i, j, k, true, l, m));
                     List.emplace_back(std::make_tuple(i, j, k, false, l, m));
@@ -3254,7 +3254,7 @@ int BuildInputIterator(std::vector<std::tuple<int, int, int, bool, int, int>> &L
 TEST_F(CTestGen9Resource, TestMSAA)
 {
     //Tile dimensions in Bytes
-    const ULONG MCSTileSize[1][2] = { 128, 32 };   //MCS is TileY 
+    const uint32_t MCSTileSize[1][2] = { 128, 32 };   //MCS is TileY
 
     //Gen9: MSAA 16x no MCS for width > 8K
     //No MSAA for YUV/compressed formats
@@ -3269,17 +3269,17 @@ TEST_F(CTestGen9Resource, TestMSAA)
     //  16x            8*ceil(px_wL/2)           8*ceil(px_hL/2)
     //MCS (bpp): 2x/4x - bpp_8, 8x - bpp_32, 16x - bpp_64
 
-    const UINT TestDimensions[4][2] = { //Input dimensions in #Tiles
+    const uint32_t TestDimensions[4][2] = { //Input dimensions in #Tiles
         { 15, 20 },               //16 Tiles x 20 <Max Width: Depth MSS crosses Pitch limit beyond this>
         { 0, 0 },                 //1x1x1
         { 1, 0 },                 //2 Tilesx1
         { 1, 1 },                 //2 Tiles x 2
     };
 
-    UINT TestArraySize[2] = { 1, 5 }; 
+    uint32_t TestArraySize[2] = { 1, 5 };
 
-    ULONG HAlign, VAlign, TileDimX, TileDimY, MCSHAlign, MCSVAlign, TileSize;
-    UINT ExpectedMCSBpp;
+    uint32_t HAlign, VAlign, TileDimX, TileDimY, MCSHAlign, MCSVAlign, TileSize;
+    uint32_t ExpectedMCSBpp;
     std::vector<tuple<int, int, int, bool, int, int>> List; //TEST_TILE_TYPE, TEST_BPP, TEST_RESOURCE_TYPE, Depth or RT, TestDimension index, ArraySize
     auto Size = BuildInputIterator(List, 4, 2); // Size of arrays TestDimensions, TestArraySize
 
@@ -3293,11 +3293,11 @@ TEST_F(CTestGen9Resource, TestMSAA)
         TEST_RESOURCE_TYPE ResType = (TEST_RESOURCE_TYPE)std::get<2>(element);
         bool IsRT = std::get<3>(element);       // True for RT, False for Depth
         int TestDimIdx = std::get<4>(element);  //index into TestDimensions array
-        int ArrayIdx = std::get<5>(element);   //index into TestArraySize 
+        int ArrayIdx = std::get<5>(element);   //index into TestArraySize
         TileSize = (Tiling == TEST_TILEYS) ? GMM_KBYTE(64) : GMM_KBYTE(4);
 
         //Discard un-supported Tiling/Res_type/bpp for this test
-        if (ResType != TEST_RESOURCE_2D || Tiling >= TEST_TILEYF          //No 1D/3D/Cube. Supported 2D mip-maps/array 
+        if (ResType != TEST_RESOURCE_2D || Tiling >= TEST_TILEYF          //No 1D/3D/Cube. Supported 2D mip-maps/array
             || (!IsRT && (Tiling == TEST_TILEX ||                        //Bspec doesn't support TileX for Depth
                           !(Bpp == TEST_BPP_16 || Bpp == TEST_BPP_32)))) //depth supported on 16bit, 32bit formats only
             continue;
@@ -3309,16 +3309,16 @@ TEST_F(CTestGen9Resource, TestMSAA)
 
         gmmParams.NoGfxMemory = 1;
         gmmParams.Format = SetResourceFormat(Bpp);
-        for (UINT k = MSAA_2x; k <= MSAA_16x; k++)
+        for (uint32_t k = MSAA_2x; k <= MSAA_16x; k++)
         {
-            GetAlignmentAndTileDimensionsForMSAA(Bpp, IsRT, Tiling,(TEST_MSAA)k, 
+            GetAlignmentAndTileDimensionsForMSAA(Bpp, IsRT, Tiling,(TEST_MSAA)k,
                                           TileDimX, TileDimY, HAlign, VAlign,
-                                          ExpectedMCSBpp, MCSHAlign, MCSVAlign);  
+                                          ExpectedMCSBpp, MCSHAlign, MCSVAlign);
 
             gmmParams.BaseWidth64 = TestDimensions[TestDimIdx][0] * TileDimX + 0x1;
             gmmParams.BaseHeight = TestDimensions[TestDimIdx][1] * TileDimY + 0x1;
             gmmParams.Depth = 0x1;
-            gmmParams.MSAA.NumSamples = static_cast<ULONG>(pow((double)2, k));    
+            gmmParams.MSAA.NumSamples = static_cast<uint32_t>(pow((double)2, k));
             gmmParams.Flags.Gpu.MCS = 0;
 
             //MSS surface
@@ -3332,8 +3332,8 @@ TEST_F(CTestGen9Resource, TestMSAA)
                 VerifyResourceVAlign<true>(MSSResourceInfo, VAlign);
                 if (IsRT) //Arrayed MSS
                 {
-                    ULONG ExpectedPitch = 0, ExpectedQPitch = 0;
-                    ExpectedPitch = GMM_ULT_ALIGN(GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign) * (UINT)pow(2.0, Bpp), TileDimX);        // Aligned width * bpp, aligned to TileWidth
+                    uint32_t ExpectedPitch = 0, ExpectedQPitch = 0;
+                    ExpectedPitch = GMM_ULT_ALIGN(GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign) * (uint32_t)pow(2.0, Bpp), TileDimX);        // Aligned width * bpp, aligned to TileWidth
                     VerifyResourcePitch<true>(MSSResourceInfo, ExpectedPitch);
                     if(Tiling != TEST_LINEAR)
                         VerifyResourcePitchInTiles<true>(MSSResourceInfo, ExpectedPitch / TileDimX);
@@ -3344,29 +3344,29 @@ TEST_F(CTestGen9Resource, TestMSAA)
                         VerifyResourceQPitch<true>(MSSResourceInfo, ExpectedQPitch);
                     }
 
-                    ULONG ExpectedHeight = GMM_ULT_ALIGN(ExpectedQPitch*gmmParams.MSAA.NumSamples*gmmParams.ArraySize, TileDimY);            //Align Height =ExpectedPitch * NumSamples * ExpectedQPitch, to Tile-Height 
+                    uint32_t ExpectedHeight = GMM_ULT_ALIGN(ExpectedQPitch*gmmParams.MSAA.NumSamples*gmmParams.ArraySize, TileDimY);            //Align Height =ExpectedPitch * NumSamples * ExpectedQPitch, to Tile-Height
                     VerifyResourceSize<true>(MSSResourceInfo, GMM_ULT_ALIGN(ExpectedPitch*ExpectedHeight, TileSize));
                 }
                 else // Interleaved MSS
                 {
-                    UINT WidthMultiplier, HeightMultiplier;
+                    uint32_t WidthMultiplier, HeightMultiplier;
                     GetInterleaveMSSPattern((TEST_MSAA)k, WidthMultiplier, HeightMultiplier);
                     gmmParams.BaseWidth64 = WidthMultiplier > 1 ? GMM_ULT_ALIGN(gmmParams.BaseWidth64, 2) : gmmParams.BaseWidth64;
                     gmmParams.BaseHeight = HeightMultiplier > 1 ? GMM_ULT_ALIGN(gmmParams.BaseHeight, 2) : gmmParams.BaseHeight;
 
-                    ULONG ExpectedPitch = GMM_ULT_ALIGN(GMM_ULT_ALIGN(gmmParams.BaseWidth64* WidthMultiplier, HAlign) * (UINT)pow(2.0, Bpp), TileDimX);        
+                    uint32_t ExpectedPitch = GMM_ULT_ALIGN(GMM_ULT_ALIGN(gmmParams.BaseWidth64* WidthMultiplier, HAlign) * (uint32_t)pow(2.0, Bpp), TileDimX);
                     VerifyResourcePitch<true>(MSSResourceInfo, ExpectedPitch);
                     if (Tiling != TEST_LINEAR)
                     {
-                        VerifyResourcePitchInTiles<true>(MSSResourceInfo, ExpectedPitch / TileDimX);      
+                        VerifyResourcePitchInTiles<true>(MSSResourceInfo, ExpectedPitch / TileDimX);
                     }
 
-                    ULONG64 ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight * HeightMultiplier, VAlign); 
+                    uint64_t ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight * HeightMultiplier, VAlign);
                     if (gmmParams.ArraySize > 1)
                     {
-                        VerifyResourceQPitch<true>(MSSResourceInfo, ExpectedQPitch);        
+                        VerifyResourceQPitch<true>(MSSResourceInfo, ExpectedQPitch);
                     }
-                    ULONG64 ExpectedHeight = GMM_ULT_ALIGN(ExpectedQPitch*gmmParams.ArraySize, TileDimY);                  //Align Height = ExpectedQPitch*ArraySize, to Tile-Height 
+                    uint64_t ExpectedHeight = GMM_ULT_ALIGN(ExpectedQPitch*gmmParams.ArraySize, TileDimY);                  //Align Height = ExpectedQPitch*ArraySize, to Tile-Height
                     VerifyResourceSize<true>(MSSResourceInfo, GMM_ULT_ALIGN(ExpectedPitch*ExpectedHeight, TileSize));    //ExpectedPitch *ExpectedHeight
                 }
             }
@@ -3378,36 +3378,36 @@ TEST_F(CTestGen9Resource, TestMSAA)
                 GMM_RESOURCE_INFO MCSResourceInfo;
                 EXPECT_EQ(GMM_SUCCESS, MCSResourceInfo.Create(*pGmmGlobalContext, gmmParams));
 
-                VerifyResourceHAlign<true>(MCSResourceInfo, MCSHAlign); 
-                VerifyResourceVAlign<true>(MCSResourceInfo, MCSVAlign); 
+                VerifyResourceHAlign<true>(MCSResourceInfo, MCSHAlign);
+                VerifyResourceVAlign<true>(MCSResourceInfo, MCSVAlign);
 
-                ULONG ExpectedPitch = GMM_ULT_ALIGN(GMM_ULT_ALIGN(gmmParams.BaseWidth64, MCSHAlign) * ExpectedMCSBpp, MCSTileSize[0][0]);        // Align in texels, tehn multiply w/ Bpt
+                uint32_t ExpectedPitch = GMM_ULT_ALIGN(GMM_ULT_ALIGN(gmmParams.BaseWidth64, MCSHAlign) * ExpectedMCSBpp, MCSTileSize[0][0]);        // Align in texels, tehn multiply w/ Bpt
                 VerifyResourcePitch<true>(MCSResourceInfo, ExpectedPitch);
-                VerifyResourcePitchInTiles<true>(MCSResourceInfo, ExpectedPitch / MCSTileSize[0][0]);      
+                VerifyResourcePitchInTiles<true>(MCSResourceInfo, ExpectedPitch / MCSTileSize[0][0]);
 
-                ULONG ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, MCSVAlign);
+                uint32_t ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, MCSVAlign);
                 if (gmmParams.ArraySize > 1)
                 {
                     ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, MCSVAlign); //QPitch only for array
                     VerifyResourceQPitch<true>(MCSResourceInfo, ExpectedQPitch);
                 }
 
-                ULONG ExpectedHeight = GMM_ULT_ALIGN(ExpectedQPitch*gmmParams.ArraySize, MCSTileSize[0][1]);
+                uint32_t ExpectedHeight = GMM_ULT_ALIGN(ExpectedQPitch*gmmParams.ArraySize, MCSTileSize[0][1]);
                 VerifyResourceSize<true>(MCSResourceInfo, GMM_ULT_ALIGN(ExpectedPitch*ExpectedHeight, GMM_KBYTE(4)));    //MCS Tile is TileY
             }//MCS
         }//NumSamples = k
     } //Iterate through all Input types
 
-    //Mip-mapped, MSAA case: 
+    //Mip-mapped, MSAA case:
 }
 
 int BuildInputIterator(std::vector<tuple<int, int, int, int, int>> &List, int maxTestDimension, int TestArraySize)
 {
-    for (UINT i = TEST_LINEAR; i < TEST_TILE_MAX; i++)
-        for (UINT j = TEST_BPP_8; j < TEST_BPP_MAX; j++)
-            for (UINT k = TEST_RESOURCE_1D; k < TEST_RESOURCE_MAX; k++)
-                for (UINT l = 0; l < maxTestDimension; l++)
-                    for (UINT m = 0; m < TestArraySize; m++)
+    for (uint32_t i = TEST_LINEAR; i < TEST_TILE_MAX; i++)
+        for (uint32_t j = TEST_BPP_8; j < TEST_BPP_MAX; j++)
+            for (uint32_t k = TEST_RESOURCE_1D; k < TEST_RESOURCE_MAX; k++)
+                for (uint32_t l = 0; l < maxTestDimension; l++)
+                    for (uint32_t m = 0; m < TestArraySize; m++)
                 {
                     List.emplace_back(make_tuple(i, j, k, l, m));
                 }
@@ -3418,20 +3418,20 @@ int BuildInputIterator(std::vector<tuple<int, int, int, int, int>> &List, int ma
 /// @brief ULT for Color control Resource (non-MSAA compression)
 TEST_F(CTestGen9Resource, TestCCS)
 {
-    const ULONG CCSTileSize[1][2] = { 128, 32 };                                             //CCS is TileY 
+    const uint32_t CCSTileSize[1][2] = { 128, 32 };                                             //CCS is TileY
 
-    const UINT TestDimensions[4][3] = {                          //Input dimensions in #Tiles
+    const uint32_t TestDimensions[4][3] = {                          //Input dimensions in #Tiles
                                       {0, 0, 0},                 //1x1x1
                                       {1, 0, 0},                 //2 Tilesx1x1
                                       {1, 1, 0},                 //2 Tilesx 2x1
                                       {1, 1, 1},                 //2 Tilesx 2x2
                                     };
-    UINT TestArraySize[2] = { 1, 9 };
+    uint32_t TestArraySize[2] = { 1, 9 };
 
-    ULONG RTHAlign = 128, RTVAlign = 64; //Gen9 CCS's RT should be aligned to 128x64
+    uint32_t RTHAlign = 128, RTVAlign = 64; //Gen9 CCS's RT should be aligned to 128x64
 
-    ULONG TileDimX, TileDimY, TileDimZ, WidthDivisor, HeightDivisor, TileSize;
-    UINT ExpectedMCSBpp;
+    uint32_t TileDimX, TileDimY, TileDimZ, WidthDivisor, HeightDivisor, TileSize;
+    uint32_t ExpectedMCSBpp;
     std::vector<tuple<int, int, int, int, int>> List; //TEST_TILE_TYPE, TEST_BPP, TEST_RESOURCE_TYPE, TestDimension index, TestArraySize index
     auto Size = BuildInputIterator(List, 4, 2); // Send size of TestDimensions, TestArraySize
 
@@ -3485,14 +3485,14 @@ TEST_F(CTestGen9Resource, TestCCS)
 
             VerifyResourceHAlign<true>(CCSResourceInfo, RTHAlign); //Check if RT for CCS creation was aligned to CCS's RT alignment
             VerifyResourceVAlign<true>(CCSResourceInfo, RTVAlign);
-            ULONG ExpectedPitch = GMM_ULT_ALIGN((ULONG)(GMM_ULT_ALIGN(gmmParams.BaseWidth64, RTHAlign) / WidthDivisor), CCSTileSize[0][0]);
+            uint32_t ExpectedPitch = GMM_ULT_ALIGN((uint32_t)(GMM_ULT_ALIGN(gmmParams.BaseWidth64, RTHAlign) / WidthDivisor), CCSTileSize[0][0]);
             VerifyResourcePitch<true>(CCSResourceInfo, ExpectedPitch);
             VerifyResourcePitchInTiles<true>(CCSResourceInfo, ExpectedPitch / CCSTileSize[0][0]);      // 1 tileY wide
 
-            ULONG ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, RTVAlign);// / HeightDivisor;
+            uint32_t ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, RTVAlign);// / HeightDivisor;
             if (gmmParams.ArraySize > 1 || gmmParams.Type == RESOURCE_CUBE || gmmParams.Type == RESOURCE_3D)
             {
-                ULONG DepthSlice = gmmParams.Depth;
+                uint32_t DepthSlice = gmmParams.Depth;
                 //if (gmmParams.Type == RESOURCE_3D && DepthSlice > 1)
                 //{
                 //    ExpectedQPitch *= DepthSlice;
@@ -3506,7 +3506,7 @@ TEST_F(CTestGen9Resource, TestCCS)
             }
 
             ExpectedQPitch /= HeightDivisor;
-            ULONG ExpectedHeight = GMM_ULT_ALIGN(ExpectedQPitch*gmmParams.ArraySize, CCSTileSize[0][1]);
+            uint32_t ExpectedHeight = GMM_ULT_ALIGN(ExpectedQPitch*gmmParams.ArraySize, CCSTileSize[0][1]);
             VerifyResourceSize<true>(CCSResourceInfo, GMM_ULT_ALIGN(ExpectedPitch*ExpectedHeight, GMM_KBYTE(4)));
         }//CCS
     }//Iterate through all input tuples
@@ -3519,13 +3519,13 @@ TEST_F(CTestGen9Resource, TestMMC)
 {
     const TEST_TILE_TYPE TileTypeSupported[3] = { TEST_TILEY, TEST_TILEYS, TEST_TILEYF };
 
-    const ULONG TileSize[3][TEST_BPP_MAX][2] = {
+    const uint32_t TileSize[3][TEST_BPP_MAX][2] = {
         { { 128, 32 },{ 128, 32 },{ 128, 32 },{ 128, 32 },{ 128, 32 } },      // TileY
         { { 256, 256 },{ 512, 128 },{ 512, 128 },{ 1024, 64 },{ 1024, 64 } },     // TileYs
         { { 64, 64 },{ 128,  32 },{ 128,  32 },{ 256,  16 },{ 256,  16 } } };  // TileYf
 
     // Normal 2D surface
-    for (ULONG Tile: TileTypeSupported)
+    for (uint32_t Tile: TileTypeSupported)
     {
         GMM_RESCREATE_PARAMS gmmParams = {};
         gmmParams.Type = RESOURCE_2D;
@@ -3537,7 +3537,7 @@ TEST_F(CTestGen9Resource, TestMMC)
         gmmParams.Depth = 0x1;
         SetTileFlag(gmmParams, static_cast<TEST_TILE_TYPE>(Tile));
 
-        for (UINT i = 0; i < TEST_BPP_MAX; i++)
+        for (uint32_t i = 0; i < TEST_BPP_MAX; i++)
         {
             TEST_BPP bpp = static_cast<TEST_BPP>(i);
             gmmParams.Format = SetResourceFormat(bpp);
@@ -3545,13 +3545,13 @@ TEST_F(CTestGen9Resource, TestMMC)
             GMM_RESOURCE_INFO ResourceInfo;
             ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
 
-            ULONG ExpectedPitch = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[Tile - TEST_TILEY][i][0] / GetBppValue(bpp));
+            uint32_t ExpectedPitch = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[Tile - TEST_TILEY][i][0] / GetBppValue(bpp));
             ExpectedPitch *= GetBppValue(bpp);
             ExpectedPitch += TileSize[Tile - TEST_TILEY][i][0];     // MMC will have extra tile on the right
             VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
             VerifyResourcePitchInTiles<true>(ResourceInfo, ExpectedPitch / TileSize[Tile - TEST_TILEY][i][0]);
 
-            ULONG Size = GMM_ULT_ALIGN(gmmParams.BaseHeight, TileSize[Tile - TEST_TILEY][i][1]) * ExpectedPitch;
+            uint32_t Size = GMM_ULT_ALIGN(gmmParams.BaseHeight, TileSize[Tile - TEST_TILEY][i][1]) * ExpectedPitch;
             VerifyResourceSize<true>(ResourceInfo, GMM_ULT_ALIGN(Size, GMM_KBYTE(4))) ;
 
             VerifyResourceHAlign<false>(ResourceInfo, 0); // Tested elsewhere
@@ -3576,7 +3576,7 @@ TEST_F(CTestGen9Resource, TestMMC)
         GMM_RESOURCE_INFO ResourceInfo;
         ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
 
-        ULONG ExpectedPitch = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[0][0][0]);
+        uint32_t ExpectedPitch = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[0][0][0]);
         ExpectedPitch += TileSize[0][0][0];     // MMC will have extra tile on the right
         VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
         VerifyResourcePitchInTiles<true>(ResourceInfo, ExpectedPitch / TileSize[0][0][0]);

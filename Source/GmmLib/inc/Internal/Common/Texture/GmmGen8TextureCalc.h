@@ -31,13 +31,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace GmmLib
 {
     /////////////////////////////////////////////////////////////////////////
-    /// Contains texture calc functions and members for Gen8 platforms. 
+    /// Contains texture calc functions and members for Gen8 platforms.
     /// This class is derived from the base GmmGen7TextureCalc class  so clients
     /// shouldn't have to ever interact  with this class directly.
     /////////////////////////////////////////////////////////////////////////
     class NON_PAGED_SECTION GmmGen8TextureCalc :
                                 public GmmGen7TextureCalc
-    {  
+    {
         private:
 
         protected:

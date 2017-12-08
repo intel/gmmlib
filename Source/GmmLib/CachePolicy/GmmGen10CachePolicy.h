@@ -21,7 +21,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
 
 
-#if (IGFX_GEN >= IGFX_GEN10) 
+#if (IGFX_GEN >= IGFX_GEN10)
 
 #include "GmmCachePolicyConditionals.h"
 
@@ -77,7 +77,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_WA_BATCH_BUFFER                         
 //
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_UMD_BATCH_BUFFER                                      , 0   , 0    , 0  , 0  , 0 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_BINDING_TABLE_POOL                                    , 0   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CCS                                                   , 1   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0); 
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CCS                                                   , 1   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CONSTANT_BUFFER_POOL                                  , 0   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DEPTH_BUFFER                                          , 0   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DISPLAYABLE_RENDER_TARGET                             , FBLLC, ENCRYPTED_PARTIALS_EDRAM, FBLLC, !FBLLC && ENCRYPTED_PARTIALS_EDRAM, 3 ,     0,       0,      0,   0,    0);
@@ -138,7 +138,7 @@ DEFINE_CACHE_ELEMENT(MP_RESOURCE_USAGE_BEGIN,                                   
 DEFINE_CACHE_ELEMENT(MP_RESOURCE_USAGE_DEFAULT,                                                 0   , 0    , 0  , 0  , 0,      0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(MP_RESOURCE_USAGE_SurfaceState,                                            1   , EDRAM, 1  , 0  , 1,      0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(MP_RESOURCE_USAGE_AGE3_SurfaceState,                                       1   , EDRAM, 1  , 0  , 3,      0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(MP_RESOURCE_USAGE_END,                                                     0   , 0    , 0  , 0  , 0,      0,       0,      0,   0,    0); 
+DEFINE_CACHE_ELEMENT(MP_RESOURCE_USAGE_END,                                                     0   , 0    , 0  , 0  , 0,      0,       0,      0,   0,    0);
 
 // MHW - SFC
 DEFINE_CACHE_ELEMENT(MHW_RESOURCE_USAGE_Sfc_CurrentOutputSurface,                               0   , 0    , 0  , 0  , 0,      0,       0,      0,   0,    0);
@@ -233,4 +233,4 @@ DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE               
 
 #include "GmmCachePolicyUndefineConditionals.h"
 
-#endif //#if (IGFX_GEN >= IGFX_GEN10) 
+#endif //#if (IGFX_GEN >= IGFX_GEN10)

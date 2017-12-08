@@ -2,14 +2,14 @@
 **
 ** Copyright (c) Intel Corporation (2010-2017).
 **
-** INTEL MAKES NO WARRANTY OF ANY KIND REGARDING THE CODE.  THIS CODE IS 
-** LICENSED ON AN "AS IS" BASIS AND INTEL WILL NOT PROVIDE ANY SUPPORT, 
-** ASSISTANCE, INSTALLATION, TRAINING OR OTHER SERVICES.  INTEL DOES NOT 
-** PROVIDE ANY UPDATES, ENHANCEMENTS OR EXTENSIONS.  INTEL SPECIFICALLY 
+** INTEL MAKES NO WARRANTY OF ANY KIND REGARDING THE CODE.  THIS CODE IS
+** LICENSED ON AN "AS IS" BASIS AND INTEL WILL NOT PROVIDE ANY SUPPORT,
+** ASSISTANCE, INSTALLATION, TRAINING OR OTHER SERVICES.  INTEL DOES NOT
+** PROVIDE ANY UPDATES, ENHANCEMENTS OR EXTENSIONS.  INTEL SPECIFICALLY
 ** DISCLAIMS ANY WARRANTY OF MERCHANTABILITY, NONINFRINGEMENT, FITNESS FOR ANY
-** PARTICULAR PURPOSE, OR ANY OTHER WARRANTY.  Intel disclaims all liability, 
+** PARTICULAR PURPOSE, OR ANY OTHER WARRANTY.  Intel disclaims all liability,
 ** including liability for infringement of any proprietary rights, relating to
-** use of the code. No license, express or implied, by estoppel or otherwise, 
+** use of the code. No license, express or implied, by estoppel or otherwise,
 ** to any intellectual property rights is granted herein.
 **
 **
@@ -44,15 +44,15 @@ typedef struct _PERF_DATA
 {
     union
     {
-        struct 
+        struct
         {
-            DWORD dmaBufID   : 16;
-            DWORD frameID    :  8;
-            DWORD bufferID   :  4;
-            DWORD batchBufID :  4;
+            uint32_t dmaBufID   : 16;
+            uint32_t frameID    :  8;
+            uint32_t bufferID   :  4;
+            uint32_t batchBufID :  4;
         };
 
-        DWORD PerfTag;
+        uint32_t PerfTag;
     };
 } PERF_DATA;
 
@@ -83,7 +83,7 @@ typedef enum PERFTAG_CLASS_ENUM
     PERFTAG_CM                 = 0xA000,    // C for media
     PERFTAG_WIDI               = 0xB000,
     PERFTAG_OCL                = 0xC000,    // OpenCL
-    PERFTAG_RESERVED           = 0xD000,    
+    PERFTAG_RESERVED           = 0xD000,
     PERFTAG_DXVA11             = 0xE000,    // DX11 Video
     PERFTAG_FRAME_CAPTURE      = 0xF000,    // Gfx Frame Capture
     PERFTAG_FRAME_CAPTURE_NV12 = 0xF100,    // Gfx Frame Capture with NV12 output
@@ -107,10 +107,10 @@ typedef enum PERFTAG_CLASS_ENUM
 //
 // Description:
 //      Video Postprocessing perftag sub type.
-// NOTE: 
+// NOTE:
 //      Please follow instructions in below enum when adding new perf tag values.
 //      Sub Tags (bits 11:0).
-//      When adding new perf tag values, please update 
+//      When adding new perf tag values, please update
 //      Source\miniport\LHDM\KmPerfTools\PerfController\PerfReportGenerator.h
 //      with the string.
 //---------------------------------------------------------------------------

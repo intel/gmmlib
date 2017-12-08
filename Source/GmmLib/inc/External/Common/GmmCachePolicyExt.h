@@ -31,11 +31,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 //----------------------------------------------------------------------------
 typedef enum GMM_RESOURCE_USAGE_TYPE_ENUM
 {
-    
+
     //Generic Usage
     GMM_RESOURCE_USAGE_UNKNOWN = 0, // <== MUST EQUAL 0
-    
-    #define DEFINE_RESOURCE_USAGE(Usage) Usage, 
+
+    #define DEFINE_RESOURCE_USAGE(Usage) Usage,
     #include "../../../CachePolicy/GmmCachePolicyResourceUsageDefinitions.h"
     #undef DEFINE_RESOURCE_USAGE
 
@@ -120,7 +120,7 @@ typedef union MEMORY_OBJECT_CONTROL_STATE_REC
 //        GMM_CACHE_POLICY
 //
 // Description:
-//     This struct is used for accessing Cache Policy functions.  
+//     This struct is used for accessing Cache Policy functions.
 //     Forward Declaration: Defined in GmmCachePolicy.h
 //---------------------------------------------------------------------------
 #ifdef __cplusplus

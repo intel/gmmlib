@@ -32,7 +32,7 @@
 #define _GFXDEBUG_H_
 
 #if defined(D3D) && !defined (USERMODE_DRIVER)
-// The D3D XP Kernel Mode driver will continue to use the old scheme until it 
+// The D3D XP Kernel Mode driver will continue to use the old scheme until it
 // has been updated.
 #else
 
@@ -41,14 +41,14 @@
 
 
 //========================================================================
-// Controlling Debug Messages: There are two types of output messages - 
+// Controlling Debug Messages: There are two types of output messages -
 // debug or release output message. These are controlled through the two
-// flags listed below. 
+// flags listed below.
 
 #ifdef _DEBUG
   #define __DEBUG_MESSAGE   1
   #define __RELEASE_MESSAGE 1
-#else 
+#else
   #define __DEBUG_MESSAGE   0
   #define __RELEASE_MESSAGE 1
 #endif
@@ -63,15 +63,15 @@
 #include "stdlib.h"
 #define MESSAGE_FUNCTION(FUNCTION_NAME,COMPONENT_ID)                        \
                                                                             \
-    void FUNCTION_NAME(ULONG MessageLevel, const char *MessageFmt, ...)     \
+    void FUNCTION_NAME(uint32_t MessageLevel, const char *MessageFmt, ...)     \
 {                                                                           \
-    DWORD Length = 0;                                                       \
+    uint32_t Length = 0;                                                       \
     char *PrintBuffer = NULL;                                               \
     char *Prefix = NULL;                                                    \
     va_list ArgList;                                                        \
                                                                             \
-    ULONG ComponentId   = COMPONENT_ID;                                     \
-    ULONG ComponentMask = 1 << COMPONENT_ID;                                \
+    uint32_t ComponentId   = COMPONENT_ID;                                     \
+    uint32_t ComponentMask = 1 << COMPONENT_ID;                                \
                                                                             \
     /* Ensure that CRITICAL messages are printed if the setting of the */   \
     /* global debug variables flag is NORMAL or VERBOSE. Similarly, if */   \
@@ -123,15 +123,15 @@
 
 #define MESSAGE_FUNCTION(FUNCTION_NAME,COMPONENT_ID)                        \
                                                                             \
-    void FUNCTION_NAME(ULONG MessageLevel, const char *MessageFmt, ...)     \
+    void FUNCTION_NAME(uint32_t MessageLevel, const char *MessageFmt, ...)     \
 {                                                                           \
-    INT32 Length = 0;                                                       \
+    int32_t Length = 0;                                                       \
     char PrintBuffer[GFX_MAX_MESSAGE_LENGTH];                               \
     char *Prefix = NULL;                                                    \
     va_list ArgList;                                                        \
-    ULONG GfxDbgLvl = MessageLevel;                                         \
-    ULONG ComponentId   = COMPONENT_ID;                                     \
-    ULONG ComponentMask = 1 << COMPONENT_ID;                                \
+    uint32_t GfxDbgLvl = MessageLevel;                                         \
+    uint32_t ComponentId   = COMPONENT_ID;                                     \
+    uint32_t ComponentMask = 1 << COMPONENT_ID;                                \
                                                                             \
     /* Ensure that CRITICAL messages are printed if the setting of the */   \
     /* global debug variables flag is NORMAL or VERBOSE. Similarly, if */   \
@@ -157,7 +157,7 @@
                         MessageFmt, ArgList);                               \
     if (Length >= 0)                                                        \
     {                                                                       \
-        EtwDebugPrint((USHORT)GfxDbgLvl, (USHORT)ComponentId, PrintBuffer); \
+        EtwDebugPrint((uint16_t)GfxDbgLvl, (uint16_t)ComponentId, PrintBuffer); \
                                                                             \
         if ((pDebugControl == NULL) ||                                      \
         ((pDebugControl->DebugEnableMask & ComponentMask) &&                \
@@ -179,7 +179,7 @@
 #endif
 #endif // __DEBUG_MESSAGE || __RELEASE_MESSAGE
 
-// Define a max size for the intermediate buffer for storing the 
+// Define a max size for the intermediate buffer for storing the
 // debug error message string.
 
 #define GFX_MAX_MESSAGE_LENGTH        (512)
@@ -191,11 +191,11 @@
 //            type sizes, field offsets, etc.
 //
 // An assertion failure results in error C2118: negative subscript.
-// 
+//
 // When this assertion is to be used in the middle of a code block,
 // use it within {} - e.g. {__GL_C_ASSERT (__GL_NUM == 0);}
 //
-// Since all components may not want to include "winnt.h", define a 
+// Since all components may not want to include "winnt.h", define a
 // C_ASSERT that can be used by all components.
 #ifndef GFX_C_ASSERT
 #define GFX_C_ASSERT(e) typedef char __GFX_C_ASSERT__[(e)?1:-1]
@@ -204,7 +204,7 @@
 
 // Unfortunately, we cannot include "g_debug.h" before this structure
 // definition since it needs this structure - but then this structure
-// requires the number of components. We get around this by using a 
+// requires the number of components. We get around this by using a
 // large enough number for the component count.
 
 #define MAX_COMPONENT_COUNT_DONOTUSE        (20)
@@ -215,19 +215,19 @@
 // a separate variable to control its debug level.
 //------------------------------------------------------------------------------
 
-typedef struct GFX_DEBUG_CONTROL_REC 
+typedef struct GFX_DEBUG_CONTROL_REC
 {
-    ULONG   Version;
-    ULONG   Size;
-    ULONG   AssertEnableMask;
-    ULONG   EnableDebugFileDump;
-    ULONG   DebugEnableMask;
-    ULONG   RingBufDbgMask;
-    ULONG   ReportAssertEnable;
-    ULONG   AssertBreakDisable;
+    uint32_t   Version;
+    uint32_t   Size;
+    uint32_t   AssertEnableMask;
+    uint32_t   EnableDebugFileDump;
+    uint32_t   DebugEnableMask;
+    uint32_t   RingBufDbgMask;
+    uint32_t   ReportAssertEnable;
+    uint32_t   AssertBreakDisable;
 
 #ifndef __UMD
-    ULONG   DebugLevel[MAX_COMPONENT_COUNT_DONOTUSE];
+    uint32_t   DebugLevel[MAX_COMPONENT_COUNT_DONOTUSE];
 #endif
 
 } GFX_DEBUG_CONTROL, *PGFX_DEBUG_CONTROL;
@@ -248,7 +248,7 @@ typedef struct GFX_DEBUG_CONTROL_REC
 
 #if (defined(_DEBUG) || defined( _RELEASE_INTERNAL ))
 
-#if ( !defined(REPORT_ASSERT) || !defined(REPORT_ASSERT_ETW)) && defined( _WIN32 ) 
+#if ( !defined(REPORT_ASSERT) || !defined(REPORT_ASSERT_ETW)) && defined( _WIN32 )
 #include "AssertTracer.h"
 #elif !defined(REPORT_ASSERT)
 #define REPORT_ASSERT( expr )
@@ -345,7 +345,7 @@ typedef struct GFX_DEBUG_CONTROL_REC
 }
 
 
-// The common code may use a macro such as "GFXASSERT". This is defined 
+// The common code may use a macro such as "GFXASSERT". This is defined
 // to be UMD or KMD ASSERT based on the component being compiled.
 
 #ifdef __UMD

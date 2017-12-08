@@ -70,14 +70,14 @@ namespace spdlog
 /////////////////////////////////////////////////////////////////////////////////////
 /// Initializes Gmm Logger
 ///
-/// @return     TRUE if initialized successfully. FALSE otherwise
+/// @return     true if initialized successfully. false otherwise
 /////////////////////////////////////////////////////////////////////////////////////
 bool GmmLib::Logger::GmmLogInit()
 {
     std::string     LogFilePath;
     std::string     ProcPath;
     std::string     ProcName;
-    int             Pid = 0;     
+    int             Pid = 0;
 
     // Get logging method
 #if _WIN32
@@ -128,7 +128,7 @@ bool GmmLib::Logger::GmmLogInit()
                 file.open("/proc/self/cmdline");
                 if(file.is_open())
                 {
-                    // Get process name 
+                    // Get process name
                     getline(file, ProcPath);
 
                     size_t PosOfLastSlash = ProcPath.find_last_of("/") + 1;
@@ -165,10 +165,10 @@ bool GmmLib::Logger::GmmLogInit()
                 GMM_LOG_FILE_SIZE,
                 GMM_ROTATE_FILE_NUMBER);
 
-            // Log process path 
+            // Log process path
             SpdLogger->set_pattern("Process path: %v");
             SpdLogger->info(ProcPath.c_str());
-        }        
+        }
         else
         {
             #if defined(_WIN32)
@@ -182,7 +182,7 @@ bool GmmLib::Logger::GmmLogInit()
                 // Log to syslog
                 SpdLogger = spdlog::syslog_logger(GMM_LOGGER_NAME, GMM_LOG_TAG, 1 /*Log Pid*/);
             #else
-                __GMM_ASSERT(0);    
+                __GMM_ASSERT(0);
                 return false;
             #endif
         }
@@ -204,7 +204,7 @@ bool GmmLib::Logger::GmmLogInit()
 /////////////////////////////////////////////////////////////////////////////////////
 /// Gmm Logger constructor
 /////////////////////////////////////////////////////////////////////////////////////
-GmmLib::Logger::Logger() : 
+GmmLib::Logger::Logger() :
                 LogMethod(ToOSLog),
                 LogLevel(spdlog::level::err)
 {

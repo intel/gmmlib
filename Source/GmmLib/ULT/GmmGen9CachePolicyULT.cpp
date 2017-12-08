@@ -25,8 +25,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// Sets up common environment for Cache Policy fixture tests. this is called once per 
-/// test case before executing all tests under resource fixture test case. 
+/// Sets up common environment for Cache Policy fixture tests. this is called once per
+/// test case before executing all tests under resource fixture test case.
 /// It also calls SetupTestCase from CommonULT to initialize global context and others.
 ///
 /////////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ void CTestGen9CachePolicy::SetUpTestCase()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// cleans up once all the tests finish execution.  It also calls TearDownTestCase 
+/// cleans up once all the tests finish execution.  It also calls TearDownTestCase
 /// from CommonULT to destroy global context and others.
 ///
 /////////////////////////////////////////////////////////////////////////////////////
@@ -56,8 +56,8 @@ void CTestGen9CachePolicy::CheckL3CachePolicy()
 {
     ASSERT_TRUE(pGmmGlobalContext);
 
-    const ULONG L3_WB_CACHEABLE = 0x3;
-    const ULONG L3_UNCACHEABLE  = 0x1;
+    const uint32_t L3_WB_CACHEABLE = 0x3;
+    const uint32_t L3_UNCACHEABLE  = 0x1;
 
     // Setup SKU/WA flags
     pGmmGlobalContext->GetGtSysInfo()->L3CacheSizeInKb = 768; //768 KB
@@ -66,10 +66,10 @@ void CTestGen9CachePolicy::CheckL3CachePolicy()
     pGmmGlobalContext->GetCachePolicyObj()->InitCachePolicy();
 
     // Check Usage MOCS index against MOCS settings
-    for(ULONG Usage = GMM_RESOURCE_USAGE_UNKNOWN; Usage < GMM_RESOURCE_USAGE_MAX; Usage++)
+    for(uint32_t Usage = GMM_RESOURCE_USAGE_UNKNOWN; Usage < GMM_RESOURCE_USAGE_MAX; Usage++)
     {
         GMM_CACHE_POLICY_ELEMENT     ClientRequest   = pGmmGlobalContext->GetCachePolicyElement((GMM_RESOURCE_USAGE_TYPE)Usage);
-        ULONG                        AssignedMocsIdx = ClientRequest.MemoryObjectOverride.Gen9.Index;
+        uint32_t                        AssignedMocsIdx = ClientRequest.MemoryObjectOverride.Gen9.Index;
         GMM_CACHE_POLICY_TBL_ELEMENT Mocs            = pGmmGlobalContext->GetCachePolicyTlbElement()[AssignedMocsIdx];
 
         EXPECT_EQ(0, Mocs.L3.ESC) << "Usage# " << Usage << ": ESC is non-zero";
@@ -100,26 +100,26 @@ void CTestGen9CachePolicy::CheckLlcEdramCachePolicy()
 {
     ASSERT_TRUE(pGmmGlobalContext);
 
-    const ULONG TargetCache_ELLC      = 0;
-    const ULONG TargetCache_LLC       = 1;
-    const ULONG TargetCache_LLC_ELLC  = 2;
+    const uint32_t TargetCache_ELLC      = 0;
+    const uint32_t TargetCache_LLC       = 1;
+    const uint32_t TargetCache_LLC_ELLC  = 2;
 
-    const ULONG LeCC_UNCACHEABLE    = 0x1;
-    const ULONG LeCC_WB_CACHEABLE   = 0x3;
+    const uint32_t LeCC_UNCACHEABLE    = 0x1;
+    const uint32_t LeCC_WB_CACHEABLE   = 0x3;
 
     // Setup SKU/WA flags
     pGmmGlobalContext->GetGtSysInfo()->LLCCacheSizeInKb   = 2 * 1024; //2 MB
     pGmmGlobalContext->GetGtSysInfo()->EdramSizeInKb = 128 * 1024; //128 MB
-    const_cast<SKU_FEATURE_TABLE&>(pGmmGlobalContext->GetSkuTable()).FtrEDram = TRUE;
+    const_cast<SKU_FEATURE_TABLE&>(pGmmGlobalContext->GetSkuTable()).FtrEDram = true;
 
     // Re-init cache policy with above info
     pGmmGlobalContext->GetCachePolicyObj()->InitCachePolicy();
 
     // Check Usage MOCS index against MOCS settings
-    for(ULONG Usage = GMM_RESOURCE_USAGE_UNKNOWN; Usage < GMM_RESOURCE_USAGE_MAX; Usage++)
+    for(uint32_t Usage = GMM_RESOURCE_USAGE_UNKNOWN; Usage < GMM_RESOURCE_USAGE_MAX; Usage++)
     {
         GMM_CACHE_POLICY_ELEMENT     ClientRequest   = pGmmGlobalContext->GetCachePolicyElement((GMM_RESOURCE_USAGE_TYPE)Usage);
-        ULONG                        AssignedMocsIdx = ClientRequest.MemoryObjectOverride.Gen9.Index;
+        uint32_t                        AssignedMocsIdx = ClientRequest.MemoryObjectOverride.Gen9.Index;
         GMM_CACHE_POLICY_TBL_ELEMENT Mocs            = pGmmGlobalContext->GetCachePolicyTlbElement()[AssignedMocsIdx];
 
         // Check for unused fields
@@ -140,7 +140,7 @@ void CTestGen9CachePolicy::CheckLlcEdramCachePolicy()
             EXPECT_EQ(LeCC_UNCACHEABLE, Mocs.LeCC.Cacheability) <<
                 "Usage# " << Usage << ": Incorrect LLC/eDRAM cachebility setting";
         }
-        else 
+        else
         {
             EXPECT_EQ(LeCC_WB_CACHEABLE, Mocs.LeCC.Cacheability) <<
                 "Usage# " << Usage << ": Incorrect LLC/eDRAM cachebility setting";

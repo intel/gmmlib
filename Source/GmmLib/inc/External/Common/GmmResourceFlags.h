@@ -38,9 +38,9 @@ extern "C" {
 //     This structure describe flags that are used for each allocation
 //---------------------------------------------------------------------------
 typedef struct GMM_RESOURCE_FLAG_REC
-{   
+{
     // Gpu: Used to describe how the surface will be used by the GPU
-    struct 
+    struct
     {
         uint32_t CameraCapture             : 1; // Camera Capture Buffer flag to be registered with DXGK for Camera Child VRAM buffer sharing
         uint32_t CCS                       : 1; // Color Control Surface (Gen9+ for MSAA Compression or Non-MSAA Fast Color Clear) + Apply CCS restrictions when padding/aligning this resource (see GmmRestrictions.c)
@@ -62,7 +62,7 @@ typedef struct GMM_RESOURCE_FLAG_REC
         uint32_t NoRestriction             : 1; // Apply no (more correctly, minimal) restrictions when padding/aligning this resource (see GmmRestrictions.c) e.g. BLOBS.
         uint32_t Overlay                   : 1; // Equivalent to FlipChain, mutually exclusive to it. Legacy (pre gen9) name for sprite plane scane-out buffer..
         uint32_t Presentable               : 1; // The pixel format is to be validated against those supported by the render core (GPU).
-        uint32_t ProceduralTexture         : 1; 
+        uint32_t ProceduralTexture         : 1;
         uint32_t Query                     : 1;
         uint32_t RenderTarget              : 1; // Apply RenderTarget restrictions when padding/aligning this resource (see GmmRestrictions.c)
         uint32_t S3d                       : 1;
@@ -92,9 +92,9 @@ typedef struct GMM_RESOURCE_FLAG_REC
     } Gpu;
 
     // Info: Used to specify preferences at surface creation time
-    struct 
+    struct
     {
-        uint32_t AllowVirtualPadding       : 1; 
+        uint32_t AllowVirtualPadding       : 1;
         uint32_t ApertureOnly              : 1;
         uint32_t BigPage                   : 1;
         uint32_t Cacheable                 : 1;
@@ -110,7 +110,7 @@ typedef struct GMM_RESOURCE_FLAG_REC
         uint32_t LayoutMono                : 1; // Legacy, deprecated MIP layout. Used for internal debugging.
         uint32_t LayoutRight               : 1; // Legacy, deprecated MIP layout.
         uint32_t Linear                    : 1; // (non-)tiling preference for the allocation. (lowest priority) Y>X>W>L. See GmmLib::GmmTextureCalc::SetTileMode()
-        uint32_t MediaCompressed           : 1; 
+        uint32_t MediaCompressed           : 1;
         uint32_t NoOptimizationPadding     : 1; // don't swell size for sake of 64KB pages - FtrWddm2_1_64kbPages
         uint32_t NoPhysMemory              : 1; // KMD Gfx Client Submission. Client miniport drivers may want to map their physical pages to Gfx memory space instead of allocating Gfx physical memory.
         uint32_t NotLockable               : 1; // Resource is GPU-exclusive and shall not be reference by the CPU. Relevant to memory allocation components as an optimisation opportunity for mapping buffers in CPU-side.
@@ -118,7 +118,7 @@ typedef struct GMM_RESOURCE_FLAG_REC
         uint32_t PseudoStdSwizzle          : 1; // Only applicable to D3D12+ UMD's, for special-case of limited Standard Swizzle (YS) support on HSW/BDW/CHV.
         uint32_t Undefined64KBSwizzle      : 1; // Only applicable if system doesn't support StdSwizzle (i.e. Pre-Gen9). If set, surface is using one of the INTEL_64KB_UNDEFINED_* swizzles.
         uint32_t RedecribedPlanes          : 1; // The resource has redescribed planar surfaces
-        uint32_t RenderCompressed          : 1; 
+        uint32_t RenderCompressed          : 1;
         uint32_t Rotated                   : 1;
         uint32_t Shared                    : 1;
         uint32_t SoftwareProtected         : 1; // Resource is driver protected against CPU R/W access
@@ -136,11 +136,11 @@ typedef struct GMM_RESOURCE_FLAG_REC
     } Info;
 
     // Wa: Any Surface specific Work Around will go in here
-    struct 
+    struct
     {
         uint32_t GTMfx2ndLevelBatchRingSizeAlign   : 1; // GT steppings prior to C0 require MFX 2nd level bb's to have certain alignment. (DCN_856778)
-        uint32_t ILKNeedAvcMprRowStore32KAlign     : 1; // ILK A0 requires 32K align WA for AVC MPR RowStore (DCN_683608) 
-        uint32_t ILKNeedAvcDmvBuffer32KAlign       : 1; // ILK A0 requires 32K align WA for AVC DMV Buffers  (DCN_683608) 
+        uint32_t ILKNeedAvcMprRowStore32KAlign     : 1; // ILK A0 requires 32K align WA for AVC MPR RowStore (DCN_683608)
+        uint32_t ILKNeedAvcDmvBuffer32KAlign       : 1; // ILK A0 requires 32K align WA for AVC DMV Buffers  (DCN_683608)
         uint32_t NoBufferSamplerPadding            : 1; // GMM not to add pre-BDW buffer sampler padding--UMD's take responsibility to flush L3 after sampling, etc.
         uint32_t NoLegacyPlanarLinearVideoRestrictions : 1; // GMM not to apply Legacy Planar "Linear Video" Restrictions (64B pitch alignment)
         uint32_t CHVAstcSkipVirtualMips            : 1; // GMM adjusts mip-map allocation to skip mip0 size

@@ -59,20 +59,20 @@ typedef struct GMM_CACHE_POLICY_ELEMENT_REC
 
     MEMORY_OBJECT_CONTROL_STATE               MemoryObjectOverride;
     MEMORY_OBJECT_CONTROL_STATE               MemoryObjectNoOverride;
-    GMM_PTE_CACHE_CONTROL_BITS                  PTE;
-    uint32_t                       Override;
+    GMM_PTE_CACHE_CONTROL_BITS                PTE;
+    uint32_t                       			  Override;
 }GMM_CACHE_POLICY_ELEMENT;
 
 // One entry in the SKL/CNL cache lookup table,
 // for details see the CNL BSpec entry on MEMORY_OBJECT_CONTROL_STATE.
 typedef struct GMM_CACHE_POLICY_TBL_ELEMENT_REC {
     union {
-        struct 
+        struct
         {
-            uint32_t Cacheability        : 2; // LLC/eDRAM Cacheability Control (LeCC). 
+            uint32_t Cacheability        : 2; // LLC/eDRAM Cacheability Control (LeCC).
             uint32_t TargetCache         : 2; // Target Cache (TC).
             uint32_t LRUM                : 2; // LRU (Cache Replacement) Management (LRUM).
-            uint32_t AOM                 : 1; // Do Not Allocate on Miss (AOM) - Not used 
+            uint32_t AOM                 : 1; // Do Not Allocate on Miss (AOM) - Not used
             uint32_t ESC                 : 1; // Enable Skip Caching (ESC) on LLC
             uint32_t SCC                 : 3; // Skip Caching Control (SCC).
             uint32_t PFM                 : 3; // Page Fault Mode (PFM)
@@ -83,18 +83,18 @@ typedef struct GMM_CACHE_POLICY_TBL_ELEMENT_REC {
         } ;
         uint32_t DwordValue;
     } LeCC;
-    
+
     union {
-        struct 
+        struct
         {
-            USHORT ESC                : 1; // Enable Skip Caching (ESC) for L3.
-            USHORT SCC                : 3; // Skip Caching Control (SCC) for L3.
-            USHORT Cacheability       : 2; // L3 Cacheability Control (L3CC). 
-            USHORT Reserved           : 10;        
+            uint16_t ESC                : 1; // Enable Skip Caching (ESC) for L3.
+            uint16_t SCC                : 3; // Skip Caching Control (SCC) for L3.
+            uint16_t Cacheability       : 2; // L3 Cacheability Control (L3CC).
+            uint16_t Reserved           : 10;
         } ;
-        USHORT UshortValue;
+        uint16_t UshortValue;
     } L3;
-    BOOLEAN    HDCL1;
+    uint8_t    HDCL1;
 } GMM_CACHE_POLICY_TBL_ELEMENT;
 
 typedef enum GMM_IA32e_MEMORY_TYPE_REC
@@ -104,12 +104,12 @@ typedef enum GMM_IA32e_MEMORY_TYPE_REC
     GMM_IA32e_WT        = 0x4,
     GMM_IA32e_WP        = 0x5,
     GMM_IA32e_WB        = 0x6,
-    GMM_IA32e_UCMINUS   = 0x7    
+    GMM_IA32e_UCMINUS   = 0x7
 } GMM_IA32e_MEMORY_TYPE;
 
 typedef enum GMM_GFX_MEMORY_TYPE_REC
 {
-    GMM_GFX_UC_WITH_FENCE   = 0x0, 
+    GMM_GFX_UC_WITH_FENCE   = 0x0,
     GMM_GFX_WC              = 0x1,
     GMM_GFX_WT              = 0x2,
     GMM_GFX_WB              = 0x3
@@ -122,7 +122,7 @@ typedef enum GMM_GFX_PAT_TYPE_REC
     GMM_GFX_PAT_WB_MOCSLESS     = 0x2, // WB + eLLC/LLC : MOCSLess Resource (PageTables)
     GMM_GFX_PAT_WB              = 0x3,
     GMM_GFX_PAT_WT              = 0x4,
-    GMM_GFX_PAT_UC              = 0x5    
+    GMM_GFX_PAT_UC              = 0x5
 } GMM_GFX_PAT_TYPE;
 
 typedef enum GMM_GFX_PAT_IDX_REC
@@ -157,7 +157,7 @@ typedef union GMM_PRIVATE_PAT_REC {
         uint32_t Reserved : 1;
     }PreGen10;
 
-#if (IGFX_GEN >= IGFX_GEN10) 
+#if (IGFX_GEN >= IGFX_GEN10)
     struct
     {
         uint32_t MemoryType : 2;
@@ -178,9 +178,9 @@ typedef union GMM_PRIVATE_PAT_REC {
 #define GMM_CACHE_POLICY_OVERRIDE_REGISTY_PATH_REGISTRY_UMD "SOFTWARE\\Intel\\IGFX\\CachePolicy\\"
 #define GMM_CACHE_POLICY_OVERRIDE_REGISTY_PATH_REGISTRY_KMD "\\REGISTRY\\MACHINE\\" ## GMM_CACHE_POLICY_OVERRIDE_REGISTY_PATH_REGISTRY_UMD
 
-// No local variables or ternary (?:) operators should be defined in the 
-// REG_OVERRIDE macro block. This block will generate hundreds of instances 
-// of itself in the OverrideCachePolicy, each of which will geneate a 
+// No local variables or ternary (?:) operators should be defined in the
+// REG_OVERRIDE macro block. This block will generate hundreds of instances
+// of itself in the OverrideCachePolicy, each of which will geneate a
 // copy of these local variables on the stack. The ternary operator will
 // also generate local temparoary stack variables, and all these add up and
 // can cause a stack overflow.
@@ -248,7 +248,7 @@ typedef union GMM_PRIVATE_PAT_REC {
         if (HDCL1 != -1)                                                        \
         {                                                                       \
             pCachePolicy[Usage].HDCL1 = HDCL1;                                  \
-        }                                                                       
+        }
 
 #ifdef __GMM_KMD__
 #define REG_OVERRIDE(Usage)                                                     \
@@ -320,7 +320,7 @@ typedef union GMM_PRIVATE_PAT_REC {
 #endif
 
 #endif // #if _WIN32
-    
+
 #if __cplusplus
 #include "GmmCachePolicyCommon.h"
 #include "CachePolicy/GmmCachePolicyGen8.h"

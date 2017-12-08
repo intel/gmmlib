@@ -29,15 +29,15 @@ namespace GmmLib {
     class NON_PAGED_SECTION PlatformInfo : public GmmMemAllocator
     {
     public:
-        static LONG RefCount;
-        static LONG OverrideRefCount;
+        static int32_t RefCount;
+        static int32_t OverrideRefCount;
 
     protected:
         GMM_PLATFORM_INFO Data;
 
     public:
         PlatformInfo(PLATFORM &Platform);
-        virtual ~PlatformInfo() 
+        virtual ~PlatformInfo()
         {
         }
 
@@ -46,13 +46,13 @@ namespace GmmLib {
             return Data;
         }
 
-        virtual void ApplyExtendedTexAlign(UINT CCSMode, ALIGNMENT& UnitAlign) 
+        virtual void ApplyExtendedTexAlign(uint32_t CCSMode, ALIGNMENT& UnitAlign)
         {
             GMM_UNREFERENCED_PARAMETER(CCSMode);
             GMM_UNREFERENCED_PARAMETER(UnitAlign);
         }
 
-        void SetDataSurfaceMaxSize(UINT64 Size)
+        void SetDataSurfaceMaxSize(uint64_t Size)
         {
             Data.SurfaceMaxSize = Size;
         }
@@ -75,7 +75,7 @@ namespace GmmLib {
             //TODO[Android]
         }
 
-        static LONG DecrementRefCount()
+        static int32_t DecrementRefCount()
         {
 #if defined(__GMM_KMD__) || _WIN32
             return(InterlockedDecrement(&RefCount));
@@ -85,7 +85,7 @@ namespace GmmLib {
             //TODO[Android]
         }
 
-        static PlatformInfo* Create(PLATFORM Platform, BOOLEAN Override);
+        static PlatformInfo* Create(PLATFORM Platform, bool Override);
     };
 }
 #define GMM_PLATFORM_INFO_CLASS GmmLib::PlatformInfo

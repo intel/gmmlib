@@ -33,21 +33,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma pack(push,1)
 
 // Maximums which bound all supported GT
-#define GT_MAX_SLICE                   (4) 
-#define GT_MAX_SUBSLICE_PER_SLICE      (8) 
-#define GT_MAX_VDBOX                   (2) 
-#define GT_MAX_VEBOX                   (2) 
+#define GT_MAX_SLICE                   (4)
+#define GT_MAX_SUBSLICE_PER_SLICE      (8)
+#define GT_MAX_VDBOX                   (2)
+#define GT_MAX_VEBOX                   (2)
 
 typedef struct GT_SUBSLICE_INFO
 {
-    bool                Enabled;            // Bool to determine if this SS is enabled.
+    uint8_t             Enabled;            // determine if this SS is enabled.
     uint32_t            EuEnabledCount;     // Total Count of EU enabled on this SubSlice
     uint32_t            EuEnabledMask;      // Mask of EUs enabled on this SubSlice
 } GT_SUBSLICE_INFO;
 
 typedef struct GT_SLICE_INFO
 {
-    bool                 Enabled;                                    // Bool to determine if this slice is enabled.
+    uint8_t              Enabled;                                    // determine if this slice is enabled.
     GT_SUBSLICE_INFO     SubSliceInfo[GT_MAX_SUBSLICE_PER_SLICE];    // SS details that belong to this slice.
     uint32_t             SubSliceEnabledCount;                       // No. of SS enabled in this slice
 } GT_SLICE_INFO;
@@ -78,11 +78,11 @@ typedef struct GT_VEBOX_INFO
 
         uint32_t Value;
 
-    } SFCSupport;                               // VEBOX support of Scalar & Format Converter; 
+    } SFCSupport;                               // VEBOX support of Scalar & Format Converter;
 
     uint32_t NumberOfVEBoxEnabled;              // Number of bits set among bit 0-3 of VEBoxEnableMask; used on CNL
 
-    bool IsValid;                               // flag to check if VEBoxInfo is valid.
+    uint8_t  IsValid;                               // flag to check if VEBoxInfo is valid.
 
 } GT_VEBOX_INFO;
 
@@ -116,7 +116,7 @@ typedef struct GT_VDBOX_INFO
 
     uint32_t NumberOfVDBoxEnabled;              // Number of bits set among bit 0-7 of VDBoxEnableMask;
 
-    bool IsValid;                               // flag to check if VDBoxInfo is valid.
+    uint8_t IsValid;                               // flag to check if VDBoxInfo is valid.
 
 } GT_VDBOX_INFO;
 
@@ -136,7 +136,7 @@ typedef struct GT_SYSTEM_INFO
     uint64_t        L3CacheSizeInKb;                // Total L3 cache size in kilo bytes
     uint64_t        LLCCacheSizeInKb;               // Total LLC cache size in kilo bytes
     uint64_t        EdramSizeInKb;                  // Total EDRAM size in kilo bytes
-    uint32_t        L3BankCount;                    // Total L3 banks across all slices. This is not bank count per slice. 
+    uint32_t        L3BankCount;                    // Total L3 banks across all slices. This is not bank count per slice.
     uint32_t        MaxFillRate;                    // Fillrate with Alphablend (in Pix/Clk)
     uint32_t        EuCountPerPoolMax;              // Max EU count per pool
     uint32_t        EuCountPerPoolMin;              // Min EU count per pool
@@ -148,7 +148,7 @@ typedef struct GT_SYSTEM_INFO
     uint32_t        TotalPsThreadsWindowerRange;    // Total threads in PS Windower Range
 
     // Note: The CSR size requirement is not clear at this moment. Till then the driver will set
-    // the maximum size that should be sufficient for all platform SKUs. 
+    // the maximum size that should be sufficient for all platform SKUs.
     uint32_t        CsrSizeInMb;                    // Total size that driver needs to allocate for CSR.
 
     /*------------------------------------*/
@@ -156,7 +156,7 @@ typedef struct GT_SYSTEM_INFO
     // Threads scratch space has to be allocated based on native die config. So allocation has to be
     // done even for unfused or non-enabled slices/subslices/EUs. Since H/W doesn't provide us a way to know
     // about the native die config S/W will allocate based on max EU/S/SS.
-    uint32_t        MaxEuPerSubSlice;               // Max available EUs per sub-slice. 
+    uint32_t        MaxEuPerSubSlice;               // Max available EUs per sub-slice.
     uint32_t        MaxSlicesSupported;             // Max slices this platfrom can have.
     uint32_t        MaxSubSlicesSupported;          // Max total sub-slices this platform can have (not per slice)
     /*------------------------------------*/
@@ -164,7 +164,7 @@ typedef struct GT_SYSTEM_INFO
     // Flag to determine if hashing is enabled. If enabled then one of the L3 banks will be disabled.
     // As a result 'L3BankCount' will be reduced by 1 bank during system info derivation routine.
     // Note: Only expected only in CNL (limited SKUs).
-    bool            IsL3HashModeEnabled;
+    uint8_t            IsL3HashModeEnabled;
 
     // VEBox/VDBox info
     GT_VDBOX_INFO   VDBoxInfo;                      // VDBoxInfo provides details(enabled/disabled) of all VDBox instances.
@@ -179,7 +179,7 @@ typedef struct GT_SYSTEM_INFO
     // purpose. At the moment we are constrained by USC not to make any changes to the GT System
     // Info interface which require USC changes. USC currently references IsDynamicallyPopulated.
     GT_SLICE_INFO   SliceInfo[GT_MAX_SLICE];
-    bool            IsDynamicallyPopulated;
+    uint8_t            IsDynamicallyPopulated;
 
 	//SqidiInfo provides the detailed information for number of SQIDIs supported in GT.
 	//It also provides total no. of doorbells available per SQIDI unit.
@@ -190,20 +190,6 @@ typedef struct GT_SYSTEM_INFO
 
 } GT_SYSTEM_INFO, *PGT_SYSTEM_INFO;
 
-typedef struct GT_DOORBELL_CONFIG
-{
-	union 
-	{
-		struct 
-		{
-			uint32_t    SQIDIEnabledInfo          : 16;    // To determine how many SQIDIs are enabled.
-			uint32_t    NumberofDoorbellsPerSQIDI : 8;     // To determine number of doorbells per SQIDI
-			uint32_t    Reserved                  : 8;     // Reserved bits
-		};
-	    uint32_t Value;
-	};
-
-}GT_DOORBELL_CONFIG;
 
 #pragma pack(pop)
 

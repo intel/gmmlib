@@ -37,8 +37,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma inline_depth (255)
 #endif // _MSC_VER
 
-#include "Driver_Model.h"
-
 #ifndef __S_INLINE
     #define __S_INLINE __inline
 #endif
@@ -51,26 +49,15 @@ OTHER DEALINGS IN THE SOFTWARE.
     #endif
 #endif
 
-// Component definitions for ASSERT. 
+// Component definitions for ASSERT.
 
-#define GFX_AIM    (ULONG)0x00000001
-#define GFX_COMMON (ULONG)0x00000002
-#define GFX_D3D    (ULONG)0x00000004
-#define GFX_DDHVA  (ULONG)0x00000008
-#define GFX_DDRAW  (ULONG)0x00000010
-#define GFX_GMM	   (ULONG)0x00000020
-#define GFX_GRM    (ULONG)0x00000040
-#define GFX_KCH    (ULONG)0x00000080
-#define GFX_NTSYS  (ULONG)0x00000100
-#define GFX_NTDLL  (ULONG)0x00000200
-#define GFX_OGL    (ULONG)0x00000400
-#define GFX_SBIOS  (ULONG)0x00000800
+#define GFX_GMM	   (uint32_t)0x00000020
 
 #ifdef _DEBUG
   #define GFX_ASSERT(component,expr)        \
                                         {if (!(expr)) {__debugbreak();}}
 #else
-  #define GFX_ASSERT(component,expr) 
+  #define GFX_ASSERT(component,expr)
 #endif
 
 //========================================================================
@@ -80,7 +67,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 //            type sizes, field offsets, etc.
 //
 // An assertion failure results in error C2118: negative subscript.
-// 
+//
 // When this assertion is to be used in the middle of a code block,
 // use it within {} - e.g. {GFX_C_ASSERT (GFX_NUM == 0);}
 #ifndef GFX_C_ASSERT

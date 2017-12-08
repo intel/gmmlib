@@ -99,7 +99,7 @@ typedef enum {
     IGFX_GEN9_CORE       = 12,  //Gen9 Family
     IGFX_GEN10_CORE      = 13,  //Gen10 Family
                                 //Please add new GENs BEFORE THIS !
-    IGFX_MAX_CORE        = 16,  //Max Family, for lookup table
+    IGFX_MAX_CORE,
 
     IGFX_GENNEXT_CORE          = 0x7ffffffe,  //GenNext
     GFXCORE_FAMILY_FORCE_ULONG = 0x7fffffff
@@ -146,7 +146,7 @@ typedef enum __GTTYPE
         PLATFORM_DESKTOP    = 0x01,
         PLATFORM_MOBILE     = 0x02,
         PLATFORM_TABLET     = 0X03,
-        PLATFORM_ALL        = 0xff, // flag used for applying any feature/WA for All platform types 
+        PLATFORM_ALL        = 0xff, // flag used for applying any feature/WA for All platform types
     } PLATFORM_TYPE;
 #endif
 typedef struct PLATFORM_STR {
@@ -167,7 +167,7 @@ typedef struct PLATFORM_STR {
     GTTYPE              eGTType;
 } PLATFORM;
 
-// add enums at the end 
+// add enums at the end
 typedef enum __SKUIDTYPE
 {
     SKU_FULL_TYPE = 0x0,
@@ -335,12 +335,12 @@ typedef enum __NATIVEGTTYPE
 // macros for comparing Graphics family and products
 //
 ///////////////////////////////////////////////////////////////////
-#define GFX_IS_FAMILY_EQUAL_OR_ABOVE(family1, family2) ((family1)>=(family2) ? TRUE : FALSE)
-#define GFX_IS_FAMILY_EQUAL_OR_BELOW(family1, family2) ((family1)<=(family2) ? TRUE : FALSE)
-#define GFX_IS_FAMILY_BELOW(family1, family2) ((family1)<(family2) ? TRUE : FALSE)
-#define GFX_IS_PRODUCT_EQUAL_OR_ABOVE(product1, product2) ((product1)>=(product2) ? TRUE : FALSE)
-#define GFX_IS_PRODUCT_EQUAL_OR_BELOW(product1, product2) ((product1)<=(product2) ? TRUE : FALSE)
-#define GFX_IS_PRODUCT_BELOW(product1, product2)  ((product1) <(product2) ? TRUE : FALSE)
+#define GFX_IS_FAMILY_EQUAL_OR_ABOVE(family1, family2) ((family1)>=(family2) ? true : false)
+#define GFX_IS_FAMILY_EQUAL_OR_BELOW(family1, family2) ((family1)<=(family2) ? true : false)
+#define GFX_IS_FAMILY_BELOW(family1, family2) ((family1)<(family2) ? true : false)
+#define GFX_IS_PRODUCT_EQUAL_OR_ABOVE(product1, product2) ((product1)>=(product2) ? true : false)
+#define GFX_IS_PRODUCT_EQUAL_OR_BELOW(product1, product2) ((product1)<=(product2) ? true : false)
+#define GFX_IS_PRODUCT_BELOW(product1, product2)  ((product1) <(product2) ? true : false)
 
 //Feature ID: Graphics PRD PC11.0 - Brookdale-G Support
 //Description: Move device and vendor ID's to igfxfmid.h.
@@ -357,7 +357,7 @@ typedef enum __NATIVEGTTYPE
 #define IALM_DEVICE0_ID_MG           0x3578
 #define IALM_DEVICE1_ID              0x3576
 #define IALM_DEVICE_ID               0x3577   // Almador Base
-#define BROOKDALE_G_DEVICE_ID        0x2562   // Brookdale_G   
+#define BROOKDALE_G_DEVICE_ID        0x2562   // Brookdale_G
 #define IMGM_DEVICE_ID               0x3582   // MontaraGM Base
 #define IMGM_DEVICE0_ID              0x3580
 #define ISDG_DEVICE0_ID              0x2570   // Springdale-G Device 0 ID
@@ -406,7 +406,7 @@ typedef enum __NATIVEGTTYPE
 #define ICTG_DEVICE_F1_ID            0x2A43   // Cantiga-G graphics function 1 ID
 
 #define ICDV_DEVICE_F0_ID            0x0BE0   // CDV graphics function 0 ID
-#define ICDV_DEVICE_F0_ID_MASK       0xFFF0   // Mask of Penwell_D graphics function 0 ID. Bits [3:0] 
+#define ICDV_DEVICE_F0_ID_MASK       0xFFF0   // Mask of Penwell_D graphics function 0 ID. Bits [3:0]
                                               // are used to identify SKU from B1 QS
 
 #define IELK_DEVICE_SUPER_SKU_F0_ID     0x2E02   // EagleLake-G graphics function 0 ID for Super SKU
@@ -508,7 +508,7 @@ typedef enum __NATIVEGTTYPE
 
 //HSW - ULT
 
-#define IHSW_ULT_MOBL_GT1_DEV_ID              0xA06 
+#define IHSW_ULT_MOBL_GT1_DEV_ID              0xA06
 #define IHSW_ULT_MOBL_GT2_DEV_ID              0xA16 //Mob ULT GT1.5 and GT2
 #define IHSW_ULT_MOBL_GT3_DEV_ID              0xA26
 #define IHSW_ULT_MRKT_GT3_DEV_ID              0xA2E
@@ -573,30 +573,30 @@ typedef enum __NATIVEGTTYPE
 
 //skl placeholder
 
-#define ISKL_GT4_DT_DEVICE_F0_ID                0x1932 
+#define ISKL_GT4_DT_DEVICE_F0_ID                0x1932
 #define ISKL_GT2_DT_DEVICE_F0_ID                0x1912 // Used on actual Silicon
 
-#define ISKL_GT1_DT_DEVICE_F0_ID                0x1902  
+#define ISKL_GT1_DT_DEVICE_F0_ID                0x1902
 
 
-#define ISKL_GT2_ULT_DEVICE_F0_ID               0x1916 
+#define ISKL_GT2_ULT_DEVICE_F0_ID               0x1916
 #define ISKL_GT2F_ULT_DEVICE_F0_ID              0x1921
-#define ISKL_GT3e_ULT_DEVICE_F0_ID_540          0x1926 
+#define ISKL_GT3e_ULT_DEVICE_F0_ID_540          0x1926
 #define ISKL_GT3e_ULT_DEVICE_F0_ID_550          0x1927
 
-#define ISKL_GT2_ULX_DEVICE_F0_ID               0x191E  
-#define ISKL_GT1_ULT_DEVICE_F0_ID               0x1906 
+#define ISKL_GT2_ULX_DEVICE_F0_ID               0x191E
+#define ISKL_GT1_ULT_DEVICE_F0_ID               0x1906
 #define ISKL_GT3_MEDIA_SERV_DEVICE_F0_ID        0x192D
-#define ISKL_GT1_5_ULT_DEVICE_F0_ID             0x1913  
+#define ISKL_GT1_5_ULT_DEVICE_F0_ID             0x1913
 
-#define ISKL_GT3_ULT_DEVICE_F0_ID               0x1923 
+#define ISKL_GT3_ULT_DEVICE_F0_ID               0x1923
 
-#define ISKL_GT2_HALO_MOBL_DEVICE_F0_ID         0x191B 
+#define ISKL_GT2_HALO_MOBL_DEVICE_F0_ID         0x191B
 
-#define ISKL_GT4_HALO_MOBL_DEVICE_F0_ID         0x193B 
-#define ISKL_GT4_SERV_DEVICE_F0_ID				0x193A 
-#define ISKL_GT2_WRK_DEVICE_F0_ID				0x191D 
-#define ISKL_GT4_WRK_DEVICE_F0_ID				0x193D 
+#define ISKL_GT4_HALO_MOBL_DEVICE_F0_ID         0x193B
+#define ISKL_GT4_SERV_DEVICE_F0_ID				0x193A
+#define ISKL_GT2_WRK_DEVICE_F0_ID				0x191D
+#define ISKL_GT4_WRK_DEVICE_F0_ID				0x193D
 
 
 #define ISKL_GT0_DESK_DEVICE_F0_ID              0x0900
@@ -624,15 +624,15 @@ typedef enum __NATIVEGTTYPE
 // KabyLake Device ids
 #define IKBL_GT1_ULT_DEVICE_F0_ID               0x5906
 #define IKBL_GT1_5_ULT_DEVICE_F0_ID             0x5913
-#define IKBL_GT2_ULT_DEVICE_F0_ID               0x5916 
+#define IKBL_GT2_ULT_DEVICE_F0_ID               0x5916
 #define IKBL_GT2F_ULT_DEVICE_F0_ID              0x5921
-#define IKBL_GT3_15W_ULT_DEVICE_F0_ID           0x5926 
+#define IKBL_GT3_15W_ULT_DEVICE_F0_ID           0x5926
 //#define IKBL_GT3E_ULT_DEVICE_F0_ID              0x5926
 #define IKBL_GT1_ULX_DEVICE_F0_ID               0x590E
 #define IKBL_GT1_5_ULX_DEVICE_F0_ID             0x5915
 #define IKBL_GT2_ULX_DEVICE_F0_ID               0x591E
 #define IKBL_GT1_DT_DEVICE_F0_ID                0x5902
-#define IKBL_GT2_R_ULT_DEVICE_F0_ID             0x5917 
+#define IKBL_GT2_R_ULT_DEVICE_F0_ID             0x5917
 #define IKBL_GT2_DT_DEVICE_F0_ID                0x5912
 #define IKBL_GT1_HALO_DEVICE_F0_ID              0x590B
 #define IKBL_GT1F_HALO_DEVICE_F0_ID             0x5908
@@ -653,9 +653,9 @@ typedef enum __NATIVEGTTYPE
 //GWL
 #define IGWL_GT1_MOB_DEVICE_F0_ID               0xFF0F      //For Pre-Si, temp
 
-// bxt Fullsim Device ids
-#define IBXT_A_DEVICE_F0_ID                 0x9906   // BXT for FULLSIM A 3X6
-#define IBXT_C_DEVICE_F0_ID                 0x9907   // BXT for FULLSIM B 2X6
+// bxt Fulsim Device ids
+#define IBXT_A_DEVICE_F0_ID                 0x9906   // BXT for Fulsim A 3X6
+#define IBXT_C_DEVICE_F0_ID                 0x9907   // BXT for Fulsim B 2X6
 #define IBXT_X_DEVICE_F0_ID                 0x9908
 
 //BXT BIOS programmed Silicon ids. See bspec for details.
@@ -701,23 +701,21 @@ typedef enum __NATIVEGTTYPE
 #define ICNL_4x8_HALO_DEVICE_F0_ID              0x5A5C      //GT1.5
 
 //CFL
-//temp checkin to fix apple CI builds and unblock testing. should be removed soon
 #define ICFL_GT1_DT_DEVICE_F0_ID                0x3E90
 #define ICFL_GT2_DT_DEVICE_F0_ID                0x3E92
-//end of temp fix for apple build break
 
 #define ICFL_GT1_S61_DT_DEVICE_F0_ID            0x3E90
 #define ICFL_GT1_S41_DT_DEVICE_F0_ID            0x3E93
 #define ICFL_GT2_S62_DT_DEVICE_F0_ID            0x3E92
 #define ICFL_GT2_HALO_DEVICE_F0_ID              0x3E9B
-#define ICFL_GT2_SERV_DEVICE_F0_ID              0x3E96 
-#define ICFL_GT2_HALO_WS_DEVICE_F0_ID           0x3E94 
+#define ICFL_GT2_SERV_DEVICE_F0_ID              0x3E96
+#define ICFL_GT2_HALO_WS_DEVICE_F0_ID           0x3E94
 #define ICFL_GT2_S42_DT_DEVICE_F0_ID            0x3E91
-#define ICFL_GT3_ULT_15W_DEVICE_F0_ID           0x3EA6   
+#define ICFL_GT3_ULT_15W_DEVICE_F0_ID           0x3EA6
 #define ICFL_GT3_ULT_15W_42EU_DEVICE_F0_ID      0x3EA7
 #define ICFL_GT3_ULT_28W_DEVICE_F0_ID           0x3EA8
 #define ICFL_GT3_ULT_DEVICE_F0_ID               0x3EA5
-#define ICFL_HALO_DEVICE_F0_ID                  0x3E95  //not POR
+#define ICFL_HALO_DEVICE_F0_ID                  0x3E95
 
 
 
@@ -883,7 +881,7 @@ typedef enum __NATIVEGTTYPE
 #define PCH_LPT_LP_DEV_VALUE_ID                             0x9C47
 
 //define WPT device ids
-#define PCH_WPT_DEV_SIM_ID                                  0x99FF // for BDW Fulsim 
+#define PCH_WPT_DEV_SIM_ID                                  0x99FF // for BDW Fulsim
 #define PCH_WPT_LPC_DEV_UNFUSED_ID                          0x9CC0 // for BDW P0, D31:F0 - LPC Controller (Unfused part)
 #define PCH_WPT_LPC_DEV_SUPER_HSW_ID                        0x9CC1 // for BDW P0, D31:F0 - LPC Controller (Super SKU) w/ HSW
 #define PCH_WPT_LPC_DEV_SUPER_BDW_U_CPU_ID                  0x9CC2 // for BDW P0, D31:F0 - LPC Controller (Super SKU) w/ BDW U CPU
@@ -1088,7 +1086,7 @@ typedef enum __NATIVEGTTYPE
 
 #define MGM_HAS     0
 
-//#define SDG_HAS      1              //Reserve place for Springdale-G HAS 
+//#define SDG_HAS      1              //Reserve place for Springdale-G HAS
 //#define SDG_SUPPORT    1              //Springdale G build switch
 #endif
 

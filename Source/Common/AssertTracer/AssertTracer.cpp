@@ -25,9 +25,9 @@ File Name:  AssertTracer.cpp
 
 Abstract:
     These functions enables reporting asserts to system log in the debug
-    driver build.   
+    driver build.
 
-Notes:       
+Notes:
 
 \*****************************************************************************/
 
@@ -58,21 +58,21 @@ Description:
     Sends message to the system log.
 
 Input:
-    const char *expr - 
+    const char *expr -
         The expression passed to function.
-    const char *file - 
+    const char *file -
         The name of the file that is the origin of the expression.
-    const char *func - 
+    const char *func -
         The function from which call to this function was made.
-    const unsigned long line - 
+    const unsigned long line -
         The line number from file, which caused this function call.
-    const char *msg - 
+    const char *msg -
         Message passed to the system log.
 Output:
     void - None.
 
 \*****************************************************************************/
-void __stdcall ReportAssert( 
+void __stdcall ReportAssert(
     const char              *expr,
     const char              *file,
     const char              *func,
@@ -89,26 +89,22 @@ void __stdcall ReportAssert(
     {
         // Calculate length with hard coded max unsigned long length plus some safe space.
         size_t length = strlen( expr ) + strlen( file ) + strlen( func ) + strlen( msg ) + 15;
-            
+
         // Checks against maximum string size for ReportEvent lpStrings parameter.
         // Cuts string to the limit size.
-        uint32_t maxSizeReached = FALSE;
+        uint32_t maxSizeReached = false;
         if ( length > 31839 )
         {
             length = 31839;
-            maxSizeReached = TRUE;
+            maxSizeReached = true;
         }
 
         wideMessage = ( char * ) malloc( sizeof( char ) * length );
         if( wideMessage != NULL )
         {
             // snprintf spec: "The resulting character string will be terminated with a null character"
-#ifdef __APPLE__
-            snprintf( wideMessage, length, "%s:%lu\n%s\n%s\n%s", file, line, expr, func, msg);
-#else
             _snprintf_s( wideMessage, length, length / sizeof( char ), "%s:%lu\n%s\n%s\n%s", file, line, expr, func, msg);
-#endif
-                
+
             ReportEventA( hEventLog, EVENTLOG_INFORMATION_TYPE, 0, 0, NULL, 1, 0, ( LPCSTR* ) &wideMessage, NULL );
             free( wideMessage );
         }
@@ -142,15 +138,15 @@ Description:
 Input:
     const ULONG ComponentMask
         Contains the component id for which raised assert (KMD, MINIPORT..)
-    const char *expr - 
+    const char *expr -
         The expression passed to function.
-    const char *file - 
+    const char *file -
         The name of the file that is the origin of the expression.
-    const char *func - 
+    const char *func -
         The function from which call to this function was made.
-    const unsigned long line - 
+    const unsigned long line -
         The line number from file, which caused this function call.
-    const char *msg - 
+    const char *msg -
         Message passed to the system log.
 Output:
     void - None.
@@ -176,7 +172,7 @@ void __stdcall ReportAssertETW( const unsigned short     compId,
     (void)line;
     (void)msg;
 #else //We are in KMD, use the KMD implementation
-    // Log event if ETW session is active 
+    // Log event if ETW session is active
     if (g_ulHDGraphics_SessionActive)
     {
         EtwAssertPrint(compId, compMsk, expr, file, func, line, msg);
@@ -187,7 +183,7 @@ void __stdcall ReportAssertETW( const unsigned short     compId,
 #elif defined( __linux__ ) && defined( _RELEASE_INTERNAL ) && !defined( __ANDROID__ )
 #include <algorithm>
 #include <syslog.h>
-#include <execinfo.h>              
+#include <execinfo.h>
 #include <string>
 #include <cxxabi.h>
 #include <cstdlib>
@@ -225,7 +221,7 @@ void LogAssertion( const char *function_name, const char *file_name, unsigned in
     {
         // Get Commandline of process (in that case OCL app)
         // from process info itself eg. /proc/self/cmdline
-        
+
         oclAppCmdLine.reserve( stringLength );
         std::ifstream fileCmdline( "/proc/self/cmdline", std::ifstream::binary );
         if( fileCmdline.is_open() )
@@ -356,7 +352,7 @@ void LogAssertion( const char *function_name, const char *file_name, unsigned in
         syslogEntry = fullMsg.substr( pos, MAX_SYSLOG_ENTRY_LENGTH );
         // Add chunk ID / part number and send to syslog
         syslog( LOG_MAKEPRI( LOG_USER,
-                             LOG_ERR ), "[%zd/%d]%s", ( pos / MAX_SYSLOG_ENTRY_LENGTH + 1 ), numberOfChunks,
+                             LOG_ERR ), "[%d/%d]%s", ( pos / MAX_SYSLOG_ENTRY_LENGTH + 1 ), numberOfChunks,
                 syslogEntry.c_str() );
         pos += MAX_SYSLOG_ENTRY_LENGTH;
     }

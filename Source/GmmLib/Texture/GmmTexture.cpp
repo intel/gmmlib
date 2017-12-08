@@ -24,7 +24,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// This function calculates the (X,Y) address of each given plane. X is in bytes 
+/// This function calculates the (X,Y) address of each given plane. X is in bytes
 /// and Y is in scanlines.
 ///
 /// @param[in]  pTexInfo: ptr to ::GMM_TEXTURE_INFO
@@ -34,7 +34,7 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
 {
     GMM_GFX_SIZE_T *pUOffsetX, *pUOffsetY;
     GMM_GFX_SIZE_T *pVOffsetX, *pVOffsetY;
-    BOOLEAN         UVPacked = FALSE;
+    bool         UVPacked = false;
     uint32_t           Height;
 
     #define SWAP_UV()           \
@@ -105,12 +105,12 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
             *pUOffsetY = GFX_ALIGN(pTexInfo->BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT);
 
             *pVOffsetX = 0;
-            *pVOffsetY = 
+            *pVOffsetY =
                 GFX_ALIGN(pTexInfo->BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT) +
                 GFX_ALIGN(GFX_CEIL_DIV(pTexInfo->BaseHeight, 2), GMM_IMCx_PLANE_ROW_ALIGNMENT);
 
             break;
-        } 
+        }
         case GMM_FORMAT_MFX_JPEG_YUV411R_TYPE:   //Similar to IMC3 but U/V are quarther height and full width.
             //YYYYYYYY
             //YYYYYYYY
@@ -123,11 +123,11 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
             *pUOffsetY = GFX_ALIGN(pTexInfo->BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT);
 
             *pVOffsetX = 0;
-            *pVOffsetY = 
+            *pVOffsetY =
                 GFX_ALIGN(pTexInfo->BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT) +
                 GFX_ALIGN(GFX_CEIL_DIV(pTexInfo->BaseHeight, 4), GMM_IMCx_PLANE_ROW_ALIGNMENT);
 
-            break; 
+            break;
         }
         case GMM_FORMAT_MFX_JPEG_YUV411:    // Similar to IMC3 but U/V are quarter width and full height.
             // YYYYYYYY
@@ -180,7 +180,7 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
             break;
         }
         case GMM_FORMAT_IMC2: SWAP_UV(); // IMC2 = IMC4 with Swapped U/V
-        case GMM_FORMAT_IMC4: 
+        case GMM_FORMAT_IMC4:
         {
             // YYYYYYYY
             // YYYYYYYY
@@ -201,14 +201,14 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
         }
         case GMM_FORMAT_I420: // I420 = IYUV
         case GMM_FORMAT_IYUV: SWAP_UV(); // I420/IYUV = YV12 with Swapped U/V
-        case GMM_FORMAT_YV12: 
-        case GMM_FORMAT_YVU9: 
+        case GMM_FORMAT_YV12:
+        case GMM_FORMAT_YVU9:
         {
             // YYYYYYYY
             // YYYYYYYY
             // YYYYYYYY
             // YYYYYYYY
-            // VVVVVV..  <-- V and U planes follow the Y plane, as linear 
+            // VVVVVV..  <-- V and U planes follow the Y plane, as linear
             // ..UUUUUU      arrays--without respect to pitch.
 
             uint32_t YSize, YVSizeRShift, VSize, UOffset;
@@ -223,14 +223,14 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
             // The others have a ratio of 4 (2x2 --> 1).
             YVSizeRShift = (pTexInfo->Format != GMM_FORMAT_YVU9) ? 2 : 4;
 
-            // If a Y plane isn't fully-aligned to its Y-->U/V block size, the 
-            // extra/unaligned Y pixels still need corresponding U/V pixels--So 
-            // for the purpose of computing the UVSize, we must consider a 
-            // dimensionally "rounded-up" YSize. (E.g. a 13x5 YVU9 Y plane would 
+            // If a Y plane isn't fully-aligned to its Y-->U/V block size, the
+            // extra/unaligned Y pixels still need corresponding U/V pixels--So
+            // for the purpose of computing the UVSize, we must consider a
+            // dimensionally "rounded-up" YSize. (E.g. a 13x5 YVU9 Y plane would
             // require 4x2 U/V planes--the same UVSize as a fully-aligned 16x8 Y.)
             YSizeForUVPurposesDimensionalAlignment = (pTexInfo->Format != GMM_FORMAT_YVU9) ? 2 : 4;
-            YSizeForUVPurposes = 
-                GFX_ALIGN(GFX_ULONG_CAST(pTexInfo->Pitch), YSizeForUVPurposesDimensionalAlignment) * 
+            YSizeForUVPurposes =
+                GFX_ALIGN(GFX_ULONG_CAST(pTexInfo->Pitch), YSizeForUVPurposesDimensionalAlignment) *
                 GFX_ALIGN(pTexInfo->BaseHeight,   YSizeForUVPurposesDimensionalAlignment);
 
             VSize = (YSizeForUVPurposes >> YVSizeRShift);
@@ -244,7 +244,7 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
 
             break;
         }
-        case GMM_FORMAT_NV12: 
+        case GMM_FORMAT_NV12:
         case GMM_FORMAT_NV21:
         {
             // Y0
@@ -265,7 +265,7 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
         case GMM_FORMAT_P010:
         case GMM_FORMAT_P012:
         case GMM_FORMAT_P016:
-        case GMM_FORMAT_P208: 
+        case GMM_FORMAT_P208:
         {
             // YYYYYYYY
             // YYYYYYYY
@@ -275,7 +275,7 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
             *pUOffsetX = *pVOffsetX = 0;
             *pUOffsetY = *pVOffsetY = Height;
 
-            UVPacked = TRUE;
+            UVPacked = true;
             break;
         }
         default:
@@ -310,8 +310,8 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
 
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// Sibling function of GmmLib::GmmTextureCalc::ExpandWidth. it returns the given 
-/// Width, as appropriately scaled by the MSAA NumSamples parameter and aligned to the 
+/// Sibling function of GmmLib::GmmTextureCalc::ExpandWidth. it returns the given
+/// Width, as appropriately scaled by the MSAA NumSamples parameter and aligned to the
 /// given UnitAlignment.
 ///
 /// @param[in]  Height: Height of the surface
@@ -320,22 +320,22 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
 ///
 /// @return     scaled height
 /////////////////////////////////////////////////////////////////////////////////////
-uint32_t GmmLib::GmmTextureCalc::ExpandHeight(uint32_t Height, uint32_t UnitAlignment, uint32_t NumSamples) 
+uint32_t GmmLib::GmmTextureCalc::ExpandHeight(uint32_t Height, uint32_t UnitAlignment, uint32_t NumSamples)
 {
-    // Implemented as separate function (instead of as a single function with a 
-    // Width/Height parameter) so both functions can be later implemented without 
+    // Implemented as separate function (instead of as a single function with a
+    // Width/Height parameter) so both functions can be later implemented without
     // branches, if need be.
 
     return(
         GmmLib::GmmTextureCalc::ExpandWidth(
-            Height, UnitAlignment, 
+            Height, UnitAlignment,
             (  NumSamples == 2 ) ? 1 :                // MSAA_2X: No height adjustment
             (( NumSamples == 8 ) ? 4 : NumSamples))); // <-- MSAA_8X:Height = MSAA_4X:Height.
 }
 
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// This function returns the given Width, as appropriately scaled by the MSAA 
+/// This function returns the given Width, as appropriately scaled by the MSAA
 /// NumSamples parameter and aligned to the given UnitAlignment.
 ///
 /// @param[in]  Width: Height of the surface
@@ -344,11 +344,11 @@ uint32_t GmmLib::GmmTextureCalc::ExpandHeight(uint32_t Height, uint32_t UnitAlig
 ///
 /// @return     scaled width
 /////////////////////////////////////////////////////////////////////////////////////
-uint32_t GmmLib::GmmTextureCalc::ExpandWidth(uint32_t Width, uint32_t UnitAlignment, uint32_t NumSamples) 
+uint32_t GmmLib::GmmTextureCalc::ExpandWidth(uint32_t Width, uint32_t UnitAlignment, uint32_t NumSamples)
 {
     uint32_t ExpandedWidth;
 
-    switch(NumSamples) 
+    switch(NumSamples)
     {
         case 1:  ExpandedWidth = Width; break;
         case 2:  // Same as 4x...
@@ -372,15 +372,15 @@ uint32_t GmmLib::GmmTextureCalc::ExpandWidth(uint32_t Width, uint32_t UnitAlignm
 /// @param[in]  pTexInfo: ptr to ::GMM_TEXTURE_INFO
 ///
 /////////////////////////////////////////////////////////////////////////////////////
-void GmmLib::GmmTextureCalc::FindMipTailStartLod(GMM_TEXTURE_INFO *pTexInfo) 
+void GmmLib::GmmTextureCalc::FindMipTailStartLod(GMM_TEXTURE_INFO *pTexInfo)
 {
-    GMM_DPF_ENTER; 
+    GMM_DPF_ENTER;
 
-    if( !(pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) || 
-        (pTexInfo->MaxLod == 0) || 
-        (pTexInfo->Flags.Wa.DisablePackedMipTail)) 
+    if( !(pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) ||
+        (pTexInfo->MaxLod == 0) ||
+        (pTexInfo->Flags.Wa.DisablePackedMipTail))
     {
-        // HW never ignores MipTailStartLod for Yf/Ys surfaces. If we do not 
+        // HW never ignores MipTailStartLod for Yf/Ys surfaces. If we do not
         // want a mip tail, we set MipTailStartLod to be greater than MaxLod.
         pTexInfo->Alignment.MipTailStartLod = GMM_TILED_RESOURCE_NO_MIP_TAIL;
     }
@@ -404,13 +404,13 @@ void GmmLib::GmmTextureCalc::FindMipTailStartLod(GMM_TEXTURE_INFO *pTexInfo)
             MipDepth = GFX_CEIL_DIV(MipDepth, CompressDepth);
         }
 
-        while((Level < pTexInfo->MaxLod)                                                         && 
-              (((pTexInfo->Type == RESOURCE_1D)                                                  && 
+        while((Level < pTexInfo->MaxLod)                                                         &&
+              (((pTexInfo->Type == RESOURCE_1D)                                                  &&
                 !(MipWidth <= pPlatform->TileInfo[pTexInfo->TileMode].MaxMipTailStartWidth))     ||
-               (((pTexInfo->Type == RESOURCE_2D) || (pTexInfo->Type == RESOURCE_CUBE))           && 
+               (((pTexInfo->Type == RESOURCE_2D) || (pTexInfo->Type == RESOURCE_CUBE))           &&
                 !((MipWidth  <= pPlatform->TileInfo[pTexInfo->TileMode].MaxMipTailStartWidth)    &&
                   (MipHeight <= pPlatform->TileInfo[pTexInfo->TileMode].MaxMipTailStartHeight))) ||
-               ((pTexInfo->Type == RESOURCE_3D)                                                  && 
+               ((pTexInfo->Type == RESOURCE_3D)                                                  &&
                 !((MipWidth  <= pPlatform->TileInfo[pTexInfo->TileMode].MaxMipTailStartWidth)    &&
                   (MipHeight <= pPlatform->TileInfo[pTexInfo->TileMode].MaxMipTailStartHeight)   &&
                   (MipDepth  <= pPlatform->TileInfo[pTexInfo->TileMode].MaxMipTailStartDepth)))))
@@ -441,7 +441,7 @@ void GmmLib::GmmTextureCalc::FindMipTailStartLod(GMM_TEXTURE_INFO *pTexInfo)
         else
         {
             pTexInfo->Alignment.MipTailStartLod = GMM_TILED_RESOURCE_NO_MIP_TAIL;
-        }    
+        }
     }
 
     GMM_DPF_EXIT;
@@ -449,7 +449,7 @@ void GmmLib::GmmTextureCalc::FindMipTailStartLod(GMM_TEXTURE_INFO *pTexInfo)
 
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// This function returns the height, width and depth of the compression block for a 
+/// This function returns the height, width and depth of the compression block for a
 /// given surface format.
 ///
 /// @param[in]  Format: ::GMM_RESOURCE_FORMAT
@@ -458,13 +458,13 @@ void GmmLib::GmmTextureCalc::FindMipTailStartLod(GMM_TEXTURE_INFO *pTexInfo)
 /// @param[in]  pDepth: populates Depth
 ///
 /////////////////////////////////////////////////////////////////////////////////////
-void  GmmLib::GmmTextureCalc::GetCompressionBlockDimensions(GMM_RESOURCE_FORMAT Format, 
-                                                             uint32_t *pWidth, 
-                                                             uint32_t *pHeight, 
+void  GmmLib::GmmTextureCalc::GetCompressionBlockDimensions(GMM_RESOURCE_FORMAT Format,
+                                                             uint32_t *pWidth,
+                                                             uint32_t *pHeight,
                                                              uint32_t *pDepth)
-{                        
-                                                         
-    GMM_DPF_ENTER;  
+{
+
+    GMM_DPF_ENTER;
     __GMM_ASSERT(pWidth && pHeight && pDepth);
 
     if (pWidth && pHeight && pDepth)

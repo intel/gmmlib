@@ -31,20 +31,20 @@ OTHER DEALINGS IN THE SOFTWARE.
 /// @param[in] pCreateParams: Flags which specify what sort of resource to create
 /// @return     Pointer to GmmResourceInfo class.
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_RESOURCE_INFO *GMM_STDCALL GmmResCreate(GMM_RESCREATE_PARAMS *pCreateParams) 
+GMM_RESOURCE_INFO *GMM_STDCALL GmmResCreate(GMM_RESCREATE_PARAMS *pCreateParams)
 {
     GMM_RESOURCE_INFO* pRes = NULL;
 
     // GMM_RESOURCE_INFO...
-    if(pCreateParams->pPreallocatedResInfo) 
+    if(pCreateParams->pPreallocatedResInfo)
     {
         pRes = new(pCreateParams->pPreallocatedResInfo) GmmLib::GmmResourceInfo(); // Use preallocated memory as a class
-        pCreateParams->Flags.Info.__PreallocatedResInfo = 
-            pRes->GetResFlags().Info.__PreallocatedResInfo = TRUE; // Set both in case we can die before copying over the flags.
-    } 
+        pCreateParams->Flags.Info.__PreallocatedResInfo =
+            pRes->GetResFlags().Info.__PreallocatedResInfo = true; // Set both in case we can die before copying over the flags.
+    }
     else
     {
-        if ((pRes = new GMM_RESOURCE_INFO) == NULL) 
+        if ((pRes = new GMM_RESOURCE_INFO) == NULL)
         {
             GMM_ASSERTDPF(0, "Allocation failed!");
             goto ERROR_CASE;
@@ -69,18 +69,18 @@ ERROR_CASE:
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// C wrapper for GmmResourceInfoCommon::opeartor=. Allocates a new class and 
+/// C wrapper for GmmResourceInfoCommon::opeartor=. Allocates a new class and
 /// returns a pointer to it. The new class must be free'd explicitly by the client.
 ///
 /// @see GmmLib::GmmResourceInfoCommon::operator=()
 ///
 /// @param[in] pRes: Pointer to the GmmResourceInfo class that needs to be copied
-/// @return     Pointer to newly copied GmmResourceInfo class 
+/// @return     Pointer to newly copied GmmResourceInfo class
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_RESOURCE_INFO *GMM_STDCALL GmmResCopy(GMM_RESOURCE_INFO*  pRes)
 {
     GMM_RESOURCE_INFO*  pResCopy = NULL;
-    
+
     GMM_DPF_ENTER;
     __GMM_ASSERTPTR(pRes, NULL);
 
@@ -94,7 +94,7 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmResCopy(GMM_RESOURCE_INFO*  pRes)
     *pResCopy = *pRes;
 
     // We are allocating new class, flag must be false to avoid leak at DestroyResource
-    pResCopy->GetResFlags().Info.__PreallocatedResInfo = FALSE;
+    pResCopy->GetResFlags().Info.__PreallocatedResInfo = false;
 
     GMM_DPF_EXIT;
     return (pResCopy);
@@ -127,11 +127,11 @@ void GMM_STDCALL GmmResFree(GMM_RESOURCE_INFO *pRes)
     GMM_DPF_ENTER;
     __GMM_ASSERTPTR(pRes, VOIDRETURN);
 
-    if (pRes->GetResFlags().Info.__PreallocatedResInfo) 
+    if (pRes->GetResFlags().Info.__PreallocatedResInfo)
     {
         *pRes = GmmLib::GmmResourceInfo();
-    } 
-    else 
+    }
+    else
     {
         delete pRes;
         pRes = NULL;
@@ -147,8 +147,8 @@ void GMM_STDCALL GmmResFree(GMM_RESOURCE_INFO *pRes)
 /// @return     Pointer to system memory. NULL if not available.
 /////////////////////////////////////////////////////////////////////////////////////
 void* GMM_STDCALL GmmResGetSystemMemPointer(GMM_RESOURCE_INFO*  pRes,
-        BOOLEAN IsD3DDdiAllocation)
-{   
+        uint8_t IsD3DDdiAllocation)
+{
     GMM_DPF_ENTER;
     __GMM_ASSERTPTR(pRes, NULL);
 
@@ -184,7 +184,7 @@ uint32_t GMM_STDCALL GmmResGetSizeOfStruct(void)
 /// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @param[out] pFlags: Memory where resource flags will be copied
 /////////////////////////////////////////////////////////////////////////////////////
-void GMM_STDCALL GmmResGetFlags(GMM_RESOURCE_INFO* pGmmResource, 
+void GMM_STDCALL GmmResGetFlags(GMM_RESOURCE_INFO* pGmmResource,
                                 GMM_RESOURCE_FLAG* pFlags /*output*/)
 {
     GMM_DPF_ENTER;
@@ -200,7 +200,7 @@ void GMM_STDCALL GmmResGetFlags(GMM_RESOURCE_INFO* pGmmResource,
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetResourceType.
 /// @see        GmmLib::GmmResourceInfoCommon::GetResourceType()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     Resource Type
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_RESOURCE_TYPE GMM_STDCALL GmmResGetResourceType(GMM_RESOURCE_INFO *pGmmResource)
@@ -226,7 +226,7 @@ GMM_RESOURCE_FORMAT GMM_STDCALL GmmResGetResourceFormat(GMM_RESOURCE_INFO *pGmmR
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetPaddedWidth.
 /// @see        GmmLib::GmmResourceInfoCommon::GetPaddedWidth()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @param[in]  MipLevel: Requested mip level
 /// @return     Padded Width
 /////////////////////////////////////////////////////////////////////////////////////
@@ -241,11 +241,11 @@ uint32_t GMM_STDCALL GmmResGetPaddedWidth(GMM_RESOURCE_INFO  *pGmmResource,
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetPaddedHeight.
 /// @see        GmmLib::GmmResourceInfoCommon::GetPaddedHeight()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @param[in]  MipLevel: Requested mip level
 /// @return     Padded Height
 /////////////////////////////////////////////////////////////////////////////////////
-uint32_t GMM_STDCALL GmmResGetPaddedHeight(GMM_RESOURCE_INFO *pGmmResource, 
+uint32_t GMM_STDCALL GmmResGetPaddedHeight(GMM_RESOURCE_INFO *pGmmResource,
                                         uint32_t              MipLevel)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -256,10 +256,10 @@ uint32_t GMM_STDCALL GmmResGetPaddedHeight(GMM_RESOURCE_INFO *pGmmResource,
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetPaddedPitch.
 /// @see        GmmLib::GmmResourceInfoCommon::GetPaddedPitch()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @param[in]  MipLevel: Requested mip level
 /// @return     Padded Pitch
-/////////////////////////////////////////////////////////////////////////////////////  
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetPaddedPitch(GMM_RESOURCE_INFO  *pGmmResource,
                                        uint32_t              MipLevel)
 {
@@ -268,13 +268,13 @@ uint32_t GMM_STDCALL GmmResGetPaddedPitch(GMM_RESOURCE_INFO  *pGmmResource,
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// C wrapper for GmmLib::GmmResourceInfoCommon::GetBaseWidth. Truncates width to 
+/// C wrapper for GmmLib::GmmResourceInfoCommon::GetBaseWidth. Truncates width to
 /// 32-bit.
 /// @see        GmmLib::GmmResourceInfoCommon::GetBaseWidth()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     Width
-/////////////////////////////////////////////////////////////////////////////////////   
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetBaseWidth(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -285,9 +285,9 @@ uint32_t GMM_STDCALL GmmResGetBaseWidth(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetBaseWidth.
 /// @see        GmmLib::GmmResourceInfoCommon::GetBaseWidth()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     Width
-/////////////////////////////////////////////////////////////////////////////////////    
+/////////////////////////////////////////////////////////////////////////////////////
 GMM_GFX_SIZE_T GMM_STDCALL GmmResGetBaseWidth64(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -298,10 +298,10 @@ GMM_GFX_SIZE_T GMM_STDCALL GmmResGetBaseWidth64(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetBaseAlignment.
 /// @see        GmmLib::GmmResourceInfoCommon::GetBaseAlignment()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     Base Alignment
-/////////////////////////////////////////////////////////////////////////////////////   
-uint32_t GMM_STDCALL GmmResGetBaseAlignment(GMM_RESOURCE_INFO *pGmmResource) 
+/////////////////////////////////////////////////////////////////////////////////////
+uint32_t GMM_STDCALL GmmResGetBaseAlignment(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
     return pGmmResource->GetBaseAlignment();
@@ -311,9 +311,9 @@ uint32_t GMM_STDCALL GmmResGetBaseAlignment(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetBaseHeight.
 /// @see        GmmLib::GmmResourceInfoCommon::GetBaseHeight()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     Height
-/////////////////////////////////////////////////////////////////////////////////////   
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetBaseHeight(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -324,9 +324,9 @@ uint32_t GMM_STDCALL GmmResGetBaseHeight(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GmmResGetDepth.
 /// @see        GmmLib::GmmResourceInfoCommon::GmmResGetDepth()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     Depth
-/////////////////////////////////////////////////////////////////////////////////////   
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetDepth(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -337,9 +337,9 @@ uint32_t GMM_STDCALL GmmResGetDepth(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetMaxLod.
 /// @see        GmmLib::GmmResourceInfoCommon::GetMaxLod()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     Max Lod
-/////////////////////////////////////////////////////////////////////////////////////   
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetMaxLod(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -350,9 +350,9 @@ uint32_t GMM_STDCALL GmmResGetMaxLod(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetMipTailStartLod.SurfaceState
 /// @see        GmmLib::GmmResourceInfoCommon::GetMipTailStartLodSurfaceState()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     Mip Tail Starts
-/////////////////////////////////////////////////////////////////////////////////////   
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetSurfaceStateMipTailStartLod(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERT(pGmmResource);
@@ -363,9 +363,9 @@ uint32_t GMM_STDCALL GmmResGetSurfaceStateMipTailStartLod(GMM_RESOURCE_INFO *pGm
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetTileAddressMappingMode.SurfaceState
 /// @see        GmmLib::GmmResourceInfoCommon::GetTileAddressMappingModeSurfaceState()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     Tile Address Mapping Mode
-/////////////////////////////////////////////////////////////////////////////////////   
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetSurfaceStateTileAddressMappingMode(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERT(pGmmResource);
@@ -376,9 +376,9 @@ uint32_t GMM_STDCALL GmmResGetSurfaceStateTileAddressMappingMode(GMM_RESOURCE_IN
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetStdTilingModeExt.SurfaceState
 /// @see        GmmLib::GmmResourceInfoCommon::GetStdTilingModeExtSurfaceState()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     Std Tiling Mode Ext
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetSurfaceStateStdTilingModeExt(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, GMM_INVALIDPARAM);
@@ -389,9 +389,9 @@ uint32_t GMM_STDCALL GmmResGetSurfaceStateStdTilingModeExt(GMM_RESOURCE_INFO *pG
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetArraySize.
 /// @see        GmmLib::GmmResourceInfoCommon::GetArraySize()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     Array Size
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetArraySize(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -403,9 +403,9 @@ uint32_t GMM_STDCALL GmmResGetArraySize(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetRefreshRate.
 /// @see        GmmLib::GmmResourceInfoCommon::GetRefreshRate()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     Refresh rate
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 D3DDDI_RATIONAL GMM_STDCALL GmmResGetRefreshRate(GMM_RESOURCE_INFO *pGmmResource)
 {
     D3DDDI_RATIONAL RetVal = {0};
@@ -419,9 +419,9 @@ D3DDDI_RATIONAL GMM_STDCALL GmmResGetRefreshRate(GMM_RESOURCE_INFO *pGmmResource
 /// C wrapper for GmmLib::GmmResourceInfoWin::GetD3d9Flags.
 /// @see        GmmLib::GmmResourceInfoWin::GetD3d9Flags()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @param[out] pD3d9Flags: Mscaps data is copied to this param
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResGetD3d9Flags(GMM_RESOURCE_INFO* pGmmResource,
                                     D3DDDI_RESOURCEFLAGS* pD3d9Flags)
 {
@@ -435,9 +435,9 @@ void GMM_STDCALL GmmResGetD3d9Flags(GMM_RESOURCE_INFO* pGmmResource,
 /// C wrapper for GmmLib::GmmResourceInfoWin::GetD3d9Format.
 /// @see        GmmLib::GmmResourceInfoWin::GetD3d9Format()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     D3d9 format for the resource
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 D3DDDIFORMAT GMM_STDCALL GmmResGetD3d9Format(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, (D3DDDIFORMAT)0);
@@ -449,9 +449,9 @@ D3DDDIFORMAT GMM_STDCALL GmmResGetD3d9Format(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoWin::GetVidSourceId.
 /// @see        GmmLib::GmmResourceInfoWin::GetVidSourceId()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     Source Id
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 D3DDDI_VIDEO_PRESENT_SOURCE_ID GMM_STDCALL GmmResGetVidSourceId(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -464,12 +464,12 @@ D3DDDI_VIDEO_PRESENT_SOURCE_ID GMM_STDCALL GmmResGetVidSourceId(GMM_RESOURCE_INF
 /// C wrapper for GmmLib::GmmResourceInfoWin::Is64KBPageSuitable.
 /// @see        GmmLib::GmmResourceInfoWin::Is64KBPageSuitable()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
-/// @return     TRUE/FALSE
-///////////////////////////////////////////////////////////////////////////////////// 
-BOOLEAN GMM_STDCALL GmmResIs64KBPageSuitable(GMM_RESOURCE_INFO *pGmmResource)
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
+/// @return     1/0
+/////////////////////////////////////////////////////////////////////////////////////
+uint8_t GMM_STDCALL GmmResIs64KBPageSuitable(GMM_RESOURCE_INFO *pGmmResource)
 {
-    __GMM_ASSERTPTR(pGmmResource, FALSE);
+    __GMM_ASSERTPTR(pGmmResource, 0);
     return pGmmResource->Is64KBPageSuitable();
 }
 
@@ -479,9 +479,9 @@ BOOLEAN GMM_STDCALL GmmResIs64KBPageSuitable(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetRotateInfo.
 /// @see        GmmLib::GmmResourceInfoCommon::GetRotateInfo()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     rotation info
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetRotateInfo(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -492,9 +492,9 @@ uint32_t GMM_STDCALL GmmResGetRotateInfo(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetAuxQPitch.
 /// @see        GmmLib::GmmResourceInfoCommon::GetAuxQPitch()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     Aux QPitch
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetAuxQPitch(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -505,9 +505,9 @@ uint32_t GMM_STDCALL GmmResGetAuxQPitch(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetQPitch.
 /// @see        GmmLib::GmmResourceInfoCommon::GetQPitch()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     QPitch
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetQPitch(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -518,9 +518,9 @@ uint32_t GMM_STDCALL GmmResGetQPitch(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetQPitchPlanar.
 /// @see        GmmLib::GmmResourceInfoCommon::GetQPitchPlanar()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     Planar QPitch
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetQPitchPlanar(GMM_RESOURCE_INFO *pGmmResource, GMM_YUV_PLANE Plane)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -531,9 +531,9 @@ uint32_t GMM_STDCALL GmmResGetQPitchPlanar(GMM_RESOURCE_INFO *pGmmResource, GMM_
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetQPitchInBytes.
 /// @see        GmmLib::GmmResourceInfoCommon::GetQPitchInBytes()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     QPitch
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 GMM_GFX_SIZE_T GMM_STDCALL GmmResGetQPitchInBytes(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERT(pGmmResource);
@@ -544,9 +544,9 @@ GMM_GFX_SIZE_T GMM_STDCALL GmmResGetQPitchInBytes(GMM_RESOURCE_INFO *pGmmResourc
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetRenderPitch.
 /// @see        GmmLib::GmmResourceInfoCommon::GetRenderPitch()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     Pitch
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetRenderPitch(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -557,9 +557,9 @@ uint32_t GMM_STDCALL GmmResGetRenderPitch(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetRenderPitchTiles.
 /// @see        GmmLib::GmmResourceInfoCommon::GetRenderPitchTiles()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     Pitch in tiles
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetRenderPitchTiles(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -570,9 +570,9 @@ uint32_t GMM_STDCALL GmmResGetRenderPitchTiles(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetRenderAuxPitchTiles.
 /// @see        GmmLib::GmmResourceInfoCommon::GetRenderAuxPitchTiles()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     Aux Pitch in tiles
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetRenderAuxPitchTiles(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -583,9 +583,9 @@ uint32_t GMM_STDCALL GmmResGetRenderAuxPitchTiles(GMM_RESOURCE_INFO *pGmmResourc
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetUnifiedAuxPitch.
 /// @see        GmmLib::GmmResourceInfoCommon::GetUnifiedAuxPitch()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     Aux Pitch
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetAuxPitch(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -596,9 +596,9 @@ uint32_t GMM_STDCALL GmmResGetAuxPitch(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetBitsPerPixel.
 /// @see        GmmLib::GmmResourceInfoCommon::GetBitsPerPixel()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     bpp
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetBitsPerPixel(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -609,9 +609,9 @@ uint32_t GMM_STDCALL GmmResGetBitsPerPixel(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetUnifiedAuxBitsPerPixel.
 /// @see        GmmLib::GmmResourceInfoCommon::GetUnifiedAuxBitsPerPixel()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     bpp
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetAuxBitsPerPixel(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -624,9 +624,9 @@ uint32_t GMM_STDCALL GmmResGetAuxBitsPerPixel(GMM_RESOURCE_INFO *pGmmResource)
 /// @see        GmmLib::GmmResourceInfoCommon::GetCompressionBlockHeight()
 /// @see        GmmLib::GmmResourceInfoCommon::GetCompressionBlockDepth()
 ///
-/// @param[in]  pRes: Pointer to the GmmResourceInfo class 
+/// @param[in]  pRes: Pointer to the GmmResourceInfo class
 /// @return     Compression Block Width/Height/Depth
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 #define GmmResGetCompressionBlockXxx(Xxx)                   \
     uint32_t GMM_STDCALL GmmResGetCompressionBlock##Xxx(GMM_RESOURCE_INFO *pGmmResource) \
     {                                                       \
@@ -641,12 +641,12 @@ GmmResGetCompressionBlockXxx(Depth)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetUnifiedAuxBitsPerPixel.
 /// @see        GmmLib::GmmResourceInfoCommon::GetUnifiedAuxBitsPerPixel()
 ///
-/// @param[in]      pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]      pGmmResource: Pointer to the GmmResourceInfo class
 /// @param[in][out] pReqInfo: Has info about which offset client is requesting. Offset is also
 ///                 passed back to the client in this parameter.
 /// @return         ::GMM_STATUS
-///////////////////////////////////////////////////////////////////////////////////// 
-GMM_STATUS GMM_STDCALL GmmResGetOffset(GMM_RESOURCE_INFO *pGmmResource, 
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_STATUS GMM_STDCALL GmmResGetOffset(GMM_RESOURCE_INFO *pGmmResource,
                                        GMM_REQ_OFFSET_INFO *pReqInfo)
 {
     __GMM_ASSERTPTR(pGmmResource, GMM_ERROR);
@@ -659,9 +659,9 @@ GMM_STATUS GMM_STDCALL GmmResGetOffset(GMM_RESOURCE_INFO *pGmmResource,
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetTextureLayout.
 /// @see        GmmLib::GmmResourceInfoCommon::GetTextureLayout()
 ///
-/// @param[in]      pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]      pGmmResource: Pointer to the GmmResourceInfo class
 /// @return         GMM_2D_LAYOUT_RIGHT or GMM_2D_LAYOUT_BELOW
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 GMM_TEXTURE_LAYOUT GMM_STDCALL GmmResGetTextureLayout(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERT(pGmmResource);
@@ -672,9 +672,9 @@ GMM_TEXTURE_LAYOUT GMM_STDCALL GmmResGetTextureLayout(GMM_RESOURCE_INFO *pGmmRes
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetTileType.
 /// @see        GmmLib::GmmResourceInfoCommon::GetTileType()
 ///
-/// @param[in]      pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]      pGmmResource: Pointer to the GmmResourceInfo class
 /// @return         ::GMM_TILE_TYPE
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 GMM_TILE_TYPE GMM_STDCALL GmmResGetTileType(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERT(pGmmResource);
@@ -685,10 +685,10 @@ GMM_TILE_TYPE GMM_STDCALL GmmResGetTileType(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetMipHeight.
 /// @see        GmmLib::GmmResourceInfoCommon::GetMipHeight()
 ///
-/// @param[in]      pResourceInfo: Pointer to the GmmResourceInfo class 
+/// @param[in]      pResourceInfo: Pointer to the GmmResourceInfo class
 /// @param[in]      MipLevel: Mip level for which the info is needed
 /// @return         Mip Height
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t   GMM_STDCALL GmmResGetMipHeight(GMM_RESOURCE_INFO *pResourceInfo, uint32_t MipLevel)
 {
     return pResourceInfo->GetMipHeight(MipLevel);
@@ -698,10 +698,10 @@ uint32_t   GMM_STDCALL GmmResGetMipHeight(GMM_RESOURCE_INFO *pResourceInfo, uint
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetMipWidth.
 /// @see        GmmLib::GmmResourceInfoCommon::GetMipWidth()
 ///
-/// @param[in]      pResourceInfo: Pointer to the GmmResourceInfo class 
+/// @param[in]      pResourceInfo: Pointer to the GmmResourceInfo class
 /// @param[in]      MipLevel: Mip level for which the info is needed
 /// @return         Mip Width
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 GMM_GFX_SIZE_T   GMM_STDCALL GmmResGetMipWidth(GMM_RESOURCE_INFO *pResourceInfo, uint32_t MipLevel)
 {
     return pResourceInfo->GetMipWidth(MipLevel);;
@@ -711,17 +711,17 @@ GMM_GFX_SIZE_T   GMM_STDCALL GmmResGetMipWidth(GMM_RESOURCE_INFO *pResourceInfo,
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetMipDepth.
 /// @see        GmmLib::GmmResourceInfoCommon::GetMipDepth()
 ///
-/// @param[in]      pResourceInfo: Pointer to the GmmResourceInfo class 
+/// @param[in]      pResourceInfo: Pointer to the GmmResourceInfo class
 /// @param[in]      MipLevel: Mip level for which the info is needed
 /// @return         Mip Depth
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t  GMM_STDCALL GmmResGetMipDepth(GMM_RESOURCE_INFO *pResourceInfo, uint32_t MipLevel)
 {
     return pResourceInfo->GetMipDepth(MipLevel);;
 }
 
 //=============================================================================
-// 
+//
 // Function:GmmResGetCornerTexelMode
 //
 // Desc:
@@ -731,23 +731,23 @@ uint32_t  GMM_STDCALL GmmResGetMipDepth(GMM_RESOURCE_INFO *pResourceInfo, uint32
 //      pGmmResource: ==> A previously allocated resource.
 //
 // Returns:
-//      CornerTexelMode flag ==> BOOLEAN
-//----------------------------------------------------------------------------- 
-BOOLEAN GMM_STDCALL GmmResGetCornerTexelMode(GMM_RESOURCE_INFO *pGmmResource)
+//      CornerTexelMode flag ==> uint8_t
+//-----------------------------------------------------------------------------
+uint8_t GMM_STDCALL GmmResGetCornerTexelMode(GMM_RESOURCE_INFO *pGmmResource)
 {
     GMM_DPF_ENTER;
     __GMM_ASSERT(pGmmResource);
 
-    return ((pGmmResource->GetResFlags().Info.CornerTexelMode) ? TRUE : FALSE );
+    return ((pGmmResource->GetResFlags().Info.CornerTexelMode) ? 1 : 0 );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetCpuCacheType.
 /// @see        GmmLib::GmmResourceInfoCommon::GetCpuCacheType()
 ///
-/// @param[in]      pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]      pGmmResource: Pointer to the GmmResourceInfo class
 /// @return         ::GMM_CPU_CACHE_TYPE
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 GMM_CPU_CACHE_TYPE GMM_STDCALL GmmResGetCpuCacheType(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERT(pGmmResource);
@@ -758,10 +758,10 @@ GMM_CPU_CACHE_TYPE GMM_STDCALL GmmResGetCpuCacheType(GMM_RESOURCE_INFO *pGmmReso
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetMmcMode.
 /// @see        GmmLib::GmmResourceInfoCommon::GetMmcMode()
 ///
-/// @param[in]      pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]      pGmmResource: Pointer to the GmmResourceInfo class
 /// @param[in]      ArrayIndex: ArrayIndex for which this info is needed
 /// @return         Media Memory Compression Mode (Disabled, Horizontal, Vertical)
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 GMM_RESOURCE_MMC_INFO GMM_STDCALL GmmResGetMmcMode(GMM_RESOURCE_INFO *pGmmResource, uint32_t ArrayIndex)
 {
     __GMM_ASSERT(pGmmResource);
@@ -772,10 +772,10 @@ GMM_RESOURCE_MMC_INFO GMM_STDCALL GmmResGetMmcMode(GMM_RESOURCE_INFO *pGmmResour
 /// C wrapper for GmmLib::GmmResourceInfoCommon::SetMmcMode.
 /// @see        GmmLib::GmmResourceInfoCommon::SetMmcMode()
 ///
-/// @param[in] pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in] pGmmResource: Pointer to the GmmResourceInfo class
 /// @param[in] Mode Media Memory Compression Mode (Disabled, Horizontal, Vertical)
 /// @param[in] ArrayIndex ArrayIndex for which this info needs to be set
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResSetMmcMode(GMM_RESOURCE_INFO *pGmmResource, GMM_RESOURCE_MMC_INFO Mode, uint32_t ArrayIndex)
 {
     __GMM_ASSERTPTR(pGmmResource, VOIDRETURN);
@@ -786,12 +786,12 @@ void GMM_STDCALL GmmResSetMmcMode(GMM_RESOURCE_INFO *pGmmResource, GMM_RESOURCE_
 /// C wrapper for GmmLib::GmmResourceInfoCommon::IsMediaMemoryCompressed.
 /// @see        GmmLib::GmmResourceInfoCommon::IsMediaMemoryCompressed()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @param[in]  ArrayIndex ArrayIndex for which this info is needed
-/// @return     TRUE (enabled), FALSE (disabled) 
-///////////////////////////////////////////////////////////////////////////////////// 
-BOOLEAN GMM_STDCALL GmmResIsMediaMemoryCompressed(GMM_RESOURCE_INFO *pGmmResource, uint32_t ArrayIndex)
-{   
+/// @return     1 (enabled), 0 (disabled)
+/////////////////////////////////////////////////////////////////////////////////////
+uint8_t GMM_STDCALL GmmResIsMediaMemoryCompressed(GMM_RESOURCE_INFO *pGmmResource, uint32_t ArrayIndex)
+{
     return pGmmResource->IsMediaMemoryCompressed(ArrayIndex);
 }
 
@@ -799,10 +799,10 @@ BOOLEAN GMM_STDCALL GmmResIsMediaMemoryCompressed(GMM_RESOURCE_INFO *pGmmResourc
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetMmcHint.
 /// @see        GmmLib::GmmResourceInfoCommon::GetMmcHint()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @param[in]  ArrayIndex ArrayIndex for which this info is needed
-/// @return     TRUE/FALSE
-///////////////////////////////////////////////////////////////////////////////////// 
+/// @return     true/false
+/////////////////////////////////////////////////////////////////////////////////////
 GMM_RESOURCE_MMC_HINT GMM_STDCALL GmmResGetMmcHint(GMM_RESOURCE_INFO *pGmmResource, uint32_t ArrayIndex)
 {
     __GMM_ASSERT(pGmmResource);
@@ -813,11 +813,11 @@ GMM_RESOURCE_MMC_HINT GMM_STDCALL GmmResGetMmcHint(GMM_RESOURCE_INFO *pGmmResour
 /// C wrapper for GmmLib::GmmResourceInfoCommon::SetMmcHint.
 /// @see        GmmLib::GmmResourceInfoCommon::SetMmcHint()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @param[in]  Hint Mmc hint to store
 /// @param[in]  ArrayIndex ArrayIndex for which this info is needed
-/// @return     TRUE/FALSE
-///////////////////////////////////////////////////////////////////////////////////// 
+/// @return     true/false
+/////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResSetMmcHint(GMM_RESOURCE_INFO *pGmmResource, GMM_RESOURCE_MMC_HINT Hint, uint32_t ArrayIndex)
 {
     __GMM_ASSERTPTR(pGmmResource, VOIDRETURN);
@@ -828,12 +828,12 @@ void GMM_STDCALL GmmResSetMmcHint(GMM_RESOURCE_INFO *pGmmResource, GMM_RESOURCE_
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetNumSamples.
 /// @see        GmmLib::GmmResourceInfoCommon::GetNumSamples()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     Sample count
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetNumSamples(GMM_RESOURCE_INFO *pGmmResource)
 {
-    __GMM_ASSERTPTR(pGmmResource, 0);   
+    __GMM_ASSERTPTR(pGmmResource, 0);
     return pGmmResource->GetNumSamples();
 }
 
@@ -841,9 +841,9 @@ uint32_t GMM_STDCALL GmmResGetNumSamples(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetSamplePattern.
 /// @see        GmmLib::GmmResourceInfoCommon::GetSamplePattern()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     Sample count
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 GMM_MSAA_SAMPLE_PATTERN GMM_STDCALL GmmResGetSamplePattern(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERT(pGmmResource);
@@ -854,9 +854,9 @@ GMM_MSAA_SAMPLE_PATTERN GMM_STDCALL GmmResGetSamplePattern(GMM_RESOURCE_INFO *pG
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetHAlign.
 /// @see        GmmLib::GmmResourceInfoCommon::GetHAlign()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     HAlign
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetHAlign(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -867,9 +867,9 @@ uint32_t GMM_STDCALL GmmResGetHAlign(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetVAlign.
 /// @see        GmmLib::GmmResourceInfoCommon::GetVAlign()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     VAlign
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetVAlign(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -880,9 +880,9 @@ uint32_t GMM_STDCALL GmmResGetVAlign(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetAuxHAlign.
 /// @see        GmmLib::GmmResourceInfoCommon::GetAuxHAlign()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     HAlign
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetAuxHAlign(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -893,9 +893,9 @@ uint32_t GMM_STDCALL GmmResGetAuxHAlign(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetAuxVAlign.
 /// @see        GmmLib::GmmResourceInfoCommon::GetAuxVAlign()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @return     VAlign
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetAuxVAlign(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -906,12 +906,12 @@ uint32_t GMM_STDCALL GmmResGetAuxVAlign(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::IsArraySpacingSingleLod.
 /// @see        GmmLib::GmmResourceInfoCommon::IsArraySpacingSingleLod()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
-/// @return     TRUE/FALSE
-///////////////////////////////////////////////////////////////////////////////////// 
-BOOLEAN GMM_STDCALL GmmResIsArraySpacingSingleLod(GMM_RESOURCE_INFO *pGmmResource)
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
+/// @return     1/0
+/////////////////////////////////////////////////////////////////////////////////////
+uint8_t GMM_STDCALL GmmResIsArraySpacingSingleLod(GMM_RESOURCE_INFO *pGmmResource)
 {
-    __GMM_ASSERTPTR(pGmmResource, FALSE);   
+    __GMM_ASSERTPTR(pGmmResource, 0);
     return pGmmResource->IsArraySpacingSingleLod();
 }
 
@@ -919,12 +919,12 @@ BOOLEAN GMM_STDCALL GmmResIsArraySpacingSingleLod(GMM_RESOURCE_INFO *pGmmResourc
 /// C wrapper for GmmLib::GmmResourceInfoCommon::IsASTC.
 /// @see        GmmLib::GmmResourceInfoCommon::IsASTC()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
-/// @return     TRUE/FALSE
-///////////////////////////////////////////////////////////////////////////////////// 
-BOOLEAN GMM_STDCALL GmmResIsASTC(GMM_RESOURCE_INFO *pGmmResource)
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
+/// @return     1/0
+/////////////////////////////////////////////////////////////////////////////////////
+uint8_t GMM_STDCALL GmmResIsASTC(GMM_RESOURCE_INFO *pGmmResource)
 {
-    __GMM_ASSERTPTR(pGmmResource, FALSE);
+    __GMM_ASSERTPTR(pGmmResource, 0);
     return pGmmResource->IsASTC();
 }
 
@@ -932,12 +932,12 @@ BOOLEAN GMM_STDCALL GmmResIsASTC(GMM_RESOURCE_INFO *pGmmResource)
 /// C wrapper for GmmLib::GmmResourceInfoCommon::IsMsaaFormatDepthStencil.
 /// @see        GmmLib::GmmResourceInfoCommon::IsMsaaFormatDepthStencil()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
-/// @return     TRUE/FALSE
-///////////////////////////////////////////////////////////////////////////////////// 
-BOOLEAN GMM_STDCALL GmmResIsMsaaFormatDepthStencil(GMM_RESOURCE_INFO *pGmmResource)
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
+/// @return     1/0
+/////////////////////////////////////////////////////////////////////////////////////
+uint8_t GMM_STDCALL GmmResIsMsaaFormatDepthStencil(GMM_RESOURCE_INFO *pGmmResource)
 {
-    __GMM_ASSERTPTR(pGmmResource, FALSE);
+    __GMM_ASSERTPTR(pGmmResource, 0);
     return pGmmResource->IsMsaaFormatDepthStencil();
 }
 
@@ -945,12 +945,12 @@ BOOLEAN GMM_STDCALL GmmResIsMsaaFormatDepthStencil(GMM_RESOURCE_INFO *pGmmResour
 /// C wrapper for GmmLib::GmmResourceInfoCommon::IsSvm.
 /// @see        GmmLib::GmmResourceInfoCommon::IsSvm()
 ///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class 
-/// @return     TRUE/FALSE
-///////////////////////////////////////////////////////////////////////////////////// 
-BOOLEAN GMM_STDCALL GmmResIsSvm(GMM_RESOURCE_INFO *pGmmResource)
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
+/// @return     1/0
+/////////////////////////////////////////////////////////////////////////////////////
+uint8_t GMM_STDCALL GmmResIsSvm(GMM_RESOURCE_INFO *pGmmResource)
 {
-    __GMM_ASSERTPTR(pGmmResource, FALSE);
+    __GMM_ASSERTPTR(pGmmResource, 0);
     return pGmmResource->IsSvm();
 }
 
@@ -959,9 +959,9 @@ BOOLEAN GMM_STDCALL GmmResIsSvm(GMM_RESOURCE_INFO *pGmmResource)
 /// @see    GmmLib::GmmResourceInfoCommon::ValidateParams()
 ///
 /// @param[in]  pResourceInfo: Pointer to GmmResourceInfo class
-/// @return     TRUE is validation passed. FALSE otherwise.
+/// @return     1 is validation passed. 0 otherwise.
 /////////////////////////////////////////////////////////////////////////////////////
-BOOLEAN GMM_STDCALL GmmResValidateParams(GMM_RESOURCE_INFO *pResourceInfo)
+uint8_t GMM_STDCALL GmmResValidateParams(GMM_RESOURCE_INFO *pResourceInfo)
 {
     return pResourceInfo->ValidateParams();
 }
@@ -1083,24 +1083,24 @@ GMM_GFX_SIZE_T  GMM_STDCALL GmmResGetSizeAllocation(GMM_RESOURCE_INFO *pResource
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @return     Resource format
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_SURFACESTATE_FORMAT GMM_STDCALL GmmResGetSurfaceStateFormat(GMM_RESOURCE_INFO *pGmmResource) 
+GMM_SURFACESTATE_FORMAT GMM_STDCALL GmmResGetSurfaceStateFormat(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, GMM_SURFACESTATE_FORMAT_INVALID);
     return pGmmResource->GetResourceFormatSurfaceState();
 }
 
 //=============================================================================
-// 
+//
 // Function: GmmGetSurfaceStateFormat
-// 
+//
 // Desc: See below.
 //
 // Returns:
-//      SURFACE_STATE.Format for the given resource or 
-//      GMM_SURFACESTATE_FORMAT_INVALID if resource wasn't created with a 
+//      SURFACE_STATE.Format for the given resource or
+//      GMM_SURFACESTATE_FORMAT_INVALID if resource wasn't created with a
 //      direct SURFACE_STATE.Format.
 //
-//-----------------------------------------------------------------------------  
+//-----------------------------------------------------------------------------
 GMM_SURFACESTATE_FORMAT GMM_STDCALL GmmGetSurfaceStateFormat(GMM_RESOURCE_FORMAT Format)
 {
     return
@@ -1149,7 +1149,7 @@ uint32_t GMM_STDCALL GmmResGetSurfaceStateTiledResourceMode(GMM_RESOURCE_INFO *p
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// Returns the surface offset for unified allocations. Truncates the offset to size 
+/// Returns the surface offset for unified allocations. Truncates the offset to size
 /// of uint32_t.
 /// @see    GmmResGetAuxSurfaceOffset64()
 ///
@@ -1187,7 +1187,7 @@ GMM_GFX_SIZE_T GMM_STDCALL GmmResGetAuxSurfaceOffset64(GMM_RESOURCE_INFO *pGmmRe
 GMM_GFX_SIZE_T GMM_STDCALL GmmResGetSizeAuxSurface(GMM_RESOURCE_INFO *pGmmResource, GMM_UNIFIED_AUX_TYPE GmmAuxType)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
-    return pGmmResource->GetSizeAuxSurface(GmmAuxType); 
+    return pGmmResource->GetSizeAuxSurface(GmmAuxType);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1199,13 +1199,13 @@ GMM_GFX_SIZE_T GMM_STDCALL GmmResGetSizeAuxSurface(GMM_RESOURCE_INFO *pGmmResour
 /// @param[in]  GetIsEncrypted: Read encryption status
 /// @param[in]  SetIsEncrypted: Write encryption status
 /// @return     Whether surface is encrypted or not
-            
+
 /////////////////////////////////////////////////////////////////////////////////////
-BOOLEAN GMM_STDCALL GmmResGetSetHardwareProtection(GMM_RESOURCE_INFO *pGmmResource, BOOLEAN GetIsEncrypted, BOOLEAN SetIsEncrypted) 
+uint8_t GMM_STDCALL GmmResGetSetHardwareProtection(GMM_RESOURCE_INFO *pGmmResource, uint8_t GetIsEncrypted, uint8_t SetIsEncrypted)
 {
-    return pGmmResource ? 
-            pGmmResource->GetSetHardwareProtection(GetIsEncrypted, SetIsEncrypted) : 
-            FALSE;
+    return pGmmResource ?
+            pGmmResource->GetSetHardwareProtection(GetIsEncrypted, SetIsEncrypted) :
+            0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1214,11 +1214,11 @@ BOOLEAN GMM_STDCALL GmmResGetSetHardwareProtection(GMM_RESOURCE_INFO *pGmmResour
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  pBlt: Describes the blit operation. See ::GMM_RES_COPY_BLT for more info.
-/// @return     TRUE if succeeded, FALSE otherwise
+/// @return     1 if succeeded, 0 otherwise
 /////////////////////////////////////////////////////////////////////////////////////
-BOOLEAN GMM_STDCALL GmmResCpuBlt(GMM_RESOURCE_INFO *pGmmResource, GMM_RES_COPY_BLT *pBlt) 
+uint8_t GMM_STDCALL GmmResCpuBlt(GMM_RESOURCE_INFO *pGmmResource, GMM_RES_COPY_BLT *pBlt)
 {
-    __GMM_ASSERTPTR(pGmmResource, FALSE);
+    __GMM_ASSERTPTR(pGmmResource, 0);
     return pGmmResource->CpuBlt(pBlt);
 }
 
@@ -1227,9 +1227,9 @@ BOOLEAN GMM_STDCALL GmmResCpuBlt(GMM_RESOURCE_INFO *pGmmResource, GMM_RES_COPY_B
 /// @see    GmmLib::GmmResourceInfoCommon::GetStdLayoutSize()
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
-/// @return     Size in bytes of Standard Layout version of surface.   
-/////////////////////////////////////////////////////////////////////////////////////  
-GMM_GFX_SIZE_T GMM_STDCALL GmmResGetStdLayoutSize(GMM_RESOURCE_INFO *pGmmResource) 
+/// @return     Size in bytes of Standard Layout version of surface.
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_GFX_SIZE_T GMM_STDCALL GmmResGetStdLayoutSize(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERT(pGmmResource);
     return pGmmResource->GetStdLayoutSize();
@@ -1241,11 +1241,11 @@ GMM_GFX_SIZE_T GMM_STDCALL GmmResGetStdLayoutSize(GMM_RESOURCE_INFO *pGmmResourc
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  pMapping: Clients call the function with initially zero'd out GMM_GET_MAPPING.
-/// @return      TRUE if more span descriptors to report, FALSE if all mapping is done 
-///////////////////////////////////////////////////////////////////////////////////// 
-BOOLEAN GMM_STDCALL GmmResGetMappingSpanDesc(GMM_RESOURCE_INFO *pGmmResource, GMM_GET_MAPPING *pMapping) 
+/// @return      1 if more span descriptors to report, 0 if all mapping is done
+/////////////////////////////////////////////////////////////////////////////////////
+uint8_t GMM_STDCALL GmmResGetMappingSpanDesc(GMM_RESOURCE_INFO *pGmmResource, GMM_GET_MAPPING *pMapping)
 {
-    __GMM_ASSERTPTR(pGmmResource, FALSE);
+    __GMM_ASSERTPTR(pGmmResource, 0);
     return pGmmResource->GetMappingSpanDesc(pMapping);
 }
 
@@ -1254,11 +1254,11 @@ BOOLEAN GMM_STDCALL GmmResGetMappingSpanDesc(GMM_RESOURCE_INFO *pGmmResource, GM
 /// @see    GmmLib::GmmResourceInfoCommon::IsColorSeparation()
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
-/// @return     TRUE if the resource is color separated target, FALSE otherwise   
-///////////////////////////////////////////////////////////////////////////////////// 
-BOOLEAN GMM_STDCALL GmmResIsColorSeparation(GMM_RESOURCE_INFO *pGmmResource)
+/// @return     1 if the resource is color separated target, 0 otherwise
+/////////////////////////////////////////////////////////////////////////////////////
+uint8_t GMM_STDCALL GmmResIsColorSeparation(GMM_RESOURCE_INFO *pGmmResource)
 {
-    __GMM_ASSERTPTR(pGmmResource, FALSE);
+    __GMM_ASSERTPTR(pGmmResource, 0);
     return pGmmResource->IsColorSeparation();
 }
 
@@ -1268,11 +1268,11 @@ BOOLEAN GMM_STDCALL GmmResIsColorSeparation(GMM_RESOURCE_INFO *pGmmResource)
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  x: X coordinate
-/// @return   Translated color separation target x coordinate  
-///////////////////////////////////////////////////////////////////////////////////// 
+/// @return   Translated color separation target x coordinate
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResTranslateColorSeparationX(GMM_RESOURCE_INFO *pGmmResource, uint32_t x)
 {
-    __GMM_ASSERTPTR(pGmmResource, FALSE);
+    __GMM_ASSERTPTR(pGmmResource, false);
     return pGmmResource->TranslateColorSeparationX(x);
 }
 
@@ -1282,7 +1282,7 @@ uint32_t GMM_STDCALL GmmResTranslateColorSeparationX(GMM_RESOURCE_INFO *pGmmReso
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @return   Array size of a color separated target resource
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetColorSeparationArraySize(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -1295,7 +1295,7 @@ uint32_t GMM_STDCALL GmmResGetColorSeparationArraySize(GMM_RESOURCE_INFO *pGmmRe
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @return     Physical width of a color separated target resource
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetColorSeparationPhysicalWidth(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
@@ -1303,9 +1303,9 @@ uint32_t GMM_STDCALL GmmResGetColorSeparationPhysicalWidth(GMM_RESOURCE_INFO *pG
 }
 
 //=============================================================================
-// 
+//
 // Function: GmmResGetMaxGpuVirtualAddressBits
-// 
+//
 // Desc: This function returns max no of GpuVA bits supported per surface on current platform
 //
 // Parameters:
@@ -1314,14 +1314,14 @@ uint32_t GMM_STDCALL GmmResGetColorSeparationPhysicalWidth(GMM_RESOURCE_INFO *pG
 //
 // Returns:
 //      uint32_t - Max no of GpuVA bits
-//-----------------------------------------------------------------------------  
+//-----------------------------------------------------------------------------
 uint32_t GMM_STDCALL GmmResGetMaxGpuVirtualAddressBits(GMM_RESOURCE_INFO *pGmmResource)
 {
     if (pGmmResource == NULL)
     {
         __GMM_ASSERTPTR(pGmmGlobalContext, 0);
         const GMM_PLATFORM_INFO &PlatformInfo = pGmmGlobalContext->GetPlatformInfo();
-        return PlatformInfo.MaxGpuVirtualAddressBitsPerResource;   
+        return PlatformInfo.MaxGpuVirtualAddressBitsPerResource;
     }
 
     return pGmmResource->GetMaxGpuVirtualAddressBits();
@@ -1333,9 +1333,9 @@ uint32_t GMM_STDCALL GmmResGetMaxGpuVirtualAddressBits(GMM_RESOURCE_INFO *pGmmRe
 /// @see    GmmLib::GmmResourceInfoWin::IsSurfaceFaultable()
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
-/// @return   TRUE is surface can be faulted on
-///////////////////////////////////////////////////////////////////////////////////// 
-BOOLEAN GMM_STDCALL GmmIsSurfaceFaultable(GMM_RESOURCE_INFO *pGmmResource)
+/// @return   1 is surface can be faulted on
+/////////////////////////////////////////////////////////////////////////////////////
+uint8_t GMM_STDCALL GmmIsSurfaceFaultable(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
     return pGmmResource->IsSurfaceFaultable();
@@ -1347,7 +1347,7 @@ BOOLEAN GMM_STDCALL GmmIsSurfaceFaultable(GMM_RESOURCE_INFO *pGmmResource)
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @return     Copy of ::GMM_RESOURCE_FLAGS
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 GMM_RESOURCE_FLAG GMM_STDCALL GmmResGetResourceFlags(const GMM_RESOURCE_INFO* pGmmResource)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1360,7 +1360,7 @@ GMM_RESOURCE_FLAG GMM_STDCALL GmmResGetResourceFlags(const GMM_RESOURCE_INFO* pG
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @return    maximum remaining list length
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetMaximumRenamingListLength(GMM_RESOURCE_INFO* pGmmResource)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1368,9 +1368,9 @@ uint32_t GMM_STDCALL GmmResGetMaximumRenamingListLength(GMM_RESOURCE_INFO* pGmmR
 }
 
 //=============================================================================
-// 
+//
 // Function: GmmGetLogicalTileShape
-// 
+//
 // Desc: This function returns the logical tile shape
 //
 // Parameters:
@@ -1378,7 +1378,7 @@ uint32_t GMM_STDCALL GmmResGetMaximumRenamingListLength(GMM_RESOURCE_INFO* pGmmR
 //
 // Returns:
 //      GMM_STATUS
-//----------------------------------------------------------------------------- 
+//-----------------------------------------------------------------------------
 GMM_STATUS  GMM_STDCALL GmmGetLogicalTileShape( uint32_t             TileMode,
                                                 uint32_t             *pWidthInBytes,
                                                 uint32_t             *pHeight,
@@ -1411,7 +1411,7 @@ GMM_STATUS  GMM_STDCALL GmmGetLogicalTileShape( uint32_t             TileMode,
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  Size: new size of the resource
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResOverrideAllocationSize(GMM_RESOURCE_INFO *pGmmResource, GMM_GFX_SIZE_T Size)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1424,7 +1424,7 @@ void GMM_STDCALL GmmResOverrideAllocationSize(GMM_RESOURCE_INFO *pGmmResource, G
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  Pitch: new pitch of the resource
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResOverrideAllocationPitch(GMM_RESOURCE_INFO *pGmmResource, GMM_GFX_SIZE_T Pitch)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1437,7 +1437,7 @@ void GMM_STDCALL GmmResOverrideAllocationPitch(GMM_RESOURCE_INFO *pGmmResource, 
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  Pitch: new pitch of the resource
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResOverrideAuxAllocationPitch(GMM_RESOURCE_INFO *pGmmResource, GMM_GFX_SIZE_T Pitch)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1450,7 +1450,7 @@ void GMM_STDCALL GmmResOverrideAuxAllocationPitch(GMM_RESOURCE_INFO *pGmmResourc
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  Pitch: new pitch of the resource
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResOverrideAllocationFlags(GMM_RESOURCE_INFO *pGmmResource, GMM_RESOURCE_FLAG *pFlags)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1464,7 +1464,7 @@ void GMM_STDCALL GmmResOverrideAllocationFlags(GMM_RESOURCE_INFO *pGmmResource, 
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  Pitch: new pitch of the resource
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResOverrideAllocationHAlign(GMM_RESOURCE_INFO *pGmmResource, uint32_t HAlign)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1477,7 +1477,7 @@ void GMM_STDCALL GmmResOverrideAllocationHAlign(GMM_RESOURCE_INFO *pGmmResource,
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  Alignment: new BaseAlignment of the resource
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResOverrideAllocationBaseAlignment(GMM_RESOURCE_INFO *pGmmResource, uint32_t Alignment)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1490,7 +1490,7 @@ void GMM_STDCALL GmmResOverrideAllocationBaseAlignment(GMM_RESOURCE_INFO *pGmmRe
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  BaseWidth: new BaseWidth of the resource
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResOverrideAllocationBaseWidth(GMM_RESOURCE_INFO *pGmmResource, GMM_GFX_SIZE_T BaseWidth)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1503,7 +1503,7 @@ void GMM_STDCALL GmmResOverrideAllocationBaseWidth(GMM_RESOURCE_INFO *pGmmResour
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  BaseHeight: new BaseWidth of the resource
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResOverrideAllocationBaseHeight(GMM_RESOURCE_INFO *pGmmResource, uint32_t BaseHeight)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1516,7 +1516,7 @@ void GMM_STDCALL GmmResOverrideAllocationBaseHeight(GMM_RESOURCE_INFO *pGmmResou
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  Depth: new Depth of the resource
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResOverrideAllocationDepth(GMM_RESOURCE_INFO *pGmmResource, uint32_t Depth)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1529,7 +1529,7 @@ void GMM_STDCALL GmmResOverrideAllocationDepth(GMM_RESOURCE_INFO *pGmmResource, 
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  TileMode: new tile mode of the resource
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResOverrideResourceTiling(GMM_RESOURCE_INFO *pGmmResource, uint32_t TileMode)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1542,7 +1542,7 @@ void GMM_STDCALL GmmResOverrideResourceTiling(GMM_RESOURCE_INFO *pGmmResource, u
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  TileMode: new tile mode of the unified auxresource
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResOverrideAuxResourceTiling(GMM_RESOURCE_INFO *pGmmResource, uint32_t TileMode)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1555,7 +1555,7 @@ void GMM_STDCALL GmmResOverrideAuxResourceTiling(GMM_RESOURCE_INFO *pGmmResource
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  Format: new format for the resource
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResOverrideAllocationFormat(GMM_RESOURCE_INFO *pGmmResource, GMM_RESOURCE_FORMAT Format)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1568,7 +1568,7 @@ void GMM_STDCALL GmmResOverrideAllocationFormat(GMM_RESOURCE_INFO *pGmmResource,
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  ResourceType: new type for the resource
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResOverrideSurfaceType(GMM_RESOURCE_INFO *pGmmResource, GMM_RESOURCE_TYPE ResourceType)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1581,7 +1581,7 @@ void GMM_STDCALL GmmResOverrideSurfaceType(GMM_RESOURCE_INFO *pGmmResource, GMM_
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  IsolatedGfxAddress: new isolated gfx address for the resource
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResOverrideIsolatedGfxAddress(GMM_RESOURCE_INFO *pGmmResource, GMM_GFX_ADDRESS IsolatedGfxAddress)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1594,7 +1594,7 @@ void GMM_STDCALL GmmResOverrideIsolatedGfxAddress(GMM_RESOURCE_INFO *pGmmResourc
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  SvmGfxAddress: new svm gfx address for the resource
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResOverrideSvmGfxAddress(GMM_RESOURCE_INFO *pGmmResource, GMM_GFX_ADDRESS SvmGfxAddress)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1607,7 +1607,7 @@ void GMM_STDCALL GmmResOverrideSvmGfxAddress(GMM_RESOURCE_INFO *pGmmResource, GM
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  ArraySize: new array size for the resource
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResOverrideAllocationArraySize(GMM_RESOURCE_INFO *pGmmResource, uint32_t ArraySize)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1620,7 +1620,7 @@ void GMM_STDCALL GmmResOverrideAllocationArraySize(GMM_RESOURCE_INFO *pGmmResour
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  MaxLod: new max LOD for the resource
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResOverrideAllocationMaxLod(GMM_RESOURCE_INFO *pGmmResource, uint32_t MaxLod)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1634,7 +1634,7 @@ void GMM_STDCALL GmmResOverrideAllocationMaxLod(GMM_RESOURCE_INFO *pGmmResource,
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  Plane: Plane for which the offset is needed
 /// @return     X offset
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 GMM_GFX_SIZE_T GMM_STDCALL GmmResGetPlanarGetXOffset(GMM_RESOURCE_INFO *pGmmResource, GMM_YUV_PLANE Plane)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1648,7 +1648,7 @@ GMM_GFX_SIZE_T GMM_STDCALL GmmResGetPlanarGetXOffset(GMM_RESOURCE_INFO *pGmmReso
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  Plane: Plane for which the offset is needed
 /// @return     Y offset
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 GMM_GFX_SIZE_T GMM_STDCALL GmmResGetPlanarGetYOffset(GMM_RESOURCE_INFO *pGmmResource, GMM_YUV_PLANE Plane)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1662,7 +1662,7 @@ GMM_GFX_SIZE_T GMM_STDCALL GmmResGetPlanarGetYOffset(GMM_RESOURCE_INFO *pGmmReso
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  Plane: Plane for which the offset is needed
 /// @return     Y offset
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 GMM_GFX_SIZE_T  GMM_STDCALL GmmResGetPlanarAuxOffset(GMM_RESOURCE_INFO *pGmmResource, uint32_t ArrayIndex, GMM_UNIFIED_AUX_TYPE AuxType)
 {
     __GMM_ASSERT(pGmmResource);
@@ -1673,7 +1673,7 @@ GMM_GFX_SIZE_T  GMM_STDCALL GmmResGetPlanarAuxOffset(GMM_RESOURCE_INFO *pGmmReso
 //
 // Function: __CanSupportStdTiling
 //
-// Desc: Verifies texture parameters can support StdTiling 
+// Desc: Verifies texture parameters can support StdTiling
 //
 // Parameters:
 //      GMM_TEXTURE_INFO&   Surf
@@ -1681,7 +1681,7 @@ GMM_GFX_SIZE_T  GMM_STDCALL GmmResGetPlanarAuxOffset(GMM_RESOURCE_INFO *pGmmReso
 // Returns:
 //
 //-----------------------------------------------------------------------------
-BOOLEAN __CanSupportStdTiling(GMM_TEXTURE_INFO Surf)
+uint8_t __CanSupportStdTiling(GMM_TEXTURE_INFO Surf)
 {
     const __GMM_PLATFORM_RESOURCE* pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
 
@@ -1705,8 +1705,8 @@ BOOLEAN __CanSupportStdTiling(GMM_TEXTURE_INFO Surf)
         // YCRCB* Formats
         GmmIsYUVPacked(Surf.Format) */
     {
-        return FALSE;
+        return 0;
     }
 
-    return TRUE;
+    return 1;
 }

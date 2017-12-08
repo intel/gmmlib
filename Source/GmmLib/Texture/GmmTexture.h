@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 //---------------------------------------------------------------------------
 // ExpandWidth/Height Wrappers
 //
-// Gen7+ MSAA (non-Depth/Stencil) render targets use array expansion instead of 
+// Gen7+ MSAA (non-Depth/Stencil) render targets use array expansion instead of
 // Width/Height expansion--So they pass NumSamples=1 to __GmmExpandXxx functions.
 //
 //---------------------------------------------------------------------------
@@ -51,10 +51,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 //=============================================================================
 //Function:
 //    __GmmTexFillHAlignVAlign
-//    
+//
 //Description:
 //     Stores in pTexInfo the appropriate unit aligment sizes.
-//                
+//
 //-----------------------------------------------------------------------------
 // Gmmlib 2.0 TODO[Low] Move to Class and Inline function handling.
 GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
@@ -77,15 +77,15 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
         return GMM_ERROR;
     }
 
-    if( !pTexInfo->Alignment.HAlign && 
+    if( !pTexInfo->Alignment.HAlign &&
         !pTexInfo->Alignment.VAlign)
     {
-        pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo); 
+        pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
         pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo);
 
         /// SKL TiledYf/Ys Surfaces //////////////////////////////////////////
         if( ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN9_CORE) &&
-             (pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs))) 
+             (pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs)))
         {
             #define SET_ALIGN_INFO(Xxx, A1, A2, A3, A4, A5)     \
                UnitAlign##Xxx =                                 \
@@ -119,7 +119,7 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
                     SET_ALIGN_INFO(Height, 64, 64, 128, 128, 256);
                 }
 
-                // Only color buffer MSAA 
+                // Only color buffer MSAA
                 if(pTexInfo->MSAA.NumSamples > 1 &&
                    !pTexInfo->Flags.Gpu.Depth &&
                    !pTexInfo->Flags.Gpu.SeparateStencil)
@@ -200,19 +200,19 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
             UnitAlignWidth  = ElementWidth * pPlatform->TexAlign.Compressed.Width;
 
             UnitAlignHeight = ElementHeight * pPlatform->TexAlign.Compressed.Height;
-            
+
             UnitAlignDepth =  (pTexInfo->Type == RESOURCE_3D) ? ElementDepth * pPlatform->TexAlign.Compressed.Depth : pPlatform->TexAlign.Compressed.Depth;
 
         }
         /// Depth Buffer //////////////////////////////////////////////////
-        else if(pTexInfo->Flags.Gpu.HiZ) 
+        else if(pTexInfo->Flags.Gpu.HiZ)
         {
-            if( (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN7_CORE) && 
-                (pTexInfo->BitsPerPixel == 16)) 
+            if( (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN7_CORE) &&
+                (pTexInfo->BitsPerPixel == 16))
             {
                 UnitAlignWidth = 8; // Gen7 Special Case: HALIGN_8 for 16bpp Depth Buffers
-            } 
-            else 
+            }
+            else
             {
                 UnitAlignWidth = pPlatform->TexAlign.Depth.Width;
             }
@@ -241,7 +241,7 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
             }
         }
         /// Separate Stencil //////////////////////////////////////////////
-        else if(pTexInfo->Flags.Gpu.SeparateStencil) 
+        else if(pTexInfo->Flags.Gpu.SeparateStencil)
         {
             UnitAlignWidth  = pPlatform->TexAlign.SeparateStencil.Width;
             UnitAlignHeight = pPlatform->TexAlign.SeparateStencil.Height;
@@ -258,9 +258,9 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
         {
             UnitAlignWidth  = 16;
             UnitAlignHeight = 4;
-        } 
+        }
         /// TODO(Minor): Temp D3D12 WHQL WA. Remove once GMM switches to optimized H/VALIGN...
-        else if(pTexInfo->Flags.Wa.__ForceOtherHVALIGN4) 
+        else if(pTexInfo->Flags.Wa.__ForceOtherHVALIGN4)
         {
             UnitAlignWidth  = 4;
             UnitAlignHeight = 4;
@@ -289,7 +289,7 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
                     UnitAlignHeight = 16;
                 }
             }
-            else if(pTexInfo->MSAA.NumSamples <= 1) 
+            else if(pTexInfo->MSAA.NumSamples <= 1)
             {
                 if ((GmmGetWaTable(pGmmGlobalContext)->WaValign2For96bppFormats) &&
                             ( pTexInfo->BitsPerPixel == 96 ) )
@@ -305,22 +305,22 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
                 {
                     UnitAlignHeight = pPlatform->TexAlign.AllOther.Height;
                 }
-            } 
-            else 
+            }
+            else
             {
                 UnitAlignHeight = 4; // Gen6+ Special Case: VALIGN_4 for >= MSAA_4X Render Targets
             }
         }
 
         //ExistingSysMem override
-        if(pTexInfo->Flags.Info.ExistingSysMem && 
+        if(pTexInfo->Flags.Info.ExistingSysMem &&
            !pTexInfo->ExistingSysMem.IsGmmAllocated &&
            !pTexInfo->ExistingSysMem.IsPageAligned)
         {
             if(pTexInfo->Flags.Gpu.Texture)
             {
                 UnitAlignWidth  = pPlatform->SamplerFetchGranularityWidth;
-                UnitAlignHeight = pPlatform->SamplerFetchGranularityHeight;             
+                UnitAlignHeight = pPlatform->SamplerFetchGranularityHeight;
             }
             else if(pTexInfo->Flags.Gpu.RenderTarget)
             {
@@ -332,11 +332,11 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
         pTexInfo->Alignment.HAlign = UnitAlignWidth;
         pTexInfo->Alignment.VAlign = UnitAlignHeight;
         pTexInfo->Alignment.DAlign = UnitAlignDepth;
-    } 
-    else 
+    }
+    else
     {
-        // Don't reinitialize b/c special-case ResCreates (e.g. MCS) need the 
-        // values from their first pass through here to stick (but they'll come 
+        // Don't reinitialize b/c special-case ResCreates (e.g. MCS) need the
+        // values from their first pass through here to stick (but they'll come
         // through here more than once, with different parameters).
     }
 
@@ -349,7 +349,7 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
 //      GMM_MIPTAIL_SLOT_OFFSET_REC
 //
 // Description:
-//      This structure used to describe the offset between miptail slot and 
+//      This structure used to describe the offset between miptail slot and
 //      miptail starting address
 //---------------------------------------------------------------------------
 typedef struct GMM_MIPTAIL_SLOT_OFFSET_REC
@@ -486,19 +486,19 @@ typedef struct GMM_MIPTAIL_SLOT_OFFSET_REC
 //=============================================================================
 //Function:
 //    __GmmTexGetMipWidth
-//    
+//
 //Description:
 //     Returns unaligned/unpadded width of a given LOD as per bspec
 //     Bspec :
-//      Default         : WL = ((width >> L) > 0 ? width >> L : 1) 
+//      Default         : WL = ((width >> L) > 0 ? width >> L : 1)
 //      CornerTexelMode : WL = MAX(1,(width-1) >> L) + 1 or WL = MAX(1,(WLminus1-1) >> 1) + 1
 //
 // Parameters:
 //      See Function arguments
 //
 // Returns:
-//      Width in pixels 
-//-----------------------------------------------------------------------------  
+//      Width in pixels
+//-----------------------------------------------------------------------------
 GMM_INLINE  GMM_GFX_SIZE_T  __GmmTexGetMipWidth(GMM_TEXTURE_INFO *pTexInfo, uint32_t MipLevel)
 {
     __GMM_ASSERTPTR(pTexInfo, 0);
@@ -514,11 +514,11 @@ GMM_INLINE  GMM_GFX_SIZE_T  __GmmTexGetMipWidth(GMM_TEXTURE_INFO *pTexInfo, uint
 //=============================================================================
 //Function:
 //    __GmmTexGetMipHeight
-//    
+//
 //Description:
 //     Returns unaligned/unpadded height of a given LOD as per bspec.
 //     Bspec :
-//      Default         : HL = ((height >> L) > 0 ? height >> L : 1) 
+//      Default         : HL = ((height >> L) > 0 ? height >> L : 1)
 //      CornerTexelMode : HL = MAX(1,(height-1) >> L) + 1 or HL = MAX(1,(HLminus1-1) >> 1) + 1
 //
 // Parameters:
@@ -526,7 +526,7 @@ GMM_INLINE  GMM_GFX_SIZE_T  __GmmTexGetMipWidth(GMM_TEXTURE_INFO *pTexInfo, uint
 //
 // Returns:
 //      Height in scanlines
-//-----------------------------------------------------------------------------  
+//-----------------------------------------------------------------------------
 GMM_INLINE  uint32_t  __GmmTexGetMipHeight(GMM_TEXTURE_INFO *pTexInfo, uint32_t MipLevel)
 {
     __GMM_ASSERTPTR(pTexInfo, 0);
@@ -543,11 +543,11 @@ GMM_INLINE  uint32_t  __GmmTexGetMipHeight(GMM_TEXTURE_INFO *pTexInfo, uint32_t 
 //=============================================================================
 //Function:
 //    __GmmGetTexMipDepth
-//    
+//
 //Description:
 //     Returns unaligned/unpadded depth of a given LOD as per bspec
 //     Bspec :
-//      Default         : DL = ((depth >> L) > 0 ? depth >> L : 1) 
+//      Default         : DL = ((depth >> L) > 0 ? depth >> L : 1)
 //      CornerTexelMode : DL = MAX(1,(depth-1) >> L) + 1 or DL = MAX(1,(DLminus1-1) >> 1) + 1
 //
 // Parameters:
@@ -555,7 +555,7 @@ GMM_INLINE  uint32_t  __GmmTexGetMipHeight(GMM_TEXTURE_INFO *pTexInfo, uint32_t 
 //
 // Returns:
 //      Depth.
-//-----------------------------------------------------------------------------  
+//-----------------------------------------------------------------------------
 GMM_INLINE  uint32_t  __GmmTexGetMipDepth(GMM_TEXTURE_INFO *pTexInfo, uint32_t MipLevel)
 {
     __GMM_ASSERTPTR(pTexInfo, 0);

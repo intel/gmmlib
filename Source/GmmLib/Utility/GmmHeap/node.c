@@ -21,12 +21,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
 
 /*****************************************************************************
-** Optimization : 
+** Optimization :
 [1] Avoid constant allocation __GMM_MAX_NUM_TIMES_ALLOC for block
 /*****************************************************************************/
 
 #ifdef __GMM_KMD__
-#include "..\..\..\miniport\LHDM\KmGmm\inc\gmminc.h" 
+#include "..\..\..\miniport\LHDM\KmGmm\inc\gmminc.h"
 
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -36,21 +36,21 @@ Function:
 
 Description:
     Create a Node mgmt structure and initialized it
-    
+
 Arguments:
-    pGmmContext ==> ptr to pGmmContext not used but just needed for clarity 
-                    with other 
+    pGmmContext ==> ptr to pGmmContext not used but just needed for clarity
+                    with other
     pNodeMgmt ==> ptr to Node Mgmt
     NodeSize ==> True Node size
     NumNodes ==> Number of Items
 
 Return:
     N/A
-                                              
+
 Notes:
     N/A
 ---------------------------------------------------------------------------*/
-void __GmmCreateNodeMgmt(GMM_CONTEXT *pGmmContext, GMM_NODE_MGMT *pNodeMgmt, 
+void __GmmCreateNodeMgmt(GMM_CONTEXT *pGmmContext, GMM_NODE_MGMT *pNodeMgmt,
                          uint32_t NodeSize, uint32_t NumNodes)
 {
     __GMM_ASSERTPTR(pNodeMgmt, VOIDRETURN);
@@ -77,32 +77,32 @@ Function:
 
 Description:
     Destroy the node mgmt
-        
+
 Arguments:
-    pGmmContext ==> ptr to pGmmContext 
+    pGmmContext ==> ptr to pGmmContext
     pNodeMgmt ==> ptr to Node Mgmt
-    
+
 Return:
     N/A
-                                                   
+
 Notes:
     N/A
 ---------------------------------------------------------------------------*/
 void __GmmDestroyNodeMgmt(GMM_CONTEXT *pGmmContext, GMM_NODE_MGMT *pNodeMgmt)
 {
 // TODO: Function actually called twice--Don't think that's harmful, but...?
-    LONG    i;
+    int32_t    i;
 
     // dbg Assert if the NodeMgmt is NULL
     __GMM_ASSERTPTR(pNodeMgmt, VOIDRETURN);
 
     GMMDebugMessage(GFXDBG_FUNCTION_ENTRY,"__GmmDestroyNodeMgmt entered\r\n");
 
-    for (i=0; i < (LONG)pNodeMgmt->NumAddr; i++)
+    for (i=0; i < (int32_t)pNodeMgmt->NumAddr; i++)
     {
         OSFreeMem(pGmmContext->pHwDevExt, pNodeMgmt->pNodeBlockAddr[i], GFX_COMPONENT_GMM_TAG);
         pNodeMgmt->pNodeBlockAddr[i] = NULL;
-    } 
+    }
 
     //cleanup
     pNodeMgmt->NumAddr = 0;
@@ -115,15 +115,15 @@ Function:
 
 Description:
     Grows free node
-        
+
 Arguments:
-    pGmmContext ==> ptr to pGmmContext  
+    pGmmContext ==> ptr to pGmmContext
     pNodeMgmt ==> ptr to Node Mgmt
-    
+
 Return:
     GMM_SUCCESSFUL if it was successful in growing node
     error code otherwise
-                                              
+
 Notes:
     N/A
 ---------------------------------------------------------------------------*/
@@ -138,7 +138,7 @@ uint32_t __GmmGrowFreeNode(GMM_CONTEXT *pGmmContext, GMM_NODE_MGMT *pNodeMgmt)
     }
 
     void                *pNodeBlock = NULL;
-    LONG               AllocSize, SizeLeft;
+    int32_t               AllocSize, SizeLeft;
     GMM_NODE            *pNode;
     KIRQL               OldIrql;
     KLOCK_QUEUE_HANDLE  LockHandle;
@@ -158,12 +158,12 @@ uint32_t __GmmGrowFreeNode(GMM_CONTEXT *pGmmContext, GMM_NODE_MGMT *pNodeMgmt)
     AllocSize= GFX_ALIGN(AllocSize, __GMM_NODE_PAGE_SIZE);
 
     REQUIRE(
-        pNodeBlock = 
+        pNodeBlock =
             OSAllocateMem(
-                pGmmContext->pHwDevExt, 
+                pGmmContext->pHwDevExt,
                 MM_ZERO_MEMORY,
                 AllocSize,
-                NON_PAGED, 
+                NON_PAGED,
                 GFX_COMPONENT_GMM_TAG));
 
     pNodeMgmt->pNodeBlockAddr[pNodeMgmt->NumAddr] = pNodeBlock;
@@ -175,12 +175,12 @@ uint32_t __GmmGrowFreeNode(GMM_CONTEXT *pGmmContext, GMM_NODE_MGMT *pNodeMgmt)
     //Create as many node as you can
     //Optimization: Remove extra operation by using curptr and tailptr
 
-    while (SizeLeft >= (LONG) pNodeMgmt->NodeSize)
+    while (SizeLeft >= (int32_t) pNodeMgmt->NodeSize)
     {
         __GmmFreeNode(pGmmContext, pNodeMgmt, pNode);
         pNode = GFX_VOID_PTR_INC(pNode, pNodeMgmt->NodeSize);
         SizeLeft -= pNodeMgmt->NodeSize;
-    }   
+    }
 
 EXIT:
     GMM_EXIT_CRITICAL_SECTION(OldIrql, &pNodeMgmt->NodeLock, &LockHandle);

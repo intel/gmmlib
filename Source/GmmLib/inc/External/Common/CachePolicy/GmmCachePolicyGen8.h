@@ -32,11 +32,11 @@ namespace GmmLib
         protected:
             /* Function prototypes */
             GMM_PRIVATE_PAT GetPrivatePATEntry(uint32_t PATIdx);
-            BOOLEAN         SetPrivatePATEntry(uint32_t PATIdx, GMM_PRIVATE_PAT Entry);
-            BOOLEAN SelectNewPATIdx(GMM_GFX_MEMORY_TYPE WantedMT, GMM_GFX_TARGET_CACHE WantedTC,
+            bool         SetPrivatePATEntry(uint32_t PATIdx, GMM_PRIVATE_PAT Entry);
+            bool SelectNewPATIdx(GMM_GFX_MEMORY_TYPE WantedMT, GMM_GFX_TARGET_CACHE WantedTC,
                 GMM_GFX_MEMORY_TYPE MT1, GMM_GFX_TARGET_CACHE TC1,
                 GMM_GFX_MEMORY_TYPE MT2, GMM_GFX_TARGET_CACHE TC2);
-            BOOLEAN GetUsagePTEValue(GMM_CACHE_POLICY_ELEMENT  CachePolicy,
+            bool GetUsagePTEValue(GMM_CACHE_POLICY_ELEMENT  CachePolicy,
                 uint32_t                     Usage,
                 uint32_t                    *pPTEDwordValue);
 
@@ -56,7 +56,7 @@ namespace GmmLib
                 }
                 #endif
             }
-            
+
             ~GmmGen8CachePolicy()
             {
             }
@@ -65,7 +65,7 @@ namespace GmmLib
             GMM_STATUS InitCachePolicy();
             GMM_STATUS SetPATInitWA();
             GMM_STATUS SetupPAT();
-            BOOLEAN GMM_STDCALL CachePolicyIsUsagePTECached(GMM_RESOURCE_USAGE_TYPE Usage);
+            uint8_t GMM_STDCALL CachePolicyIsUsagePTECached(GMM_RESOURCE_USAGE_TYPE Usage);
     };
 }
 #endif // #ifdef __cplusplus

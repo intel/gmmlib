@@ -20,7 +20,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
 
-#if (IGFX_GEN >= IGFX_GEN10) 
+#if (IGFX_GEN >= IGFX_GEN10)
 
 #include "Internal/Common/GmmLibInc.h"
 #include "Internal/Common/Texture/GmmGen10TextureCalc.h"
@@ -33,31 +33,31 @@ OTHER DEALINGS IN THE SOFTWARE.
 ///
 /// @return     offset value of LOD in bytes
 /////////////////////////////////////////////////////////////////////////////////////
-uint32_t GmmLib::GmmGen10TextureCalc::GetMipTailByteOffset(GMM_TEXTURE_INFO *pTexInfo, 
-                                                        uint32_t            MipLevel) 
+uint32_t GmmLib::GmmGen10TextureCalc::GetMipTailByteOffset(GMM_TEXTURE_INFO *pTexInfo,
+                                                        uint32_t            MipLevel)
 {
     uint32_t               ByteOffset = 0, Slot = 0xff;
 
-    GMM_DPF_ENTER; 
+    GMM_DPF_ENTER;
 
     // 3D textures follow the Gen9 mip tail format
-    if(!pGmmGlobalContext->GetSkuTable().FtrStandardMipTailFormat || 
-        pTexInfo->Type == RESOURCE_3D) 
+    if(!pGmmGlobalContext->GetSkuTable().FtrStandardMipTailFormat ||
+        pTexInfo->Type == RESOURCE_3D)
     {
         return GmmGen9TextureCalc::GetMipTailByteOffset(pTexInfo, MipLevel);
     }
 
-  
-    if(pTexInfo->Type == RESOURCE_1D) 
+
+    if(pTexInfo->Type == RESOURCE_1D)
     {
         Slot = MipLevel - pTexInfo->Alignment.MipTailStartLod +
-                    (pTexInfo->Flags.Info.TiledYf ? 4 : 0);   
+                    (pTexInfo->Flags.Info.TiledYf ? 4 : 0);
     }
     else if(pTexInfo->Type == RESOURCE_2D || pTexInfo->Type == RESOURCE_CUBE)
     {
         Slot = MipLevel - pTexInfo->Alignment.MipTailStartLod +
                     // TileYs
-                   ((pTexInfo->Flags.Info.TiledYs && pTexInfo->MSAA.NumSamples == 16) ? 4 : 
+                   ((pTexInfo->Flags.Info.TiledYs && pTexInfo->MSAA.NumSamples == 16) ? 4 :
                     (pTexInfo->Flags.Info.TiledYs && pTexInfo->MSAA.NumSamples ==  8) ? 3 :
                     (pTexInfo->Flags.Info.TiledYs && pTexInfo->MSAA.NumSamples ==  4) ? 2 :
                     (pTexInfo->Flags.Info.TiledYs && pTexInfo->MSAA.NumSamples ==  2) ? 1 :
@@ -167,16 +167,16 @@ void GmmLib::GmmGen10TextureCalc::GetMipTailGeometryOffset(GMM_TEXTURE_INFO *pTe
         *OffsetY = Gen10MipTailSlotOffset2DSurface[Slot][ArrayIndex].Y;
         *OffsetZ = Gen10MipTailSlotOffset2DSurface[Slot][ArrayIndex].Z;
     }
-    
+
     GMM_DPF_EXIT;
     return;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// Returns the aligned block height of the 3D surface on Gen9 
+/// Returns the aligned block height of the 3D surface on Gen9
 ///
 /// @param[in]  pTexInfo: ptr to ::GMM_TEXTURE_INFO,
-///             BlockHeight: 
+///             BlockHeight:
 ///             ExpandedArraySize:  adjusted array size for MSAA, cube faces, etc.
 ///
 /// @return     BlockHeight
@@ -211,5 +211,5 @@ uint32_t   GmmLib::GmmGen10TextureCalc::GetAligned3DBlockHeight(GMM_TEXTURE_INFO
     return BlockHeight;
 }
 
-#endif // #if (IGFX_GEN >= IGFX_GEN10) 
+#endif // #if (IGFX_GEN >= IGFX_GEN10)
 

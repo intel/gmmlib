@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 /// @param[in]     Usage: type of usage
 ///
 /// @return        GMM_PTE_CACHE_CONTROL_BITS:Populated PTE
-///     
+///
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_PTE_CACHE_CONTROL_BITS GMM_STDCALL GmmCachePolicyGetPteType( GMM_RESOURCE_USAGE_TYPE Usage )
 {
@@ -40,12 +40,12 @@ GMM_PTE_CACHE_CONTROL_BITS GMM_STDCALL GmmCachePolicyGetPteType( GMM_RESOURCE_US
 /////////////////////////////////////////////////////////////////////////////////////
 /// C Wrapper function for GmmLib::GmmCachePolicyIsUsagePTECached
 /// @see           GmmLib::GmmCachePolicyCommon::CachePolicyIsUsagePTECached()
-///                               
+///
 /// @param[in]     Usage: type of usage
 ///
-/// @return        true if the usage PTE entry is set for cached, false otherwise.     
+/// @return        1 if the usage PTE entry is set for cached, 0 otherwise.
 /////////////////////////////////////////////////////////////////////////////////////
-BOOLEAN GMM_STDCALL GmmCachePolicyIsUsagePTECached( GMM_RESOURCE_USAGE_TYPE Usage )
+uint8_t GMM_STDCALL GmmCachePolicyIsUsagePTECached( GMM_RESOURCE_USAGE_TYPE Usage )
 {
     return pGmmGlobalContext->GetCachePolicyObj()->CachePolicyIsUsagePTECached(Usage);
 }
@@ -54,9 +54,9 @@ BOOLEAN GMM_STDCALL GmmCachePolicyIsUsagePTECached( GMM_RESOURCE_USAGE_TYPE Usag
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetCachePolicyUsage.
 /// @see        GmmLib::GmmResourceInfoCommon::GetCachePolicyUsage()
 ///
-/// @param[in]      pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]      pGmmResource: Pointer to the GmmResourceInfo class
 /// @return         Cache policy usage
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 GMM_RESOURCE_USAGE_TYPE GMM_STDCALL GmmCachePolicyGetResourceUsage( GMM_RESOURCE_INFO *pResInfo )
 {
     __GMM_ASSERT(pResInfo);
@@ -67,9 +67,9 @@ GMM_RESOURCE_USAGE_TYPE GMM_STDCALL GmmCachePolicyGetResourceUsage( GMM_RESOURCE
 /// C wrapper for GmmLib::GmmResourceInfoCommon::OverrideCachePolicyUsage.
 /// @see        GmmLib::GmmResourceInfoCommon::OverrideCachePolicyUsage()
 ///
-/// @param[in]      pGmmResource: Pointer to the GmmResourceInfo class 
+/// @param[in]      pGmmResource: Pointer to the GmmResourceInfo class
 /// @param[in]      Cache policy usage
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmCachePolicyOverrideResourceUsage(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage)
 {
     pResInfo->OverrideCachePolicyUsage(Usage);
@@ -81,7 +81,7 @@ void GMM_STDCALL GmmCachePolicyOverrideResourceUsage(GMM_RESOURCE_INFO *pResInfo
 ///
 /// param[in]      pResInfo: Resource info for resource, can be NULL.
 /// param[in]      Usage: Current usage for resource.
-///      
+///
 /// @return        MEMORY_OBJECT_CONTROL_STATE: Gen adjusted MOCS structure (cache
 ///                                             policy) for the given buffer use.
 /////////////////////////////////////////////////////////////////////////////////////
@@ -98,19 +98,19 @@ MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmCachePolicyGetMemoryObject( GMM_RESOU
 ///  @param[in]     Usage: Current usage for resource
 ///
 ///  @return        MEMORY_OBJECT_CONTROL_STATE: Populated memory object
-///     
+///
 /////////////////////////////////////////////////////////////////////////////////////
 MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmCachePolicyGetOriginalMemoryObject( GMM_RESOURCE_INFO *pResInfo)
 {
     return pGmmGlobalContext->GetCachePolicyObj()->CachePolicyGetOriginalMemoryObject(pResInfo);
 }
 
-///////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////
 /// C Wrapper function for GmmCachePolicy::GmmGetWantedMemoryType.
-/// @see            GmmLib::GmmCachePolicy::GetWantedMemoryType()        
+/// @see            GmmLib::GmmCachePolicy::GetWantedMemoryType()
 ///
-/// @param[in]      CachePolicy:cache policy for a usage 
-///             
+/// @param[in]      CachePolicy:cache policy for a usage
+///
 /// @return         wanted memory type
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_GFX_MEMORY_TYPE GmmGetWantedMemoryType(GMM_CACHE_POLICY_ELEMENT CachePolicy)
@@ -121,7 +121,7 @@ GMM_GFX_MEMORY_TYPE GmmGetWantedMemoryType(GMM_CACHE_POLICY_ELEMENT CachePolicy)
 /////////////////////////////////////////////////////////////////////////////////////
 /// Returns count of current MOCS values for MOCS Table programming at GMM boot
 ///
-/// @param[in]  none: 
+/// @param[in]  none:
 /// @return     uint32_t  no of mocs register required to program
 /////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmCachePolicyGetMaxMocsIndex(void)
@@ -134,7 +134,7 @@ uint32_t GMM_STDCALL GmmCachePolicyGetMaxMocsIndex(void)
 /////////////////////////////////////////////////////////////////////////////////////
 /// Returns count of current L1 HDC MOCS values for MOCS Table programming at GMM boot
 ///
-/// @param[in]  none: 
+/// @param[in]  none:
 /// @return     uint32_t  max L1 hdc mocs index needed to program
 /////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmCachePolicyGetMaxL1HdcMocsIndex(void)

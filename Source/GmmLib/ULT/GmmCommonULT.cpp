@@ -28,7 +28,7 @@ PLATFORM CommonULT::GfxPlatform = {};
 void CommonULT::SetUpTestCase()
 {
     printf("%s\n", __FUNCTION__);
-   
+
     if(GfxPlatform.eProductFamily == IGFX_UNKNOWN ||
        GfxPlatform.eRenderCoreFamily == IGFX_UNKNOWN_CORE)
     {
@@ -40,7 +40,7 @@ void CommonULT::SetUpTestCase()
 
     if(!pGfxAdapterInfo)
     {
-        ASSERT_TRUE(FALSE);
+        ASSERT_TRUE(false);
         return;
     }
     memset(pGfxAdapterInfo, 0, sizeof(ADAPTER_INFO));
@@ -51,7 +51,7 @@ void CommonULT::SetUpTestCase()
         &pGfxAdapterInfo->SystemInfo,
         GMM_D3D9_VISTA
         );
-    
+
     ASSERT_EQ(GmmStatus, GMM_SUCCESS);
 
 }

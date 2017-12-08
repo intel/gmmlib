@@ -22,21 +22,20 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #ifndef _WIN32
-#include <portable_windef.h>
 #include <portable_compiler.h>
 #endif
+
+//#define TRUE        1
+//#define FALSE       0
 
 #ifdef __cplusplus
 extern "C" {
 #endif /*__cplusplus*/
 
-#include "Driver_Model.h"
-
 #include "External/Common/GmmInternal.h"
 
 #include "External/Common/GmmConst.h"
 #include "External/Common/GmmUtil.h"
-#include "External/Common/GmmHw.h"
 
 #include "External/Common/GmmCommonExt.h"
 #include "External/Common/GmmPlatformExt.h"

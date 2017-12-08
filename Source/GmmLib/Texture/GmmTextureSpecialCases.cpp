@@ -29,63 +29,63 @@ OTHER DEALINGS IN THE SOFTWARE.
 /// @param[in]  pTexInfo: Reference to ::GMM_TEXTURE_INFO
 ///
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* pTexInfo) 
+GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* pTexInfo)
 {
     GMM_STATUS Status = GMM_SUCCESS;
     const GMM_PLATFORM_INFO* pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
 
-    if (!pTexInfo->Flags.Gpu.CCS && 
+    if (!pTexInfo->Flags.Gpu.CCS &&
         !pTexInfo->Flags.Gpu.MCS &&
-        !pTexInfo->Flags.Gpu.HiZ && 
-        !pTexInfo->Flags.Gpu.SeparateStencil && 
+        !pTexInfo->Flags.Gpu.HiZ &&
+        !pTexInfo->Flags.Gpu.SeparateStencil &&
         !pTexInfo->Flags.Gpu.MMC)
     {
         // Fast-out for non-special-cases.
-    } 
+    }
     else if (pTexInfo->Flags.Gpu.HiZ) // ######################################
     {
-        // With HiZ surface creation, clients send the size/etc. parameters of 
-        // the associated Depth Buffer--and here we convert to the appropriate 
+        // With HiZ surface creation, clients send the size/etc. parameters of
+        // the associated Depth Buffer--and here we convert to the appropriate
         // HiZ creation parameters...
 
-        if ((pTexInfo->BaseWidth > 0) && 
+        if ((pTexInfo->BaseWidth > 0) &&
             (pTexInfo->BaseWidth <= pPlatform->HiZ.MaxWidth) &&
-            (pTexInfo->BaseHeight > 0)&& 
-            (pTexInfo->BaseHeight <= pPlatform->HiZ.MaxHeight) && 
+            (pTexInfo->BaseHeight > 0)&&
+            (pTexInfo->BaseHeight <= pPlatform->HiZ.MaxHeight) &&
             (pTexInfo->Depth <= (
-                (pTexInfo->Type == RESOURCE_3D) ? 
-                    pPlatform->HiZ.MaxDepth : 1)) && 
+                (pTexInfo->Type == RESOURCE_3D) ?
+                    pPlatform->HiZ.MaxDepth : 1)) &&
             (pTexInfo->ArraySize <= (
-                (pTexInfo->Type == RESOURCE_3D) ? 
-                    1 : 
-                (pTexInfo->Type == RESOURCE_CUBE) ? 
-                    pPlatform->HiZ.MaxArraySize / 6 : 
+                (pTexInfo->Type == RESOURCE_3D) ?
+                    1 :
+                (pTexInfo->Type == RESOURCE_CUBE) ?
+                    pPlatform->HiZ.MaxArraySize / 6 :
                     pPlatform->HiZ.MaxArraySize)) &&
             // SKL+ does not support HiZ surfaces for 1D and 3D surfaces
-            ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) < IGFX_GEN9_CORE) || 
+            ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) < IGFX_GEN9_CORE) ||
                 (pTexInfo->Type != RESOURCE_1D && pTexInfo->Type != RESOURCE_3D)))
         {
-            ULONG Z_Width, Z_Height, Z_Depth;
+            uint32_t Z_Width, Z_Height, Z_Depth;
 
             // Latch Z_[Width/Height/Depth]...
             Z_Width = GFX_ULONG_CAST(pTexInfo->BaseWidth);
             Z_Height = pTexInfo->BaseHeight;
-            if ((pTexInfo->Type == RESOURCE_1D) || 
-                (pTexInfo->Type == RESOURCE_2D)) 
+            if ((pTexInfo->Type == RESOURCE_1D) ||
+                (pTexInfo->Type == RESOURCE_2D))
             {
                 Z_Depth = GFX_MAX(pTexInfo->ArraySize, 1);
-            } 
-            else if (pTexInfo->Type == RESOURCE_3D) 
+            }
+            else if (pTexInfo->Type == RESOURCE_3D)
             {
                 Z_Depth = pTexInfo->Depth;
-            } 
+            }
             else if (pTexInfo->Type == RESOURCE_CUBE)
             {
-                // HW doesn't allow HiZ cube arrays, but GMM is allowing because  
+                // HW doesn't allow HiZ cube arrays, but GMM is allowing because
                 // clients will redescribe depth/HiZ cube arrays as 2D arrays.
                 Z_Depth = 6 * GFX_MAX(pTexInfo->ArraySize, 1);
-            } 
-            else 
+            }
+            else
             {
                 __GMM_ASSERT(0); // Illegal--Should have caught at upper IF check.
                 Z_Depth = 0;
@@ -93,8 +93,8 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
 
             // HZ_[Width/Height/QPitch] Calculation...
             {
-                ULONG   h0, h1, hL, i, NumSamples, QPitch, Z_HeightL;
-                ULONG   HZ_HAlign = 16, HZ_VAlign = 8;
+                uint32_t   h0, h1, hL, i, NumSamples, QPitch, Z_HeightL;
+                uint32_t   HZ_HAlign = 16, HZ_VAlign = 8;
 
                 if (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) > IGFX_GEN10_CORE)
                 {
@@ -103,8 +103,8 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
 
                 // HZ operates in pixel space starting from SKL. So, it does not care
                 // whether the depth buffer is in MSAA mode or not.
-                NumSamples = 
-                    (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN9_CORE) ? 
+                NumSamples =
+                    (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN9_CORE) ?
                         1 : pTexInfo->MSAA.NumSamples;
 
                 pTexInfo->BaseWidth = ExpandWidth(Z_Width, HZ_HAlign, NumSamples);
@@ -113,8 +113,8 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
 
                 Z_Height = __GmmTexGetMipHeight(pTexInfo, 1);
                 h1 = ExpandHeight(Z_Height, HZ_VAlign, NumSamples);
-               
-                if (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE) 
+
+                if (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE)
                 {
                     if (pTexInfo->Type == RESOURCE_3D)
                     {
@@ -135,10 +135,10 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
                             Z_Height = __GmmTexGetMipHeight(pTexInfo, i);
                             Z_HeightL += ExpandHeight(Z_Height, HZ_VAlign, NumSamples);
                         }
-                        
-                        QPitch = 
-                            (pTexInfo->MaxLod > 0) ? 
-                                (h0 + GFX_MAX(h1, Z_HeightL)) : 
+
+                        QPitch =
+                            (pTexInfo->MaxLod > 0) ?
+                                (h0 + GFX_MAX(h1, Z_HeightL)) :
                                 h0;
                         QPitch /= 2;
                         pTexInfo->ArraySize = Z_Depth;
@@ -147,8 +147,8 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
 
                     pTexInfo->Alignment.HAlign = HZ_HAlign;
                     pTexInfo->Alignment.VAlign = HZ_VAlign / 2;
-                } 
-                else //if (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN7_CORE) 
+                }
+                else //if (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN7_CORE)
                 {
                     if (pTexInfo->Type == RESOURCE_3D)
                     {
@@ -168,7 +168,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
                     }
 
                     pTexInfo->ArraySize = 1;
-                } 
+                }
             }
 
             /// Native HZ Params //////////////////////////////////////////////////
@@ -181,14 +181,14 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
             pTexInfo->Type = RESOURCE_2D;
 
             // HiZ Always Tile-Y
-            pTexInfo->Flags.Info.Linear = FALSE;
-            pTexInfo->Flags.Info.TiledW = FALSE;
-            pTexInfo->Flags.Info.TiledX = FALSE;
-            pTexInfo->Flags.Info.TiledY = TRUE;
-            pTexInfo->Flags.Info.TiledYf = FALSE;
-            pTexInfo->Flags.Info.TiledYs = FALSE;
+            pTexInfo->Flags.Info.Linear = false;
+            pTexInfo->Flags.Info.TiledW = false;
+            pTexInfo->Flags.Info.TiledX = false;
+            pTexInfo->Flags.Info.TiledY = true;
+            pTexInfo->Flags.Info.TiledYf = false;
+            pTexInfo->Flags.Info.TiledYs = false;
         }
-        else 
+        else
         {
             GMM_ASSERTDPF(0, "Illegal HiZ creation parameters!");
             Status = GMM_ERROR;
@@ -197,14 +197,14 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
     else if (pTexInfo->Flags.Gpu.CCS ||
              pTexInfo->Flags.Gpu.MCS)   // ######################################
     {
-        // With CCS surface creation, clients send height, width, depth, etc. of 
+        // With CCS surface creation, clients send height, width, depth, etc. of
         // the associated RenderTarget--and here we convert to the appropriate CCS
         // creation parameters...
         __GMM_ASSERT((pTexInfo->Flags.Info.Linear + pTexInfo->Flags.Info.TiledW + pTexInfo->Flags.Info.TiledX + pTexInfo->Flags.Info.TiledY) == 1);
         __GMM_ASSERT((pTexInfo->MSAA.NumSamples == 1) || (pTexInfo->MSAA.NumSamples == 2) || (pTexInfo->MSAA.NumSamples == 4) ||
                      (pTexInfo->MSAA.NumSamples == 8) || (pTexInfo->MSAA.NumSamples == 16));
 
-        if (pTexInfo->MSAA.NumSamples > 1 && 
+        if (pTexInfo->MSAA.NumSamples > 1 &&
             (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN10_CORE || pTexInfo->Flags.Gpu.MCS)) // CCS for MSAA Compression
         {
             //__GMM_ASSERT(!pTexInfo->Flags.Gpu.UnifiedAuxSurface);
@@ -213,13 +213,13 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
             {
                 pTexInfo->BitsPerPixel = 8;
                 pTexInfo->Format = GMM_FORMAT_R8_UINT;
-            } 
-            else if(pTexInfo->MSAA.NumSamples == 8) 
+            }
+            else if(pTexInfo->MSAA.NumSamples == 8)
             {
                 pTexInfo->BitsPerPixel = 32;
                 pTexInfo->Format = GMM_FORMAT_R32_UINT;
             }
-            else //if(pTexInfo->MSAA.NumSamples == 16) 
+            else //if(pTexInfo->MSAA.NumSamples == 16)
             {
                 pTexInfo->BitsPerPixel = 64;
                 pTexInfo->Format = GMM_FORMAT_GENERIC_64BIT;
@@ -231,10 +231,10 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
             }
             pTexInfo->MSAA.NumSamples = 1; // CCS itself isn't MSAA'ed.
             pTexInfo->Flags.Gpu.__MsaaTileMcs = 1;  // Gmm flag to recognize MCS different than CCS
-        } 
+        }
         else // Non-MSAA CCS Use (i.e. Render Target Fast Clear)
         {
-            if (!pTexInfo->Flags.Info.Linear && 
+            if (!pTexInfo->Flags.Info.Linear &&
                 !pTexInfo->Flags.Info.TiledW &&
                 ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) < IGFX_GEN9_CORE) ||
                  !pTexInfo->Flags.Info.TiledX) &&
@@ -243,26 +243,26 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
                 ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE) ||
                 ((pTexInfo->MaxLod == 0) &&
                  (pTexInfo->ArraySize <= 1))) &&
-                ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) > IGFX_GEN10_CORE) || 
-                ((pTexInfo->BitsPerPixel == 32) || 
-                 (pTexInfo->BitsPerPixel == 64) || 
-                 (pTexInfo->BitsPerPixel == 128)))) 
+                ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) > IGFX_GEN10_CORE) ||
+                ((pTexInfo->BitsPerPixel == 32) ||
+                 (pTexInfo->BitsPerPixel == 64) ||
+                 (pTexInfo->BitsPerPixel == 128))))
             {
-                // For non-MSAA CCS usage, the Bspec has four tables of 
-                // requirements: 
+                // For non-MSAA CCS usage, the Bspec has four tables of
+                // requirements:
                 // (1) RT Alignment (GMM Don't Care: Occurs Naturally)
                 // (2) ClearRect Alignment
                 // (3) ClearRect Scaling (GMM Don't Care: GHAL3D Matter)
                 // (4) Non-MSAA CCS Sizing
 
                 // Gen8+:
-                // Since mip-mapped and arrayed surfaces are supported, we 
+                // Since mip-mapped and arrayed surfaces are supported, we
                 // deal with alignment later at per mip level. Here, we set
                 // tiling type only. TileX is not supported on Gen9+.
                 // Pre-Gen8:
-                // (!) For all the above, the bspec has separate entries for 
-                // 32/64/128bpp--and then deals with PIXEL widths--Here, 
-                // though, we will unify by considering 8bpp table entries 
+                // (!) For all the above, the bspec has separate entries for
+                // 32/64/128bpp--and then deals with PIXEL widths--Here,
+                // though, we will unify by considering 8bpp table entries
                 // (unlisted--i.e. do the math)--and deal with BYTE widths.
 
                 // (1) RT Alignment -- The surface width and height don't
@@ -272,17 +272,17 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
                 // (due to tile padding). On BDW+, GMM uses H/VALIGN that
                 // will guarantee the MCS RT alignment for all subresources.
 
-                // (2) ClearRect Alignment -- I.e. FastClears must be done 
-                // with certain granularity: 
+                // (2) ClearRect Alignment -- I.e. FastClears must be done
+                // with certain granularity:
                 //  TileY:  512 Bytes x 128 Lines
                 //  TileX: 1024 Bytes x  64 Lines
-                // So a CCS must be sized to match that granularity (though 
-                // the RT itself need not be fully padded to that 
+                // So a CCS must be sized to match that granularity (though
+                // the RT itself need not be fully padded to that
                 // granularity to use FastClear).
 
-                // (4) Non-MSAA CCS Sizing -- CCS sizing is based on the 
-                // size of the FastClear (with granularity padding) for the 
-                // paired RT. CCS's (byte widths and heights) are scaled 
+                // (4) Non-MSAA CCS Sizing -- CCS sizing is based on the
+                // size of the FastClear (with granularity padding) for the
+                // paired RT. CCS's (byte widths and heights) are scaled
                 // down from their RT's by:
                 //  TileY: 32 x 32
                 //  TileX: 64 x 16
@@ -301,25 +301,25 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
                 else
                 {
                     // Pixel Alignment doubled for HSW GT3 and GTx E0+ (Not required for BDW+)
-                    ULONG AlignmentFactor = pGmmGlobalContext->GetWaTable().WaDoubleFastClearWidthAlignment ? 2 : 1;
+                    uint32_t AlignmentFactor = pGmmGlobalContext->GetWaTable().WaDoubleFastClearWidthAlignment ? 2 : 1;
 
                     pTexInfo->BaseWidth = pTexInfo->BaseWidth * pTexInfo->BitsPerPixel / 8;
                     pTexInfo->BitsPerPixel = 8;
                     pTexInfo->Format = GMM_FORMAT_R8_UINT;
 
                     if (pTexInfo->Flags.Info.TiledY)                             //-------- Fast Clear Granularity
-                    {                                                           //                       /--- RT:CCS Sizing Downscale                    
+                    {                                                           //                       /--- RT:CCS Sizing Downscale
                         pTexInfo->BaseWidth = GFX_ALIGN(pTexInfo->BaseWidth,   512 * AlignmentFactor) / 32;
                         pTexInfo->BaseHeight = GFX_ALIGN(pTexInfo->BaseHeight, 128) / 32;
-                    } 
-                    else //if(pTexInfo->Flags.Info.TiledX) 
+                    }
+                    else //if(pTexInfo->Flags.Info.TiledX)
                     {
                         pTexInfo->BaseWidth = GFX_ALIGN(pTexInfo->BaseWidth,  1024 * AlignmentFactor) / 64;
                         pTexInfo->BaseHeight = GFX_ALIGN(pTexInfo->BaseHeight,  64) / 16;
                     }
                 }
-            } 
-            else 
+            }
+            else
             {
                 GMM_ASSERTDPF(0, "Illegal CCS creation parameters!");
                 Status = GMM_ERROR;
@@ -329,16 +329,16 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
         if (!pTexInfo->Flags.Gpu.__NonMsaaLinearCCS)
         {
             // CCS Always Tile-Y (Even for Non-MSAA FastClear.)
-            pTexInfo->Flags.Info.Linear = FALSE;
-            pTexInfo->Flags.Info.TiledW = FALSE;
-            pTexInfo->Flags.Info.TiledX = FALSE;
-            pTexInfo->Flags.Info.TiledY = TRUE;
-            pTexInfo->Flags.Info.TiledYf = FALSE;
-            pTexInfo->Flags.Info.TiledYs = FALSE;
+            pTexInfo->Flags.Info.Linear = false;
+            pTexInfo->Flags.Info.TiledW = false;
+            pTexInfo->Flags.Info.TiledX = false;
+            pTexInfo->Flags.Info.TiledY = true;
+            pTexInfo->Flags.Info.TiledYf = false;
+            pTexInfo->Flags.Info.TiledYs = false;
 
             //Clear compression request in CCS
-            pTexInfo->Flags.Info.RenderCompressed = FALSE;
-            pTexInfo->Flags.Info.MediaCompressed = FALSE;
+            pTexInfo->Flags.Info.RenderCompressed = false;
+            pTexInfo->Flags.Info.MediaCompressed = false;
         }
 
     } // CCS
@@ -349,7 +349,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
         // arbitrarily sized stencil. Stencils do have specific tiling
         // requirements however, which is handled below.
 
-        if ((pTexInfo->BaseWidth > 0) && 
+        if ((pTexInfo->BaseWidth > 0) &&
             (pTexInfo->BaseHeight > 0))
         {
             __GMM_ASSERT(pTexInfo->BitsPerPixel == 8);
@@ -360,24 +360,24 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
             }
 
             // Separate Stencil Tile-W Gen8-Gen10, otherwise Tile-Y
-            pTexInfo->Flags.Info.Linear = FALSE;
-            pTexInfo->Flags.Info.TiledX = FALSE;
-            pTexInfo->Flags.Info.TiledYf = FALSE;
-            pTexInfo->Flags.Info.TiledYs = FALSE;
-            pTexInfo->Flags.Info.TiledW = FALSE;
-            pTexInfo->Flags.Info.TiledY = FALSE;
+            pTexInfo->Flags.Info.Linear = false;
+            pTexInfo->Flags.Info.TiledX = false;
+            pTexInfo->Flags.Info.TiledYf = false;
+            pTexInfo->Flags.Info.TiledYs = false;
+            pTexInfo->Flags.Info.TiledW = false;
+            pTexInfo->Flags.Info.TiledY = false;
 
             if (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE &&
                 GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN10_CORE)
             {
-                pTexInfo->Flags.Info.TiledW = TRUE;
+                pTexInfo->Flags.Info.TiledW = true;
             }
             else
             {
-                pTexInfo->Flags.Info.TiledY = TRUE;
+                pTexInfo->Flags.Info.TiledY = true;
             }
         }
-        else 
+        else
         {
             GMM_ASSERTDPF(0, "Illegal Separate Stencil creation parameters!");
             Status = GMM_ERROR;
@@ -385,8 +385,8 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
     } // Separate Stencil
     else if (pTexInfo->Flags.Gpu.MMC && pTexInfo->Flags.Gpu.UnifiedAuxSurface)
     {
-        pTexInfo->Flags.Gpu.__NonMsaaLinearCCS = TRUE;
-        pTexInfo->Flags.Info.Linear = TRUE;
+        pTexInfo->Flags.Gpu.__NonMsaaLinearCCS = true;
+        pTexInfo->Flags.Info.Linear = true;
     }
 
     return Status;

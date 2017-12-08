@@ -160,7 +160,7 @@ DEFINE_CACHE_ELEMENT(MP_RESOURCE_USAGE_No_LLC_L3_SurfaceState,                  
 DEFINE_CACHE_ELEMENT(MP_RESOURCE_USAGE_No_LLC_L3_AGE_SurfaceState,                              0   , EDRAM    , 0  , 0, UC);
 DEFINE_CACHE_ELEMENT(MP_RESOURCE_USAGE_No_LLC_eLLC_L3_AGE_SurfaceState,                         0   ,     0    , 0  , 0, UC);
 DEFINE_CACHE_ELEMENT(MP_RESOURCE_USAGE_PartialEnc_No_LLC_L3_AGE_SurfaceState,                   0   , ENCRYPTED_PARTIALS_EDRAM, 0  , 0, UC);
-DEFINE_CACHE_ELEMENT(MP_RESOURCE_USAGE_END,                                                     0   , EDRAM    , 0  , 0, UC ); 
+DEFINE_CACHE_ELEMENT(MP_RESOURCE_USAGE_END,                                                     0   , EDRAM    , 0  , 0, UC );
 
 // MHW - SFC
 DEFINE_CACHE_ELEMENT(MHW_RESOURCE_USAGE_Sfc_CurrentOutputSurface,                               0   , EDRAM    , 0  , 0, UC );

@@ -183,8 +183,8 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_ISH_HEAP_BUFFER                     
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_TAG_MEMORY_BUFFER                         , 1   , 1    , 1  , 0  , 1 );
 // Sampler overfetch issue is fixed on BDW
 /*Project: BDW:B0+
-For SURFTYPE_BUFFER, SURFTYPE_1D, and SURFTYPE_2D non-array, non-MSAA, non-mip-mapped surfaces in linear memory, 
-the only padding requirement is to the next aligned 64-byte boundary beyond the end of the surface. 
+For SURFTYPE_BUFFER, SURFTYPE_1D, and SURFTYPE_2D non-array, non-MSAA, non-mip-mapped surfaces in linear memory,
+the only padding requirement is to the next aligned 64-byte boundary beyond the end of the surface.
 The rest of the padding requirements documented above do not apply to these surfaces.*/
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_TEXTURE_BUFFER                            , 1   , 1    , 1  , 0  , 1 );
 // Image from buffer when the image and buffer are on the kernel arguments list
@@ -192,7 +192,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_IMAGE_FROM_BUFFER                   
 /**********************************************************************************/
 
 // Cross Adapter
-DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE                     , 0   , 0    , 0  , 0  , 0); 
+DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE                     , 0   , 0    , 0  , 0  , 0);
 /**********************************************************************************/
 
 #include "GmmCachePolicyUndefineConditionals.h"

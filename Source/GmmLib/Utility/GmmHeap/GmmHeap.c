@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #endif
 
 #ifdef __GMM_KMD__
-#include "..\..\..\miniport\LHDM\KmGmm\inc\gmminc.h"  
+#include "..\..\..\miniport\LHDM\KmGmm\inc\gmminc.h"
 #endif
 
 #ifdef __GMM_KMD__
@@ -39,7 +39,7 @@ Function:
     __GmmInitHeapNodes
 Description:
      This function setup the node mgmt info needed for allocating Heap nodes
-           
+
 Arguments:
     PGMM_CONTEXT ==> ptr to GmmContext
 
@@ -50,9 +50,9 @@ void __GmmInitHeapNodes(GMM_CONTEXT *pGmmContext)
 {
     GMM_DPF_ENTER;
 
-    __GmmCreateNodeMgmt(pGmmContext,  
-                        &(pGmmContext->HeapNodeMgmt), 
-                        sizeof(GMM_HEAPNODE), 
+    __GmmCreateNodeMgmt(pGmmContext,
+                        &(pGmmContext->HeapNodeMgmt),
+                        sizeof(GMM_HEAPNODE),
                         __GMM_MAX_NUM_OF_FREE_HEAP_NODES);
 
     GMM_DPF_EXIT;
@@ -63,10 +63,10 @@ void __GmmInitHeapNodes(GMM_CONTEXT *pGmmContext)
 
 Function:
     __GmmDestroyHeapNodes
-    
+
 Description:
      This function destroy the node mgmt information for maintaning heap nodes
-     
+
 Arguments:
     PGMM_CONTEXT ==> ptr to GmmContext
 
@@ -76,7 +76,7 @@ Return:
 void __GmmDestroyHeapNodes(GMM_CONTEXT *pGmmContext)
 {
     GMM_DPF_ENTER;
-    
+
     __GmmDestroyNodeMgmt(pGmmContext, &(pGmmContext->HeapNodeMgmt));
 
     GMM_DPF_EXIT;
@@ -88,47 +88,47 @@ Function:
     __GmmCreateFencedSubHeap
 
 Description:
-    This function creates the sub heap. 
+    This function creates the sub heap.
 
     For each sub heap, a fence is enabled. Caller of function is responsible
     for passing Size, Pitch, Alignment parameters that meet platform
-    specific fence requirements. 
-                
+    specific fence requirements.
+
 Arguments:
     pGmmContext     ==> ptr to GMM_CONTEXT
     Pitch           ==> Pitch of the subheap that need to be created
     Size            ==> Size of subheap that need to be created
     Alignment       ==> start address alignment requirement of sub heap
     Flags           ==> Indicate type of sub heap to create
-    
+
 Return:
-    ULONG for valid Heap index
----------------------------------------------------------------------------*/ 
-ULONG __GmmCreateFencedSubHeap(GMM_CONTEXT         *pGmmContext, 
-                               GMM_GFX_SIZE_T       Pitch, 
+    uint32_t for valid Heap index
+---------------------------------------------------------------------------*/
+uint32_t __GmmCreateFencedSubHeap(GMM_CONTEXT         *pGmmContext,
+                               GMM_GFX_SIZE_T       Pitch,
                                GMM_GFX_SIZE_T       Size,
-                               ULONG                Alignment,
-                               ULONG                Flags)
+                               uint32_t                Alignment,
+                               uint32_t                Flags)
 {
     const __GMM_PLATFORM_RESOURCE     *pPlatformData;
-    ULONG                       FenceIdx;
+    uint32_t                       FenceIdx;
     GMM_GFX_ADDRESS             GfxAddress;
-    ULONG                       HeapIdx = __GMM_NO_HEAP_FOUND;
+    uint32_t                       HeapIdx = __GMM_NO_HEAP_FOUND;
     GMM_GFX_SIZE_T              HeapSize;
     GMM_GFX_SIZE_T              HeapPitch;
     GMM_HEAP                    *pLockHeapObj;
-    GMM_HEAP                    *pHeapObj;      
+    GMM_HEAP                    *pHeapObj;
     GMM_INT_FUNCTBL             *pGmmFnTableInt = NULL;
 
     __GMM_ASSERTPTR(pGmmContext, __GMM_NO_HEAP_FOUND);
-    __GMM_ASSERT(Size); 
-    __GMM_ASSERT(Alignment); 
-    
+    __GMM_ASSERT(Size);
+    __GMM_ASSERT(Alignment);
+
     GMM_DPF_ENTER;
 
     pPlatformData  = pGmmContext->pPlatformData;
     pGmmFnTableInt = &(pGmmContext->GmmFnTableInt);
-   
+
     // Parent Heap...
     pLockHeapObj = &pGmmContext->LockSegmentHeap;
 
@@ -142,7 +142,7 @@ ULONG __GmmCreateFencedSubHeap(GMM_CONTEXT         *pGmmContext,
         HeapSize  = Size;
 
         // See comment with GMM's UseAlternateVA setting.
-        {        
+        {
 	        GMM_GFX_SIZE_T MinSubheapSize;
 
             // If asked to exceed the platfrom specific max pitch return failure
@@ -151,25 +151,25 @@ ULONG __GmmCreateFencedSubHeap(GMM_CONTEXT         *pGmmContext,
                  ((HeapPitch > pPlatformData->Linear.MaxPitch)))
             {
                 __GMM_ASSERT(0);
-                return __GMM_NO_HEAP_FOUND;      
+                return __GMM_NO_HEAP_FOUND;
             }
-        
-            if(GMM_REPORTED_SWIZZLE_RANGES_PER_FENCE > 1) 
+
+            if(GMM_REPORTED_SWIZZLE_RANGES_PER_FENCE > 1)
             {
-                // Instead of using one fence per locked resource, we create 
-                // fence regions of at least a given size, whose extra space 
+                // Instead of using one fence per locked resource, we create
+                // fence regions of at least a given size, whose extra space
                 // can then be shared by future locked resources...
 
                 // Seek to distribute fences across lock segment...
-                MinSubheapSize = 
+                MinSubheapSize =
                     GFX_CEIL_DIV(GMM_GMADR_SIZE_T_CAST(pLockHeapObj->Size), pPlatformData->NumberFenceRegisters);
 
                 if (Flags & GMM_TILED)
                 { // Potentially reduce to clean multiple of tile rows...
-                    GMM_GFX_SIZE_T TileRowSize = 
-                        Pitch * 
-                        ((Flags & GMM_TILE_Y) ? 
-                            pPlatformData->TileInfo[LEGACY_TILE_Y].LogicalTileHeight : 
+                    GMM_GFX_SIZE_T TileRowSize =
+                        Pitch *
+                        ((Flags & GMM_TILE_Y) ?
+                            pPlatformData->TileInfo[LEGACY_TILE_Y].LogicalTileHeight :
                             pPlatformData->TileInfo[LEGACY_TILE_X].LogicalTileHeight);
 
                     MinSubheapSize = GFX_ALIGN_FLOOR_NP2(MinSubheapSize, TileRowSize);
@@ -178,17 +178,17 @@ ULONG __GmmCreateFencedSubHeap(GMM_CONTEXT         *pGmmContext,
                 {
                     MinSubheapSize = GFX_ALIGN_FLOOR_NP2(MinSubheapSize, Pitch);
                 }
-            } 
-            else 
+            }
+            else
             {
                 MinSubheapSize = HeapSize; // No fence sharing, so no over-allocation
             }
 
             // Try to alloc ideal heap size
-            if (__GmmAllocAlignHeapBlockGfxAddress(pGmmContext, 
-                                                   pLockHeapObj, 
-                                                   GFX_MAX(HeapSize, MinSubheapSize), 
-                                                   Alignment, 
+            if (__GmmAllocAlignHeapBlockGfxAddress(pGmmContext,
+                                                   pLockHeapObj,
+                                                   GFX_MAX(HeapSize, MinSubheapSize),
+                                                   Alignment,
                                                    &GfxAddress))
             {
                 // May have allocated more than what was asked. Save alloced size
@@ -197,14 +197,14 @@ ULONG __GmmCreateFencedSubHeap(GMM_CONTEXT         *pGmmContext,
             // Try original size
             else if (HeapSize < MinSubheapSize)
             {
-                if (!__GmmAllocAlignHeapBlockGfxAddress(pGmmContext, 
-                                                        pLockHeapObj, 
-                                                        HeapSize, 
-                                                        Alignment, 
-                                                        &GfxAddress)) 
+                if (!__GmmAllocAlignHeapBlockGfxAddress(pGmmContext,
+                                                        pLockHeapObj,
+                                                        HeapSize,
+                                                        Alignment,
+                                                        &GfxAddress))
                 {
                     return __GMM_NO_HEAP_FOUND;
-                }                 
+                }
             }
             else
             {
@@ -214,15 +214,15 @@ ULONG __GmmCreateFencedSubHeap(GMM_CONTEXT         *pGmmContext,
             // Set the Fence Register with the right values
             __GMM_ASSERT(__GMM_RANGE_IN_GMADR(GfxAddress, HeapSize));
             FenceIdx = pGmmContext->GmmFnTableInt.__pfnGmmSetFenceReg(
-                                                        pGmmContext->pHwDevExt, 
-                                                        Flags,  
-                                                        __GMM_GET_GMADR_OFFSET(GfxAddress), 
-                                                        Pitch, 
+                                                        pGmmContext->pHwDevExt,
+                                                        Flags,
+                                                        __GMM_GET_GMADR_OFFSET(GfxAddress),
+                                                        Pitch,
                                                         HeapSize);
             if (FenceIdx == GMM_NO_FENCE_REG)
             {
                 __GMM_ASSERT(0);
-                __GmmFreeHeapBlockGfxAddress(pGmmContext, pLockHeapObj, GfxAddress, HeapSize); 
+                __GmmFreeHeapBlockGfxAddress(pGmmContext, pLockHeapObj, GfxAddress, HeapSize);
                 return __GMM_NO_HEAP_FOUND;
             }
 
@@ -232,7 +232,7 @@ ULONG __GmmCreateFencedSubHeap(GMM_CONTEXT         *pGmmContext,
         pHeapObj = &pGmmContext->FenceHeap[FenceIdx];
 
         //Initialize rest of the HeapObj
-        pHeapObj->FenceIdx = FenceIdx;    
+        pHeapObj->FenceIdx = FenceIdx;
 
         if (__GmmSetupHeap(pGmmContext, pHeapObj, GfxAddress, HeapSize, HeapPitch, Flags) != GMM_SUCCESS)
         {
@@ -256,23 +256,23 @@ Function:
 
 Description:
     This function frees the particular heap
-                    
+
 Arguments:
     pGmmContext     ==> ptr to GMM_CONTEXT
     HeapIdx         ==> Index of the heap that is being free
-        
+
 Return:
     STATUS_SUCCESS
     STATUS_INVALID_PARAMETER
----------------------------------------------------------------------------*/ 
-NTSTATUS __GmmFreeFencedSubHeap(GMM_CONTEXT *pGmmContext, 
-                                ULONG       HeapIdx)
+---------------------------------------------------------------------------*/
+NTSTATUS __GmmFreeFencedSubHeap(GMM_CONTEXT *pGmmContext,
+                                uint32_t       HeapIdx)
 {
     GMM_HEAP        *pHeapObj;
     GMM_INT_FUNCTBL *pGmmFnTableInt = NULL;
 
     __GMM_ASSERTPTR(pGmmContext, STATUS_INVALID_PARAMETER);
-    
+
     GMM_DPF_ENTER;
 
     pHeapObj = &pGmmContext->FenceHeap[HeapIdx];
@@ -283,7 +283,7 @@ NTSTATUS __GmmFreeFencedSubHeap(GMM_CONTEXT *pGmmContext,
     if (pHeapObj->Size != pHeapObj->FreeSize)
     {
         __GMM_ASSERT(0);
-        // Memory Leak Memory is not freed 
+        // Memory Leak Memory is not freed
         return STATUS_INVALID_PARAMETER;
     }
 
@@ -291,14 +291,14 @@ NTSTATUS __GmmFreeFencedSubHeap(GMM_CONTEXT *pGmmContext,
     __GmmResetHeap(pGmmContext, pHeapObj);
 
     // Clear fence register
-    pGmmContext->GmmFnTableInt.__pfnGmmClearFenceReg(pGmmContext->pHwDevExt, 
+    pGmmContext->GmmFnTableInt.__pfnGmmClearFenceReg(pGmmContext->pHwDevExt,
                                                      pHeapObj->FenceIdx);
 
     // Free the Heap block
     __GmmFreeHeapBlockGfxAddress(
-        pGmmContext, 
-        &pGmmContext->LockSegmentHeap, 
-        pHeapObj->BaseAddress, 
+        pGmmContext,
+        &pGmmContext->LockSegmentHeap,
+        pHeapObj->BaseAddress,
         pHeapObj->Size);
 
     // Mark the Heap as free
@@ -306,7 +306,7 @@ NTSTATUS __GmmFreeFencedSubHeap(GMM_CONTEXT *pGmmContext,
 
     GMM_DPF_EXIT;
 
-    return STATUS_SUCCESS;         
+    return STATUS_SUCCESS;
 }
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -325,9 +325,9 @@ Size ==> Size of memory block need to be allocated
 ReqGfxAddress ==> Requested allocation start adddress
 
 Return:
-Success boolean. (Block start address = pReqAddr on success.)
+Success. (Block start address = pReqAddr on success.)
 ---------------------------------------------------------------------------*/
-BOOLEAN __GmmAllocBlockWithGfxAddress(GMM_CONTEXT *pGmmContext,
+bool __GmmAllocBlockWithGfxAddress(GMM_CONTEXT *pGmmContext,
     GMM_HEAP    *pHeapObj,
     GMM_GFX_ADDRESS   ReqGfxAddress,
     GMM_GFX_SIZE_T    Size)
@@ -368,7 +368,7 @@ BOOLEAN __GmmAllocBlockWithGfxAddress(GMM_CONTEXT *pGmmContext,
         }
 
         __GMM_ASSERT(0);
-        return(FALSE);      //no free block
+        return(false);      //no free block
     }
 
     if (ReqAddr == pNode->BlockAddr &&
@@ -387,7 +387,7 @@ BOOLEAN __GmmAllocBlockWithGfxAddress(GMM_CONTEXT *pGmmContext,
             GMM_EXIT_CRITICAL_SECTION(OldIrql, &pHeapObj->Lock, &LockHandle);
         }
 
-        return(TRUE);
+        return(true);
     }
 
     if (ReqAddr == pNode->BlockAddr)
@@ -402,7 +402,7 @@ BOOLEAN __GmmAllocBlockWithGfxAddress(GMM_CONTEXT *pGmmContext,
             GMM_EXIT_CRITICAL_SECTION(OldIrql, &pHeapObj->Lock, &LockHandle);
         }
 
-        return(TRUE);
+        return(true);
     }
 
     if (EndAddr == (pNode->BlockAddr + pNode->BlockSize))
@@ -416,7 +416,7 @@ BOOLEAN __GmmAllocBlockWithGfxAddress(GMM_CONTEXT *pGmmContext,
             GMM_EXIT_CRITICAL_SECTION(OldIrql, &pHeapObj->Lock, &LockHandle);
         }
 
-        return(TRUE);
+        return(true);
     }
 
     /* between condition where the allocation falls in between the node  */
@@ -433,7 +433,7 @@ BOOLEAN __GmmAllocBlockWithGfxAddress(GMM_CONTEXT *pGmmContext,
         }
 
         __GMM_ASSERT(0);
-        return(FALSE);
+        return(false);
     }
 
     pNode1->BlockAddr = EndAddr;
@@ -463,7 +463,7 @@ BOOLEAN __GmmAllocBlockWithGfxAddress(GMM_CONTEXT *pGmmContext,
 
     GMM_DPF_EXIT;
 
-    return(TRUE);
+    return(true);
 } // __GmmAllocBlockWithGfxAddress
 
 
@@ -696,14 +696,14 @@ GMM_STATUS GMM_STDCALL GmmUmDestroypHeap(GMM_ESCAPE_HANDLE        hAdapter,
                                         )
 {
     GMM_STATUS Status = GMM_SUCCESS;
-    
-    if( !pHeapObj || 
+
+    if( !pHeapObj ||
         (*pHeapObj == NULL))
     {
         Status = GMM_ERROR;
         return Status;
     }
-    
+
     (*pHeapObj)->NumContexts--;
 
     if ((*pHeapObj)->NumContexts == 0)
@@ -724,7 +724,7 @@ GMM_STATUS GMM_STDCALL GmmUmDestroypHeap(GMM_ESCAPE_HANDLE        hAdapter,
         free(*pHeapObj);
         *pHeapObj = NULL;
     }
-	
+
 	return Status;
 
 }
@@ -789,7 +789,7 @@ GMM_HEAPNODE* __GmmUmInitHeapNodePool(uint32_t NodeSize,
 
 Function:
 __GmmUmDestroyHeapNodePool
-    
+
 Description:
     This function destroys HeapNodePool
 
@@ -817,7 +817,7 @@ void __GmmUmDestroyHeapNodePool(GMM_HEAPNODE* pHeapNodePool)
 
 Function:
     __GmmUmResetHeap
-    
+
 Description:
     The function resets the heap by removing all sentinel nodes
 
@@ -830,7 +830,7 @@ Return:
 void __GmmUmResetHeap(GMM_HEAP            *pHeapObj)
 {
     GMM_HEAPNODE* pNode, *pNode1;
-    
+
     __GMM_ASSERT(pHeapObj != NULL);
 
     EnterCriticalSection(&(pHeapObj->Lock));
@@ -870,8 +870,8 @@ GMM_GFX_ADDRESS GMM_STDCALL GmmAllocateHeapVA(GMM_HEAP* pHeapObj,
                                               GMM_GFX_SIZE_T AllocSize)
 {
     GMM_GFX_ADDRESS GfxAddr;
-    ULONG BaseAlignment = GMM_HEAP_ALIGN_SIZE;
-    ULONG HeapType = GMM_OTHER_HEAP;
+    uint32_t BaseAlignment = GMM_HEAP_ALIGN_SIZE;
+    uint32_t HeapType = GMM_OTHER_HEAP;
 
     if( !pHeapObj || (AllocSize > (pHeapObj->FreeSize)))
     {
@@ -1115,22 +1115,22 @@ Function:
 
 Description:
      This function free the block of memory sepcified by size and address back
-     to its original heap. Function will take care of collesing  
+     to its original heap. Function will take care of collesing
      multiple block into single big block if possible
-           
+
 Arguments:
     pGmmContext  ==> ptr to GmmContext
     pHeapObj ==> ptr to Heap object
     GfxAddress ==> Address of the block to be freed.
     Size ==> Size of memory block need to be allocated
-    
+
 Return:
     VOID
 ---------------------------------------------------------------------------*/
-void __GmmFreeHeapBlockGfxAddress(GMM_CONTEXT *pGmmContext, 
-                                  GMM_HEAP    *pHeapObj, 
-                                  GMM_GFX_ADDRESS   GfxAddress, 
-                                  GMM_GFX_SIZE_T    Size) 
+void __GmmFreeHeapBlockGfxAddress(GMM_CONTEXT *pGmmContext,
+                                  GMM_HEAP    *pHeapObj,
+                                  GMM_GFX_ADDRESS   GfxAddress,
+                                  GMM_GFX_SIZE_T    Size)
 {
     GMM_GFX_ADDRESS     Addr, End;
     GMM_HEAPNODE        *pNode;
@@ -1154,7 +1154,7 @@ void __GmmFreeHeapBlockGfxAddress(GMM_CONTEXT *pGmmContext,
 
 #if __GMM_KMD__
     __GMM_ASSERT(pGmmContext);
-    if((pHeapObj->HeapCaps & GMM_HEAP_EXTERNAL_SYNC) == 0) 
+    if((pHeapObj->HeapCaps & GMM_HEAP_EXTERNAL_SYNC) == 0)
     {
         GMM_ENTER_CRITICAL_SECTION(OldIrql, &pHeapObj->Lock, &LockHandle);
     }
@@ -1164,7 +1164,7 @@ void __GmmFreeHeapBlockGfxAddress(GMM_CONTEXT *pGmmContext,
 #endif
 
     __GMM_ASSERT( // GfxAddress belongs to pHeapObj...
-        (GfxAddress >= pHeapObj->BaseAddress) && 
+        (GfxAddress >= pHeapObj->BaseAddress) &&
         ((GfxAddress + Size) <= (pHeapObj->BaseAddress + pHeapObj->Size)));
 
     Addr  = GfxAddress;                  // Free memory block start address
@@ -1195,7 +1195,7 @@ void __GmmFreeHeapBlockGfxAddress(GMM_CONTEXT *pGmmContext,
             __GMM_ASSERT(0);
             break;
         }
-        
+
         // -----------------------------------------
         // | Current Node Mem |    | Next Node Mem |
         // -----------------------------------------
@@ -1302,7 +1302,7 @@ void __GmmFreeHeapBlockGfxAddress(GMM_CONTEXT *pGmmContext,
     }
 
 #if __GMM_KMD__
-    if((pHeapObj->HeapCaps & GMM_HEAP_EXTERNAL_SYNC) == 0) 
+    if((pHeapObj->HeapCaps & GMM_HEAP_EXTERNAL_SYNC) == 0)
     {
         GMM_EXIT_CRITICAL_SECTION(OldIrql, &pHeapObj->Lock, &LockHandle);
     }
@@ -1322,7 +1322,7 @@ Function:
 Description:
      This function allocate a block of memory of a given size and align that
      with a particular value.
-           
+
 Arguments:
     pGmmContext  ==> ptr to GmmContext
     pHeapObj ==> ptr to Heap object
@@ -1331,16 +1331,16 @@ Arguments:
     pGfxAddress ==> Pointer for return of alloc'ed GfxAddress on success.
 
 Return:
-    TRUE on success, with the allocated gfx address returned via pGfxAddress; 
-    FALSE on failure. Note that *pGfxAddress = 0 can be a successful 
-    allocation for some heaps. Also note that *pGfxAddress is undefined on 
+    true on success, with the allocated gfx address returned via pGfxAddress;
+    false on failure. Note that *pGfxAddress = 0 can be a successful
+    allocation for some heaps. Also note that *pGfxAddress is undefined on
     allocation failure.
 ---------------------------------------------------------------------------*/
-BOOLEAN __GmmAllocAlignHeapBlockGfxAddress(GMM_CONTEXT *pGmmContext, 
-                                           GMM_HEAP    *pHeapObj, 
-                                           GMM_GFX_SIZE_T   Size, 
-                                           uint32_t       AlignValue, 
-                                           GMM_GFX_ADDRESS  *pGfxAddress) 
+bool __GmmAllocAlignHeapBlockGfxAddress(GMM_CONTEXT *pGmmContext,
+                                           GMM_HEAP    *pHeapObj,
+                                           GMM_GFX_SIZE_T   Size,
+                                           uint32_t       AlignValue,
+                                           GMM_GFX_ADDRESS  *pGfxAddress)
 {
     GMM_HEAPNODE        *pNode, *pNode1;
     GMM_GFX_ADDRESS     BlockAddr, AlignAddr;
@@ -1348,7 +1348,7 @@ BOOLEAN __GmmAllocAlignHeapBlockGfxAddress(GMM_CONTEXT *pGmmContext,
     KIRQL               OldIrql;
     KLOCK_QUEUE_HANDLE  LockHandle;
 #endif
-    BOOLEAN             Success = TRUE;
+    bool                Success = true;
 
     __GMM_ASSERT(pHeapObj);
     __GMM_ASSERT(Size);
@@ -1359,7 +1359,7 @@ BOOLEAN __GmmAllocAlignHeapBlockGfxAddress(GMM_CONTEXT *pGmmContext,
 
 #if __GMM_KMD__
     __GMM_ASSERT(pGmmContext);
-    if((pHeapObj->HeapCaps & GMM_HEAP_EXTERNAL_SYNC) == 0) 
+    if((pHeapObj->HeapCaps & GMM_HEAP_EXTERNAL_SYNC) == 0)
     {
         GMM_ENTER_CRITICAL_SECTION(OldIrql, &pHeapObj->Lock, &LockHandle);
     }
@@ -1375,26 +1375,26 @@ BOOLEAN __GmmAllocAlignHeapBlockGfxAddress(GMM_CONTEXT *pGmmContext,
 		// Validate pFreeHeap before use
 		if (pHeapObj->pFreeHeap == NULL)
 		{
-			Success = FALSE;
+			Success = false;
 			goto End;
 		}
 		pCurrNode = pHeapObj->pFreeHeap->pNext;
         pBestNode = NULL;
-        while (pCurrNode) 
+        while (pCurrNode)
         {
             BlockAddr = pCurrNode->BlockAddr;
             PaddedSize = Size + (GFX_ALIGN_NP2(BlockAddr, AlignValue) - BlockAddr);
 
             // find node which has size larger than requested
-            if (pCurrNode->BlockSize >= PaddedSize) 
+            if (pCurrNode->BlockSize >= PaddedSize)
             {
                 // First: check if this is first node we found if so, then that is best fit for now
-                // Second: If not first time then check if still old node is best fit. if not then 
+                // Second: If not first time then check if still old node is best fit. if not then
                 //         replace it with new node
-                if ( (pBestNode == NULL) || 
-                     ( (pBestNode != NULL) && (pBestNode->BlockSize >= pCurrNode->BlockSize))) 
+                if ( (pBestNode == NULL) ||
+                     ( (pBestNode != NULL) && (pBestNode->BlockSize >= pCurrNode->BlockSize)))
                 {
-                    pBestNode = pCurrNode;  
+                    pBestNode = pCurrNode;
                 }
             }
             pCurrNode = pCurrNode->pNext;
@@ -1403,7 +1403,7 @@ BOOLEAN __GmmAllocAlignHeapBlockGfxAddress(GMM_CONTEXT *pGmmContext,
         pNode = pBestNode;
     }
 
-    if (pNode != NULL) 
+    if (pNode != NULL)
     {
         BlockAddr = pNode->BlockAddr;
         AlignAddr = GFX_ALIGN_NP2(BlockAddr, AlignValue);
@@ -1411,7 +1411,7 @@ BOOLEAN __GmmAllocAlignHeapBlockGfxAddress(GMM_CONTEXT *pGmmContext,
     }
     else
     {
-        Success = FALSE;
+        Success = false;
         goto End;
     }
 
@@ -1430,12 +1430,12 @@ BOOLEAN __GmmAllocAlignHeapBlockGfxAddress(GMM_CONTEXT *pGmmContext,
 			{
 				pNode->pPrev->pNext = pNode->pNext;
 			}
-            
+
 			if (pNode->pNext != NULL)
 			{
 				pNode->pNext->pPrev = pNode->pPrev;
 			}
-            
+
 #if __GMM_KMD__
             __GmmFreeNode(pGmmContext, &pGmmContext->HeapNodeMgmt, pNode);
 #else
@@ -1447,7 +1447,7 @@ BOOLEAN __GmmAllocAlignHeapBlockGfxAddress(GMM_CONTEXT *pGmmContext,
     {
         // get new node
 #if __GMM_KMD__
-        pNode1 = (GMM_HEAPNODE *) __GmmAllocNode(pGmmContext, 
+        pNode1 = (GMM_HEAPNODE *) __GmmAllocNode(pGmmContext,
                                          &pGmmContext->HeapNodeMgmt);
 #else
         pNode1 = (GMM_HEAPNODE*)__GmmUmAllocNode(&(pHeapObj->pHeapNodePool));
@@ -1456,14 +1456,14 @@ BOOLEAN __GmmAllocAlignHeapBlockGfxAddress(GMM_CONTEXT *pGmmContext,
         if ( pNode1 == NULL )
         {
             __GMM_ASSERT(0);
-            Success = FALSE;
+            Success = false;
             goto End;
         }
-        
+
         //start address
         pNode1->BlockAddr = BlockAddr;
-        pNode1->BlockSize = AlignAddr - BlockAddr; 
-        
+        pNode1->BlockSize = AlignAddr - BlockAddr;
+
         //insert into free heap list
         pNode1->pPrev = pNode->pPrev;
         pNode1->pNext = pNode;
@@ -1497,18 +1497,18 @@ BOOLEAN __GmmAllocAlignHeapBlockGfxAddress(GMM_CONTEXT *pGmmContext,
 #endif
         }
     }
-    
+
     pHeapObj->FreeSize -= Size;
 
     __GMM_ASSERT( // Block belongs to pHeapObj...
-        (AlignAddr >= pHeapObj->BaseAddress) && 
+        (AlignAddr >= pHeapObj->BaseAddress) &&
         ((AlignAddr + Size) <= (pHeapObj->BaseAddress + pHeapObj->Size)));
 
     *pGfxAddress = AlignAddr;
 
 End:
 #if __GMM_KMD__
-    if((pHeapObj->HeapCaps & GMM_HEAP_EXTERNAL_SYNC) == 0) 
+    if((pHeapObj->HeapCaps & GMM_HEAP_EXTERNAL_SYNC) == 0)
     {
         GMM_EXIT_CRITICAL_SECTION(OldIrql, &pHeapObj->Lock, &LockHandle);
     }

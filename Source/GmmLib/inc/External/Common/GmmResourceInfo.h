@@ -40,8 +40,8 @@ extern const uint32_t __GmmMSAAConversion[5][2];
 //
 typedef struct TILE_POOL_INFO_REC
 {
-    USHORT                          UsedTiles;          // Tiles being used in 1 tile pool 
-    GMM_GFX_ADDRESS                 StartingGfxAddress; // GfxAddress associated with the TilePool
+    uint16_t                          UsedTiles;          // Tiles being used in 1 tile pool
+    GMM_GFX_ADDRESS                   StartingGfxAddress; // GfxAddress associated with the TilePool
 } TILE_POOL_INFO;
 
 typedef struct GMM_TILED_RESOURCE_INFO_REC
@@ -61,9 +61,9 @@ typedef struct GMM_TILED_RESOURCE_INFO_REC
     struct
     {
         GMM_VOIDPTR64                   pTilePoolInfo;
-        UINT64                          PagingFenceValue;
-        uint32_t                           TilePoolInfoTotalNumElements; // Number of elements in pTilePoolInfo array
-        uint32_t                           TilePoolInfoFreeNumElements;  // Number of free tile pools
+        uint64_t                        PagingFenceValue;
+        uint32_t                        TilePoolInfoTotalNumElements; // Number of elements in pTilePoolInfo array
+        uint32_t                        TilePoolInfoFreeNumElements;  // Number of free tile pools
     } AuxInfo;
 } GMM_TILED_RESOURCE_INFO;
 
@@ -78,7 +78,7 @@ typedef struct GMM_EXISTING_SYS_MEM_REC
     D3DKMT_HANDLE                   hParentAllocation;
 #endif
     GMM_GFX_SIZE_T                  Size;
-    BOOLEAN                         IsGmmAllocated;
+    uint8_t                         IsGmmAllocated;
 } GMM_EXISTING_SYS_MEM;
 //===========================================================================
 // typedef:
@@ -95,10 +95,10 @@ typedef struct GMM_EXISTING_SYS_MEM_REC
 // Reset packing alignment to project default
 #pragma pack(pop)
 
-BOOLEAN     GMM_STDCALL GmmResValidateParams(GMM_RESOURCE_INFO *pResourceInfo);
-void        GMM_STDCALL GmmResGetRestrictions(GMM_RESOURCE_INFO* pResourceInfo, __GMM_BUFFER_TYPE* pRestrictions);
-GMM_STATUS  __GmmResApplyExistingSysMemRestrictions(GMM_RESOURCE_INFO *pResourceInfo);
-BOOLEAN     __CanSupportStdTiling(GMM_TEXTURE_INFO Surface);
+uint8_t        GMM_STDCALL GmmResValidateParams(GMM_RESOURCE_INFO *pResourceInfo);
+void           GMM_STDCALL GmmResGetRestrictions(GMM_RESOURCE_INFO* pResourceInfo, __GMM_BUFFER_TYPE* pRestrictions);
+GMM_STATUS     __GmmResApplyExistingSysMemRestrictions(GMM_RESOURCE_INFO *pResourceInfo);
+uint8_t        __CanSupportStdTiling(GMM_TEXTURE_INFO Surface);
 
 #ifdef __cplusplus
 }

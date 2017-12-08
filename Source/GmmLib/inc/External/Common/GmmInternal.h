@@ -30,30 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 //#pragma message(__LOC2__ "Header Message")
 
 #ifndef _WIN32
-#include <portable_windef.h>
 #include <portable_compiler.h>
-#else
-#ifdef __GMM_KMD__
-    #include "ct.h"
-    #include <ntddk.h>
-    #include <windef.h>
-    #include <d3dkmddi.h>
-#else
-    #define __GMM_UMD__
-#endif
-
-#if defined(__GMM_UMD__)
-
-    #if LHDM
-        #include <WINDOWS.h>
-        #include <d3d9types.h>
-        #include <d3dumddi.h>
-    #else
-        // Since we are compiled not for WinOS, we don't want to include later any Visual Studio specific files.
-        #define VER_H
-    #endif // LHDM
-
-#endif
 #endif
 
 #if !defined(GMM_DIAG_APP_DIRECTIVE)
@@ -74,7 +51,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 //For compile time GFXGEN detection. GMM_GFX_GEN is optional cmd line definition
 #define GMM_ENABLE_GEN8    (!defined(GMM_GFX_GEN) || (GMM_GFX_GEN == 80))
 #define GMM_ENABLE_GEN9    (!defined(GMM_GFX_GEN) || (GMM_GFX_GEN == 90))
-#if (IGFX_GEN >= IGFX_GEN10) 
+#if (IGFX_GEN >= IGFX_GEN10)
 #define GMM_ENABLE_GEN10   (!defined(GMM_GFX_GEN) || (GMM_GFX_GEN == 100))
 #endif
 

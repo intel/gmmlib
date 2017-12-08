@@ -23,7 +23,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Internal/Common/GmmLibInc.h"
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// Allocates This function will initialize the necessary info based on platform. 
+/// Allocates This function will initialize the necessary info based on platform.
 ///              - Buffer type restrictions (Eg: Z, Color, Display)
 ///              - X/Y tile dimensions
 ///
@@ -108,7 +108,7 @@ GmmLib::PlatformInfoGen8::PlatformInfoGen8(PLATFORM &Platform) : PlatformInfo(Pl
 
     // --------------------------
     // Vertex Restriction. Inst Ref: 3DSTATE_VERTEX_BUFFER, 3DSTATE_INSTANCE_STEP_RATE
-    // Note: restrictions are expanded here for UMD flexibility. 
+    // Note: restrictions are expanded here for UMD flexibility.
     // --------------------------
     Data.Vertex.Alignment = PAGE_SIZE;
     Data.Vertex.PitchAlignment = GMM_BYTES(1);
@@ -223,7 +223,7 @@ GmmLib::PlatformInfoGen8::PlatformInfoGen8(PLATFORM &Platform) : PlatformInfo(Pl
     // --------------------------
     // RT & Texture2DSurface restrictions. Inst Ref: SURFACE_STATE
     // Greatest common restriction source comes from 8bpp RT
-    // --------------------------          
+    // --------------------------
     Data.Texture2DSurface.Alignment = PAGE_SIZE;
     Data.Texture2DSurface.PitchAlignment = GMM_BYTES(32);
     Data.Texture2DSurface.LockPitchAlignment = GMM_BYTES(32);
@@ -240,11 +240,11 @@ GmmLib::PlatformInfoGen8::PlatformInfoGen8(PLATFORM &Platform) : PlatformInfo(Pl
     Data.Texture2DSurface.MaxArraySize = GMM_KBYTE(2);
 
     {
-        // Linear surfaces accessed with Media Block Read/Write commands 
-        // require 64-byte-aligned pitch. Such commands only operate on 2D 
-        // resources, so we'll handle the requirement here. Though requirement 
-        // applies to linear surfaces only, our up'ing the pitch alignment to 
-        // 64 bytes here won't affect tiled surfaces, since their pitch 
+        // Linear surfaces accessed with Media Block Read/Write commands
+        // require 64-byte-aligned pitch. Such commands only operate on 2D
+        // resources, so we'll handle the requirement here. Though requirement
+        // applies to linear surfaces only, our up'ing the pitch alignment to
+        // 64 bytes here won't affect tiled surfaces, since their pitch
         // alignment is never smaller than that.
         Data.Texture2DLinearSurface = Data.Texture2DSurface;
         Data.Texture2DLinearSurface.PitchAlignment = GFX_MAX(GMM_BYTES(64), Data.Texture2DSurface.PitchAlignment);
@@ -254,13 +254,13 @@ GmmLib::PlatformInfoGen8::PlatformInfoGen8(PLATFORM &Platform) : PlatformInfo(Pl
 
     // --------------------------
     // AsyncFlip Restriction. Register Ref: PRI_STRIDE, PRI_SURF, SRCSZ <-- TODO(Minor): SRCSZ correct reg for W/H req's?
-    // --------------------------          
+    // --------------------------
     Data.ASyncFlipSurface.Alignment = GMM_KBYTE(256);
     Data.ASyncFlipSurface.PitchAlignment = GMM_BYTES(64);
     Data.ASyncFlipSurface.RenderPitchAlignment = GMM_BYTES(64);
     Data.ASyncFlipSurface.LockPitchAlignment = GMM_BYTES(64);
     Data.ASyncFlipSurface.MinPitch = GMM_BYTES(64);
-    Data.ASyncFlipSurface.MaxPitch = Data.Texture2DSurface.MaxPitch; //Beyond DE requirement- RCR 1024897, MP/SB to do bound check 
+    Data.ASyncFlipSurface.MaxPitch = Data.Texture2DSurface.MaxPitch;
     Data.ASyncFlipSurface.MinAllocationSize = PAGE_SIZE;
     Data.ASyncFlipSurface.MinHeight = GMM_SCANLINES(1);
     Data.ASyncFlipSurface.MinWidth = GMM_PIXELS(1);
@@ -271,8 +271,8 @@ GmmLib::PlatformInfoGen8::PlatformInfoGen8(PLATFORM &Platform) : PlatformInfo(Pl
     Data.ASyncFlipSurface.MaxArraySize = GMM_KBYTE(2);
 
     // --------------------------
-    // Hardware MBM Restriction. 
-    // --------------------------          
+    // Hardware MBM Restriction.
+    // --------------------------
     Data.HardwareMBM = Data.ASyncFlipSurface;
 
     // --------------------------
@@ -283,7 +283,7 @@ GmmLib::PlatformInfoGen8::PlatformInfoGen8(PLATFORM &Platform) : PlatformInfo(Pl
     // --------------------------
     // RT & CubeSurface restrictions. Inst Ref: SURFACE_STATE
     // Greatest common restriction source comes from 8bpp RT
-    // --------------------------          
+    // --------------------------
     Data.CubeSurface.Alignment = PAGE_SIZE;
     Data.CubeSurface.PitchAlignment = GMM_BYTES(32);
     Data.CubeSurface.LockPitchAlignment = GMM_BYTES(32);
@@ -302,7 +302,7 @@ GmmLib::PlatformInfoGen8::PlatformInfoGen8(PLATFORM &Platform) : PlatformInfo(Pl
     // --------------------------
     // RT & 3D Surface restrictions. Inst Ref: SURFACE_STATE
     // Greatest common restriction source comes from 8bpp RT
-    // --------------------------          
+    // --------------------------
     Data.Texture3DSurface.Alignment = PAGE_SIZE;
     Data.Texture3DSurface.PitchAlignment = GMM_BYTES(32);
     Data.Texture3DSurface.LockPitchAlignment = GMM_BYTES(32);
@@ -321,7 +321,7 @@ GmmLib::PlatformInfoGen8::PlatformInfoGen8(PLATFORM &Platform) : PlatformInfo(Pl
     // --------------------------
     // RT & Buffer Type restrictions. Inst Ref: SURFACE_STATE
     // Greatest common restriction source comes from 8bpp RT
-    // --------------------------          
+    // --------------------------
     Data.BufferType.Alignment = PAGE_SIZE;
     Data.BufferType.PitchAlignment = GMM_BYTES(32);
     Data.BufferType.LockPitchAlignment = GMM_BYTES(32);
@@ -339,7 +339,7 @@ GmmLib::PlatformInfoGen8::PlatformInfoGen8(PLATFORM &Platform) : PlatformInfo(Pl
 
     // --------------------------
     // Cursor surface restricion. Register Ref: CURACNTR, CURABASE
-    // --------------------------  
+    // --------------------------
     Data.Cursor.Alignment = pGmmGlobalContext->GetWaTable().WaCursor16K ? GMM_KBYTE(16) : PAGE_SIZE;
     Data.Cursor.PitchAlignment = 1;
     Data.Cursor.LockPitchAlignment = 1;
@@ -376,12 +376,12 @@ GmmLib::PlatformInfoGen8::PlatformInfoGen8(PLATFORM &Platform) : PlatformInfo(Pl
 
     // --------------------------
     // Surface Alignment Units
-    // --------------------------  
+    // --------------------------
     Data.TexAlign.CCS.Align.Width =  256;
     Data.TexAlign.CCS.Align.Height = 128;
     Data.TexAlign.CCS.MaxPitchinTiles = 512;
     Data.TexAlign.Compressed.Width = 1;
-    Data.TexAlign.Compressed.Height = 1; 
+    Data.TexAlign.Compressed.Height = 1;
     Data.TexAlign.Compressed.Depth = 1;
     Data.TexAlign.Depth.Width =  4; // See usage for 16bpp HALIGN_8 special-casing.
     Data.TexAlign.Depth.Height = 4;
@@ -400,14 +400,14 @@ GmmLib::PlatformInfoGen8::PlatformInfoGen8(PLATFORM &Platform) : PlatformInfo(Pl
 
     // ----------------------------------
     // SURFACE_STATE YOffset Granularity
-    // ---------------------------------- 
+    // ----------------------------------
     Data.SurfaceStateYOffsetGranularity = 4;
     Data.SamplerFetchGranularityHeight = 4;
     Data.SamplerFetchGranularityWidth = 4;
 
     // ----------------------------------
     // Restrictions for Cross adapter resource
-    // ---------------------------------- 
+    // ----------------------------------
     Data.XAdapter.Alignment = PAGE_SIZE;
     Data.XAdapter.PitchAlignment = GMM_BYTES(D3DKMT_CROSS_ADAPTER_RESOURCE_PITCH_ALIGNMENT);
     Data.XAdapter.RenderPitchAlignment = GMM_BYTES(D3DKMT_CROSS_ADAPTER_RESOURCE_PITCH_ALIGNMENT);

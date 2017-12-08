@@ -39,7 +39,7 @@ void __cdecl GMMDebugBreak(const char *file,
 
 }
 
-void GMMPrintMessage(ULONG          DebugLevel, 
+void GMMPrintMessage(uint32_t          DebugLevel,
                      const char     *DebugMessageFmt, ...)
 {
 
@@ -52,7 +52,7 @@ void GMMPrintMessage(ULONG          DebugLevel,
 #ifdef __cplusplus
 extern "C"
 #endif
-void __stdcall GMMDebugMessage(ULONG ulDebugLevel, 
+void __stdcall GMMDebugMessage(uint32_t ulDebugLevel,
                                const char* str, ...)
 {
 

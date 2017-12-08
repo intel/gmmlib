@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Base Class for Cache Policy Compile Time ULT
 class CTestCachePolicy : public CommonULT
 {
-    protected: 
+    protected:
         virtual void CheckL3CachePolicy();
         virtual void CheckLlcEdramCachePolicy();
 

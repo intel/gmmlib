@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 //
 // Description:
 //     Decribes Resource types to test
-//     when editing/adding existing/new enum, make sure to update corresponding 
+//     when editing/adding existing/new enum, make sure to update corresponding
 //     string array CTestResource::TestResourceTypeStr[].
 //----------------------------------------------------------------------------
 typedef enum TEST_RESOURCE_TYPE_ENUM
@@ -49,7 +49,7 @@ typedef enum TEST_RESOURCE_TYPE_ENUM
 //
 // Description:
 //     Decribes Resource Tile Types to test .
-//     when editing/adding existing/new enum, make sure to update corresponding 
+//     when editing/adding existing/new enum, make sure to update corresponding
 //     string array CTestResource::TestTileTypeStr[].
 //----------------------------------------------------------------------------
 typedef enum TEST_TILE_TYPE_ENUM
@@ -69,7 +69,7 @@ typedef enum TEST_TILE_TYPE_ENUM
 //
 // Description:
 //     Decribes BPP to test - 8, 16, 32, 64, 128 (Ignore 24/96 until need arises)
-//     when editing/adding existing/new enum, make sure to update corresponding 
+//     when editing/adding existing/new enum, make sure to update corresponding
 //     string array CTestResource::TestBppStr[].
 //----------------------------------------------------------------------------
 typedef enum TEST_BPP_ENUM
@@ -82,18 +82,18 @@ typedef enum TEST_BPP_ENUM
     TEST_BPP_MAX
 }TEST_BPP;
 
-typedef enum TEST_MSAA_Samples 
-{ 
+typedef enum TEST_MSAA_Samples
+{
     MSAA_None,
-    MSAA_2x, 
-    MSAA_4x, 
-    MSAA_8x, 
+    MSAA_2x,
+    MSAA_4x,
+    MSAA_8x,
     MSAA_16x,
     TEST_MSAA_MAX = MSAA_16x        //Should be equal to last MSAA type
 } TEST_MSAA;
 
 //===========================================================================
-// GmmLib ULT macros for size alignment. Compitable with 64-bit numbers. 
+// GmmLib ULT macros for size alignment. Compitable with 64-bit numbers.
 //---------------------------------------------------------------------------
 #define GMM_ULT_ALIGN(x, a)          (((x) + ((a) - 1)) - (((x) + ((a) - 1)) & ((a) - 1))) // Alt implementation with bitwise not (~) has issue with uint32 align used with 64-bit value, since ~'ed value will remain 32-bit.
 #define GMM_ULT_ALIGN_FLOOR(x, a)    ((x) - ((x) & ((a) - 1)))
@@ -111,14 +111,14 @@ typedef enum TEST_MSAA_Samples
 //////////////////////////////////////////////////////////////////////////
 typedef struct TEST_MIPTAIL_SLOT_OFFSET_REC
 {
-    ULONG X;
-    ULONG Y;
-    ULONG Z;
+    uint32_t X;
+    uint32_t Y;
+    uint32_t Z;
 }TEST_MIPTAIL_SLOT_OFFSET;
 
 
 /////////////////////////////////////////////////////////////////////////
-/// Fixture class for Resource. - This is Resource Test Case to test 
+/// Fixture class for Resource. - This is Resource Test Case to test
 /// all generic resource types, tile types, bpp and special allocations.
 /// Contains Base implementation and inherits CommonULT class
 /////////////////////////////////////////////////////////////////////////
@@ -129,7 +129,7 @@ protected:
     /////////////////////////////////////////////////////////////////////////////////////
     /// Returns GMM format for given test BPP input.
     ///
-    /// @param[in]  Bpp: test Bpp value 
+    /// @param[in]  Bpp: test Bpp value
     ///
     /// @return     ::GMM_RESOURCE_FORMAT
     /////////////////////////////////////////////////////////////////////////////////////
@@ -151,13 +151,13 @@ protected:
     /////////////////////////////////////////////////////////////////////////////////////
     /// Returns Bpp (bytes per pixel) for a given bpp (bits per pixel) enum.
     ///
-    /// @param[in]  bpp: test bpp value 
+    /// @param[in]  bpp: test bpp value
     ///
     /// @return     Bytes per pixel
     /////////////////////////////////////////////////////////////////////////////////////
-    ULONG GetBppValue(TEST_BPP bpp)
+    uint32_t GetBppValue(TEST_BPP bpp)
     {
-        ULONG Bpp = 0;
+        uint32_t Bpp = 0;
         switch (bpp)
         {
             case TEST_BPP_8:    Bpp = 8;    break;
@@ -182,22 +182,22 @@ protected:
     {
         switch (Tile)
         {
-            case TEST_LINEAR:   
-                Params.Flags.Info.Linear = 1;   
+            case TEST_LINEAR:
+                Params.Flags.Info.Linear = 1;
                 break;
-            case TEST_TILEX:    
-                Params.Flags.Info.TiledX = 1;   
+            case TEST_TILEX:
+                Params.Flags.Info.TiledX = 1;
                 break;
-            case TEST_TILEY:    
-                Params.Flags.Info.TiledY = 1;   
+            case TEST_TILEY:
+                Params.Flags.Info.TiledY = 1;
                 break;
-            case TEST_TILEYF:   
+            case TEST_TILEYF:
                 Params.Flags.Info.TiledY  = 1;
-                Params.Flags.Info.TiledYf = 1;  
+                Params.Flags.Info.TiledYf = 1;
                 break;
-            case TEST_TILEYS:   
+            case TEST_TILEYS:
                 Params.Flags.Info.TiledY  = 1;
-                Params.Flags.Info.TiledYs = 1; 
+                Params.Flags.Info.TiledYs = 1;
                 break;
             default: break;
         }
@@ -207,7 +207,7 @@ protected:
     /////////////////////////////////////////////////////////////////////////////////////
     /// Sets Resource Type in GmmParams
     ///
-    /// @param[in]  Params: GmmParams 
+    /// @param[in]  Params: GmmParams
     /// @param[in]  ResType: Resource type
     ///
     /////////////////////////////////////////////////////////////////////////////////////
@@ -219,7 +219,7 @@ protected:
     /////////////////////////////////////////////////////////////////////////////////////
     /// Sets RenderTarget or Depth Gpu Flags in GmmParams
     ///
-    /// @param[in]  Params: GmmParams 
+    /// @param[in]  Params: GmmParams
     /// @param[in]  IsRT:  true for RT, false for Depth
     ///
     /////////////////////////////////////////////////////////////////////////////////////
@@ -240,7 +240,7 @@ protected:
     /////////////////////////////////////////////////////////////////////////////////////
     /// Sets ArraySize in GmmParams
     ///
-    /// @param[in]  Params: GmmParams 
+    /// @param[in]  Params: GmmParams
     /// @param[in]  Size: Array Size
     ///
     /////////////////////////////////////////////////////////////////////////////////////
@@ -264,34 +264,34 @@ protected:
     /// @param[out] MCSVAlign: V Align for MCS
     ///
     /////////////////////////////////////////////////////////////////////////////////////
-    void GetAlignmentAndTileDimensionsForMSAA(TEST_BPP Bpp, bool isRT, TEST_TILE_TYPE Tiling, TEST_MSAA MSAA, 
-        ULONG& TileDimX, ULONG& TileDimY, ULONG& HAlign, ULONG& VAlign,
-        UINT& ExpectedMCSBpp, ULONG &MCSHAlign, ULONG &MCSVAlign)
+    void GetAlignmentAndTileDimensionsForMSAA(TEST_BPP Bpp, bool isRT, TEST_TILE_TYPE Tiling, TEST_MSAA MSAA,
+        uint32_t& TileDimX, uint32_t& TileDimY, uint32_t& HAlign, uint32_t& VAlign,
+        uint32_t& ExpectedMCSBpp, uint32_t &MCSHAlign, uint32_t &MCSVAlign)
     {
-        const ULONG MSSTileSize[TEST_TILE_MAX][TEST_BPP_MAX][2] = {
-            { { 64, 1 },{ 64, 1 },{ 64, 1 },{ 64, 1 },{ 64, 1 } },             //Linear - no Tile Size, but min PitchAlign = 64 
+        const uint32_t MSSTileSize[TEST_TILE_MAX][TEST_BPP_MAX][2] = {
+            { { 64, 1 },{ 64, 1 },{ 64, 1 },{ 64, 1 },{ 64, 1 } },             //Linear - no Tile Size, but min PitchAlign = 64
             { { 512, 8 },{ 512, 8 },{ 512, 8 },{ 512, 8 },{ 512, 8 } },        //TileX
             { { 128, 32 },{ 128, 32 },{ 128, 32 },{ 128, 32 },{ 128, 32 } },   //TileY
             { { 256, 256 },{ 512, 128 },{ 512, 128 },{ 1024, 64 },{ 1024, 64 } },   //TileYs
             { { 64, 64 },{ 128, 32 },{ 128, 32 },{ 256, 16 },{ 256, 16 } }     //TileYf
         };
-        UINT WMul, HMul;
+        uint32_t WMul, HMul;
 
         HAlign = 16;                              // RT H/VAlign
         VAlign = 4;
 
         if (!isRT)
         {
-            HAlign = (Bpp == TEST_BPP_16) ? 8 : 4;     //Depth 16bit = 8x4, ow 4x4 
+            HAlign = (Bpp == TEST_BPP_16) ? 8 : 4;     //Depth 16bit = 8x4, ow 4x4
             VAlign = 4;
             MCSHAlign = 4;                            //MCS uses base H/VAlign for 8bpp
         }
 
-        ULONG Tile[2] = { MSSTileSize[Tiling][Bpp][0], MSSTileSize[Tiling][Bpp][1] };
+        uint32_t Tile[2] = { MSSTileSize[Tiling][Bpp][0], MSSTileSize[Tiling][Bpp][1] };
         if (Tiling == TEST_TILEYS || Tiling == TEST_TILEYF)
         {
-            GetInterleaveMSSPattern(MSAA, WMul, HMul); 
-            
+            GetInterleaveMSSPattern(MSAA, WMul, HMul);
+
             //Std Tiling interleaves MSAA into 1x, decreasing std Tile size for MSAA'd sample
             //Std Tiling types should have std size alignment always
             Tile[0] = HAlign = (isRT) ? (MSSTileSize[Tiling][Bpp][0] / WMul) : MSSTileSize[Tiling][Bpp][0];
@@ -305,28 +305,28 @@ protected:
         ExpectedMCSBpp = (MSAA == MSAA_2x || MSAA == MSAA_4x) ? 1 :
             (MSAA == MSAA_8x) ? 4 : 8;
 
-        UINT ExpectedMcsBppIdx = log2(ExpectedMCSBpp);
+        uint32_t ExpectedMcsBppIdx = log2(ExpectedMCSBpp);
 
         MCSHAlign = isRT ? HAlign : MCSHAlign;              //MCS uses base H/V ALign for 8bpp
         MCSVAlign = VAlign;
 
-        MCSHAlign = (isRT && (Tiling == TEST_TILEYS || Tiling == TEST_TILEYF)) ? 
+        MCSHAlign = (isRT && (Tiling == TEST_TILEYS || Tiling == TEST_TILEYF)) ?
                              MSSTileSize[Tiling][ExpectedMcsBppIdx][0] / (WMul * ExpectedMCSBpp) :         //Std Tile dim in pixels
-                            (Tiling == TEST_TILEYS || Tiling == TEST_TILEYF) ? 
+                            (Tiling == TEST_TILEYS || Tiling == TEST_TILEYF) ?
                              MSSTileSize[Tiling][ExpectedMcsBppIdx][0] / ExpectedMCSBpp : MCSHAlign;       //For legacy tile, MCS alignment is base (RT or Depth) alignment
         MCSVAlign = (isRT && (Tiling == TEST_TILEYS || Tiling == TEST_TILEYF)) ? MSSTileSize[Tiling][ExpectedMcsBppIdx][1] / HMul :
                             (Tiling == TEST_TILEYS || Tiling == TEST_TILEYF) ? MSSTileSize[Tiling][ExpectedMcsBppIdx][1] : MCSVAlign;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////
-    /// Get the interleave pattern for given Num Samples 
+    /// Get the interleave pattern for given Num Samples
     ///
     /// @param[in]  MSAA: Num of Samples
     /// @param[out] WidthMultiplier: Number of samples arranged side-by-side
     /// @param[out] HeightMultiplier: Number of samples arranged top-bottom
     ///
     /////////////////////////////////////////////////////////////////////////////////////
-    void GetInterleaveMSSPattern(TEST_MSAA MSAA, UINT& WidthMultiplier, UINT& HeightMultiplier)
+    void GetInterleaveMSSPattern(TEST_MSAA MSAA, uint32_t& WidthMultiplier, uint32_t& HeightMultiplier)
     {
         WidthMultiplier = 1; HeightMultiplier = 1;
 
@@ -347,7 +347,7 @@ protected:
     /// @param[in]  ExpectedValue: expected value to check against
     /////////////////////////////////////////////////////////////////////////////////////
     template <bool Verify>
-    void VerifyResourceHAlign(GMM_RESOURCE_INFO &ResourceInfo, ULONG ExpectedValue)
+    void VerifyResourceHAlign(GMM_RESOURCE_INFO &ResourceInfo, uint32_t ExpectedValue)
     {
         if(Verify)
         {
@@ -362,7 +362,7 @@ protected:
     /// @param[in]  ExpectedValue: expected value to check against
     /////////////////////////////////////////////////////////////////////////////////////
     template <bool Verify>
-    void VerifyResourceVAlign(GMM_RESOURCE_INFO &ResourceInfo, ULONG ExpectedValue)
+    void VerifyResourceVAlign(GMM_RESOURCE_INFO &ResourceInfo, uint32_t ExpectedValue)
     {
         if(Verify)
         {
@@ -371,14 +371,14 @@ protected:
     }
 
     /////////////////////////////////////////////////////////////////////////////////////
-    /// Verifies if Pitch (in bytes) matches the expected value.  Fails test if value 
+    /// Verifies if Pitch (in bytes) matches the expected value.  Fails test if value
     /// doesn't match
     ///
     /// @param[in]  ResourceInfo: ResourceInfo returned by GmmLib
     /// @param[in]  ExpectedValue: expected value to check against
     /////////////////////////////////////////////////////////////////////////////////////
     template <bool Verify>
-    void VerifyResourcePitch(GMM_RESOURCE_INFO &ResourceInfo, ULONG ExpectedValue)
+    void VerifyResourcePitch(GMM_RESOURCE_INFO &ResourceInfo, uint32_t ExpectedValue)
     {
         if(Verify)
         {
@@ -387,14 +387,14 @@ protected:
     }
 
     /////////////////////////////////////////////////////////////////////////////////////
-    /// Verifies if Pitch in tiles matches the expected value.  Fails test if value 
+    /// Verifies if Pitch in tiles matches the expected value.  Fails test if value
     /// doesn't match
     ///
     /// @param[in]  ResourceInfo: ResourceInfo returned by GmmLib
     /// @param[in]  ExpectedValue: expected value to check against
     /////////////////////////////////////////////////////////////////////////////////////
     template <bool Verify>
-    void VerifyResourcePitchInTiles(GMM_RESOURCE_INFO &ResourceInfo, ULONG ExpectedValue)
+    void VerifyResourcePitchInTiles(GMM_RESOURCE_INFO &ResourceInfo, uint32_t ExpectedValue)
     {
         if(Verify)
         {
@@ -409,7 +409,7 @@ protected:
     /// @param[in]  ExpectedValue: expected value to check against
     /////////////////////////////////////////////////////////////////////////////////////
     template <bool Verify>
-    void VerifyResourceSize(GMM_RESOURCE_INFO &ResourceInfo, ULONGLONG ExpectedValue)
+    void VerifyResourceSize(GMM_RESOURCE_INFO &ResourceInfo, uint64_t ExpectedValue)
     {
         if(Verify)
         {
@@ -424,7 +424,7 @@ protected:
     /// @param[in]  ExpectedValue: expected value to check against
     /////////////////////////////////////////////////////////////////////////////////////
     template <bool Verify>
-    void VerifyResourceQPitch(GMM_RESOURCE_INFO &ResourceInfo, ULONG ExpectedValue)
+    void VerifyResourceQPitch(GMM_RESOURCE_INFO &ResourceInfo, uint32_t ExpectedValue)
     {
         if(Verify)
         {
@@ -443,7 +443,7 @@ public:
 
 
 /////////////////////////////////////////////////////////////////////////
-/// Fixture class for Resources targeted for CpuBlt. This is CpuBlt resource 
+/// Fixture class for Resources targeted for CpuBlt. This is CpuBlt resource
 /// test case. Inherits CTestResource class.
 /// @see      CTestResource class
 /////////////////////////////////////////////////////////////////////////

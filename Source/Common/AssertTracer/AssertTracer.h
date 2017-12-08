@@ -24,10 +24,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 File Name:  AssertTracer.h
 
 Abstract:
-    These functions enables reporting asserts to system log in the debug 
+    These functions enables reporting asserts to system log in the debug
     driver build.
 
-Notes:       
+Notes:
 
 \*****************************************************************************/
 #ifndef _ASSERT_TRACER_H_
@@ -69,7 +69,7 @@ Notes:
     }
 
 #ifdef __cplusplus
-extern "C" 
+extern "C"
     {
 #endif
 void __stdcall ReportAssert( const char *expr,
@@ -96,7 +96,6 @@ void __stdcall ReportAssertETW(const unsigned short compId,
 // As invoking assert looks like this: assert(expr); So semicolon will
 // be stuck to do.. while() and that way sorting out possible
 // problems when assert is used as block in one liner conditions
-// see. X86RecognizableInstr.cpp:331
 #define REPORT_ASSERT( expr )                                          \
     do {                                                               \
         if( !( expr ) )                                                \

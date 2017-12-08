@@ -30,8 +30,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define GMM_BYTES(a)                                    (a)
 #define GMM_KBYTE(a)                                    ((a) * 1024)
 #define GMM_MBYTE(a)                                    ((a) * 1024 * 1024)
-#define GMM_GBYTE(a)                                    (((UINT64) 1024) * 1024 * 1024 * (a))
-#define GMM_TBYTE(a)                                    (((UINT64) 1024) * 1024 * 1024 * 1024 * (a))
+#define GMM_GBYTE(a)                                    (((uint64_t) 1024) * 1024 * 1024 * (a))
+#define GMM_TBYTE(a)                                    (((uint64_t) 1024) * 1024 * 1024 * 1024 * (a))
 #define GMM_SCANLINES(a)                                (a)
 #define GMM_DEPTH(a)                                    (a)
 #define GMM_PIXELS(a)                                   (a)
@@ -44,7 +44,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define __GMM_IS_ALIGN(A, B)            (((A) % (B)) == 0)
 #define __BIT(x)                        (1UL << (x))
 #define __MASKED_BIT(x)                 (__BIT(x) | (__BIT(x) << 16))
-#define __BIT64(x)                      ((UINT64)1 << (x))
+#define __BIT64(x)                      ((uint64_t)1 << (x))
 #define __GMM_SET_BIT(A, b)             (A |= __BIT(b))
 #define __GMM_CLEAR_BIT(A, b)           (A &= ~__BIT(b))
 #define __GMM_IS_BIT_SET(A, b)          (A & __BIT(b))
@@ -97,14 +97,14 @@ OTHER DEALINGS IN THE SOFTWARE.
          GmmGetGttContext(pGmmGlobalContext)->GfxAddrRange.PP.Size)))
 
 /*
- * This definition of GMM_INLINE is for compatibility purposes between different compilers. 
+ * This definition of GMM_INLINE is for compatibility purposes between different compilers.
  */
 
 #if defined(__ghs__)
 
-/* 
- * Green Hills Software compiler does not accept __inline keyword, so we must define  
- * GMM_INLINE as inline. 
+/*
+ * Green Hills Software compiler does not accept __inline keyword, so we must define
+ * GMM_INLINE as inline.
  */
 
 #define GMM_INLINE inline

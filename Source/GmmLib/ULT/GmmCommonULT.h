@@ -35,7 +35,7 @@ public:
 protected:
     static ADAPTER_INFO *pGfxAdapterInfo;
     static PLATFORM GfxPlatform;
-    //static GMM_GLOBAL_CONTEXT *pGmmGlobalContext;   // TODO: when GlobalContext class initialization is in place we will replace global vairable and 
+    //static GMM_GLOBAL_CONTEXT *pGmmGlobalContext;   // TODO: when GlobalContext class initialization is in place we will replace global vairable and
                                                       // extern for pGmmGlobalContext with local class instance initialized by ULT.
 
 };

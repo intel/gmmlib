@@ -31,18 +31,18 @@ OTHER DEALINGS IN THE SOFTWARE.
 //                     for it is needed in GmmResCpuBlt.
 //
 // Note: These 64KB swizzles are not really hardware tile swizzles, so leave
-//       them out of the CpuSwizzleBlt.c 
+//       them out of the CpuSwizzleBlt.c
 
-/*  On systems that do not support Std Swizzle (IGFX_GEN7_5_CORE / IGFX_GEN8_CORE), 
-we still have to support 64KB tiles. These 64KB tiles will be made of 16 4KB 
-tiles -- we'll be using TileY to create these 64KB tiles. The table below shows 
-how the 64KB tile shape changes depending on the bpp and how we need to arrange 
+/*  On systems that do not support Std Swizzle (IGFX_GEN7_5_CORE / IGFX_GEN8_CORE),
+we still have to support 64KB tiles. These 64KB tiles will be made of 16 4KB
+tiles -- we'll be using TileY to create these 64KB tiles. The table below shows
+how the 64KB tile shape changes depending on the bpp and how we need to arrange
 (in columns X rows) the 4KB tiles to fit that shape.
 
     bpp     Tile Size (in pixels)   Tile Size (in bytes)      4K tile config
     ---     --------------------    --------------------      --------------
     8bpp        256x256                 256x256                     2x8
-    16bpp       256x128                 512x128                     4x4                     
+    16bpp       256x128                 512x128                     4x4
     32bpp       128x128                 512x128                     4x4
     64bpp       128x64                  1024x64                     8x2
     128bpp      64x64                   1024x64                     8x2
@@ -63,16 +63,16 @@ extern const SWIZZLE_DESCRIPTOR INTEL_64KB_UNDEFINED_64_128bpp  = {0x7E0F, 0x81F
 //=============================================================================
 // Function:
 //    GmmIsRedecribedPlanes
-//    
+//
 // Description:
 //     Checks if the resource has redescribed planes
-//                          
+//
 // Arguments: <Look at Function Header)
-//    
+//
 // Return:
-//    TRUE or FALSE
+//    1 or 0
 //-----------------------------------------------------------------------------
-BOOLEAN GMM_STDCALL GmmIsRedecribedPlanes(GMM_RESOURCE_INFO *pGmmResource)
+uint8_t GMM_STDCALL GmmIsRedecribedPlanes(GMM_RESOURCE_INFO *pGmmResource)
 {
     return
         pGmmResource->GetResFlags().Info.RedecribedPlanes;
@@ -81,16 +81,16 @@ BOOLEAN GMM_STDCALL GmmIsRedecribedPlanes(GMM_RESOURCE_INFO *pGmmResource)
 //=============================================================================
 // Function:
 //    GmmIsStdTilingSupported
-//    
+//
 // Description:
 //     Checks if the given ResCreateParams is supported for TileYf/Ys
-//                          
+//
 // Arguments: <Look at Function Header)
-//    
+//
 // Return:
-//    TRUE or FALSE
+//    1 or 0
 //-----------------------------------------------------------------------------
-BOOLEAN GMM_STDCALL GmmIsStdTilingSupported(GMM_RESCREATE_PARAMS* pCreateParams)
+uint8_t GMM_STDCALL GmmIsStdTilingSupported(GMM_RESCREATE_PARAMS* pCreateParams)
 {
     GMM_TEXTURE_INFO Surface;
     Surface.Type = pCreateParams->Type;
@@ -120,7 +120,7 @@ BOOLEAN GMM_STDCALL GmmIsStdTilingSupported(GMM_RESCREATE_PARAMS* pCreateParams)
     else
     {
         GMM_ASSERTDPF(0, "Format Error");
-        return FALSE;
+        return 0;
     }
 
    return __CanSupportStdTiling(Surface);
@@ -136,11 +136,11 @@ BOOLEAN GMM_STDCALL GmmIsStdTilingSupported(GMM_RESCREATE_PARAMS* pCreateParams)
 // Arguments: <Look at Function Header)
 //
 // Return:
-//    TRUE or FALSE
+//    1 or 0
 //-----------------------------------------------------------------------------
-BOOLEAN GMM_STDCALL GmmIsUVPacked(GMM_RESOURCE_FORMAT Format)
+uint8_t GMM_STDCALL GmmIsUVPacked(GMM_RESOURCE_FORMAT Format)
 {
-    BOOLEAN Status = FALSE;
+    uint8_t Status = 0;
 
     switch (Format)
     {
@@ -151,10 +151,10 @@ BOOLEAN GMM_STDCALL GmmIsUVPacked(GMM_RESOURCE_FORMAT Format)
     case GMM_FORMAT_P012:
     case GMM_FORMAT_P016:
     case GMM_FORMAT_P208:
-        Status = TRUE;
+        Status = 1;
         break;
     default:
-        Status = FALSE;
+        Status = 0;
         break;
     }
     return Status;
@@ -163,18 +163,18 @@ BOOLEAN GMM_STDCALL GmmIsUVPacked(GMM_RESOURCE_FORMAT Format)
 //=============================================================================
 // Function:
 //    GmmIsYUVPacked
-//    
+//
 // Description:
 //     Checks if format is a YCRCB_xxx format supported by the sampler.
-//                          
+//
 // Arguments: <Look at Function Header)
-//    
+//
 // Return:
-//    TRUE or FALSE
+//    1 or 0
 //-----------------------------------------------------------------------------
-BOOLEAN GMM_STDCALL GmmIsYUVPacked(GMM_RESOURCE_FORMAT Format)
+uint8_t GMM_STDCALL GmmIsYUVPacked(GMM_RESOURCE_FORMAT Format)
 {
-    BOOLEAN Status = FALSE;
+    uint8_t Status = 0;
 
     switch (Format)
     {
@@ -190,10 +190,10 @@ BOOLEAN GMM_STDCALL GmmIsYUVPacked(GMM_RESOURCE_FORMAT Format)
     case GMM_FORMAT_Y216:
     case GMM_FORMAT_Y416:
     case GMM_FORMAT_AYUV:
-        Status = TRUE;
+        Status = 1;
         break;
     default:
-        Status = FALSE;
+        Status = 0;
         break;
     }
     return Status;
@@ -202,18 +202,18 @@ BOOLEAN GMM_STDCALL GmmIsYUVPacked(GMM_RESOURCE_FORMAT Format)
 //=============================================================================
 // Function:
 //    GmmIsPlanar
-//    
+//
 // Description:
 //     Checks if format is YUV planar
-//                          
+//
 // Arguments: <Look at Function Header)
-//    
+//
 // Return:
-//    TRUE or FALSE
+//    1 or 0
 //-----------------------------------------------------------------------------
-BOOLEAN GMM_STDCALL GmmIsPlanar(GMM_RESOURCE_FORMAT Format)
+uint8_t GMM_STDCALL GmmIsPlanar(GMM_RESOURCE_FORMAT Format)
 {
-    BOOLEAN Status = FALSE;
+    uint8_t Status = 0;
 
     switch (Format)
     {
@@ -232,8 +232,8 @@ BOOLEAN GMM_STDCALL GmmIsPlanar(GMM_RESOURCE_FORMAT Format)
         case GMM_FORMAT_MFX_JPEG_YUV422V:
         case GMM_FORMAT_MFX_JPEG_YUV444:
         case GMM_FORMAT_RGBP:
-        case GMM_FORMAT_YV12:      
-        case GMM_FORMAT_YVU9:       
+        case GMM_FORMAT_YV12:
+        case GMM_FORMAT_YVU9:
         // YUV Hybrid Formats - GMM treats as Planar
         case GMM_FORMAT_NV11:
         case GMM_FORMAT_NV12:
@@ -242,11 +242,11 @@ BOOLEAN GMM_STDCALL GmmIsPlanar(GMM_RESOURCE_FORMAT Format)
         case GMM_FORMAT_P012:
         case GMM_FORMAT_P016:
         case GMM_FORMAT_P208:
-            Status = TRUE;
+            Status = 1;
             break;
         default:
-            Status = FALSE;
-            break;      
+            Status = 0;
+            break;
     }
     return Status;
 }
@@ -254,28 +254,28 @@ BOOLEAN GMM_STDCALL GmmIsPlanar(GMM_RESOURCE_FORMAT Format)
 //=============================================================================
 // Function:
 //    GmmIsP0xx
-//    
+//
 // Description:
 //     Checks if format is P0xx
-//                          
+//
 // Arguments: <Look at Function Header)
-//    
+//
 // Return:
-//    TRUE or FALSE
+//    1 or 0
 //-----------------------------------------------------------------------------
-BOOLEAN GMM_STDCALL GmmIsP0xx(GMM_RESOURCE_FORMAT Format)
+uint8_t GMM_STDCALL GmmIsP0xx(GMM_RESOURCE_FORMAT Format)
 {
-    BOOLEAN Status = FALSE;
+    uint8_t Status = 0;
 
     switch (Format)
     {
         case GMM_FORMAT_P010:
         case GMM_FORMAT_P012:
         case GMM_FORMAT_P016:
-            Status = TRUE;
+            Status = 1;
             break;
         default:
-            Status = FALSE;
+            Status = 0;
             break;
     }
 
@@ -285,41 +285,41 @@ BOOLEAN GMM_STDCALL GmmIsP0xx(GMM_RESOURCE_FORMAT Format)
 //=============================================================================
 // Function:
 //    GmmIsCompressed
-//    
+//
 // Description:
 //     Checks if format is compressed
-//                          
+//
 // Arguments: <Look at Function Header)
-//    
+//
 // Return:
-//    TRUE or FALSE
+//    1 or 0
 //-----------------------------------------------------------------------------
-BOOLEAN GMM_STDCALL GmmIsCompressed(GMM_RESOURCE_FORMAT Format)
+uint8_t GMM_STDCALL GmmIsCompressed(GMM_RESOURCE_FORMAT Format)
 {
-    return 
-        (Format > GMM_FORMAT_INVALID) && 
-        (Format < GMM_RESOURCE_FORMATS) && 
+    return
+        (Format > GMM_FORMAT_INVALID) &&
+        (Format < GMM_RESOURCE_FORMATS) &&
         pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].Compressed;
 }
 
 //==============================================================================
-// 
+//
 // Function:
 //      GmmGetUseGlobalGtt
-// 
+//
 // Description:
-//      Determines and returns whether the specified command should use a 
-//      global (GTT) or per-process (PPGTT) address, and optionally sets the 
+//      Determines and returns whether the specified command should use a
+//      global (GTT) or per-process (PPGTT) address, and optionally sets the
 //      appropriate fields in a provided "DriverId" to communicate to KMD:Patch.
 //
 // Returns:
-//      Boolean indicating whether command should use GTT or PPGTT address space.
+//      uint8_t indicating whether command should use GTT or PPGTT address space.
 //      (Also appropriately modifies *pDriverId.)
-//    
+//
 //-----------------------------------------------------------------------------
-BOOLEAN GMM_STDCALL GmmGetUseGlobalGtt(GMM_HW_COMMAND_STREAMER cs, GMM_HW_COMMAND Command, D3DDDI_PATCHLOCATIONLIST_DRIVERID *pDriverId) 
+uint8_t GMM_STDCALL GmmGetUseGlobalGtt(GMM_HW_COMMAND_STREAMER cs, GMM_HW_COMMAND Command, D3DDDI_PATCHLOCATIONLIST_DRIVERID *pDriverId)
 {
-    BOOLEAN             UseGlobalGtt;
+    uint8_t             UseGlobalGtt;
     const SKU_FEATURE_TABLE& SkuTable = pGmmGlobalContext->GetSkuTable();
     const WA_TABLE& WaTable = pGmmGlobalContext->GetWaTable();
 
@@ -335,20 +335,20 @@ BOOLEAN GMM_STDCALL GmmGetUseGlobalGtt(GMM_HW_COMMAND_STREAMER cs, GMM_HW_COMMAN
     __GMM_ASSERT((Command != GMM_MI_REPORT_PERF_COUNT)            || (cs == GMM_CS));
     __GMM_ASSERT((Command != GMM_PIPE_CONTROL)                    || (cs == GMM_CS));
 
-    UseGlobalGtt = 
+    UseGlobalGtt =
         WaTable.WaForceGlobalGTT ||
-        ((Command == GMM_MI_BATCH_BUFFER_START) && 
+        ((Command == GMM_MI_BATCH_BUFFER_START) &&
             (!SkuTable.FtrPPGTT || WaTable.WaPpgttAliasGlobalGttSpace)) ||
-        ((Command == GMM_MI_REPORT_PERF_COUNT) && 
+        ((Command == GMM_MI_REPORT_PERF_COUNT) &&
             (WaTable.WaReportPerfCountForceGlobalGTT)) ||
-        ((Command == GMM_MI_STORE_DATA_IMM) && 
+        ((Command == GMM_MI_STORE_DATA_IMM) &&
             ((cs == GMM_CS) && WaTable.WaOaAddressTranslation)) ||
-        ((Command == GMM_PIPE_CONTROL) && 
+        ((Command == GMM_PIPE_CONTROL) &&
             ((cs == GMM_CS) && WaTable.WaOaAddressTranslation));
 
-    if(pDriverId) 
+    if(pDriverId)
     {
-        pDriverId->UseGlobalGtt = UseGlobalGtt;
+        pDriverId->UseGlobalGtt = (uint32_t)UseGlobalGtt;
     }
 
     GMM_DPF_EXIT;
@@ -374,7 +374,7 @@ void GMM_STDCALL GmmGetCacheSizes(GMM_CACHE_SIZES *pCacheSizes)
     const GT_SYSTEM_INFO *pGtSysInfo;
     __GMM_ASSERT(pCacheSizes != NULL);
     __GMM_ASSERT(pGmmGlobalContext != NULL);
-    
+
     GMM_DPF_ENTER;
     pGtSysInfo = pGmmGlobalContext->GetGtSysInfoPtr();
     pCacheSizes->TotalEDRAM = GMM_KBYTE(pGtSysInfo->EdramSizeInKb);
@@ -389,7 +389,7 @@ void GMM_STDCALL GmmGetCacheSizes(GMM_CACHE_SIZES *pCacheSizes)
 // Function: __GmmLog2
 //
 // Desc: Returns Log2 of passed value. Useful for indexing into arrays.
-//       
+//
 // Parameters:
 //      Value => Must be power of 2
 //
@@ -402,13 +402,13 @@ uint32_t __GmmLog2(uint32_t Value)
 {
     uint32_t FirstSetBit = 0; // bit # of first set bit in Bpp.
 
-#if _MSC_VER 
+#if _MSC_VER
     // Check that Value is pow2
     __GMM_ASSERT(__popcnt(Value) <= 1);
     _BitScanReverse((DWORD*)&FirstSetBit, (DWORD)Value);
 #elif defined(__ghs__)
     FirstSetBit = ffs(Value);
-#else    
+#else
     // Check that Value is pow2
     __GMM_ASSERT(__builtin_popcount(Value) <= 1);
     FirstSetBit = __builtin_ctz(Value);
@@ -443,9 +443,9 @@ const uint32_t __GmmTileYConversionTable[5][2] =
 //16          4x4
 const uint32_t __GmmMSAAConversion[5][2] =
 {
-    // MSAA 1x 
+    // MSAA 1x
     { 1, 1 },
-    // MSAA 2x 
+    // MSAA 2x
     { 2, 1 },
     // MSAA 4x
     { 2, 2 },
@@ -468,7 +468,7 @@ const uint32_t __GmmMSAAConversion[5][2] =
 // Returns:
 //
 //-----------------------------------------------------------------------------
-BOOLEAN __GmmGetD3DToHwTileConversion(GMM_TEXTURE_INFO *pTexInfo,
+bool __GmmGetD3DToHwTileConversion(GMM_TEXTURE_INFO *pTexInfo,
                                       uint32_t             *pColFactor,
                                       uint32_t             *pRowFactor)
 {
@@ -478,10 +478,10 @@ BOOLEAN __GmmGetD3DToHwTileConversion(GMM_TEXTURE_INFO *pTexInfo,
     // check for  unsupported bpp
     if (!(Bpp == 8 || Bpp == 16 || Bpp == 32 || Bpp == 64 || Bpp == 128))
     {
-        __GMM_ASSERT(FALSE);
+        __GMM_ASSERT(0);
         goto EXIT_ERROR;
     }
-  
+
     // for TileYS, no conversion
     if (pTexInfo->Flags.Info.TiledYs || pTexInfo->Flags.Info.Linear)
     {
@@ -494,20 +494,20 @@ BOOLEAN __GmmGetD3DToHwTileConversion(GMM_TEXTURE_INFO *pTexInfo,
         {
             //      Bpp = 8      => i = 0           , Bpp = 16 => i = 1, ...
             // Log2(Bpp = 8) = 3 => i = Log2(8) - 3.
-    
+
             i = __GmmLog2(Bpp) - 3;
             *pColFactor = __GmmTileYConversionTable[i][0];
             *pRowFactor = __GmmTileYConversionTable[i][1];
         }
 
-        // Logic for MSAA 
+        // Logic for MSAA
         if (pTexInfo->MSAA.NumSamples > 1)
         {
-        
+
             // For MSAA, the DirectX tile dimensions change, using the table __GmmMSAAConversion.
             uint32_t W = __GmmMSAAConversion[__GmmLog2(pTexInfo->MSAA.NumSamples)][0];
             uint32_t H = __GmmMSAAConversion[__GmmLog2(pTexInfo->MSAA.NumSamples)][1];
-        
+
             // For the new DirectX tile dimensions the new Col and Row conversion factors are:
             *pColFactor /= W;
             *pRowFactor /= H;
@@ -516,16 +516,16 @@ BOOLEAN __GmmGetD3DToHwTileConversion(GMM_TEXTURE_INFO *pTexInfo,
     else
     {
         // unsupported format.
-        __GMM_ASSERT(FALSE);
+        __GMM_ASSERT(0);
         goto EXIT_ERROR;
     }
 
-    return TRUE;
+    return true;
 
 EXIT_ERROR:
     *pColFactor = 0;
     *pRowFactor = 0;
-    return FALSE;
+    return false;
 }
 
 namespace GmmLib {
@@ -543,7 +543,7 @@ namespace GmmLib {
 // Return:
 //    uint32_t number of planes
 //-----------------------------------------------------------------------------
-ULONG GMM_STDCALL GmmGetNumPlanes(GMM_RESOURCE_FORMAT Format)
+uint32_t GMM_STDCALL GmmGetNumPlanes(GMM_RESOURCE_FORMAT Format)
 {
     uint32_t Planes = 1;
 

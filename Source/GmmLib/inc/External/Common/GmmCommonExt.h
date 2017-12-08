@@ -43,10 +43,10 @@ extern const SWIZZLE_DESCRIPTOR INTEL_64KB_UNDEFINED_64_128bpp;
 //     The GMM GfxAddr/Size and related types and casting functions.
 //----------------------------------------------------------------------------
 // Always use x64 (D3D11.2 Tiled Resources needs >32 bit gfx address space)
-typedef UINT64  GMM_GFX_ADDRESS, GMM_GFX_SIZE_T, GMM_VOIDPTR64;
+typedef uint64_t  GMM_GFX_ADDRESS, GMM_GFX_SIZE_T, GMM_VOIDPTR64;
 #define GMM_GFX_ADDRESS_MAX ((GMM_GFX_ADDRESS) 0xffffffffffffffff)
 
-typedef UINT32 GMM_GLOBAL_GFX_ADDRESS, GMM_GLOBAL_GFX_SIZE_T;
+typedef uint32_t GMM_GLOBAL_GFX_ADDRESS, GMM_GLOBAL_GFX_SIZE_T;
 #define GMM_GLOBAL_GFX_ADDRESS_MAX ((GMM_GLOBAL_GFX_ADDRESS) 0xffffffff)
 
 #ifdef _DEBUG
@@ -77,10 +77,10 @@ typedef UINT32 GMM_GLOBAL_GFX_ADDRESS, GMM_GLOBAL_GFX_SIZE_T;
 #define GMM_GMADR_OFFSET_T_CAST     GMM_GLOBAL_GFX_ADDRESS_CAST
 #define GMM_GMADR_SIZE_T_CAST       GMM_GLOBAL_GFX_SIZE_T_CAST
 
-typedef UINT32  TODO_GFX32; // TODO(Medium): Fix and remove!!
+typedef uint32_t  TODO_GFX32; // TODO(Medium): Fix and remove!!
 
-#define GMM_GFX_ADDRESS_CANONIZE(a)     (((INT64)(a) << (64 - 48)) >> (64 - 48)) // TODO(Minor): When GMM adds platform-dependent VA size caps, change from 48.
-#define GMM_GFX_ADDRESS_DECANONIZE(a)   ((UINT64)(a) & (((UINT64) 1 << 48) - 1)) // "
+#define GMM_GFX_ADDRESS_CANONIZE(a)     (((int64_t)(a) << (64 - 48)) >> (64 - 48)) // TODO(Minor): When GMM adds platform-dependent VA size caps, change from 48.
+#define GMM_GFX_ADDRESS_DECANONIZE(a)   ((uint64_t)(a) & (((uint64_t) 1 << 48) - 1)) // "
 
 #define GMM_BIT_RANGE(endbit, startbit)     ((endbit)-(startbit)+1)
 #define GMM_BIT(bit)                        (1)
@@ -472,7 +472,7 @@ typedef struct GMM_REQ_OFFSET_INFO_REC
         uint32_t               ZOffset;
     }                   Render;
 
-    struct 
+    struct
     {
         GMM_GFX_SIZE_T      Offset;
         GMM_GFX_SIZE_T      TileRowPitch;
@@ -497,7 +497,7 @@ typedef enum GMM_HW_COMMAND_STREAMER_ENUM
     GMM_VECS,    // Video Enhancement (VEBOX) Command Streamer
     GMM_VCS2,    // Video Codec (MFX) Command Streamer 2
     GMM_COMPUTE, // Compute Only Command Streamer
-    GMM_PICS,    // Pinning Command Streamer 
+    GMM_PICS,    // Pinning Command Streamer
     GMM_CAPTURE, // Capture Command Streamer
     GMM_HW_COMMAND_STREAMERS // <-- This stays last.
 } GMM_HW_COMMAND_STREAMER;

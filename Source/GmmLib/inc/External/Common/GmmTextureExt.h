@@ -58,7 +58,7 @@ typedef struct GMM_2D_TEXTURE_OFFSET_INFO_REC
     GMM_GFX_SIZE_T              ArrayQPitchLock;
     GMM_GFX_SIZE_T              ArrayQPitchRender;
     GMM_GFX_SIZE_T              Offset[GMM_MAX_MIPMAP];
-}GMM_2D_TEXTURE_OFFSET_INFO_T;  
+}GMM_2D_TEXTURE_OFFSET_INFO_T;
 
 //===========================================================================
 // typedef:
@@ -88,14 +88,14 @@ typedef struct GMM_OFFSET_INFO_REC
         GMM_2D_TEXTURE_OFFSET_INFO_T    Texture2DOffsetInfo;
         GMM_PLANAR_OFFSET_INFO          Plane;
     };
-}GMM_OFFSET_INFO, GMM_OFFSET_INFO_T;   
+}GMM_OFFSET_INFO, GMM_OFFSET_INFO_T;
 
 //===========================================================================
 // typedef:
 //        GMM_TEXTURE_CALC
 //
 // Description:
-//     This struct is used to texture calculator.  
+//     This struct is used to texture calculator.
 //     Forward Declaration: Defined in GmmGenXXTextureCalc*.h
 //---------------------------------------------------------------------------
 #ifdef __cplusplus
@@ -120,18 +120,18 @@ typedef struct GmmTextureCalc GMM_TEXTURE_CALC;
 typedef struct GMM_TEXTURE_INFO_REC
 {
      // Input ----------------------------------
-    GMM_RESOURCE_TYPE       Type;          
+    GMM_RESOURCE_TYPE       Type;
     GMM_RESOURCE_FORMAT     Format;
     uint32_t                BitsPerPixel;
     GMM_RESOURCE_FLAG       Flags;
-    
+
     uint64_t                BaseWidth;
     uint32_t                BaseHeight;
     uint32_t                Depth;
     uint32_t                MaxLod;
     uint32_t                ArraySize;
-    
-    struct{ 
+
+    struct{
         GMM_RESOURCE_USAGE_TYPE Usage;
     }                       CachePolicy;
 
@@ -140,7 +140,7 @@ typedef struct GMM_TEXTURE_INFO_REC
     // Output ---------------------------------
     GMM_RESOURCE_ALIGNMENT  Alignment;
 
-    uint8_t                 MmcMode[GMM_MAX_MMC_INDEX];     
+    uint8_t                 MmcMode[GMM_MAX_MMC_INDEX];
     uint8_t                 MmcHint[GMM_MAX_MMC_INDEX];
 
     GMM_GFX_SIZE_T          Pitch;
@@ -150,11 +150,11 @@ typedef struct GMM_TEXTURE_INFO_REC
     GMM_GFX_SIZE_T          CCSize;          // 4kb => 128 bit Float + 32bit Native RT + Padding. Usage : Gpu.IndirectClearColor
     GMM_GFX_SIZE_T          UnpaddedSize;    // Unpadded CCS Size for Flags.Gpu.UnifiedAuxSurface only
     GMM_GFX_SIZE_T          SizeReportToOS;  // For Non-aligned ESM
-    
+
     GMM_OFFSET_INFO         OffsetInfo;      // (X,Y) offsets to each mipmap/plane
     GMM_TILE_MODE           TileMode;
-    UINT                    CCSModeAlign;    // For AUX_CCS, TexAlign.CCSEx index derived from main surface tiling
-    uint32_t                   LegacyFlags;    
+    uint32_t                CCSModeAlign;    // For AUX_CCS, TexAlign.CCSEx index derived from main surface tiling
+    uint32_t                LegacyFlags;
 
     GMM_S3D_INFO            S3d;
 
@@ -162,7 +162,7 @@ typedef struct GMM_TEXTURE_INFO_REC
         D3DDDIFORMAT        MsFormat;
 
     #endif
-        
+
     struct{
         uint32_t               Seg1    : 8;
         uint32_t               Evict   : 8;
@@ -175,10 +175,10 @@ typedef struct GMM_TEXTURE_INFO_REC
     #else
         PLATFORM        __Platform; // Do not use--For size preservation only.
     #endif
-    
+
     struct{
-        BOOLEAN             IsGmmAllocated;
-        BOOLEAN             IsPageAligned;
+        uint8_t          IsGmmAllocated;
+        uint8_t          IsPageAligned;
     }                   ExistingSysMem;
 }GMM_TEXTURE_INFO;
 
@@ -187,14 +187,14 @@ typedef struct GMM_TEXTURE_INFO_REC
 //                      GMM_TEXTURE API
 //
 //***************************************************************************
-#if(defined(__GMM_KMD__)) 
+#if(defined(__GMM_KMD__))
 GMM_STATUS GmmTexAlloc(GMM_TEXTURE_INFO* pTexInfo);
 GMM_STATUS GmmTexLinearCCS(GMM_TEXTURE_INFO* pTexInfo, GMM_TEXTURE_INFO *pAuxTexInfo);
 #endif
 GMM_STATUS GmmTexGetMipMapOffset(GMM_TEXTURE_INFO* pTexInfo, GMM_REQ_OFFSET_INFO* pReqInfo);
 
-#define GMM_ISNOT_TILED(TileInfo) ((TileInfo).LogicalSize == 0)  
-#define GMM_IS_TILED(TileInfo)    ((TileInfo).LogicalSize > 0)  
+#define GMM_ISNOT_TILED(TileInfo) ((TileInfo).LogicalSize == 0)
+#define GMM_IS_TILED(TileInfo)    ((TileInfo).LogicalSize > 0)
 #define GMM_CLEAR_TILEINFO(TileInfo)            \
 {                                               \
         (TileInfo).LogicalSize = 0;             \

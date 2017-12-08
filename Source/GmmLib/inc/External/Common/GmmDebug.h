@@ -22,9 +22,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 // ------------------------------------------------------------------------
-// This block determines where GMM gets definitions for debug assert and 
+// This block determines where GMM gets definitions for debug assert and
 // print functions. Location differs depending who is linking GMM lib.
-// ------------------------------------------------------------------------      
+// ------------------------------------------------------------------------
 
 #if defined(D3D12_GMM)
     #include "..\..\d3d12\PCH\D3D12DebugGMM.h"
@@ -41,7 +41,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 // ------------------------------------------------------------------------
 // This block determines defines anything that GMM clients don't provide.
-// ------------------------------------------------------------------------  
+// ------------------------------------------------------------------------
 #if defined (__KLOCWORK__)
 
     #define GMM_DPF GMMDebugMessage
@@ -71,7 +71,7 @@ OTHER DEALINGS IN THE SOFTWARE.
         #define __GMM_ASSERTPTR GMM_ASSERT_PTR      // ID3D9Debug.h
     #endif
 #elif defined (DXVA11_GMM)
-    
+
     #define GMM_DPF         GMMDebugMessage     // dxva11_debug_gmm.h
     #ifndef __GMM_ASSERT
         #define __GMM_ASSERT    GMM_ASSERT          // dxva11_debug_gmm.h
@@ -80,7 +80,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #elif defined (GMM_OGL)
 
     #if _DEBUG && !defined(__GMM_ASSERT)
-        #ifdef __cplusplus 
+        #ifdef __cplusplus
             extern"C"
         #endif
         void __cdecl GMMDebugBreak( const char* file, const char* function, const int line );
@@ -121,7 +121,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 // ------------------------------------------------------------------------
 // This block defines various debug print macros
-// ------------------------------------------------------------------------ 
+// ------------------------------------------------------------------------
 #define GMM_DPF_ENTER   \
     GMM_DPF(GFXDBG_FUNCTION_ENTRY, "%s-->\n", __FUNCTION__);
 
@@ -129,7 +129,7 @@ OTHER DEALINGS IN THE SOFTWARE.
     GMM_DPF(GFXDBG_FUNCTION_EXIT, "%s<--\n", __FUNCTION__);
 
 #define GMM_DPF_CRITICAL(Message)    \
-    GMM_DPF(GFXDBG_CRITICAL, "%s:%d: %s\n", __FUNCTION__, __LINE__, (Message)); 
+    GMM_DPF(GFXDBG_CRITICAL, "%s:%d: %s\n", __FUNCTION__, __LINE__, (Message));
 
 #ifndef GMM_ASSERTDPF
     #define GMM_ASSERTDPF(Expression, Message)  \

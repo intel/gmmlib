@@ -40,7 +40,7 @@ namespace GmmLib
         public GmmMemAllocator
     {
         private:
-            static LONG RefCount;
+            static int32_t RefCount;
 
         public:
             GMM_CACHE_POLICY_ELEMENT *pCachePolicy;
@@ -59,7 +59,7 @@ namespace GmmLib
                 //TODO[Android]
             }
 
-            static LONG DecrementRefCount()
+            static int32_t DecrementRefCount()
             {
                 #if defined(__GMM_KMD__) || _WIN32
                     return(InterlockedDecrement(&RefCount));
@@ -68,7 +68,7 @@ namespace GmmLib
                 #endif
                 //TODO[Android]
             }
-            
+
             /* Function prototypes */
             #if _WIN32
             void OverrideCachePolicy();
@@ -97,7 +97,7 @@ namespace GmmLib
             GMM_PTE_CACHE_CONTROL_BITS GMM_STDCALL CachePolicyGetPteType(GMM_RESOURCE_USAGE_TYPE Usage);
 
             /* Virtual functions prototype*/
-            virtual BOOLEAN GMM_STDCALL CachePolicyIsUsagePTECached(GMM_RESOURCE_USAGE_TYPE Usage) = 0;
+            virtual uint8_t GMM_STDCALL CachePolicyIsUsagePTECached(GMM_RESOURCE_USAGE_TYPE Usage) = 0;
             virtual GMM_STATUS InitCachePolicy() = 0;
             virtual ~GmmCachePolicyCommon()
             {
