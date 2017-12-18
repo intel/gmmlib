@@ -27,7 +27,6 @@ extern "C" {
 #endif /*__cplusplus*/
 
 #ifndef _WIN32
-#include <portable_windef.h>
 #include <portable_compiler.h>
 #endif
 
