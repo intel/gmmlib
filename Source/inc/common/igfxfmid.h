@@ -524,13 +524,13 @@ typedef enum __NATIVEGTTYPE
 #define IHSW_CRW_MOBL_GT2_DEV_ID              0xD16
 #define IHSW_CRW_DESK_GT3_DEV_ID              0xD22
 #define IHSW_CRW_MOBL_GT3_DEV_ID              0xD26
-#define IHSW_CRW_SERV_GT3_DEV_ID              0xD2A // Server GT3, pending POR
+#define IHSW_CRW_SERV_GT3_DEV_ID              0xD2A
 
 //VLV device ids
-#define IVLV_DESK_DEVICE_F0_ID           0x0F32   // To Do Remove Dsktp VLV Desktop graphics function 0 ID
+#define IVLV_DESK_DEVICE_F0_ID           0x0F32
 #define IVLV_MOBL_DEVICE_F0_ID           0x0F30   // VLV Mobile graphics function 0 ID
 //VLV Plus device ids
-#define IVLV_PLUS_DESK_DEVICE_F0_ID      0x0F33   // To Do Remove Dsktp VLV Desktop graphics function 0 ID
+#define IVLV_PLUS_DESK_DEVICE_F0_ID      0x0F33
 #define IVLV_PLUS_MOBL_DEVICE_F0_ID      0x0F31   // VLV Plus Mobile graphics function 0 ID
 
 //CHV device ids
@@ -556,13 +556,13 @@ typedef enum __NATIVEGTTYPE
 #define IBDW_GT2_ULT_MOBL_DEVICE_F0_ID          0x1616
 #define IBDW_GT2_RSVD_DEVICE_F0_ID              0x161B
 #define IBDW_GT2_SERV_DEVICE_F0_ID              0x161A
-#define IBDW_GT2_WRK_DEVICE_F0_ID               0x161D //ZBBd
+#define IBDW_GT2_WRK_DEVICE_F0_ID               0x161D
 #define IBDW_GT2_ULX_DEVICE_F0_ID               0x161E
 #define IBDW_GT3_HALO_MOBL_DEVICE_F0_ID         0x1622
 #define IBDW_GT3_ULT_MOBL_DEVICE_F0_ID          0x1626
 #define IBDW_GT3_ULT25W_MOBL_DEVICE_F0_ID       0x162B //This is actually 28w
 #define IBDW_GT3_SERV_DEVICE_F0_ID              0x162A
-#define IBDW_GT3_WRK_DEVICE_F0_ID               0x162D// ZBBd
+#define IBDW_GT3_WRK_DEVICE_F0_ID               0x162D
 #define IBDW_GT3_ULX_DEVICE_F0_ID               0x162E
 #define IBDW_RSVD_MRKT_DEVICE_F0_ID             0x1632
 #define IBDW_RSVD_ULT_MOBL_DEVICE_F0_ID         0x1636
@@ -665,19 +665,9 @@ typedef enum __NATIVEGTTYPE
 #define IBXT_P_3x6_DEVICE_ID                 0x5A84 //18EU APL
 #define IBXT_P_12EU_3x6_DEVICE_ID            0x5A85 //12EU APL
 
-// CNL Placeholder
-// These device ID defs to be removed later on after UMD switches to GT_SYSTEM_INFO interface.
-#define ICNL_GT0_DESK_DEVICE_F0_ID              0XDEAD      // Not Valid - To be cleaned up.
-#define ICNL_GT1_DESK_DEVICE_F0_ID              0x0A01
-#define ICNL_GT2_DESK_DEVICE_F0_ID              0x0A02
-#define ICNL_GT2_5_DESK_DEVICE_F0_ID            0x0A00      // Not POR - To be cleaned up.
-#define ICNL_GT3_DESK_DEVICE_F0_ID              0x0A05
-#define ICNL_GT4_DESK_DEVICE_F0_ID              0x0A07
-
 // CNL fulsim device ids
 #define ICNL_3x8_DESK_DEVICE_F0_ID              0x0A01
 #define ICNL_5x8_DESK_DEVICE_F0_ID              0x0A02
-#define ICNL_7x8_DESK_DEVICE_F0_ID              0x0A00      // Not POR - To be cleaned up.
 #define ICNL_9x8_DESK_DEVICE_F0_ID              0x0A05
 #define ICNL_13x8_DESK_DEVICE_F0_ID             0x0A07
 

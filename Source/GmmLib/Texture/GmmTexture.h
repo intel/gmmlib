@@ -259,13 +259,11 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
             UnitAlignWidth  = 16;
             UnitAlignHeight = 4;
         }
-        /// TODO(Minor): Temp D3D12 WHQL WA. Remove once GMM switches to optimized H/VALIGN...
         else if(pTexInfo->Flags.Wa.__ForceOtherHVALIGN4)
         {
             UnitAlignWidth  = 4;
             UnitAlignHeight = 4;
         }
-        // FIXME: Resolve semantics of NoRestriction defaulting to 1/1 or 16/4 for H/VAlign for D3D
         #ifndef _WIN32
         else if(pTexInfo->Flags.Gpu.NoRestriction)
         {

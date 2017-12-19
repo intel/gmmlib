@@ -1504,7 +1504,6 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetMappingSpanDesc(GMM_GET_MA
             {
                 // If the resource was a planar surface then need to iterate over the remaining planes
                 WasFinalSpan = pMapping->Scratch.Plane == pMapping->Scratch.LastPlane;
-                //GMM_DPF( GFXDBG_CRITICAL, "\n" );   // TODO (rmadayik): Remove when done testing.
             }
         }
     }

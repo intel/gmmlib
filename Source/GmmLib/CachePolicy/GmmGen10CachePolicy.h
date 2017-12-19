@@ -91,7 +91,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_INDIRECT_OBJECT                    
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_INSTRUCTION                                      , 1   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HIZ                                                   , 1   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_INDEX_BUFFER                                          , 0   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_MCS                                                   , 1   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0); // SKL-TODO: Remove after clients update their code.
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_MCS                                                   , 1   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_PUSH_CONSTANT_BUFFER                                  , 0   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_PULL_CONSTANT_BUFFER                                  , 1   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    1);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_QUERY                                                 , 1   , 1    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);

@@ -82,9 +82,9 @@ typedef struct GMM_RESOURCE_FLAG_REC
         uint32_t Vertex                    : 1;
         uint32_t Video                     : 1; // Apply Video restrictions when padding/aligning this resource (see GmmRestrictions.c)
         uint32_t VxdRenderTarget           : 1; // Flag to indicate that the surface will be used by the MSVDX device. RT is xTiled and pitch alligned to VXD device.
-        uint32_t __NonMsaaTileXCcs         : 1; // Internal GMM flag--Clients don’t set.
-        uint32_t __NonMsaaTileYCcs         : 1; // Internal GMM flag--Clients don’t set.
-        uint32_t __MsaaTileMcs             : 1; // Internal GMM flag--Clients don’t set.
+        uint32_t __NonMsaaTileXCcs         : 1; // Internal GMM flag--Clients don't set.
+        uint32_t __NonMsaaTileYCcs         : 1; // Internal GMM flag--Clients don't set.
+        uint32_t __MsaaTileMcs             : 1; // Internal GMM flag--Clients don't set.
         uint32_t __NonMsaaLinearCCS        : 1; // Internal GMM flag--Clients don't set.
         uint32_t UmdDeferredMap            : 1; // Defer resource mapping by GMM and let UMD manage map/unmap later.
 
@@ -131,21 +131,21 @@ typedef struct GMM_RESOURCE_FLAG_REC
         uint32_t WddmProtected             : 1; // Sets the DXGK_ALLOCATIONINFOFLAGS.Protected flag
         uint32_t XAdapter                  : 1; // For WinBlue: to support Hybrid graphics
         uint32_t YUVShaderFriendlyLayout   : 1; // DX11.1+. Client wants non-std YUV memory layout, friendly to DX shader resource views. NV12 only.
-        uint32_t __PreallocatedResInfo     : 1; // Internal GMM flag--Clients don’t set.
-        uint32_t __PreWddm2SVM             : 1; // Internal GMM flag--Clients don’t set.
+        uint32_t __PreallocatedResInfo     : 1; // Internal GMM flag--Clients don't set.
+        uint32_t __PreWddm2SVM             : 1; // Internal GMM flag--Clients don't set.
     } Info;
 
     // Wa: Any Surface specific Work Around will go in here
     struct
     {
-        uint32_t GTMfx2ndLevelBatchRingSizeAlign   : 1; // GT steppings prior to C0 require MFX 2nd level bb's to have certain alignment. (DCN_856778)
-        uint32_t ILKNeedAvcMprRowStore32KAlign     : 1; // ILK A0 requires 32K align WA for AVC MPR RowStore (DCN_683608)
-        uint32_t ILKNeedAvcDmvBuffer32KAlign       : 1; // ILK A0 requires 32K align WA for AVC DMV Buffers  (DCN_683608)
+        uint32_t GTMfx2ndLevelBatchRingSizeAlign   : 1; // GT steppings prior to C0 require MFX 2nd level bb's to have certain alignment.
+        uint32_t ILKNeedAvcMprRowStore32KAlign     : 1; // ILK A0 requires 32K align WA for AVC MPR RowStore
+        uint32_t ILKNeedAvcDmvBuffer32KAlign       : 1; // ILK A0 requires 32K align WA for AVC DMV Buffers
         uint32_t NoBufferSamplerPadding            : 1; // GMM not to add pre-BDW buffer sampler padding--UMD's take responsibility to flush L3 after sampling, etc.
         uint32_t NoLegacyPlanarLinearVideoRestrictions : 1; // GMM not to apply Legacy Planar "Linear Video" Restrictions (64B pitch alignment)
         uint32_t CHVAstcSkipVirtualMips            : 1; // GMM adjusts mip-map allocation to skip mip0 size
         uint32_t DisablePackedMipTail              : 1; // Disables Yf/Ys MIP Tail packing--forcing each MIP to its own tile boundary.
-        uint32_t __ForceOtherHVALIGN4              : 1; // Temp D3D12 WHQL WA. TODO(Minor): Remove once GMM switches to optimized H/VALIGN.
+        uint32_t __ForceOtherHVALIGN4              : 1;
         uint32_t DisableDisplayCcsClearColor       : 1; // Disables display clear color
         uint32_t DisableDisplayCcsCompression      : 1; // Disables display decompression on the surface (it disables display awareness of both fast clear/render compression)
     } Wa;

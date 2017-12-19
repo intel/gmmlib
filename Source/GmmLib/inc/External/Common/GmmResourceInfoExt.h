@@ -326,7 +326,7 @@ typedef struct GMM_RESCREATE_PARAMS_REC
 //   C |                                                |
 //     |             Tag plane                          |
 //     |          for MSAA/Depth compr                  |
-//     |       (a.k.a ccs, zcs)             ------------|->GmmResGetAuxSurfaceSize(pRes, GMM_AUX_MCS_LCE or GMM_AUX_ZCS)
+//     |       (a.k.a ccs, zcs)             ------------|->GmmResGetSizeAuxSurface(pRes, GMM_AUX_MCS_LCE or GMM_AUX_ZCS)
 //     |________________________________________________|
 //
 //     Where
@@ -464,8 +464,8 @@ uint32_t               GMM_STDCALL GmmResGetAuxPitch(GMM_RESOURCE_INFO *pGmmReso
 uint32_t               GMM_STDCALL GmmResGetAuxQPitch(GMM_RESOURCE_INFO *pGmmResource);
 uint8_t                GMM_STDCALL GmmResIs64KBPageSuitable(GMM_RESOURCE_INFO *pGmmResource);
 uint32_t               GMM_STDCALL GmmResGetAuxSurfaceOffset(GMM_RESOURCE_INFO *pGmmResource, GMM_UNIFIED_AUX_TYPE GmmAuxType);
-GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetAuxSurfaceOffset64(GMM_RESOURCE_INFO *pGmmResource, GMM_UNIFIED_AUX_TYPE GmmAuxType);
-GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetSizeAuxSurface(GMM_RESOURCE_INFO *pGmmResource, GMM_UNIFIED_AUX_TYPE GmmAuxType);
+GMM_GFX_SIZE_T         GMM_STDCALL GmmResGetAuxSurfaceOffset64(GMM_RESOURCE_INFO *pGmmResource, GMM_UNIFIED_AUX_TYPE GmmAuxType);
+GMM_GFX_SIZE_T         GMM_STDCALL GmmResGetSizeAuxSurface(GMM_RESOURCE_INFO *pGmmResource, GMM_UNIFIED_AUX_TYPE GmmAuxType);
 uint32_t               GMM_STDCALL GmmResGetAuxHAlign(GMM_RESOURCE_INFO *pGmmResource);
 uint32_t               GMM_STDCALL GmmResGetAuxVAlign(GMM_RESOURCE_INFO *pGmmResource);
 uint32_t               GMM_STDCALL GmmResGetBaseAlignment(GMM_RESOURCE_INFO *pGmmResource);
@@ -479,8 +479,6 @@ uint32_t               GMM_STDCALL GmmResGetCompressionBlockHeight(GMM_RESOURCE_
 uint32_t               GMM_STDCALL GmmResGetCompressionBlockWidth(GMM_RESOURCE_INFO *pGmmResource);
 GMM_CPU_CACHE_TYPE  GMM_STDCALL GmmResGetCpuCacheType(GMM_RESOURCE_INFO *pGmmResource);
 uint32_t               GMM_STDCALL GmmResGetDepth(GMM_RESOURCE_INFO *pGmmResource);
-void                GMM_STDCALL GmmResGetFlags(GMM_RESOURCE_INFO *pGmmResource, GMM_RESOURCE_FLAG *pFlags /*output*/); //TODO: Remove after changing all UMDs
-GMM_RESOURCE_FLAG   GMM_STDCALL GmmResGetResourceFlags(const GMM_RESOURCE_INFO *pGmmResource);
 GMM_GFX_ADDRESS     GMM_STDCALL GmmResGetGfxAddress(GMM_RESOURCE_INFO *pGmmResource);
 uint32_t               GMM_STDCALL GmmResGetHAlign(GMM_RESOURCE_INFO *pGmmResource);
 #define                         GmmResGetLockPitch GmmResGetRenderPitch // Support old name until UMDs drop use.
@@ -546,15 +544,9 @@ GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetPlanarGetXOffset(GMM_RESOURCE_INFO *pGm
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetPlanarGetYOffset(GMM_RESOURCE_INFO *pGmmResource, GMM_YUV_PLANE Plane);
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetPlanarAuxOffset(GMM_RESOURCE_INFO *pGmmResource, uint32_t ArrayIndex, GMM_UNIFIED_AUX_TYPE Plane);
 
-//=====================================================================================================
-// TODO(Benign):
-// vpg-compute-neo depot is outside of gfx-development/mainline so keep old interface for compatiblity.
-// Remove when neo project moves to new interface
+// Remove when client moves to new interface
 uint32_t            GMM_STDCALL GmmResGetRenderSize(GMM_RESOURCE_INFO *pResourceInfo);
-#define             GmmResGetAllocationSize GmmResGetRenderSize
-#define             GmmResGetAllocationSize64 GmmResGetSizeSurface
-#define             GmmResGetMainSurfaceSize GmmResGetSizeMainSurface
-uint32_t            GMM_STDCALL GmmResGetAuxSurfaceSize(GMM_RESOURCE_INFO *pGmmResource, GMM_UNIFIED_AUX_TYPE GmmAuxType);
+
 //=====================================================================================================
 //forward declarations
 struct GMM_TEXTURE_INFO_REC;

@@ -179,24 +179,6 @@ uint32_t GMM_STDCALL GmmResGetSizeOfStruct(void)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// This function returns resource flags
-///
-/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
-/// @param[out] pFlags: Memory where resource flags will be copied
-/////////////////////////////////////////////////////////////////////////////////////
-void GMM_STDCALL GmmResGetFlags(GMM_RESOURCE_INFO* pGmmResource,
-                                GMM_RESOURCE_FLAG* pFlags /*output*/)
-{
-    GMM_DPF_ENTER;
-    __GMM_ASSERTPTR(pGmmResource, VOIDRETURN);
-    __GMM_ASSERTPTR(pFlags, VOIDRETURN);
-
-    *pFlags = GmmResGetResourceFlags(pGmmResource);
-
-    GMM_DPF_EXIT;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetResourceType.
 /// @see        GmmLib::GmmResourceInfoCommon::GetResourceType()
 ///
@@ -1031,7 +1013,7 @@ GMM_GFX_SIZE_T  GMM_STDCALL GmmResGetSizeMainSurface(const GMM_RESOURCE_INFO *pR
     return pResourceInfo->GetSizeMainSurface();
 }
 
-//TODO(Low) : Remove when vpg-compute-neo moves to new interface
+//TODO(Low) : Remove when client moves to new interface
 /////////////////////////////////////////////////////////////////////////////////////
 /// C wrapper for GmmResourceInfoCommon::GetSizeSurface
 /// @see    GmmLib::GmmResourceInfoCommon::GetSizeSurface()
@@ -1339,19 +1321,6 @@ uint8_t GMM_STDCALL GmmIsSurfaceFaultable(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
     return pGmmResource->IsSurfaceFaultable();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-/// C wrapper for GmmResourceInfoCommon::GetResFlags
-/// @see    GmmLib::GmmResourceInfoCommon::GetResFlags()
-///
-/// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
-/// @return     Copy of ::GMM_RESOURCE_FLAGS
-/////////////////////////////////////////////////////////////////////////////////////
-GMM_RESOURCE_FLAG GMM_STDCALL GmmResGetResourceFlags(const GMM_RESOURCE_INFO* pGmmResource)
-{
-    __GMM_ASSERT(pGmmResource);
-    return const_cast<GMM_RESOURCE_INFO*>(pGmmResource)->GetResFlags();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

@@ -107,7 +107,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_INDIRECT_OBJECT                    
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_INSTRUCTION                                      , 1      , 1     , 1  ,3 , WB );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HIZ                                                   , !GT3e  , EDRAM , 1  ,3 , WB );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_INDEX_BUFFER                                          , !GT3e  , EDRAM , 1  ,3 , WB );
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_MCS                                                   , 0      , EDRAM , 0  ,3 , UC ); // SKL-TODO: Remove after clients update their code.
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_MCS                                                   , 0      , EDRAM , 0  ,3 , UC );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_PUSH_CONSTANT_BUFFER                                  , 0      , EDRAM , 0  ,3 , UC );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_PULL_CONSTANT_BUFFER                                  , !GT3e  , EDRAM , 1  ,3 , WB );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_QUERY                                                 , !GT3e  , EDRAM , 0  ,3 , WB );

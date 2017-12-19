@@ -72,41 +72,12 @@ typedef uint32_t GMM_GLOBAL_GFX_ADDRESS, GMM_GLOBAL_GFX_SIZE_T;
     #define GMM_GLOBAL_GFX_SIZE_T_CAST(x)   ((GMM_GLOBAL_GFX_SIZE_T)(x))
 #endif
 
-#define GMM_GMADR_OFFSET_T          GMM_GLOBAL_GFX_ADDRESS
-#define GMM_GMADR_SIZE_T            GMM_GLOBAL_GFX_SIZE_T
-#define GMM_GMADR_OFFSET_T_CAST     GMM_GLOBAL_GFX_ADDRESS_CAST
-#define GMM_GMADR_SIZE_T_CAST       GMM_GLOBAL_GFX_SIZE_T_CAST
-
-typedef uint32_t  TODO_GFX32; // TODO(Medium): Fix and remove!!
-
 #define GMM_GFX_ADDRESS_CANONIZE(a)     (((int64_t)(a) << (64 - 48)) >> (64 - 48)) // TODO(Minor): When GMM adds platform-dependent VA size caps, change from 48.
 #define GMM_GFX_ADDRESS_DECANONIZE(a)   ((uint64_t)(a) & (((uint64_t) 1 << 48) - 1)) // "
 
 #define GMM_BIT_RANGE(endbit, startbit)     ((endbit)-(startbit)+1)
 #define GMM_BIT(bit)                        (1)
 
-// TODO(Benign): Where should this live?
-#define GMM_IA32e_BITS_PER_TABLE_INDEX  9
-#define GMM_IA32e_ENTRIES_PER_TABLE     (1 << GMM_IA32e_BITS_PER_TABLE_INDEX)
-#define GMM_IA32e_PTE_SIZE              8
-#define GMM_IA32e_TABLE_SIZE            4096
-#define GMM_IA32e_PTE_PRESENT           __BIT(0)
-#define GMM_IA32e_PTE_WRITABLE          __BIT(1)
-#define GMM_IA32e_PTE_USER_ACCESSIBLE   __BIT(2)
-#define GMM_IA32e_PTE_PWT               __BIT(3)
-#define GMM_IA32e_PTE_PCD               __BIT(4)
-#define GMM_IA32e_PTE_ACCESSED          __BIT(5)
-#define GMM_IA32e_PTE_PAT               __BIT(7)
-#define GMM_IA32e_PTE_U_W_P             (GMM_IA32e_PTE_USER_ACCESSIBLE | GMM_IA32e_PTE_WRITABLE | GMM_IA32e_PTE_PRESENT)
-#define GMM_IA32e_PTE_U_R_P             (GMM_IA32e_PTE_USER_ACCESSIBLE | GMM_IA32e_PTE_PRESENT)
-#define GMM_PAT_IDX_PTE_BITS(idx)       ((((idx) & __BIT(2)) ? GMM_IA32e_PTE_PAT : 0) |\
-                                         (((idx) & __BIT(1)) ? GMM_IA32e_PTE_PCD : 0) |\
-                                         (((idx) & __BIT(0)) ? GMM_IA32e_PTE_PWT : 0) )
-#define GMM_SKL_PTE_NULL_PAGE           __BIT(9)
-#define GMM_IA32e_PDE_IPS               __BIT(11)
-
-#define GMM_GFX_PHYS_ADDRESS_MAX        (0xffffffffffffffff)
-#define GMM_WDDM_MAX_ALLOCATION_SIZE    (0xffffffff) // WDDM allocation sizes are limited by the MDL byte count, which is a uint32_t
 //===========================================================================
 // typedef:
 //      GMM_STATUS_ENUM

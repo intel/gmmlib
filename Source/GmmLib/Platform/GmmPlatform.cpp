@@ -65,7 +65,7 @@ GmmLib::PlatformInfo::PlatformInfo(PLATFORM &Platform) {
 /////////////////////////////////////////////////////////////////////////////////////
 const GMM_PLATFORM_INFO* GMM_STDCALL __GmmGetPlatformInfo()
 {
-    __GMM_ASSERT(pGmmGlobalContext != NULL)
+    __GMM_ASSERTPTR(pGmmGlobalContext, NULL)
 
     if (pGmmGlobalContext->GetPlatformInfoObj() != NULL)
     {
