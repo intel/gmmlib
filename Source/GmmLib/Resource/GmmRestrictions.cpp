@@ -183,6 +183,7 @@ void GmmLib::GmmResourceInfoCommon::GetRestrictions(__GMM_BUFFER_TYPE& Restricti
         Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, GMM_KBYTE(32));
     }
 
+
     if (pGmmGlobalContext->GetWaTable().WaAlignContextImage && (Surf.Type == RESOURCE_HW_CONTEXT))
     {
         Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, GMM_KBYTE(64));
@@ -250,7 +251,7 @@ void GmmLib::GmmResourceInfoCommon::GetRestrictions(__GMM_BUFFER_TYPE& Restricti
 //      pRestrictions: ptr to restrictions
 //
 // Returns:
-//      VOID
+//      void
 //
 //-----------------------------------------------------------------------------
 void GMM_STDCALL GmmResGetRestrictions(GMM_RESOURCE_INFO*    pResourceInfo,
@@ -536,7 +537,7 @@ void GmmLib::GmmResourceInfoCommon::GetGenericRestrictions(__GMM_BUFFER_TYPE *pB
 // Parameters:
 //      pRestriction ==> Restrictions
 // Returns:
-//      VOID
+//      void
 //
 //-----------------------------------------------------------------------------
 void __GmmPlatformResetRestrictions(__GMM_BUFFER_TYPE *pRestriction)
@@ -794,12 +795,12 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
 
         ExistingSysMem.pVirtAddress    =
                     (ExistingSysMem.pExistingSysMem  & (PAGE_SIZE - 1))               ?
-                        ((GMM_VOIDPTR64) GFX_ALIGN(ExistingSysMem.pExistingSysMem ,
+                        ((uint64_t) GFX_ALIGN(ExistingSysMem.pExistingSysMem ,
                             BaseAlignment))                                                 :
                         ExistingSysMem.pExistingSysMem ;
 
         ExistingSysMem.pGfxAlignedVirtAddress =
-            (GMM_VOIDPTR64) GFX_ALIGN(
+            (uint64_t) GFX_ALIGN(
                 (uint64_t) ExistingSysMem.pVirtAddress, PAGE_SIZE);
 
         __GMM_ASSERT((ExistingSysMem.pVirtAddress % BaseAlignment) == 0);

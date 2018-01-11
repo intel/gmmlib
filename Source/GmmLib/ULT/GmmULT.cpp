@@ -24,42 +24,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 using namespace std;
 
-// GMM Print message variables/functions
-#ifdef _DEBUG
-
-GFX_DEBUG_CONTROL *pDebugControl = NULL;
-
-#ifdef __cplusplus
-extern "C"
-#endif
-void __cdecl GMMDebugBreak(const char *file,
-                           const char *function,
-                           const int line)
-{
-
-}
-
-void GMMPrintMessage(uint32_t          DebugLevel,
-                     const char     *DebugMessageFmt, ...)
-{
-
-}
-
-#ifdef  GMMDebugMessage
-    #undef  GMMDebugMessage
-#endif
-
-#ifdef __cplusplus
-extern "C"
-#endif
-void __stdcall GMMDebugMessage(uint32_t ulDebugLevel,
-                               const char* str, ...)
-{
-
-}
-
-#endif
-
 int         g_argc;
 char**      g_argv;
 

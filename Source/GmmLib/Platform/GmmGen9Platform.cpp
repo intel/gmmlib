@@ -456,7 +456,7 @@ GmmLib::PlatformInfoGen9::PlatformInfoGen9(PLATFORM &Platform) : PlatformInfo(Pl
     // ----------------------------------
     // Restrictions for Cross adapter resource
     // ----------------------------------
-    Data.XAdapter.Alignment = GMM_KBYTE(64); //64KB for DX12/StdSwizzle-Not worth special-casing.
+    Data.XAdapter.Alignment = GMM_KBYTE(64); //64KB for DX12/StdSwizzle—-Not worth special-casing.
     Data.XAdapter.PitchAlignment = GMM_BYTES(D3DKMT_CROSS_ADAPTER_RESOURCE_PITCH_ALIGNMENT);
     Data.XAdapter.RenderPitchAlignment = GMM_BYTES(D3DKMT_CROSS_ADAPTER_RESOURCE_PITCH_ALIGNMENT);
     Data.XAdapter.LockPitchAlignment = GMM_BYTES(D3DKMT_CROSS_ADAPTER_RESOURCE_PITCH_ALIGNMENT);

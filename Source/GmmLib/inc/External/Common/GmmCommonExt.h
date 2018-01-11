@@ -107,8 +107,28 @@ typedef enum GMM_CLIENT_ENUM
     GMM_OGL_VISTA = 1,
     GMM_D3D9_VISTA = 2,
     GMM_D3D10_VISTA = 3,
-    GMM_XP = 4
+    GMM_XP = 4,
+    GMM_D3D12_VISTA = 5,
+    GMM_OCL_VISTA = 6,
+    GMM_VK_VISTA = 7,
+    GMM_EXCITE_VISTA = 8,
+    GMM_UNDEFINED_CLIENT = 9,
 }GMM_CLIENT;
+
+// Macros related to GMM_CLIENT Enum
+#define USE_KMT_API(ClientType)         ((ClientType == GMM_OGL_VISTA) || (ClientType == GMM_OCL_VISTA) || (ClientType == GMM_VK_VISTA) || (ClientType == GMM_EXCITE_VISTA))
+#define USE_DX12_API(ClientType)        (ClientType == GMM_D3D12_VISTA)
+#define USE_DX_API(ClientType)          ((ClientType == GMM_D3D12_VISTA) || (GMM_D3D10_VISTA) || (GMM_D3D9_VISTA))
+
+#define GET_GMM_CLIENT_TYPE(pContext, ClientType)   \
+if(pContext)                                        \
+{                                                   \
+    ClientType = pContext->GetClientType();         \
+}                                                   \
+else                                                \
+{                                                   \
+    ClientType = GMM_UNDEFINED_CLIENT;              \
+}                                                   \
 
 //===========================================================================
 // typedef:

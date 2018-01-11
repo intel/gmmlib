@@ -117,11 +117,11 @@ public:
     /// @param[in]  ExpectedValue: expected value to check against
     /////////////////////////////////////////////////////////////////////////////////////
     template <bool Verify>
-    void VerifyResourceMipTailStartLod(GMM_RESOURCE_INFO &ResourceInfo, uint32_t ExpectedValue)
+    void VerifyResourceMipTailStartLod(GMM_RESOURCE_INFO *ResourceInfo, uint32_t ExpectedValue)
     {
         if (Verify)
         {
-            EXPECT_EQ(ExpectedValue, ResourceInfo.GetMipTailStartLodSurfaceState());
+            EXPECT_EQ(ExpectedValue, ResourceInfo->GetMipTailStartLodSurfaceState());
         }
     }
 

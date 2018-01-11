@@ -38,4 +38,6 @@ protected:
     //static GMM_GLOBAL_CONTEXT *pGmmGlobalContext;   // TODO: when GlobalContext class initialization is in place we will replace global vairable and
                                                       // extern for pGmmGlobalContext with local class instance initialized by ULT.
 
+    static GMM_CLIENT_CONTEXT              *pGmmULTClientContext; ///< GMM ClientContext need for GMM ULT
+
 };

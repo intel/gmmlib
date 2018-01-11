@@ -46,10 +46,6 @@ extern "C" {
     #define VER_H
 #endif // LHDM
 
-#ifdef    GMM_EXCITE
-    #include "External/Common/GmmDebug.h"
-#endif
-
 #include "../../inc/umKmInc/sharedata.h"
 
 // GMM Lib Client Exports
@@ -64,6 +60,7 @@ extern "C" {
 #include "External/Common/GmmInfoExt.h"
 #include "External/Common/GmmResourceInfo.h"
 #include "External/Common/GmmInfo.h"
+#include "External/Common/GmmClientContext.h"
 
 #ifdef __GMM_KMD__
     #include "External/Windows/GmmHeap.h"

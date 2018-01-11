@@ -52,7 +52,7 @@ namespace GmmLib
             static void IncrementRefCount()
             {
                 #if defined(__GMM_KMD__) || _WIN32
-                    InterlockedIncrement(&RefCount);
+                    InterlockedIncrement((LONG *)&RefCount);
                 #elif defined(__linux__)
                     __sync_fetch_and_add(&RefCount, 1);
                 #endif
@@ -62,7 +62,7 @@ namespace GmmLib
             static int32_t DecrementRefCount()
             {
                 #if defined(__GMM_KMD__) || _WIN32
-                    return(InterlockedDecrement(&RefCount));
+                    return(InterlockedDecrement((LONG *)&RefCount));
                 #elif defined(__linux__)
                     return(__sync_sub_and_fetch(&RefCount, 1));
                 #endif
@@ -75,21 +75,22 @@ namespace GmmLib
             #endif
             GMM_GFX_MEMORY_TYPE GetWantedMemoryType(GMM_CACHE_POLICY_ELEMENT CachePolicy);
 
-            #define DEFINE_CP_ELEMENT(Usage, llc, ellc, l3, wt, age, aom, lecc_scc, l3_scc, scf, sso, cos, hdcl1)   \
-            do {                                                                                                    \
-                    pCachePolicy[Usage].LLC         = (llc);                                                        \
-                    pCachePolicy[Usage].ELLC        = (ellc);                                                       \
-                    pCachePolicy[Usage].L3          = (l3);                                                         \
-                    pCachePolicy[Usage].WT          = (wt);                                                         \
-                    pCachePolicy[Usage].AGE         = (age);                                                        \
-                    pCachePolicy[Usage].AOM         = (aom);                                                        \
-                    pCachePolicy[Usage].LeCC_SCC    = (lecc_scc);                                                   \
-                    pCachePolicy[Usage].L3_SCC      = (l3_scc);                                                     \
-                    pCachePolicy[Usage].SCF         = (scf);                                                        \
-                    pCachePolicy[Usage].SSO         = (sso);                                                        \
-                    pCachePolicy[Usage].CoS         = (cos);                                                        \
-                    pCachePolicy[Usage].HDCL1       = (hdcl1);                                                      \
-                    pCachePolicy[Usage].Initialized = 1;                                                            \
+            #define DEFINE_CP_ELEMENT(Usage, llc, ellc, l3, wt, age, aom, lecc_scc, l3_scc, scf, sso, cos, hdcl1, l3evict)   \
+            do {                                                                                                             \
+                    pCachePolicy[Usage].LLC         = (llc);                                                                 \
+                    pCachePolicy[Usage].ELLC        = (ellc);                                                                \
+                    pCachePolicy[Usage].L3          = (l3);                                                                  \
+                    pCachePolicy[Usage].WT          = (wt);                                                                  \
+                    pCachePolicy[Usage].AGE         = (age);                                                                 \
+                    pCachePolicy[Usage].AOM         = (aom);                                                                 \
+                    pCachePolicy[Usage].LeCC_SCC    = (lecc_scc);                                                            \
+                    pCachePolicy[Usage].L3_SCC      = (l3_scc);                                                              \
+                    pCachePolicy[Usage].SCF         = (scf);                                                                 \
+                    pCachePolicy[Usage].SSO         = (sso);                                                                 \
+                    pCachePolicy[Usage].CoS         = (cos);                                                                 \
+                    pCachePolicy[Usage].HDCL1       = (hdcl1);                                                               \
+                    pCachePolicy[Usage].L3Eviction  = (l3evict);                                                             \
+                    pCachePolicy[Usage].Initialized = 1;                                                                     \
             } while(0)
 
             MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL CachePolicyGetOriginalMemoryObject(GMM_RESOURCE_INFO *pResInfo);
@@ -99,6 +100,10 @@ namespace GmmLib
             /* Virtual functions prototype*/
             virtual uint8_t GMM_STDCALL CachePolicyIsUsagePTECached(GMM_RESOURCE_USAGE_TYPE Usage) = 0;
             virtual GMM_STATUS InitCachePolicy() = 0;
+            virtual uint32_t GetMaxSpecialMocsIndex()
+            {
+                return 0;
+            }
             virtual ~GmmCachePolicyCommon()
             {
             }

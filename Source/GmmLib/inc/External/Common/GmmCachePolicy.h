@@ -48,11 +48,12 @@ typedef struct GMM_CACHE_POLICY_ELEMENT_REC
             uint32_t                   LeCC_SCC    : 3;
             uint32_t                   L3_SCC      : 3;
             uint32_t                   SCF         : 1; // Snoop Control Field for BXT
-            uint32_t                   CoS         : 2; // Class of Service, driver default to Class 1
+            uint32_t                   CoS         : 2; // Class of Service, driver default to Class 0
             uint32_t                   SSO         : 2; // Self Snoop Override  control and value
             uint32_t                   HDCL1       : 1; // HDC L1 caching enable/disable
+            uint32_t                   L3Eviction  : 2; // Specify L3-eviction type (NA, ReadOnly, Standard, Special)
             uint32_t                   Initialized : 1;
-            uint32_t                   Reserved    :12;
+            uint32_t                   Reserved    :10;
         };
         uint32_t Value;
     };
@@ -185,19 +186,20 @@ typedef union GMM_PRIVATE_PAT_REC {
 // also generate local temparoary stack variables, and all these add up and
 // can cause a stack overflow.
 
-#define READOVERRIDES(Usage)                                                    \
-        if (!REGISTRY_OVERRIDE_READ(Usage,LLC))      LLC      = -1;             \
-        if (!REGISTRY_OVERRIDE_READ(Usage,ELLC))     ELLC     = -1;             \
-        if (!REGISTRY_OVERRIDE_READ(Usage,L3))       L3       = -1;             \
-        if (!REGISTRY_OVERRIDE_READ(Usage,Age))      Age      = -1;             \
-        if (!REGISTRY_OVERRIDE_READ(Usage,WT))       WT       = -1;             \
-        if (!REGISTRY_OVERRIDE_READ(Usage,AOM))      AOM      = -1;             \
-        if (!REGISTRY_OVERRIDE_READ(Usage,LeCC_SCC)) LeCC_SCC = -1;             \
-        if (!REGISTRY_OVERRIDE_READ(Usage,L3_SCC))   L3_SCC   = -1;             \
-        if (!REGISTRY_OVERRIDE_READ(Usage,SCF))      SCF      = -1;             \
-        if (!REGISTRY_OVERRIDE_READ(Usage,SSO))      SSO      = -1;             \
-        if (!REGISTRY_OVERRIDE_READ(Usage,CoS))      CoS      = -1;             \
-        if (!REGISTRY_OVERRIDE_READ(Usage,HDCL1))    HDCL1    = -1;             \
+#define READOVERRIDES(Usage)                                                        \
+        if (!REGISTRY_OVERRIDE_READ(Usage,LLC))        LLC        = -1;             \
+        if (!REGISTRY_OVERRIDE_READ(Usage,ELLC))       ELLC       = -1;             \
+        if (!REGISTRY_OVERRIDE_READ(Usage,L3))         L3         = -1;             \
+        if (!REGISTRY_OVERRIDE_READ(Usage,Age))        Age        = -1;             \
+        if (!REGISTRY_OVERRIDE_READ(Usage,WT))         WT         = -1;             \
+        if (!REGISTRY_OVERRIDE_READ(Usage,AOM))        AOM        = -1;             \
+        if (!REGISTRY_OVERRIDE_READ(Usage,LeCC_SCC))   LeCC_SCC   = -1;             \
+        if (!REGISTRY_OVERRIDE_READ(Usage,L3_SCC))     L3_SCC     = -1;             \
+        if (!REGISTRY_OVERRIDE_READ(Usage,SCF))        SCF        = -1;             \
+        if (!REGISTRY_OVERRIDE_READ(Usage,SSO))        SSO        = -1;             \
+        if (!REGISTRY_OVERRIDE_READ(Usage,CoS))        CoS        = -1;             \
+        if (!REGISTRY_OVERRIDE_READ(Usage,HDCL1))      HDCL1      = -1;             \
+        if (!REGISTRY_OVERRIDE_READ(Usage,L3Eviction)) L3Eviction = -1;             \
 
 
 #define SETOVERRIDES(Usage)                                                     \
@@ -248,63 +250,69 @@ typedef union GMM_PRIVATE_PAT_REC {
         if (HDCL1 != -1)                                                        \
         {                                                                       \
             pCachePolicy[Usage].HDCL1 = HDCL1;                                  \
+        }                                                                       \
+        if (L3Eviction != -1)                                                   \
+        {                                                                       \
+            pCachePolicy[Usage].L3Eviction = L3Eviction;                        \
         }
 
 #ifdef __GMM_KMD__
-#define REG_OVERRIDE(Usage)                                                     \
-{                                                                               \
-    enum {IGNORED = 0, CURRENT, DEFAULT, UNCACHED};                             \
-                                                                                \
-    REGISTRY_OVERRIDE_READ(Usage,Enable);                                       \
-                                                                                \
-    if (Enable && (GenerateKeys != UNCACHED))                                   \
-    {                                                                           \
-        READOVERRIDES(Usage)                                                    \
-    }                                                                           \
-                                                                                \
-    if (GenerateKeys == DEFAULT || (GenerateKeys == CURRENT && !Enable))        \
-    {                                                                           \
-        REGISTRY_OVERRIDE_WRITE(Usage,LLC, pCachePolicy[Usage].LLC);            \
-        REGISTRY_OVERRIDE_WRITE(Usage,ELLC,pCachePolicy[Usage].ELLC);           \
-        REGISTRY_OVERRIDE_WRITE(Usage,L3,  pCachePolicy[Usage].L3);             \
-        REGISTRY_OVERRIDE_WRITE(Usage,WT,  pCachePolicy[Usage].WT);             \
-        REGISTRY_OVERRIDE_WRITE(Usage,Age, pCachePolicy[Usage].AGE);            \
-        REGISTRY_OVERRIDE_WRITE(Usage,AOM, pCachePolicy[Usage].AOM);            \
-        REGISTRY_OVERRIDE_WRITE(Usage,LeCC_SCC, pCachePolicy[Usage].LeCC_SCC);  \
-        REGISTRY_OVERRIDE_WRITE(Usage,L3_SCC, pCachePolicy[Usage].L3_SCC);      \
-        REGISTRY_OVERRIDE_WRITE(Usage,SCF, pCachePolicy[Usage].SCF);            \
-        REGISTRY_OVERRIDE_WRITE(Usage,SSO, pCachePolicy[Usage].SSO);            \
-        REGISTRY_OVERRIDE_WRITE(Usage,CoS, pCachePolicy[Usage].CoS);            \
-        REGISTRY_OVERRIDE_WRITE(Usage,HDCL1, pCachePolicy[Usage].HDCL1);        \
-        REGISTRY_OVERRIDE_WRITE(Usage,Enable,0);                                \
-    }                                                                           \
-    else if (GenerateKeys == UNCACHED || GenerateKeys == CURRENT)               \
-    {                                                                           \
-        if (GenerateKeys == UNCACHED)                                           \
-        {                                                                       \
-            Enable = 1;                                                         \
-        }                                                                       \
-        REGISTRY_OVERRIDE_WRITE(Usage,LLC, LLC);                                \
-        REGISTRY_OVERRIDE_WRITE(Usage,ELLC,ELLC);                               \
-        REGISTRY_OVERRIDE_WRITE(Usage,L3,  L3);                                 \
-        REGISTRY_OVERRIDE_WRITE(Usage,WT,  WT);                                 \
-        REGISTRY_OVERRIDE_WRITE(Usage,Age, Age);                                \
-        REGISTRY_OVERRIDE_WRITE(Usage,AOM, AOM);                                \
-        REGISTRY_OVERRIDE_WRITE(Usage,LeCC_SCC, LeCC_SCC);                      \
-        REGISTRY_OVERRIDE_WRITE(Usage,L3_SCC, L3_SCC);                          \
-        REGISTRY_OVERRIDE_WRITE(Usage,SCF, SCF);                                \
-        REGISTRY_OVERRIDE_WRITE(Usage,SSO, SSO);                                \
-        REGISTRY_OVERRIDE_WRITE(Usage,CoS, CoS);                                \
-        REGISTRY_OVERRIDE_WRITE(Usage,HDCL1, HDCL1);                            \
-        REGISTRY_OVERRIDE_WRITE(Usage,Enable,Enable);                           \
-    }                                                                           \
-                                                                                \
-    if (Enable)                                                                 \
-    {                                                                           \
-        SETOVERRIDES(Usage)                                                     \
-    }                                                                           \
-                                                                                \
-    UsageCount++;                                                               \
+#define REG_OVERRIDE(Usage)                                                        \
+{                                                                                  \
+    enum {IGNORED = 0, CURRENT, DEFAULT, UNCACHED};                                \
+                                                                                   \
+    REGISTRY_OVERRIDE_READ(Usage,Enable);                                          \
+                                                                                   \
+    if (Enable && (GenerateKeys != UNCACHED))                                      \
+    {                                                                              \
+        READOVERRIDES(Usage)                                                       \
+    }                                                                              \
+                                                                                   \
+    if (GenerateKeys == DEFAULT || (GenerateKeys == CURRENT && !Enable))           \
+    {                                                                              \
+        REGISTRY_OVERRIDE_WRITE(Usage,LLC, pCachePolicy[Usage].LLC);               \
+        REGISTRY_OVERRIDE_WRITE(Usage,ELLC,pCachePolicy[Usage].ELLC);              \
+        REGISTRY_OVERRIDE_WRITE(Usage,L3,  pCachePolicy[Usage].L3);                \
+        REGISTRY_OVERRIDE_WRITE(Usage,WT,  pCachePolicy[Usage].WT);                \
+        REGISTRY_OVERRIDE_WRITE(Usage,Age, pCachePolicy[Usage].AGE);               \
+        REGISTRY_OVERRIDE_WRITE(Usage,AOM, pCachePolicy[Usage].AOM);               \
+        REGISTRY_OVERRIDE_WRITE(Usage,LeCC_SCC, pCachePolicy[Usage].LeCC_SCC);     \
+        REGISTRY_OVERRIDE_WRITE(Usage,L3_SCC, pCachePolicy[Usage].L3_SCC);         \
+        REGISTRY_OVERRIDE_WRITE(Usage,SCF, pCachePolicy[Usage].SCF);               \
+        REGISTRY_OVERRIDE_WRITE(Usage,SSO, pCachePolicy[Usage].SSO);               \
+        REGISTRY_OVERRIDE_WRITE(Usage,CoS, pCachePolicy[Usage].CoS);               \
+        REGISTRY_OVERRIDE_WRITE(Usage,HDCL1, pCachePolicy[Usage].HDCL1);           \
+        REGISTRY_OVERRIDE_WRITE(Usage,L3Eviction, pCachePolicy[Usage].L3Eviction); \
+        REGISTRY_OVERRIDE_WRITE(Usage,Enable,0);                                   \
+    }                                                                              \
+    else if (GenerateKeys == UNCACHED || GenerateKeys == CURRENT)                  \
+    {                                                                              \
+        if (GenerateKeys == UNCACHED)                                              \
+        {                                                                          \
+            Enable = 1;                                                            \
+        }                                                                          \
+        REGISTRY_OVERRIDE_WRITE(Usage,LLC, LLC);                                   \
+        REGISTRY_OVERRIDE_WRITE(Usage,ELLC,ELLC);                                  \
+        REGISTRY_OVERRIDE_WRITE(Usage,L3,  L3);                                    \
+        REGISTRY_OVERRIDE_WRITE(Usage,WT,  WT);                                    \
+        REGISTRY_OVERRIDE_WRITE(Usage,Age, Age);                                   \
+        REGISTRY_OVERRIDE_WRITE(Usage,AOM, AOM);                                   \
+        REGISTRY_OVERRIDE_WRITE(Usage,LeCC_SCC, LeCC_SCC);                         \
+        REGISTRY_OVERRIDE_WRITE(Usage,L3_SCC, L3_SCC);                             \
+        REGISTRY_OVERRIDE_WRITE(Usage,SCF, SCF);                                   \
+        REGISTRY_OVERRIDE_WRITE(Usage,SSO, SSO);                                   \
+        REGISTRY_OVERRIDE_WRITE(Usage,CoS, CoS);                                   \
+        REGISTRY_OVERRIDE_WRITE(Usage,HDCL1, HDCL1);                               \
+        REGISTRY_OVERRIDE_WRITE(Usage,L3Eviction, L3Eviction);                     \
+        REGISTRY_OVERRIDE_WRITE(Usage,Enable,Enable);                              \
+    }                                                                              \
+                                                                                   \
+    if (Enable)                                                                    \
+    {                                                                              \
+        SETOVERRIDES(Usage)                                                        \
+    }                                                                              \
+                                                                                   \
+    UsageCount++;                                                                  \
 }
 #else
 #define REG_OVERRIDE(Usage)                                                     \

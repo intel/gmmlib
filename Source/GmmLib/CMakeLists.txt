@@ -96,15 +96,13 @@ foreach(lib_target ${TARGET_LIST})
 	GmmLibSetTargetConfig(${lib_target})
 endforeach()
 
-#GmmLibSetTargetConfig(igfx_gmmkmd)
-
 set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /W1 /WX-")
 set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /W1 /WX-")
 
 # GMMLIBsetLinkerFlags: apply linker flags for given configuration
 # linkerFlags: linker specific options
 # linkerTarget: optional parameter - apply linker flags for specfied target
-macro (GMMLIBsetLinkerFlags linkerFlags linkerTarget) 
+macro (GMMLIBsetLinkerFlags linkerFlags linkerTarget)
     foreach (opt ${linkerFlags})
         if ("${linkerTarget}" STREQUAL "")
             set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${opt}")
@@ -124,7 +122,7 @@ set( CMAKE_CONFIGURATION_TYPES
 set( CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING
     "Reset the configurations to what we need"
     FORCE)
-    
+
 
 set(GMMLIB_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -233,6 +231,7 @@ set(HEADERS_
 
 set(UMD_HEADERS 
 	${HEADERS_}
+	${BS_DIR_GMMLIB}/inc/External/Common/GmmClientContext.h
 	)
 
 
@@ -270,12 +269,14 @@ set(SOURCES_
 
 set(UMD_SOURCES
   ${SOURCES_}
+  ${BS_DIR_GMMLIB}/GlobalInfo/GmmClientContext.cpp
   )
 
 source_group("Source Files\\Cache Policy\\Client Files" FILES
 			${BS_DIR_GMMLIB}/CachePolicy/GmmCachePolicyResourceUsageDefinitions.h
 			${BS_DIR_GMMLIB}/CachePolicy/GmmGen10CachePolicy.h
 			${BS_DIR_GMMLIB}/CachePolicy/GmmGen8CachePolicy.h
+			${BS_DIR_GMMLIB}/CachePolicy/GmmGen9CachePolicy.h
 			)
 
 source_group("Source Files\\Cache Policy" ${BS_DIR_GMMLIB}/CachePolicy/*.cpp)
@@ -310,6 +311,7 @@ source_group("Header Files\\External\\Common" FILES
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmResourceInfoExt.h
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmTextureExt.h
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmUtil.h
+			${BS_DIR_GMMLIB}/inc/External/Common/GmmClientContext.h
 			)
 
 source_group("Header Files" FILES
@@ -388,10 +390,10 @@ macro (GmmLibaddCommonTargetDefines target)
 endmacro()
 
 #clear all default-cmake settings
-SET (CMAKE_SHARED_LINKER_FLAGS_RELEASEINTERNAL "") 
-SET (CMAKE_SHARED_LINKER_FLAGS_RELEASE "") 
-SET (CMAKE_SHARED_LINKER_FLAGS_DEBUG "") 
-SET (CMAKE_SHARED_LINKER_FLAGS "") 
+SET (CMAKE_SHARED_LINKER_FLAGS_RELEASEINTERNAL "")
+SET (CMAKE_SHARED_LINKER_FLAGS_RELEASE "")
+SET (CMAKE_SHARED_LINKER_FLAGS_DEBUG "")
+SET (CMAKE_SHARED_LINKER_FLAGS "")
 
 SET (CMAKE_EXE_LINKER_FLAGS "")
 SET (CMAKE_EXE_LINKER_FLAGS_DEBUG "")
@@ -431,11 +433,12 @@ if(MSVC)
 	endforeach()
 endif()
 
+bs_set_force_exceptions()
 
 bs_set_post_target()
 
 foreach(lib_target ${TARGET_LIST})
-  bs_set_extra_target_properties( ${lib_target}
+  bs_set_extra_target_properties(${lib_target}
       _ATL_NO_WIN_SUPPORT
       SMALL_POOL_ALLOC
       __GMM
@@ -448,18 +451,18 @@ foreach(lib_target ${TARGET_LIST})
 		bs_set_extra_target_properties(${lib_target} _RELEASE_INTERNAL)
 	endif()
 
-    target_include_directories(${lib_target} INTERFACE 
+    target_include_directories(${lib_target} INTERFACE
         ${BS_DIR_GMMLIB}/inc
         ${BS_DIR_INC}
-        ${BS_DIR_INC}/common) 
-	
+        ${BS_DIR_INC}/common)
+
 endforeach()
 
-    if("${GMM_CLIENT_TYPE}" STREQUAL "OCL")
-	    bs_set_extra_target_properties(gmm_umd
+    if ("${GMM_CLIENT_TYPE}" STREQUAL "OCL")
+    	bs_set_extra_target_properties(gmm_umd
 		    GMM_OCL
-		    UNUSED_ISTDLIB_MT
-	    )
+            UNUSED_ISTDLIB_MT
+        )
     else()
     	bs_set_extra_target_properties(gmm_umd
 		    GMM_OGL

@@ -154,7 +154,7 @@ GmmLib::Context::Context() :
     InternalGpuVaMax = 0;
 
 #if(_WIN32 && (_DEBUG || _RELEASE_INTERNAL))
-    DWORD RegKey = 0;
+    uint32_t RegKey = 0;
     if (GMM_REGISTRY_READ("SOFTWARE\\Intel\\GMM", AllowedPaddingFor64KbPagesPercentage, RegKey))
     {
         AllowedPaddingFor64KbPagesPercentage = RegKey;

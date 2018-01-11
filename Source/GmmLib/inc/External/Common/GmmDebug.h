@@ -25,99 +25,117 @@ OTHER DEALINGS IN THE SOFTWARE.
 // This block determines where GMM gets definitions for debug assert and
 // print functions. Location differs depending who is linking GMM lib.
 // ------------------------------------------------------------------------
-
-#if defined(D3D12_GMM)
-    #include "..\..\d3d12\PCH\D3D12DebugGMM.h"
-#elif defined(D3D10_GMM)
-    #include "..\..\d3d10\Imola\ID3D10DebugGMM.h"
-#elif defined(DX9IMOLA_GMM)
-    #include "ID3D9Debug.h"
-#elif defined(DXVA11_GMM)
-    #include "..\..\media\ddi\lhdm_d3d11\dxva11_debug_gmm.h"
+#if ( __GMM_KMD__ || GMM_OCL)
+#include "../../Common/AssertTracer/AssertTracer.h"
+#include "../../util/gfxDebug.h"
 #else
-    #include "../../Common/AssertTracer/AssertTracer.h"
-    #include "../../util/gfxDebug.h"
+#include "GmmCommonExt.h"
+#include "GmmLog/GmmLog.h"
+//===================== Debug Message Levels========================
+#define GFXDBG_OFF                      (0x00000000)
+#define GFXDBG_CRITICAL                 (0x00000001)
+#define GFXDBG_NORMAL                   (0x00000002)
+#define GFXDBG_VERBOSE                  (0x00000004)
+#define GFXDBG_FUNCTION                 (0x80000000)
+#define GFXDBG_NONCRITICAL              (0x00000010)
+#define GFXDBG_CRITICAL_DEBUG           (0x00000020)
+#define GFXDBG_VERBOSE_VERBOSITY        (0x00000040)
+#define GFXDBG_PROTOCAL                 (0x00000100)
+#define GFXDBG_FUNCTION_ENTRY           (0x80000000)
+#define GFXDBG_FUNCTION_EXIT            (0x80000000)
+#define GFXDBG_FUNCTION_ENTRY_VERBOSE   (0x20000000)
+#define GFXDBG_FUNCTION_EXIT_VERBOSE    (0x20000000)
+
+#define VOIDRETURN
 #endif
 
-// ------------------------------------------------------------------------
-// This block determines defines anything that GMM clients don't provide.
-// ------------------------------------------------------------------------
-#if defined (__KLOCWORK__)
 
-    #define GMM_DPF GMMDebugMessage
-    #ifndef __GMM_ASSERT
-        #define __GMM_ASSERT(expr) do { if (!(expr)) abort(); } while (0)
-        #define __GMM_ASSERTPTR(expr, ret) do { if (!(expr)) return ret; } while (0)
-    #endif
-#elif defined (D3D12_GMM)
+#if (__GMM_KMD__ || GMM_OCL)
 
-    #define GMM_DPF         GMMDebugMessage     //D3D12Debug.h
-    #ifndef __GMM_ASSERT
-        #define __GMM_ASSERT    GMM_ASSERT          //D3D12Debug.h
-        #define __GMM_ASSERTPTR GMM_ASSERTPTR       //D3D12Debug.h
-    #endif
-#elif defined (D3D10_GMM)
+#if defined (GMM_OCL)
+#include "../../3d/common/iStdLib/osinlines.h"
+#endif
 
-    #define GMM_DPF         GMMDebugMessage     //D3D10Debug.h
-    #ifndef __GMM_ASSERT
-        #define __GMM_ASSERT    GMM_ASSERT          //D3D10Debug.h
-        #define __GMM_ASSERTPTR GMM_ASSERTPTR       //D3D10Debug.h
-    #endif
-#elif defined (DX9IMOLA_GMM)
+// Enable GMM_ASSERTS and GMM_DEBUG only for Debug builds similar to what UMD clients used to do earlier
+#if (_DEBUG) //(_DEBUG || _RELEASE_INTERNAL)
+    #define GMM_DPF             GMMDebugMessage     //gfxDebug.h
+    #define GMM_ASSERT          GMMASSERT           //gfxDebug.h
+    #define GMM_ASSERTPTR       GMMASSERTPTR        //gfxDebug.h
+#else
+    #define GMMDebugMessage(...)
+    #define GMM_DPF             GMMDebugMessage
+    #define GMM_ASSERT(expr)
+    #define GMM_ASSERTPTR(expr, ret)
+#endif
 
-    #define GMM_DPF         GMMPrintMessage     // ID3D9Debug.h
-    #ifndef __GMM_ASSERT
-        #define __GMM_ASSERT    GMM_ASSERT          // ID3D9Debug.h
-        #define __GMM_ASSERTPTR GMM_ASSERT_PTR      // ID3D9Debug.h
-    #endif
-#elif defined (DXVA11_GMM)
-
-    #define GMM_DPF         GMMDebugMessage     // dxva11_debug_gmm.h
-    #ifndef __GMM_ASSERT
-        #define __GMM_ASSERT    GMM_ASSERT          // dxva11_debug_gmm.h
-        #define __GMM_ASSERTPTR GMM_ASSERTPTR       // dxva11_debug_gmm.h
-    #endif
-#elif defined (GMM_OGL)
-
-    #if _DEBUG && !defined(__GMM_ASSERT)
-        #ifdef __cplusplus
-            extern"C"
-        #endif
-        void __cdecl GMMDebugBreak( const char* file, const char* function, const int line );
-
-        #define GMM_DPF GMMDebugMessage
-        #define GMM_DEBUG_BREAK GMMDebugBreak(__FILE__,__FUNCTION__,__LINE__)
-
-        #define __GMM_ASSERT( expr )                \
-            if( !(expr) )                           \
-            {                                       \
-                GMM_DEBUG_BREAK;                    \
-            }
-        #define __GMM_ASSERTPTR( expr, ret )        \
-        {                                           \
-            if (!(expr))                            \
-            {                                       \
-                GMM_DEBUG_BREAK;                    \
-                return ret;                         \
-            }                                       \
-        }
-
-    #else
-        #define GMM_DPF(...)
-        #define __GMM_ASSERT(expr)
-        #define __GMM_ASSERTPTR(expr, ret)
-    #endif
+#define __GMM_ASSERT        GMM_ASSERT
+#define __GMM_ASSERTPTR     GMM_ASSERTPTR
 
 #else
-    #if defined (GMM_OCL)
-        #include "../../3d/common/iStdLib/osinlines.h"
-    #endif
-    #define GMM_DPF         GMMDebugMessage     //gfxDebug.h
-    #ifndef __GMM_ASSERT
-        #define __GMM_ASSERT    GMMASSERT           //gfxDebug.h
-        #define __GMM_ASSERTPTR GMMASSERTPTR        //gfxDebug.h
-    #endif
+
+// Enable GMM_ASSERTS and GMM_DEBUG only for Debug builds similar to what UMD clients used to do earlier
+#if (_DEBUG) //(_DEBUG || _RELEASE_INTERNAL)
+
+#if defined(_MSC_VER)
+#define GMM_DBG_BREAK __debugbreak()
+#elif defined(__GNUC__)
+#define GMM_DBG_BREAK __builtin_trap()
+#else
+#include <assert.h>
+#define GMM_DBG_BREAK assert(FALSE)
 #endif
+
+#define GMMLibDebugMessage(DebugLevel, message, ...)                                \
+{                                                                                   \
+    if(DebugLevel == GFXDBG_CRITICAL)                                               \
+    {                                                                               \
+        GMM_LOG_ERROR(message, ##__VA_ARGS__);                                      \
+    }                                                                               \
+    else if(DebugLevel == GFXDBG_VERBOSE)                                           \
+    {                                                                               \
+        GMM_LOG_TRACE(message, ##__VA_ARGS__);                                      \
+    }                                                                               \
+    else if(DebugLevel == GFXDBG_OFF)                                               \
+    {                                                                               \
+        GMM_LOG_TRACE_IF(FALSE, message, ##__VA_ARGS__)                             \
+    }                                                                               \
+    else                                                                            \
+    {                                                                               \
+        GMM_LOG_INFO(message, ##__VA_ARGS__);                                       \
+    }                                                                               \
+}
+
+#define GMM_LIB_ASSERT(expr)                                    \
+{                                                               \
+    if(!(expr) )                                                \
+    {                                                           \
+        GMM_DBG_BREAK;                                          \
+    }                                                           \
+}
+
+#define GMM_LIB_ASSERTPTR(expr, ret)                            \
+{                                                               \
+    GMM_LIB_ASSERT(expr);                                       \
+    if( !expr )                                                 \
+    {                                                           \
+        return ret;                                             \
+    }                                                           \
+}
+
+#else
+
+#define GMMLibDebugMessage(...)
+#define GMM_LIB_ASSERT(expr)
+#define GMM_LIB_ASSERTPTR(expr, ret)
+
+#endif // (_DEBUG) //_DEBUG || _RELEASE_INTERNAL
+
+#define GMM_DPF             GMMLibDebugMessage
+#define __GMM_ASSERT        GMM_LIB_ASSERT
+#define __GMM_ASSERTPTR     GMM_LIB_ASSERTPTR
+
+#endif
+
 
 // ------------------------------------------------------------------------
 // This block defines various debug print macros

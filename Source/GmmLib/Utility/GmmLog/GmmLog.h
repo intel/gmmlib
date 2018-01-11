@@ -81,6 +81,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 #endif
 
 #if GMM_LOG_AVAILABLE
+
+typedef enum GmmLogLevel
+{
+    Off = 0,
+    Trace,
+    Info,
+    Error, // default
+}GmmLogLevel;
+
 #ifdef __cplusplus
 
 #include <iostream>
@@ -93,17 +102,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define GMM_LOG_FILENAME          "./gmm_log"
 #define GMM_LOG_TAG               "GmmLib"
 #define GMM_UNKNOWN_PROCESS       "Unknown_Proc"
+#define GMM_PREFIX_STR            "INTC GMM: "
 
 #if _WIN32
     #define GMM_LOG_REG_KEY_SUB_PATH  "SOFTWARE\\Intel\\IGFX\\GMMLOG\\"
     #define GMM_LOG_TO_FILE           "LogToFile"
-    enum GmmLogLevel
-    {
-        Off = 0,
-        Trace,
-        Info,
-        Error, // default
-    };
     #define GMM_LOG_LEVEL_REGKEY      "LogLevel" // GmmLogLevel
 #endif //#if _WIN32
 /////////////////////////////////////////////////////////////////////////////////////
@@ -155,18 +158,31 @@ namespace GmmLib
 // Macros
 extern GmmLib::Logger& GmmLoggerPerProc;
 
-#define GMM_LOG_TRACE(message, ...) if(GmmLoggerPerProc.SpdLogger) { GmmLoggerPerProc.SpdLogger->trace(message, ##__VA_ARGS__); }
-#define GMM_LOG_TRACE_IF(expression, message, ...) if(GmmLoggerPerProc.SpdLogger && (expression)) { GMM_LOG_TRACE(message, ##__VA_ARGS__); }
+extern "C" void GmmLibLogging(GmmLogLevel Level, const char* str, ...);
 
-#define GMM_LOG_INFO(message, ...) if(GmmLoggerPerProc.SpdLogger) { GmmLoggerPerProc.SpdLogger->info(message, ##__VA_ARGS__); }
-#define GMM_LOG_INFO_IF(expression, message, ...) if(GmmLoggerPerProc.SpdLogger && (expression)) { GMM_LOG_INFO(message, ##__VA_ARGS__); }
+#define GMM_LOG_TRACE(message, ...) GmmLibLogging(Trace, message, ##__VA_ARGS__)
+#define GMM_LOG_TRACE_IF(expression, message, ...)  if(expression) { GmmLibLogging(Trace, message, ##__VA_ARGS__);}
 
-#define GMM_LOG_ERROR(message, ...) if(GmmLoggerPerProc.SpdLogger) { GmmLoggerPerProc.SpdLogger->error(message, ##__VA_ARGS__); }
-#define GMM_LOG_ERROR_IF(expression, message, ...) if(GmmLoggerPerProc.SpdLogger && (expression)) { GMM_LOG_INFO(message, ##__VA_ARGS__); }
+#define GMM_LOG_INFO(message, ...) GmmLibLogging(Info, message, ##__VA_ARGS__)
+#define GMM_LOG_INFO_IF(expression, message, ...)  if(expression) { GmmLibLogging(Info, message, ##__VA_ARGS__);}
+
+#define GMM_LOG_ERROR(message, ...) GmmLibLogging(Error, message, ##__VA_ARGS__)
+#define GMM_LOG_ERROR_IF(expression, message, ...)  if(expression) { GmmLibLogging(Error, message, ##__VA_ARGS__);}
 
 #else // else C
-    // No support for C files -- Revisit later if really necessary. Do not define any logging macros, so any usage by
-    // C file can be caught as compilation error.
+
+// Fwd Declarations of C-wrapper functions used for Logging
+void GmmLibLogging(GmmLogLevel Level, const char* str, ...);
+
+#define GMM_LOG_TRACE(message, ...) GmmLibLogging(Trace, message, ##__VA_ARGS__)
+#define GMM_LOG_TRACE_IF(expression, message, ...)  if(expression) { GmmLibLogging(Trace, message, ##__VA_ARGS__);}
+
+#define GMM_LOG_INFO(message, ...) GmmLibLogging(Info, message, ##__VA_ARGS__)
+#define GMM_LOG_INFO_IF(expression, message, ...)  if(expression) { GmmLibLogging(Info, message, ##__VA_ARGS__);}
+
+#define GMM_LOG_ERROR(message, ...) GmmLibLogging(Error, message, ##__VA_ARGS__)
+#define GMM_LOG_ERROR_IF(expression, message, ...)  if(expression) { GmmLibLogging(Error, message, ##__VA_ARGS__);}
+
 #endif //#ifdef __cplusplus
 
 #else // else Gmm Log not available

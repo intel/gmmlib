@@ -235,9 +235,9 @@ GMM_FORMAT( R16G16B16A16_UNORM           ,  64,  1,  1, 1, R, x, 0x080, 0x10,   
 GMM_FORMAT( R16G16B16A16_USCALED         ,  64,  1,  1, 1, R, x, 0x094, 0x10,     ALWAYS      )
 GMM_FORMAT( R16G16B16X16_FLOAT           ,  64,  1,  1, 1, R, x, 0x08F, 0x10,     ALWAYS      )
 GMM_FORMAT( R16G16B16X16_UNORM           ,  64,  1,  1, 1, R, x, 0x08E, 0x10,     ALWAYS      )
-GMM_FORMAT( R24_UNORM_X8_TYPELESS        ,  32,  1,  1, 1, R, x, 0x0D9, NC  ,     ALWAYS      )
+GMM_FORMAT( R24_UNORM_X8_TYPELESS        ,  32,  1,  1, 1, R, x, 0x0D9, 0x11,     ALWAYS      )
 GMM_FORMAT( R32_FLOAT                    ,  32,  1,  1, 1, R, x, 0x0D8, 0x11,     ALWAYS      )
-GMM_FORMAT( R32_FLOAT_X8X24_TYPELESS     ,  64,  1,  1, 1, R, x, 0x088, NC  ,     ALWAYS      )
+GMM_FORMAT( R32_FLOAT_X8X24_TYPELESS     ,  64,  1,  1, 1, R, x, 0x088, 0x11,     ALWAYS      )
 GMM_FORMAT( R32_SFIXED                   ,  32,  1,  1, 1, R, x, 0x1B2, 0x11,     GEN(8)      )
 GMM_FORMAT( R32_SINT                     ,  32,  1,  1, 1, R, x, 0x0D6, 0x11,     ALWAYS      )
 GMM_FORMAT( R32_SNORM                    ,  32,  1,  1, 1, R, x, 0x0F2, 0x11,     ALWAYS      )
@@ -280,10 +280,10 @@ GMM_FORMAT( R64G64B64_PASSTHRU           , 192,  1,  1, 1, R, x, 0x1BD, NC  ,   
 GMM_FORMAT( R64G64B64A64_FLOAT           , 256,  1,  1, 1, R, x, 0x197, NC  ,     ALWAYS      )
 GMM_FORMAT( R64G64B64A64_PASSTHRU        , 256,  1,  1, 1, R, x, 0x1BC, NC  ,     GEN(8)      )
 GMM_FORMAT( RAW                          ,   8,  1,  1, 1, R, x, 0x1FF, NC  ,     GEN(7)      ) // "8bpp" for current GMM implementation.
-GMM_FORMAT( X24_TYPELESS_G8_UINT         ,  32,  1,  1, 1, R, x, 0x0DA, NC  ,     ALWAYS      )
-GMM_FORMAT( X32_TYPELESS_G8X24_UINT      ,  64,  1,  1, 1, R, x, 0x089, NC  ,     ALWAYS      )
+GMM_FORMAT( X24_TYPELESS_G8_UINT         ,  32,  1,  1, 1, R, x, 0x0DA, 0xA ,     ALWAYS      )
+GMM_FORMAT( X32_TYPELESS_G8X24_UINT      ,  64,  1,  1, 1, R, x, 0x089, 0xA ,     ALWAYS      )
 GMM_FORMAT( X8B8_UNORM_G8R8_SNORM        ,  32,  1,  1, 1, R, x, 0x0E6, NC  ,     ALWAYS      )
-GMM_FORMAT( Y8_UNORM                     ,   8,  1,  1, 1, R, x, 0x150, NC  ,     ALWAYS      )
+GMM_FORMAT( Y8_UNORM                     ,   8,  1,  1, 1, R, x, 0x150, 0xF ,     ALWAYS      )
 GMM_FORMAT( YCRCB_NORMAL                 ,  16,  1,  1, 1, R, x, 0x182, 0x3 ,     ALWAYS      )
 GMM_FORMAT( YCRCB_SWAPUV                 ,  16,  1,  1, 1, R, x, 0x18F, 0xC ,     ALWAYS      )
 GMM_FORMAT( YCRCB_SWAPUVY                ,  16,  1,  1, 1, R, x, 0x183, 0xD ,     ALWAYS      )
@@ -422,14 +422,14 @@ GMM_FORMAT( P012                         ,  16,  1,  1, 1, R, x,   NA , NC  ,   
 GMM_FORMAT( P016                         ,  16,  1,  1, 1, R, x,   NA , 0x8 ,     ALWAYS      )
 GMM_FORMAT( P208                         ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      )
 GMM_FORMAT( R10G10B10_XR_BIAS_A2_UNORM   ,  32,  1,  1, 1, x, x,   NA , 0x18,     ALWAYS      ) // DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM
-GMM_FORMAT( R24G8_TYPELESS               ,  32,  1,  1, 1, x, x,   NA , NC  ,     ALWAYS      ) // DXGI_FORMAT_R24G8_TYPELESS (To differentiate between GENERIC_32BIT.)
-GMM_FORMAT( R32G8X24_TYPELESS            ,  64,  1,  1, 1, x, x,   NA , NC  ,     ALWAYS      ) // DXGI_FORMAT_R32G8X24_TYPELESS (To differentiate between GENERIC_64BIT.)
+GMM_FORMAT( R24G8_TYPELESS               ,  32,  1,  1, 1, x, x,   NA , 0x11,     ALWAYS      ) // DXGI_FORMAT_R24G8_TYPELESS (To differentiate between GENERIC_32BIT.)
+GMM_FORMAT( R32G8X24_TYPELESS            ,  64,  1,  1, 1, x, x,   NA , 0x11,     ALWAYS      ) // DXGI_FORMAT_R32G8X24_TYPELESS (To differentiate between GENERIC_64BIT.)
 GMM_FORMAT( RENDER_8BIT                  ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      )
 GMM_FORMAT( RGBP                         ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      ) // FOURCC:RGBP
 GMM_FORMAT( Y1_UNORM                     ,   1,  1,  1, 1, x, x,   NA , NC  ,     GEN(8)      )
-GMM_FORMAT( Y8_UNORM_VA                  ,   8,  1,  1, 1, x, x,   NA , NC  ,     GEN(8)      )
-GMM_FORMAT( Y16_SNORM                    ,  16,  1,  1, 1, x, x,   NA , NC  ,     GEN(8)      )
-GMM_FORMAT( Y16_UNORM                    ,  16,  1,  1, 1, x, x,   NA , NC  ,     GEN(8)      )
+GMM_FORMAT( Y8_UNORM_VA                  ,   8,  1,  1, 1, x, x,   NA , 0xF ,     GEN(8)      )
+GMM_FORMAT( Y16_SNORM                    ,  16,  1,  1, 1, x, x,   NA , 0x7 ,     GEN(8)      )
+GMM_FORMAT( Y16_UNORM                    ,  16,  1,  1, 1, x, x,   NA , 0x7 ,     GEN(8)      )
 #if (IGFX_GEN >= IGFX_GEN10)
 GMM_FORMAT( Y32_UNORM                    ,  32,  1,  1, 1, x, x,   NA , NC  ,     GEN(10)     ) // Y32 removed from Gen9 but still referenced in BSpec, only available Gen10+
 #endif
@@ -446,9 +446,9 @@ GMM_FORMAT( VYUY_2x1                     ,  32,  2,  1, 1, R, x,   NA , NC  ,   
 GMM_FORMAT( YUY2_2x1                     ,  32,  2,  1, 1, R, x,   NA , 0x3 ,     ALWAYS      )
 GMM_FORMAT( YVYU_2x1                     ,  32,  2,  1, 1, R, x,   NA , NC  ,     ALWAYS      )
 GMM_FORMAT( MEDIA_Y1_UNORM               ,   1,  1,  1, 1, x, x,   NA , NC  ,     GEN(8)      )
-GMM_FORMAT( MEDIA_Y8_UNORM               ,   8,  1,  1, 1, x, x,   NA , NC  ,     GEN(8)      )
-GMM_FORMAT( MEDIA_Y16_SNORM              ,  16,  1,  1, 1, x, x,   NA , NC  ,     GEN(8)      )
-GMM_FORMAT( MEDIA_Y16_UNORM              ,  16,  1,  1, 1, x, x,   NA , NC  ,     GEN(8)      )
+GMM_FORMAT( MEDIA_Y8_UNORM               ,   8,  1,  1, 1, x, x,   NA , 0xF ,     GEN(8)      )
+GMM_FORMAT( MEDIA_Y16_SNORM              ,  16,  1,  1, 1, x, x,   NA , 0x7 ,     GEN(8)      )
+GMM_FORMAT( MEDIA_Y16_UNORM              ,  16,  1,  1, 1, x, x,   NA , 0x7 ,     GEN(8)      )
 GMM_FORMAT( MEDIA_Y32_UNORM              ,   1,  1,  1, 1, x, x,   NA , NC  ,     GEN(8)      ) // Y32 is BDW name for SKL Y1, and is 1bpp with 32b granularity
 #if _WIN32
 GMM_FORMAT( WGBOX_YUV444                 ,  32,  1,  1, 1, x, x,   NA , NC  ,     GEN(9)      ) // For testing purposes only.

@@ -143,3 +143,15 @@ uint32_t GMM_STDCALL GmmCachePolicyGetMaxL1HdcMocsIndex(void)
     GmmLib::GmmGen9CachePolicy *ptr = static_cast<GmmLib::GmmGen9CachePolicy*>(pCachePolicy);
     return ptr->CurrentMaxL1HdcMocsIndex;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Returns count of current Special MOCS values for MOCS Table programming at GMM boot
+///
+/// @param[in]  none:
+/// @return     uint32_t  max special mocs index needed to program
+/////////////////////////////////////////////////////////////////////////////////////
+uint32_t GMM_STDCALL GmmCachePolicyGetMaxSpecialMocsIndex(void)
+{
+    GMM_CACHE_POLICY *pCachePolicy = pGmmGlobalContext->GetCachePolicyObj();
+    return pCachePolicy->GetMaxSpecialMocsIndex();
+}

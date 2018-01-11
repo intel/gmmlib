@@ -24,6 +24,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 ADAPTER_INFO *CommonULT::pGfxAdapterInfo = NULL;
 PLATFORM CommonULT::GfxPlatform = {};
+GMM_CLIENT_CONTEXT* CommonULT::pGmmULTClientContext = NULL;
 
 void CommonULT::SetUpTestCase()
 {
@@ -54,11 +55,15 @@ void CommonULT::SetUpTestCase()
 
     ASSERT_EQ(GmmStatus, GMM_SUCCESS);
 
+    pGmmULTClientContext = GmmCreateClientContext(GMM_EXCITE_VISTA);
+    ASSERT_TRUE(pGmmULTClientContext);
+
 }
 
 void CommonULT::TearDownTestCase()
 {
     printf("%s\n", __FUNCTION__);
+    GmmDeleteClientContext(pGmmULTClientContext);
     GmmDestroyGlobalContext();
     free(pGfxAdapterInfo);
     pGfxAdapterInfo = NULL;

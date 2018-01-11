@@ -42,10 +42,10 @@ void GmmLib::GmmCachePolicyCommon::OverrideCachePolicy()
     int32_t  DefaultEnable = 0, DefaultLLC = 0, DefaultELLC = 0, DefaultL3 = 0;
     int32_t  DefaultAge = 0, DefaultWT = 0, DefaultAOM = 0, DefaultLeCC_SCC = 0;
     int32_t  DefaultL3_SCC = 0, DefaultSCF = 0, DefaultHDCL1 = 0, DefaultSSO = 0;
-    int32_t  DefaultCoS = 0;
+    int32_t  DefaultCoS = 0, DefaultL3Eviction = 0;
 
     // Variables used in the REG_OVERRIDE macro block
-    int32_t  Enable = 0, LLC = -1, ELLC = -1, L3 = -1, Age = -1, WT = -1, AOM = -1, LeCC_SCC = -1, L3_SCC = -1, SCF = -1, SSO = -1, CoS = -1, HDCL1 = -1;
+    int32_t  Enable = 0, LLC = -1, ELLC = -1, L3 = -1, Age = -1, WT = -1, AOM = -1, LeCC_SCC = -1, L3_SCC = -1, SCF = -1, SSO = -1, CoS = -1, HDCL1 = -1, L3Eviction = -1;
 
 #define READ_DEFAULT_OVERRIDE(CacheParam)                                             \
 {                                                                                     \
@@ -108,7 +108,11 @@ void GmmLib::GmmCachePolicyCommon::OverrideCachePolicy()
         {                                                   \
             pCachePolicy[Usage].HDCL1 = DefaultHDCL1;       \
         }                                                   \
-    }                                                       \
+        if (DefaultL3Eviction != -1)                            \
+        {                                                       \
+            pCachePolicy[Usage].L3Eviction = DefaultL3Eviction; \
+        }                                                       \
+    }                                                           \
 }
 
 #ifdef __GMM_KMD__
@@ -137,6 +141,7 @@ void GmmLib::GmmCachePolicyCommon::OverrideCachePolicy()
         READ_DEFAULT_OVERRIDE(SSO);
         READ_DEFAULT_OVERRIDE(CoS);
         READ_DEFAULT_OVERRIDE(HDCL1);
+        READ_DEFAULT_OVERRIDE(L3Eviction);
     }
 
     OVERRIDE_DEFAULT(GMM_RESOURCE_USAGE_UNKNOWN); REG_OVERRIDE(GMM_RESOURCE_USAGE_UNKNOWN);

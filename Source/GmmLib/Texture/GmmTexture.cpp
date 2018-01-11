@@ -417,9 +417,9 @@ void GmmLib::GmmTextureCalc::FindMipTailStartLod(GMM_TEXTURE_INFO *pTexInfo)
         {
             Level++;
 
-            MipWidth = GFX_ULONG_CAST(__GmmTexGetMipWidth(pTexInfo, Level));
-            MipHeight = __GmmTexGetMipHeight(pTexInfo, Level);
-            MipDepth = __GmmTexGetMipDepth(pTexInfo, Level);
+            MipWidth = GFX_ULONG_CAST(GmmTexGetMipWidth(pTexInfo, Level));
+            MipHeight = GmmTexGetMipHeight(pTexInfo, Level);
+            MipDepth = GmmTexGetMipDepth(pTexInfo, Level);
 
             MipWidth = GFX_CEIL_DIV(MipWidth, CompressWidth);
             MipHeight = GFX_CEIL_DIV(MipHeight, CompressHeight);
@@ -483,4 +483,73 @@ void  GmmLib::GmmTextureCalc::GetCompressionBlockDimensions(GMM_RESOURCE_FORMAT 
         }
     }
     GMM_DPF_EXIT;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// This function Convert from d3d tile (64KB) to h/w tile
+///
+/// @param[in]  pTexInfo: ::GMM_TEXTURE_INFO
+/// @param[in/out]  pColFactor: populates Width
+/// @param[in/out]  pRowFactor: populates Height
+/// @param[out]  true on Success else false
+///
+/////////////////////////////////////////////////////////////////////////////////////
+bool GmmLib::GmmTextureCalc::GmmGetD3DToHwTileConversion(GMM_TEXTURE_INFO *pTexInfo,
+                                                              uint32_t             *pColFactor,
+                                                              uint32_t             *pRowFactor)
+{
+    uint32_t i = 0;
+    uint32_t Bpp = pTexInfo->BitsPerPixel;
+
+    // check for  unsupported bpp
+    if (!(Bpp == 8 || Bpp == 16 || Bpp == 32 || Bpp == 64 || Bpp == 128))
+    {
+        __GMM_ASSERT(false);
+        goto EXIT_ERROR;
+    }
+
+    // for TileYS, no conversion
+    if (pTexInfo->Flags.Info.TiledYs || pTexInfo->Flags.Info.Linear)
+    {
+        *pColFactor = 1;
+        *pRowFactor = 1;
+    }
+    else if (pTexInfo->Flags.Info.TiledY)
+    {
+        // Logic for non-MSAA
+        {
+            //      Bpp = 8      => i = 0           , Bpp = 16 => i = 1, ...
+            // Log2(Bpp = 8) = 3 => i = Log2(8) - 3.
+
+            i = __GmmLog2(Bpp) - 3;
+            *pColFactor = __GmmTileYConversionTable[i][0];
+            *pRowFactor = __GmmTileYConversionTable[i][1];
+        }
+
+        // Logic for MSAA
+        if (pTexInfo->MSAA.NumSamples > 1)
+        {
+
+            // For MSAA, the DirectX tile dimensions change, using the table __GmmMSAAConversion.
+            uint32_t W = __GmmMSAAConversion[__GmmLog2(pTexInfo->MSAA.NumSamples)][0];
+            uint32_t H = __GmmMSAAConversion[__GmmLog2(pTexInfo->MSAA.NumSamples)][1];
+
+            // For the new DirectX tile dimensions the new Col and Row conversion factors are:
+            *pColFactor /= W;
+            *pRowFactor /= H;
+        }
+    }
+    else
+    {
+        // unsupported format.
+        __GMM_ASSERT(false);
+        goto EXIT_ERROR;
+    }
+
+    return true;
+
+EXIT_ERROR:
+    *pColFactor = 0;
+    *pRowFactor = 0;
+    return false;
 }

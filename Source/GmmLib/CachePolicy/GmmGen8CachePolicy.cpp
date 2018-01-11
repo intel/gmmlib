@@ -39,7 +39,7 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::InitCachePolicy()
 
     __GMM_ASSERTPTR(pCachePolicy,GMM_ERROR);
 
-#define DEFINE_CACHE_ELEMENT(usage,llc,ellc,l3,wt,age) DEFINE_CP_ELEMENT(usage,llc,ellc,l3,wt,age,0,0,0,0,0,0,0)
+#define DEFINE_CACHE_ELEMENT(usage,llc,ellc,l3,wt,age) DEFINE_CP_ELEMENT(usage,llc,ellc,l3,wt,age,0,0,0,0,0,0,0,0)
 #include "GmmGen8CachePolicy.h"
 
     {
@@ -150,7 +150,7 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetupPAT()
     GMM_GFX_TARGET_CACHE GfxTargetCache = GMM_GFX_TC_ELLC_LLC;
     uint8_t             Age = 1;
     uint8_t             ServiceClass = 0;
-    int32_t                *pPrivatePATTableMemoryType = NULL;
+    int32_t             *pPrivatePATTableMemoryType = NULL;
 
     pPrivatePATTableMemoryType = pGmmGlobalContext->GetPrivatePATTableMemoryType();
 

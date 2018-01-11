@@ -92,11 +92,11 @@ void __stdcall ReportAssert(
 
         // Checks against maximum string size for ReportEvent lpStrings parameter.
         // Cuts string to the limit size.
-        uint32_t maxSizeReached = false;
+        uint32_t maxSizeReached = 0;
         if ( length > 31839 )
         {
             length = 31839;
-            maxSizeReached = true;
+            maxSizeReached = 1;
         }
 
         wideMessage = ( char * ) malloc( sizeof( char ) * length );
@@ -352,7 +352,7 @@ void LogAssertion( const char *function_name, const char *file_name, unsigned in
         syslogEntry = fullMsg.substr( pos, MAX_SYSLOG_ENTRY_LENGTH );
         // Add chunk ID / part number and send to syslog
         syslog( LOG_MAKEPRI( LOG_USER,
-                             LOG_ERR ), "[%d/%d]%s", ( pos / MAX_SYSLOG_ENTRY_LENGTH + 1 ), numberOfChunks,
+                             LOG_ERR ), "[%zd/%d]%s", ( pos / MAX_SYSLOG_ENTRY_LENGTH + 1 ), numberOfChunks,
                 syslogEntry.c_str() );
         pos += MAX_SYSLOG_ENTRY_LENGTH;
     }

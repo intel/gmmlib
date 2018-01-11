@@ -110,7 +110,7 @@ void CTestGen9CachePolicy::CheckLlcEdramCachePolicy()
     // Setup SKU/WA flags
     pGmmGlobalContext->GetGtSysInfo()->LLCCacheSizeInKb   = 2 * 1024; //2 MB
     pGmmGlobalContext->GetGtSysInfo()->EdramSizeInKb = 128 * 1024; //128 MB
-    const_cast<SKU_FEATURE_TABLE&>(pGmmGlobalContext->GetSkuTable()).FtrEDram = true;
+    const_cast<SKU_FEATURE_TABLE&>(pGmmGlobalContext->GetSkuTable()).FtrEDram = 1;
 
     // Re-init cache policy with above info
     pGmmGlobalContext->GetCachePolicyObj()->InitCachePolicy();

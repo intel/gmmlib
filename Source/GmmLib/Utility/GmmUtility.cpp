@@ -384,6 +384,220 @@ void GMM_STDCALL GmmGetCacheSizes(GMM_CACHE_SIZES *pCacheSizes)
     GMM_DPF_EXIT;
 }
 
+namespace GmmLib {
+    namespace Utility {
+//=============================================================================
+// Function:
+//    GmmGetNumPlanes
+//
+// Description:
+//     Returns number of planes for given format
+//
+// Arguments: <Look at Function Header)
+//
+// Return:
+//    uint32_t number of planes
+//-----------------------------------------------------------------------------
+uint32_t GMM_STDCALL GmmGetNumPlanes(GMM_RESOURCE_FORMAT Format)
+{
+    uint32_t Planes = 1;
+
+    switch (Format)
+    {
+        // YUV Planar Formats
+    case GMM_FORMAT_BGRP:
+    case GMM_FORMAT_IMC1:
+    case GMM_FORMAT_IMC2:
+    case GMM_FORMAT_IMC3:
+    case GMM_FORMAT_IMC4:
+    case GMM_FORMAT_I420:
+    case GMM_FORMAT_IYUV:
+    case GMM_FORMAT_MFX_JPEG_YUV411:
+    case GMM_FORMAT_MFX_JPEG_YUV411R:
+    case GMM_FORMAT_MFX_JPEG_YUV420:
+    case GMM_FORMAT_MFX_JPEG_YUV422H:
+    case GMM_FORMAT_MFX_JPEG_YUV422V:
+    case GMM_FORMAT_MFX_JPEG_YUV444:
+    case GMM_FORMAT_RGBP:
+    case GMM_FORMAT_YV12:
+    case GMM_FORMAT_YVU9:
+        Planes = 3;
+        break;
+        // YUV Hybrid Formats - GMM treats as Planar
+    case GMM_FORMAT_NV11:
+    case GMM_FORMAT_NV12:
+    case GMM_FORMAT_NV21:
+    case GMM_FORMAT_P010:
+    case GMM_FORMAT_P012:
+    case GMM_FORMAT_P016:
+    case GMM_FORMAT_P208:
+        Planes = 2;
+        break;
+    default:
+        Planes = 1;
+        break;
+    }
+    return Planes;
+}
+
+//==============================================================================
+//
+// Function:
+//      GmmGetFormatForASTC
+//
+// Description: See below.
+//
+// Returns:
+//      GMM_RESOURCE_FORMAT for described ASTC format or GMM_FORMAT_INVALID(0)
+//      if invalid params specified.
+//
+//-----------------------------------------------------------------------------
+GMM_RESOURCE_FORMAT GMM_STDCALL GmmGetFormatForASTC(uint8_t HDR, uint8_t Float, uint32_t BlockWidth, uint32_t BlockHeight, uint32_t BlockDepth)
+{
+    // Full enums/etc. in case we ever need to typedef them...
+    enum GMM_SURFACESTATE_FORMAT_ASTC_DYNAMIC_RANGE
+    {
+        GMM_SURFACESTATE_FORMAT_ASTC_DYNAMIC_RANGE_LDR = 0,
+        GMM_SURFACESTATE_FORMAT_ASTC_DYNAMIC_RANGE_HDR = 1,
+    };
+
+    enum GMM_SURFACESTATE_FORMAT_ASTC_BLOCK_DIMENSION
+    {
+        GMM_SURFACESTATE_FORMAT_ASTC_BLOCK_DIMENSION_2D = 0,
+        GMM_SURFACESTATE_FORMAT_ASTC_BLOCK_DIMENSION_3D = 1,
+    };
+
+    enum GMM_SURFACESTATE_FORMAT_ASTC_DECODE_FORMAT
+    {
+        GMM_SURFACESTATE_FORMAT_ASTC_DECODE_FORMAT_UNORM8_sRGB = 0,
+        GMM_SURFACESTATE_FORMAT_ASTC_DECODE_FORMAT_FLOAT16 =     1,
+    };
+
+    enum GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE
+    {
+        GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_4px =  0,
+        GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_5px =  1,
+        GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_6px =  2,
+        __GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_0x3 =  3,
+        GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_8px =  4,
+        __GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_0x5 =  5,
+        GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_10px = 6,
+        GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_12px = 7,
+    };
+
+    enum GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE
+    {
+        GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_3px = 0,
+        GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_4px = 1,
+        GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_5px = 2,
+        GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_6px = 3,
+    };
+
+    union GMM_SURFACESTATE_FORMAT_ASTC
+    {
+        struct // Common Fields...
+        {
+            uint32_t Reserved1         : 6; // [2D/3D-Specific Fields]
+            uint32_t DecodeFormat      : 1; // GMM_SURFACESTATE_FORMAT_ASTC_DECODE_FORMAT
+            uint32_t BlockDimension    : 1; // GMM_SURFACESTATE_FORMAT_ASTC_BLOCK_DIMENSION
+            uint32_t DynamicRange      : 1; // GMM_SURFACESTATE_FORMAT_ASTC_DYNAMIC_RANGE
+            uint32_t Reserved2         : 23;
+        };
+        struct // 2D-Specific Fields...
+        {
+            uint32_t BlockHeight2D     : 3; // GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE
+            uint32_t BlockWidth2D      : 3; // GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE
+            uint32_t Reserved3         : 3; // [Common Fields]
+            uint32_t Reserved4         : 23;
+        };
+        struct // 3D-Specific Fields...
+        {
+            uint32_t BlockDepth3D      : 2; // GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE
+            uint32_t BlockHeight3D     : 2; // GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE
+            uint32_t BlockWidth3D      : 2; // GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE
+            uint32_t Reserved5         : 3; // [Common Fields]
+            uint32_t Reserved6         : 23;
+        };
+        struct
+        {
+            uint32_t Value             : 9;
+            uint32_t Reserved7         : 23;
+        };
+    } Format = {0};
+    C_ASSERT(sizeof(union GMM_SURFACESTATE_FORMAT_ASTC) == sizeof(uint32_t));
+
+// TODO(Minor): Verify and fail for invalid HDR/sRGB combinations.
+
+    if(BlockDepth == 0) BlockDepth = 1;
+
+    Format.DynamicRange =
+        HDR ?
+        GMM_SURFACESTATE_FORMAT_ASTC_DYNAMIC_RANGE_HDR :
+        GMM_SURFACESTATE_FORMAT_ASTC_DYNAMIC_RANGE_LDR;
+
+    Format.DecodeFormat =
+        Float ?
+        GMM_SURFACESTATE_FORMAT_ASTC_DECODE_FORMAT_FLOAT16 :
+        GMM_SURFACESTATE_FORMAT_ASTC_DECODE_FORMAT_UNORM8_sRGB;
+
+    // Validate Block Dimensions...
+    if(!(
+#define GMM_FORMAT_INCLUDE_ASTC_FORMATS_ONLY
+#define GMM_FORMAT(Name, bpe, Width, Height, Depth, IsRT, IsASTC, RcsSurfaceFormat, AuxL1eFormat, Availability) \
+           ((BlockWidth == (Width)) && (BlockHeight == (Height)) && (BlockDepth == (Depth))) ||
+#include "External/Common/GmmFormatTable.h"
+           0)) // <-- 0 benignly terminates the chain of OR expressions.
+    {
+        goto Invalid;
+    }
+
+    if(BlockDepth <= 1)
+    {
+        Format.BlockDimension = GMM_SURFACESTATE_FORMAT_ASTC_BLOCK_DIMENSION_2D;
+
+        Format.BlockWidth2D =
+            (BlockWidth ==  4) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_4px :
+            (BlockWidth ==  5) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_5px :
+            (BlockWidth ==  6) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_6px :
+            (BlockWidth ==  8) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_8px :
+            (BlockWidth == 10) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_10px :
+            GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_12px;
+        Format.BlockHeight2D =
+            (BlockHeight ==  4) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_4px :
+            (BlockHeight ==  5) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_5px :
+            (BlockHeight ==  6) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_6px :
+            (BlockHeight ==  8) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_8px :
+            (BlockHeight == 10) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_10px :
+            GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_12px;
+    }
+    else
+    {
+        Format.BlockDimension = GMM_SURFACESTATE_FORMAT_ASTC_BLOCK_DIMENSION_3D;
+
+        Format.BlockWidth3D =
+            (BlockWidth == 3) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_3px :
+            (BlockWidth == 4) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_4px :
+            (BlockWidth == 5) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_5px :
+            GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_6px;
+        Format.BlockHeight3D =
+            (BlockHeight == 3) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_3px :
+            (BlockHeight == 4) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_4px :
+            (BlockHeight == 5) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_5px :
+            GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_6px;
+        Format.BlockDepth3D =
+            (BlockDepth == 3) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_3px :
+            (BlockDepth == 4) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_4px :
+            (BlockDepth == 5) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_5px :
+            GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_6px;
+    }
+
+    return((GMM_RESOURCE_FORMAT) Format.Value);
+Invalid: return(GMM_FORMAT_INVALID);
+}
+
+    }
+}
+
 //=============================================================================
 //
 // Function: __GmmLog2
@@ -454,137 +668,4 @@ const uint32_t __GmmMSAAConversion[5][2] =
     // MSAA 16x
     { 4, 4 }
 };
-
-//=============================================================================
-//
-// Function: __GmmGetD3DToHwTileConversion
-//
-// Desc: Convert from d3d tile (64KB) to h/w tile
-//
-// Parameters:
-//      uint32_t             *pColFactor => # of TileY tiles per 64KB tile (in column direction)
-//      uint32_t             *pRowFactor => # of TileY tiles per 64KB tile (in row direction)
-//
-// Returns:
-//
-//-----------------------------------------------------------------------------
-bool __GmmGetD3DToHwTileConversion(GMM_TEXTURE_INFO *pTexInfo,
-                                      uint32_t             *pColFactor,
-                                      uint32_t             *pRowFactor)
-{
-    uint32_t i   = 0;
-    uint32_t Bpp = pTexInfo->BitsPerPixel;
-
-    // check for  unsupported bpp
-    if (!(Bpp == 8 || Bpp == 16 || Bpp == 32 || Bpp == 64 || Bpp == 128))
-    {
-        __GMM_ASSERT(0);
-        goto EXIT_ERROR;
-    }
-
-    // for TileYS, no conversion
-    if (pTexInfo->Flags.Info.TiledYs || pTexInfo->Flags.Info.Linear)
-    {
-        *pColFactor = 1;
-        *pRowFactor = 1;
-    }
-    else if (pTexInfo->Flags.Info.TiledY)
-    {
-        // Logic for non-MSAA
-        {
-            //      Bpp = 8      => i = 0           , Bpp = 16 => i = 1, ...
-            // Log2(Bpp = 8) = 3 => i = Log2(8) - 3.
-
-            i = __GmmLog2(Bpp) - 3;
-            *pColFactor = __GmmTileYConversionTable[i][0];
-            *pRowFactor = __GmmTileYConversionTable[i][1];
-        }
-
-        // Logic for MSAA
-        if (pTexInfo->MSAA.NumSamples > 1)
-        {
-
-            // For MSAA, the DirectX tile dimensions change, using the table __GmmMSAAConversion.
-            uint32_t W = __GmmMSAAConversion[__GmmLog2(pTexInfo->MSAA.NumSamples)][0];
-            uint32_t H = __GmmMSAAConversion[__GmmLog2(pTexInfo->MSAA.NumSamples)][1];
-
-            // For the new DirectX tile dimensions the new Col and Row conversion factors are:
-            *pColFactor /= W;
-            *pRowFactor /= H;
-        }
-    }
-    else
-    {
-        // unsupported format.
-        __GMM_ASSERT(0);
-        goto EXIT_ERROR;
-    }
-
-    return true;
-
-EXIT_ERROR:
-    *pColFactor = 0;
-    *pRowFactor = 0;
-    return false;
-}
-
-namespace GmmLib {
-    namespace Utility{
-
-//=============================================================================
-// Function:
-//    GmmGetNumPlanes
-//
-// Description:
-//     Returns number of planes for given format
-//
-// Arguments: <Look at Function Header)
-//
-// Return:
-//    uint32_t number of planes
-//-----------------------------------------------------------------------------
-uint32_t GMM_STDCALL GmmGetNumPlanes(GMM_RESOURCE_FORMAT Format)
-{
-    uint32_t Planes = 1;
-
-    switch (Format)
-    {
-        // YUV Planar Formats
-    case GMM_FORMAT_BGRP:
-    case GMM_FORMAT_IMC1:
-    case GMM_FORMAT_IMC2:
-    case GMM_FORMAT_IMC3:
-    case GMM_FORMAT_IMC4:
-    case GMM_FORMAT_I420:
-    case GMM_FORMAT_IYUV:
-    case GMM_FORMAT_MFX_JPEG_YUV411:
-    case GMM_FORMAT_MFX_JPEG_YUV411R:
-    case GMM_FORMAT_MFX_JPEG_YUV420:
-    case GMM_FORMAT_MFX_JPEG_YUV422H:
-    case GMM_FORMAT_MFX_JPEG_YUV422V:
-    case GMM_FORMAT_MFX_JPEG_YUV444:
-    case GMM_FORMAT_RGBP:
-    case GMM_FORMAT_YV12:
-    case GMM_FORMAT_YVU9:
-        Planes = 3;
-        break;
-        // YUV Hybrid Formats - GMM treats as Planar
-    case GMM_FORMAT_NV11:
-    case GMM_FORMAT_NV12:
-    case GMM_FORMAT_NV21:
-    case GMM_FORMAT_P010:
-    case GMM_FORMAT_P012:
-    case GMM_FORMAT_P016:
-    case GMM_FORMAT_P208:
-        Planes = 2;
-        break;
-    default:
-        Planes = 1;
-        break;
-    }
-    return Planes;
-}
-
-    } //namespace GmmUtility
-} //namespace GmmLib
 

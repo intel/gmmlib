@@ -111,7 +111,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
 
                 h0 = ExpandHeight(Z_Height, HZ_VAlign, NumSamples);
 
-                Z_Height = __GmmTexGetMipHeight(pTexInfo, 1);
+                Z_Height = GmmTexGetMipHeight(pTexInfo, 1);
                 h1 = ExpandHeight(Z_Height, HZ_VAlign, NumSamples);
 
                 if (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE)
@@ -120,7 +120,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
                     {
                         for (i = 0, Z_HeightL = 0; i <= pTexInfo->MaxLod; i++)
                         {
-                            Z_Height = __GmmTexGetMipHeight(pTexInfo, i);
+                            Z_Height = GmmTexGetMipHeight(pTexInfo, i);
                             hL = ExpandHeight(Z_Height, HZ_VAlign, NumSamples);
                             Z_HeightL += (hL * GFX_MAX(1, (Z_Depth / GFX_2_TO_POWER_OF(i))));
                         }
@@ -132,7 +132,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
                     {
                         for (i = 2, Z_HeightL = 0; i <= pTexInfo->MaxLod; i++)
                         {
-                            Z_Height = __GmmTexGetMipHeight(pTexInfo, i);
+                            Z_Height = GmmTexGetMipHeight(pTexInfo, i);
                             Z_HeightL += ExpandHeight(Z_Height, HZ_VAlign, NumSamples);
                         }
 
@@ -181,12 +181,12 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
             pTexInfo->Type = RESOURCE_2D;
 
             // HiZ Always Tile-Y
-            pTexInfo->Flags.Info.Linear = false;
-            pTexInfo->Flags.Info.TiledW = false;
-            pTexInfo->Flags.Info.TiledX = false;
-            pTexInfo->Flags.Info.TiledY = true;
-            pTexInfo->Flags.Info.TiledYf = false;
-            pTexInfo->Flags.Info.TiledYs = false;
+            pTexInfo->Flags.Info.Linear = 0;
+            pTexInfo->Flags.Info.TiledW = 0;
+            pTexInfo->Flags.Info.TiledX = 0;
+            pTexInfo->Flags.Info.TiledY = 1;
+            pTexInfo->Flags.Info.TiledYf = 0;
+            pTexInfo->Flags.Info.TiledYs = 0;
         }
         else
         {
@@ -230,7 +230,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
                 return Status;
             }
             pTexInfo->MSAA.NumSamples = 1; // CCS itself isn't MSAA'ed.
-            pTexInfo->Flags.Gpu.__MsaaTileMcs = 1;  // Gmm flag to recognize MCS different than CCS
+            pTexInfo->Flags.Gpu.__MsaaTileMcs = 1;
         }
         else // Non-MSAA CCS Use (i.e. Render Target Fast Clear)
         {
@@ -329,16 +329,16 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
         if (!pTexInfo->Flags.Gpu.__NonMsaaLinearCCS)
         {
             // CCS Always Tile-Y (Even for Non-MSAA FastClear.)
-            pTexInfo->Flags.Info.Linear = false;
-            pTexInfo->Flags.Info.TiledW = false;
-            pTexInfo->Flags.Info.TiledX = false;
-            pTexInfo->Flags.Info.TiledY = true;
-            pTexInfo->Flags.Info.TiledYf = false;
-            pTexInfo->Flags.Info.TiledYs = false;
+            pTexInfo->Flags.Info.Linear = 0;
+            pTexInfo->Flags.Info.TiledW = 0;
+            pTexInfo->Flags.Info.TiledX = 0;
+            pTexInfo->Flags.Info.TiledY = 1;
+            pTexInfo->Flags.Info.TiledYf = 0;
+            pTexInfo->Flags.Info.TiledYs = 0;
 
             //Clear compression request in CCS
-            pTexInfo->Flags.Info.RenderCompressed = false;
-            pTexInfo->Flags.Info.MediaCompressed = false;
+            pTexInfo->Flags.Info.RenderCompressed = 0;
+            pTexInfo->Flags.Info.MediaCompressed = 0;
         }
 
     } // CCS
@@ -360,21 +360,21 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
             }
 
             // Separate Stencil Tile-W Gen8-Gen10, otherwise Tile-Y
-            pTexInfo->Flags.Info.Linear = false;
-            pTexInfo->Flags.Info.TiledX = false;
-            pTexInfo->Flags.Info.TiledYf = false;
-            pTexInfo->Flags.Info.TiledYs = false;
-            pTexInfo->Flags.Info.TiledW = false;
-            pTexInfo->Flags.Info.TiledY = false;
+            pTexInfo->Flags.Info.Linear = 0;
+            pTexInfo->Flags.Info.TiledX = 0;
+            pTexInfo->Flags.Info.TiledYf = 0;
+            pTexInfo->Flags.Info.TiledYs = 0;
+            pTexInfo->Flags.Info.TiledW = 0;
+            pTexInfo->Flags.Info.TiledY = 0;
 
             if (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE &&
                 GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN10_CORE)
             {
-                pTexInfo->Flags.Info.TiledW = true;
+                pTexInfo->Flags.Info.TiledW = 1;
             }
             else
             {
-                pTexInfo->Flags.Info.TiledY = true;
+                pTexInfo->Flags.Info.TiledY = 1;
             }
         }
         else
@@ -385,8 +385,8 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO* p
     } // Separate Stencil
     else if (pTexInfo->Flags.Gpu.MMC && pTexInfo->Flags.Gpu.UnifiedAuxSurface)
     {
-        pTexInfo->Flags.Gpu.__NonMsaaLinearCCS = true;
-        pTexInfo->Flags.Info.Linear = true;
+        pTexInfo->Flags.Gpu.__NonMsaaLinearCCS = 1;
+        pTexInfo->Flags.Info.Linear = 1;
     }
 
     return Status;

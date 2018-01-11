@@ -145,7 +145,7 @@ namespace GmmLib
             static void IncrementRefCount()
             {
                 #if defined(__GMM_KMD__) || _WIN32
-                    InterlockedIncrement(&RefCount);
+                    InterlockedIncrement((LONG *)&RefCount);
                 #elif defined(__linux__)
                     __sync_fetch_and_add(&RefCount, 1);
                 #endif
@@ -155,7 +155,7 @@ namespace GmmLib
             static int32_t DecrementRefCount()
             {
                 #if defined(__GMM_KMD__) || _WIN32
-                    return(InterlockedDecrement(&RefCount));
+                    return(InterlockedDecrement((LONG *)&RefCount));
                 #elif defined(__linux__)
                     return(__sync_sub_and_fetch(&RefCount, 1));
                 #endif
@@ -216,6 +216,11 @@ namespace GmmLib
                                 uint32_t*              pHeight,
                                 uint32_t*     pWidth);
 
+            bool     GmmGetD3DToHwTileConversion(
+                                GMM_TEXTURE_INFO *pTexInfo,
+                                uint32_t             *pColFactor,
+                                uint32_t             *pRowFactor);
+
             // Virtual functions
             virtual GMM_STATUS GMM_STDCALL  FillTex1D(
                                                 GMM_TEXTURE_INFO  *pTexInfo,
@@ -258,6 +263,24 @@ namespace GmmLib
             {
                 GMM_UNREFERENCED_PARAMETER(pTexInfo);
                 return Height /= 16;
+            }
+
+            virtual GMM_GFX_SIZE_T  GmmTexGetMipWidth(GMM_TEXTURE_INFO *pTexInfo, uint32_t MipLevel)
+            {
+                __GMM_ASSERTPTR(pTexInfo, 0);
+                return(GFX_MAX(1, pTexInfo->BaseWidth >> MipLevel));
+            }
+
+            virtual uint32_t GmmTexGetMipHeight(GMM_TEXTURE_INFO *pTexInfo, uint32_t MipLevel)
+            {
+                __GMM_ASSERTPTR(pTexInfo, 0);
+                return(GFX_MAX(1, pTexInfo->BaseHeight >> MipLevel));
+            }
+
+            virtual uint32_t GmmTexGetMipDepth(GMM_TEXTURE_INFO *pTexInfo, uint32_t MipLevel)
+            {
+                __GMM_ASSERTPTR(pTexInfo, 0);
+                return(GFX_MAX(1, pTexInfo->Depth >> MipLevel));
             }
 
 

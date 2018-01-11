@@ -37,7 +37,7 @@ namespace GmmLib {
 
     public:
         PlatformInfo(PLATFORM &Platform);
-        virtual ~PlatformInfo()
+        virtual ~PlatformInfo() 
         {
         }
 
@@ -68,7 +68,7 @@ namespace GmmLib {
         static void IncrementRefCount()
         {
 #if defined(__GMM_KMD__) || _WIN32
-            InterlockedIncrement(&RefCount);
+            InterlockedIncrement((LONG *)&RefCount);
 #elif defined(__linux__)
             __sync_fetch_and_add(&RefCount, 1);
 #endif
@@ -78,7 +78,7 @@ namespace GmmLib {
         static int32_t DecrementRefCount()
         {
 #if defined(__GMM_KMD__) || _WIN32
-            return(InterlockedDecrement(&RefCount));
+            return(InterlockedDecrement((LONG *)&RefCount));
 #elif defined(__linux__)
             return(__sync_sub_and_fetch(&RefCount, 1));
 #endif

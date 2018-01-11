@@ -40,7 +40,7 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmResCreate(GMM_RESCREATE_PARAMS *pCreateParams)
     {
         pRes = new(pCreateParams->pPreallocatedResInfo) GmmLib::GmmResourceInfo(); // Use preallocated memory as a class
         pCreateParams->Flags.Info.__PreallocatedResInfo =
-            pRes->GetResFlags().Info.__PreallocatedResInfo = true; // Set both in case we can die before copying over the flags.
+            pRes->GetResFlags().Info.__PreallocatedResInfo = 1; // Set both in case we can die before copying over the flags.
     }
     else
     {
@@ -94,7 +94,7 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmResCopy(GMM_RESOURCE_INFO*  pRes)
     *pResCopy = *pRes;
 
     // We are allocating new class, flag must be false to avoid leak at DestroyResource
-    pResCopy->GetResFlags().Info.__PreallocatedResInfo = false;
+    pResCopy->GetResFlags().Info.__PreallocatedResInfo = 0;
 
     GMM_DPF_EXIT;
     return (pResCopy);
@@ -176,6 +176,24 @@ GMM_GFX_SIZE_T GMM_STDCALL GmmResGetSystemMemSize( GMM_RESOURCE_INFO*  pRes )
 uint32_t GMM_STDCALL GmmResGetSizeOfStruct(void)
 {
     return (sizeof(GMM_RESOURCE_INFO));
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// This function returns resource flags
+///
+/// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
+/// @param[out] pFlags: Memory where resource flags will be copied
+/////////////////////////////////////////////////////////////////////////////////////
+void GMM_STDCALL GmmResGetFlags(GMM_RESOURCE_INFO* pGmmResource,
+                                GMM_RESOURCE_FLAG* pFlags /*output*/)
+{
+    GMM_DPF_ENTER;
+    __GMM_ASSERTPTR(pGmmResource, VOIDRETURN);
+    __GMM_ASSERTPTR(pFlags, VOIDRETURN);
+
+    *pFlags = GmmResGetResourceFlags(pGmmResource);
+
+    GMM_DPF_EXIT;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1324,6 +1342,19 @@ uint8_t GMM_STDCALL GmmIsSurfaceFaultable(GMM_RESOURCE_INFO *pGmmResource)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
+/// C wrapper for GmmResourceInfoCommon::GetResFlags
+/// @see    GmmLib::GmmResourceInfoCommon::GetResFlags()
+///
+/// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
+/// @return     Copy of ::GMM_RESOURCE_FLAGS
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_RESOURCE_FLAG GMM_STDCALL GmmResGetResourceFlags(const GMM_RESOURCE_INFO* pGmmResource)
+{
+    __GMM_ASSERT(pGmmResource);
+    return const_cast<GMM_RESOURCE_INFO*>(pGmmResource)->GetResFlags();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
 /// C wrapper for GmmResourceInfoCommon::GetMaximumRenamingListLength
 /// @see    GmmLib::GmmResourceInfoCommon::GetMaximumRenamingListLength()
 ///
@@ -1664,7 +1695,7 @@ uint8_t __CanSupportStdTiling(GMM_TEXTURE_INFO Surf)
             // 8, 16, 32, 64, or 128 bpp
                 ((!GmmIsCompressed(Surf.Format) &&
             ((Surf.BitsPerPixel == 8) ||
-                    (Surf.BitsPerPixel == 16) ||
+                (Surf.BitsPerPixel == 16) ||
                 (Surf.BitsPerPixel == 32) ||
                 (Surf.BitsPerPixel == 64) ||
                 (Surf.BitsPerPixel == 128))) ||

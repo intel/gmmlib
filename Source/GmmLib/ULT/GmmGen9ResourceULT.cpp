@@ -91,8 +91,8 @@ TEST_F(CTestGen9Resource, Test1DLinearResource)
         gmmParams.BaseWidth64 = 0x1;
         gmmParams.BaseHeight = 1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
         uint32_t PitchInBytes = AlignedWidth * GetBppValue(bpp);
@@ -104,6 +104,8 @@ TEST_F(CTestGen9Resource, Test1DLinearResource)
         VerifyResourcePitchInTiles<false>(ResourceInfo, 0); // N/A for linear
         VerifyResourceSize<true>(ResourceInfo, AlignedSize);
         VerifyResourceQPitch<false>(ResourceInfo, 0); // N/A for non-arrayed
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
 
@@ -115,8 +117,8 @@ TEST_F(CTestGen9Resource, Test1DLinearResource)
         gmmParams.BaseWidth64 = 0x1001;
         gmmParams.BaseHeight = 1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
         uint32_t PitchInBytes = AlignedWidth * GetBppValue(bpp);
@@ -128,6 +130,8 @@ TEST_F(CTestGen9Resource, Test1DLinearResource)
         VerifyResourcePitchInTiles<false>(ResourceInfo, 0); // N/A for linear
         VerifyResourceSize<true>(ResourceInfo, AlignedSize);
         VerifyResourceQPitch<false>(ResourceInfo, 0); // N/A for non-arrayed
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -152,8 +156,8 @@ TEST_F(CTestGen9Resource, Test1DLinearResourceArrays)
         gmmParams.BaseWidth64 = 0x1001;
         gmmParams.BaseHeight = 1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
         uint32_t PitchInBytes = AlignedWidth * GetBppValue(bpp);
@@ -165,6 +169,8 @@ TEST_F(CTestGen9Resource, Test1DLinearResourceArrays)
         VerifyResourcePitchInTiles<false>(ResourceInfo, 0); // N/A for linear
         VerifyResourceSize<true>(ResourceInfo, AlignedSize);
         VerifyResourceQPitch<true>(ResourceInfo, AlignedWidth);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -189,8 +195,8 @@ TEST_F(CTestGen9Resource, Test1DLinearResourceMips)
         gmmParams.BaseWidth64 = 0x100;
         gmmParams.BaseHeight = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
         for(int mip = 1; mip <= gmmParams.MaxLod; mip++)
@@ -212,7 +218,7 @@ TEST_F(CTestGen9Resource, Test1DLinearResourceMips)
         GMM_REQ_OFFSET_INFO OffsetInfo = {};
         OffsetInfo.ReqRender = 1;
         OffsetInfo.MipLevel = 0; //Mip 0
-        ResourceInfo.GetOffset(OffsetInfo);
+        ResourceInfo->GetOffset(OffsetInfo);
         EXPECT_EQ(0, OffsetInfo.Render.Offset64);
         EXPECT_EQ(0, OffsetInfo.Render.XOffset);
         EXPECT_EQ(0, OffsetInfo.Render.YOffset);
@@ -225,13 +231,15 @@ TEST_F(CTestGen9Resource, Test1DLinearResourceMips)
             OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
             OffsetInfo.MipLevel = mip;
-            ResourceInfo.GetOffset(OffsetInfo);
+            ResourceInfo->GetOffset(OffsetInfo);
             StartOfMip += GMM_ULT_ALIGN(gmmParams.BaseWidth64 >> (mip-1), HAlign) * GetBppValue(bpp);
             EXPECT_EQ(StartOfMip, OffsetInfo.Render.Offset64);
             EXPECT_EQ(0, OffsetInfo.Render.XOffset);
             EXPECT_EQ(0, OffsetInfo.Render.YOffset);
             EXPECT_EQ(0, OffsetInfo.Render.ZOffset);
         }
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -254,8 +262,8 @@ TEST_F(CTestGen9Resource, Test1DTileYsResource)
         gmmParams.BaseWidth64 = 0x1;
         gmmParams.BaseHeight = 1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[i]);
         uint32_t PitchInBytes = AlignedWidth * GetBppValue(bpp);
@@ -267,6 +275,8 @@ TEST_F(CTestGen9Resource, Test1DTileYsResource)
         VerifyResourcePitchInTiles<false>(ResourceInfo, 0); // N/A for linear
         VerifyResourceSize<true>(ResourceInfo, AlignedSize);
         VerifyResourceQPitch<false>(ResourceInfo, 0); // N/A for non-arrayed
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate more than 1 "tile", where applicable. Max width of the surface can only be
@@ -279,8 +289,8 @@ TEST_F(CTestGen9Resource, Test1DTileYsResource)
         gmmParams.BaseWidth64 = 16 * 1024; // 16K is the max width you can specify
         gmmParams.BaseHeight = 1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[i]);
         uint32_t PitchInBytes = AlignedWidth * GetBppValue(bpp);
@@ -292,6 +302,8 @@ TEST_F(CTestGen9Resource, Test1DTileYsResource)
         VerifyResourcePitchInTiles<false>(ResourceInfo, 0); // N/A for linear
         VerifyResourceSize<true>(ResourceInfo, AlignedSize);
         VerifyResourceQPitch<false>(ResourceInfo, 0); // N/A for non-arrayed
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -315,8 +327,8 @@ TEST_F(CTestGen9Resource, Test1DTileYsResourceArrays)
         gmmParams.BaseWidth64 = 16 * 1024; // 16K is the max width you can specify
         gmmParams.BaseHeight = 1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[i]);
         uint32_t PitchInBytes = AlignedWidth * GetBppValue(bpp);
@@ -328,6 +340,8 @@ TEST_F(CTestGen9Resource, Test1DTileYsResourceArrays)
         VerifyResourcePitchInTiles<false>(ResourceInfo, 0); // N/A for linear
         VerifyResourceSize<true>(ResourceInfo, AlignedSize);
         VerifyResourceQPitch<true>(ResourceInfo, AlignedWidth);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -352,8 +366,8 @@ TEST_F(CTestGen9Resource, Test1DTileYsResourceMips)
         gmmParams.BaseWidth64 = 16 * 1024; // 16K is the max width you can specify
         gmmParams.BaseHeight = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         uint32_t MaxMip;
         uint32_t MipTailStart = gmmParams.MaxLod;
@@ -391,7 +405,7 @@ TEST_F(CTestGen9Resource, Test1DTileYsResourceMips)
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
             OffsetInfo.MipLevel = mip;
-            ResourceInfo.GetOffset(OffsetInfo);
+            ResourceInfo->GetOffset(OffsetInfo);
             StartOfMip += (mip == 0 ? 0 : GMM_ULT_ALIGN(gmmParams.BaseWidth64 >> (mip - 1), TileSize[i]) * GetBppValue(bpp));
             EXPECT_EQ(StartOfMip, OffsetInfo.Render.Offset64);
             EXPECT_EQ(0, OffsetInfo.Render.XOffset);
@@ -401,19 +415,21 @@ TEST_F(CTestGen9Resource, Test1DTileYsResourceMips)
 
         uint32_t MipTailOffsets[GMM_ULT_MAX_MIPMAP] = { 32768, 16384, 8192, 4096, 2048, 1024, 768, 512, 448, 384, 320, 256, 192, 128, 64 };
         // Check for offset inside miptails.
-        EXPECT_EQ(MipTailStart, ResourceInfo.GetPackedMipTailStartLod());
+        EXPECT_EQ(MipTailStart, ResourceInfo->GetPackedMipTailStartLod());
         StartOfMip += GMM_ULT_ALIGN(gmmParams.BaseWidth64 >> (mip - 1), TileSize[i]) * GetBppValue(bpp); // Start of MipTail
         for (int slot = 0 ; mip <= gmmParams.MaxLod; mip++, slot++)
         {
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
             OffsetInfo.MipLevel = mip;
-            ResourceInfo.GetOffset(OffsetInfo);
+            ResourceInfo->GetOffset(OffsetInfo);
             EXPECT_EQ(StartOfMip, OffsetInfo.Render.Offset64); // Start of Miptail
             EXPECT_EQ(MipTailOffsets[slot], OffsetInfo.Render.XOffset); // Offset within miptail
             EXPECT_EQ(0, OffsetInfo.Render.YOffset);
             EXPECT_EQ(0, OffsetInfo.Render.ZOffset);
         }
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -436,8 +452,8 @@ TEST_F(CTestGen9Resource, Test1DTileYfResource)
         gmmParams.BaseWidth64 = 0x1;
         gmmParams.BaseHeight = 1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[i]);
         uint32_t PitchInBytes = AlignedWidth * GetBppValue(bpp);
@@ -449,6 +465,8 @@ TEST_F(CTestGen9Resource, Test1DTileYfResource)
         VerifyResourcePitchInTiles<false>(ResourceInfo, 0); // N/A for linear
         VerifyResourceSize<true>(ResourceInfo, AlignedSize);
         VerifyResourceQPitch<false>(ResourceInfo, 0); // N/A for non-arrayed
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate more than 1 "tile"
@@ -459,8 +477,8 @@ TEST_F(CTestGen9Resource, Test1DTileYfResource)
         gmmParams.BaseWidth64 = TileSize[i] + 1;
         gmmParams.BaseHeight = 1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[i]);
         uint32_t PitchInBytes = AlignedWidth * GetBppValue(bpp);
@@ -472,6 +490,8 @@ TEST_F(CTestGen9Resource, Test1DTileYfResource)
         VerifyResourcePitchInTiles<false>(ResourceInfo, 0); // N/A for linear
         VerifyResourceSize<true>(ResourceInfo, AlignedSize);
         VerifyResourceQPitch<false>(ResourceInfo, 0); // N/A for non-arrayed
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -495,8 +515,8 @@ TEST_F(CTestGen9Resource, Test1DTileYfResourceArrays)
         gmmParams.BaseWidth64 = 16 * 1024; // 16K is the max width you can specify
         gmmParams.BaseHeight = 1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[i]);
         uint32_t PitchInBytes = AlignedWidth * GetBppValue(bpp);
@@ -508,6 +528,8 @@ TEST_F(CTestGen9Resource, Test1DTileYfResourceArrays)
         VerifyResourcePitchInTiles<false>(ResourceInfo, 0); // N/A for linear
         VerifyResourceSize<true>(ResourceInfo, AlignedSize);
         VerifyResourceQPitch<true>(ResourceInfo, AlignedWidth);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -532,8 +554,8 @@ TEST_F(CTestGen9Resource, Test1DTileYfResourceMips)
         gmmParams.BaseWidth64 = 16 * 1024; // 16K is the max width you can specify
         gmmParams.BaseHeight = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         uint32_t MaxMip;
         uint32_t MipTailStart = gmmParams.MaxLod;
@@ -571,7 +593,7 @@ TEST_F(CTestGen9Resource, Test1DTileYfResourceMips)
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
             OffsetInfo.MipLevel = mip;
-            ResourceInfo.GetOffset(OffsetInfo);
+            ResourceInfo->GetOffset(OffsetInfo);
             StartOfMip += (mip == 0 ? 0 : GMM_ULT_ALIGN(gmmParams.BaseWidth64 >> (mip - 1), TileSize[i]) * GetBppValue(bpp));
             EXPECT_EQ(StartOfMip, OffsetInfo.Render.Offset64);
             EXPECT_EQ(0, OffsetInfo.Render.XOffset);
@@ -581,19 +603,21 @@ TEST_F(CTestGen9Resource, Test1DTileYfResourceMips)
 
         uint32_t MipTailOffsets[12] = { 2048, 1024, 768, 512, 448, 384, 320, 256, 192, 128, 64, 0 };
         // Check for offset inside miptails.
-        EXPECT_EQ(MipTailStart, ResourceInfo.GetPackedMipTailStartLod());
+        EXPECT_EQ(MipTailStart, ResourceInfo->GetPackedMipTailStartLod());
         StartOfMip += GMM_ULT_ALIGN(gmmParams.BaseWidth64 >> (mip - 1), TileSize[i]) * GetBppValue(bpp); // Start of MipTail
         for (int slot = 0; mip <= gmmParams.MaxLod; mip++, slot++)
         {
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
             OffsetInfo.MipLevel = mip;
-            ResourceInfo.GetOffset(OffsetInfo);
+            ResourceInfo->GetOffset(OffsetInfo);
             EXPECT_EQ(StartOfMip, OffsetInfo.Render.Offset64); // Start of Miptail
             EXPECT_EQ(MipTailOffsets[slot], OffsetInfo.Render.XOffset); // Offset within miptail
             EXPECT_EQ(0, OffsetInfo.Render.YOffset);
             EXPECT_EQ(0, OffsetInfo.Render.ZOffset);
         }
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -627,8 +651,8 @@ TEST_F(CTestGen9Resource, Test2DTileYsResource)
         gmmParams.BaseWidth64 = 0x1;
         gmmParams.BaseHeight = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
@@ -636,6 +660,8 @@ TEST_F(CTestGen9Resource, Test2DTileYsResource)
         VerifyResourcePitchInTiles<true>(ResourceInfo, 1);  // 1 Tile wide
         VerifyResourceSize<true>(ResourceInfo, GMM_KBYTE(64)); // 1 Tile Big
         VerifyResourceQPitch<false>(ResourceInfo, 0);   // Not Tested
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate surface that requires multi tiles in two dimension
@@ -648,8 +674,8 @@ TEST_F(CTestGen9Resource, Test2DTileYsResource)
         gmmParams.BaseHeight = 0x1;
         gmmParams.Depth = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
@@ -658,6 +684,8 @@ TEST_F(CTestGen9Resource, Test2DTileYsResource)
         VerifyResourceSize<true>(ResourceInfo, GMM_KBYTE(64) * 2); // 2 tile big
 
         VerifyResourceQPitch<false>(ResourceInfo, 0); // Not tested
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate 2 tiles in X/Y dimension
@@ -669,8 +697,8 @@ TEST_F(CTestGen9Resource, Test2DTileYsResource)
         gmmParams.BaseHeight = TileSize[i][1] + 1; // 1 row larger than 1 tile height
         gmmParams.Depth = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
@@ -679,6 +707,8 @@ TEST_F(CTestGen9Resource, Test2DTileYsResource)
         VerifyResourceSize<true>(ResourceInfo, GMM_KBYTE(64) * 4); // 4 tile big
 
         VerifyResourceQPitch<false>(ResourceInfo, 0); // Not tested
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -731,8 +761,8 @@ TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
         gmmParams.BaseWidth64 = 0x120;
         gmmParams.BaseHeight = 0x120;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
@@ -758,14 +788,14 @@ TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
         Mip0Height = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign[i]);
         if (MipTailStartLod == 2)
         {
-            EXPECT_EQ(2, ResourceInfo.GetPackedMipTailStartLod());
+            EXPECT_EQ(2, ResourceInfo->GetPackedMipTailStartLod());
             // Block height...Mip0Height + Max(Mip1Height, Sum of Mip2Height..MipnHeight)
             Mip1Height = GMM_ULT_ALIGN(gmmParams.BaseHeight >> 1, VAlign[i]);
             Mip2Height = Mip2Higher = GMM_ULT_ALIGN(gmmParams.BaseHeight >> 2, VAlign[i]);
         }
         else if (MipTailStartLod == 3)
         {
-            EXPECT_EQ(3, ResourceInfo.GetPackedMipTailStartLod());
+            EXPECT_EQ(3, ResourceInfo->GetPackedMipTailStartLod());
             // Block height...Mip0Height + Max(Mip1Height, Sum of Mip2Height..MipnHeight)
             Mip1Height = GMM_ULT_ALIGN(gmmParams.BaseHeight >> 1, VAlign[i]);
             Mip2Height = GMM_ULT_ALIGN(gmmParams.BaseHeight >> 2, VAlign[i]);
@@ -775,7 +805,7 @@ TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
         }
         else if (MipTailStartLod == 4)
         {
-            EXPECT_EQ(4, ResourceInfo.GetPackedMipTailStartLod());
+            EXPECT_EQ(4, ResourceInfo->GetPackedMipTailStartLod());
             // Block height...Mip0Height + Max(Mip1Height, Sum of Mip2Height..MipnHeight)
             Mip1Height = GMM_ULT_ALIGN(gmmParams.BaseHeight >> 1, VAlign[i]);
             Mip2Height = GMM_ULT_ALIGN(gmmParams.BaseHeight >> 2, VAlign[i]);
@@ -800,8 +830,8 @@ TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
         // Mip 0 offsets, offset is 0,0
         GMM_REQ_OFFSET_INFO ReqInfo = { 0 };
         ReqInfo.MipLevel = 0;
-        ReqInfo.ReqRender = true;
-        ResourceInfo.GetOffset(ReqInfo);
+        ReqInfo.ReqRender = 1;
+        ResourceInfo->GetOffset(ReqInfo);
         uint32_t Mip0Size = ExpectedPitch * Mip0Height;
         EXPECT_EQ(0, ReqInfo.Render.Offset64);
         EXPECT_EQ(0, ReqInfo.Render.XOffset);
@@ -810,8 +840,8 @@ TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
         // Mip 1 offsets
         ReqInfo = { 0 };
         ReqInfo.MipLevel = 1;
-        ReqInfo.ReqRender = true;
-        ResourceInfo.GetOffset(ReqInfo);
+        ReqInfo.ReqRender = 1;
+        ResourceInfo->GetOffset(ReqInfo);
         uint32_t Mip1Offset = Mip0Size;
         EXPECT_EQ(Mip1Offset, ReqInfo.Render.Offset64);
         EXPECT_EQ(0, ReqInfo.Render.XOffset);
@@ -820,8 +850,8 @@ TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
         // Mip 2 offset
         ReqInfo = { 0 };
         ReqInfo.MipLevel = 2;
-        ReqInfo.ReqRender = true;
-        ResourceInfo.GetOffset(ReqInfo);
+        ReqInfo.ReqRender = 1;
+        ResourceInfo->GetOffset(ReqInfo);
         uint32_t Mip2Offset = Mip1Width * GetBppValue(bpp) + Mip0Height * ExpectedPitch;
         uint32_t Mip2X = GFX_ALIGN_FLOOR(uint32_t(Mip2Offset % ExpectedPitch), TileSize[i][0]);
         uint32_t Mip2Y = GFX_ALIGN_FLOOR(uint32_t(Mip2Offset / ExpectedPitch), TileSize[i][1]);
@@ -856,8 +886,8 @@ TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
         // Mip 3 offset
         ReqInfo = { 0 };
         ReqInfo.MipLevel = 3;
-        ReqInfo.ReqRender = true;
-        ResourceInfo.GetOffset(ReqInfo);
+        ReqInfo.ReqRender = 1;
+        ResourceInfo->GetOffset(ReqInfo);
         uint32_t Mip3Offset = 0;
         switch (bpp)
         {
@@ -897,8 +927,8 @@ TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
         // Mip 4 offset
         ReqInfo = { 0 };
         ReqInfo.MipLevel = 4;
-        ReqInfo.ReqRender = true;
-        ResourceInfo.GetOffset(ReqInfo);
+        ReqInfo.ReqRender = 1;
+        ResourceInfo->GetOffset(ReqInfo);
         uint32_t Mip4Offset = 0;
         switch (bpp)
         {
@@ -938,8 +968,8 @@ TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
         // Mip 5 offset
         ReqInfo = { 0 };
         ReqInfo.MipLevel = 4;
-        ReqInfo.ReqRender = true;
-        ResourceInfo.GetOffset(ReqInfo);
+        ReqInfo.ReqRender = 1;
+        ResourceInfo->GetOffset(ReqInfo);
         uint32_t Mip5Offset = 0;
         switch (bpp)
         {
@@ -975,6 +1005,8 @@ TEST_F(CTestGen9Resource, Test2DTileYsMippedResource)
         uint32_t Mip5Y = GFX_ALIGN_FLOOR(uint32_t(Mip4Offset / ExpectedPitch), TileSize[i][1]);
         uint32_t Mip5RenderAlignedOffset = Mip5Y * ExpectedPitch + (Mip5X / TileSize[i][0]) * (TileSize[i][0] * TileSize[i][1]);
         EXPECT_EQ(Mip5RenderAlignedOffset, ReqInfo.Render.Offset64);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -1005,8 +1037,8 @@ TEST_F(CTestGen9Resource, Test2DTileYfResource)
         gmmParams.BaseWidth64 = 0x1;
         gmmParams.BaseHeight = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
@@ -1014,6 +1046,8 @@ TEST_F(CTestGen9Resource, Test2DTileYfResource)
         VerifyResourcePitchInTiles<true>(ResourceInfo, 1);  // 1 Tile wide
         VerifyResourceSize<true>(ResourceInfo, GMM_KBYTE(4)); // 1 Tile Big
         VerifyResourceQPitch<false>(ResourceInfo, 0);   // Not Tested
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate surface that requires multi tiles in two dimension
@@ -1026,8 +1060,8 @@ TEST_F(CTestGen9Resource, Test2DTileYfResource)
         gmmParams.BaseHeight = 0x1;
         gmmParams.Depth = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
@@ -1036,6 +1070,8 @@ TEST_F(CTestGen9Resource, Test2DTileYfResource)
         VerifyResourceSize<true>(ResourceInfo, GMM_KBYTE(4) * 2); // 2 tile big
 
         VerifyResourceQPitch<false>(ResourceInfo, 0); // Not tested
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate 2 tiles in X/Y dimension
@@ -1047,8 +1083,8 @@ TEST_F(CTestGen9Resource, Test2DTileYfResource)
         gmmParams.BaseHeight = TileSize[i][1] + 1; // 1 row larger than 1 tile height
         gmmParams.Depth = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
@@ -1057,6 +1093,8 @@ TEST_F(CTestGen9Resource, Test2DTileYfResource)
         VerifyResourceSize<true>(ResourceInfo, GMM_KBYTE(4) * 4); // 4 tile big
 
         VerifyResourceQPitch<false>(ResourceInfo, 0); // Not tested
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -1109,8 +1147,8 @@ TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
         gmmParams.BaseWidth64 = 0x38;
         gmmParams.BaseHeight = 0x38;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
@@ -1133,14 +1171,14 @@ TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
 
         if (MipTailStartLod == 1)
         {
-            EXPECT_EQ(1, ResourceInfo.GetPackedMipTailStartLod());
+            EXPECT_EQ(1, ResourceInfo->GetPackedMipTailStartLod());
             // Block height...Mip0Height + Max(Mip1Height, Sum of Mip2Height..MipnHeight)
             Mip1Height = GMM_ULT_ALIGN(gmmParams.BaseHeight >> 1, VAlign[i]);
             AlignedWidth = Mip0Width;
         }
         if (MipTailStartLod == 2)
         {
-            EXPECT_EQ(2, ResourceInfo.GetPackedMipTailStartLod());
+            EXPECT_EQ(2, ResourceInfo->GetPackedMipTailStartLod());
             // Block height...Mip0Height + Max(Mip1Height, Sum of Mip2Height..MipnHeight)
             Mip1Height = GMM_ULT_ALIGN(gmmParams.BaseHeight >> 1, VAlign[i]);
             Mip2Height = Mip2Higher = GMM_ULT_ALIGN(gmmParams.BaseHeight >> 2, VAlign[i]);
@@ -1151,7 +1189,7 @@ TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
         }
         if (MipTailStartLod == 3)
         {
-            EXPECT_EQ(3, ResourceInfo.GetPackedMipTailStartLod());
+            EXPECT_EQ(3, ResourceInfo->GetPackedMipTailStartLod());
             // Block height...Mip0Height + Max(Mip1Height, Sum of Mip2Height..MipnHeight)
             Mip1Height = GMM_ULT_ALIGN(gmmParams.BaseHeight >> 1, VAlign[i]);
             Mip2Height = GMM_ULT_ALIGN(gmmParams.BaseHeight >> 2, VAlign[i]);
@@ -1179,8 +1217,8 @@ TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
         // Mip 0 offsets, offset is 0,0
         GMM_REQ_OFFSET_INFO ReqInfo = { 0 };
         ReqInfo.MipLevel = 0;
-        ReqInfo.ReqRender = true;
-        ResourceInfo.GetOffset(ReqInfo);
+        ReqInfo.ReqRender = 1;
+        ResourceInfo->GetOffset(ReqInfo);
         uint32_t Mip0Size = ExpectedPitch * Mip0Height;
         EXPECT_EQ(0, ReqInfo.Render.Offset64);
         EXPECT_EQ(0, ReqInfo.Render.XOffset);
@@ -1189,8 +1227,8 @@ TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
         // Mip 1 offsets
         ReqInfo = { 0 };
         ReqInfo.MipLevel = 1;
-        ReqInfo.ReqRender = true;
-        ResourceInfo.GetOffset(ReqInfo);
+        ReqInfo.ReqRender = 1;
+        ResourceInfo->GetOffset(ReqInfo);
         uint32_t Mip1Offset = Mip0Size;
         switch (bpp)
         {
@@ -1223,8 +1261,8 @@ TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
         // Mip 2 offset
         ReqInfo = { 0 };
         ReqInfo.MipLevel = 2;
-        ReqInfo.ReqRender = true;
-        ResourceInfo.GetOffset(ReqInfo);
+        ReqInfo.ReqRender = 1;
+        ResourceInfo->GetOffset(ReqInfo);
         uint32_t Mip2Offset = Mip1Width * GetBppValue(bpp) + Mip0Height * ExpectedPitch;
         switch (bpp)
         {
@@ -1259,8 +1297,8 @@ TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
         // Mip 3 offset
         ReqInfo = { 0 };
         ReqInfo.MipLevel = 3;
-        ReqInfo.ReqRender = true;
-        ResourceInfo.GetOffset(ReqInfo);
+        ReqInfo.ReqRender = 1;
+        ResourceInfo->GetOffset(ReqInfo);
         uint32_t Mip3Offset = 0;
         switch (bpp)
         {
@@ -1300,8 +1338,8 @@ TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
         // Mip 4 offset
         ReqInfo = { 0 };
         ReqInfo.MipLevel = 4;
-        ReqInfo.ReqRender = true;
-        ResourceInfo.GetOffset(ReqInfo);
+        ReqInfo.ReqRender = 1;
+        ResourceInfo->GetOffset(ReqInfo);
         uint32_t Mip4Offset = 0;
         switch (bpp)
         {
@@ -1338,6 +1376,8 @@ TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
         uint32_t Mip4RenderAlignedOffset = Mip4Y * ExpectedPitch + (Mip4X / TileSize[i][0]) * (TileSize[i][0] * TileSize[i][1]);
         EXPECT_EQ(Mip4RenderAlignedOffset, ReqInfo.Render.Offset64);
 
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
+
     }
 }
 
@@ -1368,8 +1408,8 @@ TEST_F(CTestGen9Resource, Test3DLinearResource)
         const uint32_t MinPitch       = 32;
         const uint32_t PitchAlignment = 32;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         const uint32_t AlignedWidth  = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
         const uint32_t AlignedHeight = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
@@ -1383,6 +1423,8 @@ TEST_F(CTestGen9Resource, Test3DLinearResource)
         VerifyResourcePitch<true>(ResourceInfo, PitchInBytes);
         VerifyResourceSize<true>(ResourceInfo, AlignedSize);
         VerifyResourceQPitch<true>(ResourceInfo, AlignedHeight);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate 256 x 256 x 256
@@ -1397,8 +1439,8 @@ TEST_F(CTestGen9Resource, Test3DLinearResource)
         const uint32_t MinPitch       = 32;
         const uint32_t PitchAlignment = 32;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         const uint32_t AlignedWidth  = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
         const uint32_t AlignedHeight = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
@@ -1412,6 +1454,8 @@ TEST_F(CTestGen9Resource, Test3DLinearResource)
         VerifyResourcePitch<true>(ResourceInfo, PitchInBytes);
         VerifyResourceSize<true>(ResourceInfo, AlignedSize);
         VerifyResourceQPitch<true>(ResourceInfo, AlignedHeight);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -1442,8 +1486,8 @@ TEST_F(CTestGen9Resource, Test3DTileXResource)
         gmmParams.BaseHeight  = 0x1;
         gmmParams.Depth       = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign);
@@ -1451,6 +1495,8 @@ TEST_F(CTestGen9Resource, Test3DTileXResource)
         VerifyResourcePitchInTiles<true>(ResourceInfo, 1);
         VerifyResourceSize<true>(ResourceInfo, GMM_KBYTE(4));
         VerifyResourceQPitch<true>(ResourceInfo, TileSize[i][1]);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate 2 tiles in X dimension
@@ -1462,8 +1508,8 @@ TEST_F(CTestGen9Resource, Test3DTileXResource)
         gmmParams.BaseHeight  = 0x1;
         gmmParams.Depth       = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign);
@@ -1471,6 +1517,8 @@ TEST_F(CTestGen9Resource, Test3DTileXResource)
         VerifyResourcePitchInTiles<true>(ResourceInfo, 2);
         VerifyResourceSize<true>(ResourceInfo, 2 * GMM_KBYTE(4));
         VerifyResourceQPitch<true>(ResourceInfo, TileSize[i][1]);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate 2 tiles in X/Y dimension
@@ -1482,8 +1530,8 @@ TEST_F(CTestGen9Resource, Test3DTileXResource)
         gmmParams.BaseHeight  = TileSize[i][1] + 1;
         gmmParams.Depth       = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign);
@@ -1491,6 +1539,8 @@ TEST_F(CTestGen9Resource, Test3DTileXResource)
         VerifyResourcePitchInTiles<true>(ResourceInfo, 2);
         VerifyResourceSize<true>(ResourceInfo, 2 * 2 * GMM_KBYTE(4));
         VerifyResourceQPitch<true>(ResourceInfo, 2 * TileSize[i][1]);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate 2 tiles in X/Y/Z dimension
@@ -1502,8 +1552,8 @@ TEST_F(CTestGen9Resource, Test3DTileXResource)
         gmmParams.BaseHeight  = TileSize[i][1] + 1;
         gmmParams.Depth       = TileSize[i][2] + 1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign);
@@ -1511,6 +1561,8 @@ TEST_F(CTestGen9Resource, Test3DTileXResource)
         VerifyResourcePitchInTiles<true>(ResourceInfo, 2);
         VerifyResourceSize<true>(ResourceInfo, 2 * 2 * 2 * GMM_KBYTE(4));
         VerifyResourceQPitch<true>(ResourceInfo, 2 * TileSize[i][1]);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -1544,8 +1596,8 @@ TEST_F(CTestGen9Resource, Test3DTileYResource)
         const uint32_t MinPitch       = 32;
         const uint32_t PitchAlignment = 32;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         const uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
         uint32_t PitchInBytes       = AlignedWidth * GetBppValue(bpp);
@@ -1559,6 +1611,8 @@ TEST_F(CTestGen9Resource, Test3DTileYResource)
         VerifyResourcePitchInTiles<true>(ResourceInfo, PitchInBytes / TileSize[i][0]);
         VerifyResourceSize<true>(ResourceInfo, PitchInBytes / TileSize[i][0] * GMM_KBYTE(4));
         VerifyResourceQPitch<true>(ResourceInfo, TileSize[i][1]);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate 2 tiles in X dimension
@@ -1573,8 +1627,8 @@ TEST_F(CTestGen9Resource, Test3DTileYResource)
         const uint32_t MinPitch       = 32;
         const uint32_t PitchAlignment = 32;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         const uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
         uint32_t PitchInBytes       = AlignedWidth * GetBppValue(bpp);
@@ -1588,6 +1642,8 @@ TEST_F(CTestGen9Resource, Test3DTileYResource)
         VerifyResourcePitchInTiles<true>(ResourceInfo, PitchInBytes / TileSize[i][0]);
         VerifyResourceSize<true>(ResourceInfo, PitchInBytes / TileSize[i][0] * GMM_KBYTE(4));
         VerifyResourceQPitch<true>(ResourceInfo, TileSize[i][1]);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate 2 tiles in X/Y dimension
@@ -1602,8 +1658,8 @@ TEST_F(CTestGen9Resource, Test3DTileYResource)
         const uint32_t MinPitch       = 32;
         const uint32_t PitchAlignment = 32;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         const uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
         uint32_t PitchInBytes       = AlignedWidth * GetBppValue(bpp);
@@ -1617,6 +1673,8 @@ TEST_F(CTestGen9Resource, Test3DTileYResource)
         VerifyResourcePitchInTiles<true>(ResourceInfo, PitchInBytes / TileSize[i][0]);
         VerifyResourceSize<true>(ResourceInfo, PitchInBytes / TileSize[i][0] * 2 * GMM_KBYTE(4));
         VerifyResourceQPitch<true>(ResourceInfo, TileSize[i][1] * 2);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate 2 tiles in X/Y/Z dimension
@@ -1631,8 +1689,8 @@ TEST_F(CTestGen9Resource, Test3DTileYResource)
         const uint32_t MinPitch       = 32;
         const uint32_t PitchAlignment = 32;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         const uint32_t AlignedWidth = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
         uint32_t PitchInBytes       = AlignedWidth * GetBppValue(bpp);
@@ -1646,6 +1704,8 @@ TEST_F(CTestGen9Resource, Test3DTileYResource)
         VerifyResourcePitchInTiles<true>(ResourceInfo, PitchInBytes / TileSize[i][0]);
         VerifyResourceSize<true>(ResourceInfo, PitchInBytes / TileSize[i][0] * 2 * 2 * GMM_KBYTE(4));
         VerifyResourceQPitch<true>(ResourceInfo, TileSize[i][1] * 2);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -1678,8 +1738,8 @@ TEST_F(CTestGen9Resource, Test3DTileYsResource)
         gmmParams.BaseHeight  = 0x1;
         gmmParams.Depth       = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
@@ -1688,6 +1748,8 @@ TEST_F(CTestGen9Resource, Test3DTileYsResource)
         VerifyResourceSize<false>(ResourceInfo, GMM_KBYTE(64)); // 1 tile big
 
         VerifyResourceQPitch<false>(ResourceInfo, 0); // Not tested
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate 2 tiles in X dimension
@@ -1699,8 +1761,8 @@ TEST_F(CTestGen9Resource, Test3DTileYsResource)
         gmmParams.BaseHeight  = 0x1;
         gmmParams.Depth       = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
@@ -1709,6 +1771,8 @@ TEST_F(CTestGen9Resource, Test3DTileYsResource)
         VerifyResourceSize<false>(ResourceInfo, GMM_KBYTE(64) * 2); // 2 tile big
 
         VerifyResourceQPitch<false>(ResourceInfo, 0); // Not tested
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate 2 tiles in X/Y dimension
@@ -1720,8 +1784,8 @@ TEST_F(CTestGen9Resource, Test3DTileYsResource)
         gmmParams.BaseHeight  = TileSize[i][1] + 1; // 1 row larger than 1 tile height
         gmmParams.Depth       = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
@@ -1730,6 +1794,8 @@ TEST_F(CTestGen9Resource, Test3DTileYsResource)
         VerifyResourceSize<false>(ResourceInfo, GMM_KBYTE(64) * 4); // 4 tile big
 
         VerifyResourceQPitch<false>(ResourceInfo, 0); // Not tested
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate 2 tiles in X/Y/Z dimension
@@ -1741,8 +1807,8 @@ TEST_F(CTestGen9Resource, Test3DTileYsResource)
         gmmParams.BaseHeight  = TileSize[i][1] + 1; // 1 row larger than 1 tile height
         gmmParams.Depth       = TileSize[i][2] + 1; // 1 plane larger than 1 tile depth
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
@@ -1751,6 +1817,8 @@ TEST_F(CTestGen9Resource, Test3DTileYsResource)
         VerifyResourceSize<true>(ResourceInfo, GMM_KBYTE(64) * 8); // 8 tile big
 
         VerifyResourceQPitch<false>(ResourceInfo, 0); // Not tested
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -1786,8 +1854,8 @@ TEST_F(CTestGen9Resource, Test3DTileYsMippedResource)
         gmmParams.MaxLod               = MaxLod;
         gmmParams.Format               = SetResourceFormat(bpp);
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         const uint32_t Pitch      = ResourceWidth * GetBppValue(bpp);
         const uint32_t Mip0Height = ResourceHeight;
@@ -1796,7 +1864,7 @@ TEST_F(CTestGen9Resource, Test3DTileYsMippedResource)
         GMM_REQ_OFFSET_INFO OffsetInfo = {};
         OffsetInfo.ReqRender   = 1;
         OffsetInfo.MipLevel    = 0;
-        ResourceInfo.GetOffset(OffsetInfo);
+        ResourceInfo->GetOffset(OffsetInfo);
 
         EXPECT_EQ(0, OffsetInfo.Render.Offset64);
         EXPECT_EQ(0, OffsetInfo.Render.XOffset);
@@ -1807,7 +1875,7 @@ TEST_F(CTestGen9Resource, Test3DTileYsMippedResource)
         OffsetInfo             = {};
         OffsetInfo.ReqRender   = 1;
         OffsetInfo.MipLevel    = 1;
-        ResourceInfo.GetOffset(OffsetInfo);
+        ResourceInfo->GetOffset(OffsetInfo);
 
         const uint32_t SizeOfMip0 = Pitch * ResourceHeight * TileSize[i][2];
         const uint32_t Mip1Offset = SizeOfMip0;
@@ -1823,7 +1891,7 @@ TEST_F(CTestGen9Resource, Test3DTileYsMippedResource)
         OffsetInfo             = {};
         OffsetInfo.ReqRender   = 1;
         OffsetInfo.MipLevel    = 2;
-        ResourceInfo.GetOffset(OffsetInfo);
+        ResourceInfo->GetOffset(OffsetInfo);
 
         const uint32_t Mip2Height = ResourceHeight >> 2;
         const uint32_t Mip2Offset = Mip1Offset + Mip1Width * GetBppValue(bpp) / TileSize[i][0] * GMM_KBYTE(64);
@@ -1837,7 +1905,7 @@ TEST_F(CTestGen9Resource, Test3DTileYsMippedResource)
         OffsetInfo             = {};
         OffsetInfo.ReqRender   = 1;
         OffsetInfo.MipLevel    = 3;
-        ResourceInfo.GetOffset(OffsetInfo);
+        ResourceInfo->GetOffset(OffsetInfo);
 
         const uint32_t Mip3Y      = (Mip0Height + Mip2Height) * TileSize[i][2];
         const uint32_t Mip3X      = Mip1Width;
@@ -1852,7 +1920,7 @@ TEST_F(CTestGen9Resource, Test3DTileYsMippedResource)
         OffsetInfo             = {};
         OffsetInfo.ReqRender   = 1;
         OffsetInfo.MipLevel    = 4;
-        ResourceInfo.GetOffset(OffsetInfo);
+        ResourceInfo->GetOffset(OffsetInfo);
 
         const uint32_t Mip3Height = ResourceHeight >> 3;
         const uint32_t Mip4Y      = (Mip0Height + Mip2Height + Mip3Height) * TileSize[i][2];
@@ -1899,7 +1967,7 @@ TEST_F(CTestGen9Resource, Test3DTileYsMippedResource)
         OffsetInfo             = {};
         OffsetInfo.ReqRender   = 1;
         OffsetInfo.MipLevel    = 5;
-        ResourceInfo.GetOffset(OffsetInfo);
+        ResourceInfo->GetOffset(OffsetInfo);
 
         const uint32_t Mip4Height = ResourceHeight >> 4;
         const uint32_t Mip5Y      = (Mip0Height + Mip2Height + Mip3Height + Mip4Height) * TileSize[i][2];
@@ -1941,6 +2009,8 @@ TEST_F(CTestGen9Resource, Test3DTileYsMippedResource)
         default:
             break;
         }
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -1972,8 +2042,8 @@ TEST_F(CTestGen9Resource, Test3DTileYfResource)
         gmmParams.Depth             = 0x1;
         const uint32_t PitchAlignment   = 32;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
@@ -1981,6 +2051,8 @@ TEST_F(CTestGen9Resource, Test3DTileYfResource)
         VerifyResourcePitchInTiles<true>(ResourceInfo, GMM_ULT_ALIGN(TileSize[i][0], PitchAlignment) / TileSize[i][0]);
         VerifyResourceSize<true>(ResourceInfo, GMM_ULT_ALIGN(TileSize[i][0], PitchAlignment) / TileSize[i][0] * GMM_KBYTE(4));
         VerifyResourceQPitch<true>(ResourceInfo, TileSize[i][1]);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate 2 tiles in X dimension
@@ -1994,8 +2066,8 @@ TEST_F(CTestGen9Resource, Test3DTileYfResource)
         const uint32_t PitchAlignment = 32;
 
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
@@ -2003,6 +2075,8 @@ TEST_F(CTestGen9Resource, Test3DTileYfResource)
         VerifyResourcePitchInTiles<true>(ResourceInfo, GMM_ULT_ALIGN(TileSize[i][0] * 2, PitchAlignment) / TileSize[i][0]);
         VerifyResourceSize<true>(ResourceInfo, GMM_ULT_ALIGN(TileSize[i][0] * 2, PitchAlignment) / TileSize[i][0] * GMM_KBYTE(4));
         VerifyResourceQPitch<true>(ResourceInfo, TileSize[i][1]);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate 2 tiles in X/Y dimension
@@ -2015,8 +2089,8 @@ TEST_F(CTestGen9Resource, Test3DTileYfResource)
         gmmParams.Depth             = 0x1;
         const uint32_t PitchAlignment   = 32;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
@@ -2024,6 +2098,8 @@ TEST_F(CTestGen9Resource, Test3DTileYfResource)
         VerifyResourcePitchInTiles<true>(ResourceInfo, GMM_ULT_ALIGN(TileSize[i][0] * 2, PitchAlignment) / TileSize[i][0]);
         VerifyResourceSize<true>(ResourceInfo, GMM_ULT_ALIGN(TileSize[i][0] * 2, PitchAlignment) / TileSize[i][0] * 2 * GMM_KBYTE(4));
         VerifyResourceQPitch<true>(ResourceInfo, TileSize[i][1] * 2);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate 2 tiles in X/Y/Z dimension
@@ -2036,8 +2112,8 @@ TEST_F(CTestGen9Resource, Test3DTileYfResource)
         gmmParams.Depth             = TileSize[i][2] + 1;
         const uint32_t PitchAlignment   = 32;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
@@ -2045,6 +2121,8 @@ TEST_F(CTestGen9Resource, Test3DTileYfResource)
         VerifyResourcePitchInTiles<true>(ResourceInfo, GMM_ULT_ALIGN(TileSize[i][0] * 2, PitchAlignment) / TileSize[i][0]);
         VerifyResourceSize<true>(ResourceInfo, GMM_ULT_ALIGN(TileSize[i][0] * 2, PitchAlignment) / TileSize[i][0] * 2 * 2 * GMM_KBYTE(4));
         VerifyResourceQPitch<true>(ResourceInfo, TileSize[i][1] * 2);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -2070,8 +2148,8 @@ TEST_F(CTestGen9Resource, TestCubeLinearResource)
         gmmParams.BaseHeight = 0x1;
         gmmParams.Depth = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign);
@@ -2093,7 +2171,7 @@ TEST_F(CTestGen9Resource, TestCubeLinearResource)
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
             OffsetInfo.CubeFace = static_cast<GMM_CUBE_FACE_ENUM>(CubeFaceIndex);
-            ResourceInfo.GetOffset(OffsetInfo);
+            ResourceInfo->GetOffset(OffsetInfo);
 
             EXPECT_EQ(CubeFaceIndex * ExpectedQPitch * ExpectedPitch,
                       OffsetInfo.Render.Offset64);                  // Render offset is tile's base address on which cube face begins.
@@ -2101,6 +2179,8 @@ TEST_F(CTestGen9Resource, TestCubeLinearResource)
             EXPECT_EQ(0, OffsetInfo.Render.YOffset);                // Y Offset should be 0
             EXPECT_EQ(0, OffsetInfo.Render.ZOffset);                // Z offset N/A should be 0
         }
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate arbitrary size (X/Y dimension not applicable as linear surface)
@@ -2113,8 +2193,8 @@ TEST_F(CTestGen9Resource, TestCubeLinearResource)
         gmmParams.BaseHeight = gmmParams.BaseWidth64;  // Heigth must be equal to width.
         gmmParams.Depth = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign);
@@ -2137,7 +2217,7 @@ TEST_F(CTestGen9Resource, TestCubeLinearResource)
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
             OffsetInfo.CubeFace = static_cast<GMM_CUBE_FACE_ENUM>(CubeFaceIndex);
-            ResourceInfo.GetOffset(OffsetInfo);
+            ResourceInfo->GetOffset(OffsetInfo);
 
             EXPECT_EQ(CubeFaceIndex * ExpectedQPitch * ExpectedPitch,
                       OffsetInfo.Render.Offset64);                  // Render offset is tile's base address on which cube face begins.
@@ -2145,6 +2225,8 @@ TEST_F(CTestGen9Resource, TestCubeLinearResource)
             EXPECT_EQ(0, OffsetInfo.Render.YOffset);                // Y Offset should be 0
             EXPECT_EQ(0, OffsetInfo.Render.ZOffset);                // Z offset N/A should be 0
         }
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -2181,8 +2263,8 @@ TEST_F(CTestGen9Resource, TestCubeLinearMippedResourceArray)
         gmmParams.BaseHeight    = gmmParams.BaseWidth64;  // Heigth must be equal to width.
         gmmParams.Depth         = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign);
@@ -2211,7 +2293,7 @@ TEST_F(CTestGen9Resource, TestCubeLinearMippedResourceArray)
         GMM_REQ_OFFSET_INFO OffsetInfo = {};
         OffsetInfo.ReqRender = 1;
         OffsetInfo.MipLevel = 0; //Mip 0
-        ResourceInfo.GetOffset(OffsetInfo);
+        ResourceInfo->GetOffset(OffsetInfo);
         EXPECT_EQ(0, OffsetInfo.Render.Offset64);
         EXPECT_EQ(0, OffsetInfo.Render.XOffset);
         EXPECT_EQ(0, OffsetInfo.Render.YOffset);
@@ -2224,7 +2306,7 @@ TEST_F(CTestGen9Resource, TestCubeLinearMippedResourceArray)
         OffsetInfo = {};
         OffsetInfo.ReqRender = 1;
         OffsetInfo.MipLevel = 1;    //Mip 1
-        ResourceInfo.GetOffset(OffsetInfo);
+        ResourceInfo->GetOffset(OffsetInfo);
 
         EXPECT_EQ(AlignedHeightMip0 * ExpectedPitch,    // Render offset is the absolute address at which the mip begins
                   OffsetInfo.Render.Offset64);
@@ -2247,7 +2329,7 @@ TEST_F(CTestGen9Resource, TestCubeLinearMippedResourceArray)
             OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
             OffsetInfo.MipLevel = i;
-            ResourceInfo.GetOffset(OffsetInfo);
+            ResourceInfo->GetOffset(OffsetInfo);
 
             HeightOfMip = GMM_ULT_ALIGN(ResWidth >> i, VAlign);
 
@@ -2283,7 +2365,7 @@ TEST_F(CTestGen9Resource, TestCubeLinearMippedResourceArray)
                 OffsetInfo.ReqRender = 1;
                 OffsetInfo.ArrayIndex = ArrayIndex;
                 OffsetInfo.CubeFace = static_cast<GMM_CUBE_FACE_ENUM>(CubeFaceIndex);
-                ResourceInfo.GetOffset(OffsetInfo);
+                ResourceInfo->GetOffset(OffsetInfo);
 
                 //Verify cube face offsets
                 EXPECT_EQ(((6 * ArrayIndex) + CubeFaceIndex) * ExpectedQPitch * ExpectedPitch,
@@ -2298,7 +2380,7 @@ TEST_F(CTestGen9Resource, TestCubeLinearMippedResourceArray)
                 for (uint32_t Lod = 0; Lod <= MaxLod; Lod++)
                 {
                     OffsetInfo.MipLevel = Lod;
-                    ResourceInfo.GetOffset(OffsetInfo);
+                    ResourceInfo->GetOffset(OffsetInfo);
 
                     uint32_t MipOffset = CubeFaceBaseOffset + RenderOffset[Lod].Offset;
 
@@ -2315,6 +2397,8 @@ TEST_F(CTestGen9Resource, TestCubeLinearMippedResourceArray)
                 }
             }
         }
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -2352,8 +2436,8 @@ TEST_F(CTestGen9Resource, TestCubeTileXResource)
         gmmParams.BaseHeight = 0x1;
         gmmParams.Depth = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign);
@@ -2374,7 +2458,7 @@ TEST_F(CTestGen9Resource, TestCubeTileXResource)
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
             OffsetInfo.CubeFace = static_cast<GMM_CUBE_FACE_ENUM>(CubeFaceIndex);
-            ResourceInfo.GetOffset(OffsetInfo);
+            ResourceInfo->GetOffset(OffsetInfo);
 
             EXPECT_EQ(GMM_ULT_ALIGN_FLOOR(CubeFaceIndex * ExpectedQPitch, TileSize[0][1]) * ExpectedPitch,
                       OffsetInfo.Render.Offset64);                  // Render offset is tile's base address on which cube face begins.
@@ -2384,6 +2468,8 @@ TEST_F(CTestGen9Resource, TestCubeTileXResource)
             EXPECT_EQ(0, OffsetInfo.Render.ZOffset);                // Z offset N/A should be 0
 
         }
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate 2 tiles in X dimension.
@@ -2396,8 +2482,8 @@ TEST_F(CTestGen9Resource, TestCubeTileXResource)
         gmmParams.BaseHeight = gmmParams.BaseWidth64;  // Heigth must be equal to width.
         gmmParams.Depth = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign);
@@ -2419,7 +2505,7 @@ TEST_F(CTestGen9Resource, TestCubeTileXResource)
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
             OffsetInfo.CubeFace = static_cast<GMM_CUBE_FACE_ENUM>(CubeFaceIndex);
-            ResourceInfo.GetOffset(OffsetInfo);
+            ResourceInfo->GetOffset(OffsetInfo);
             EXPECT_EQ(GMM_ULT_ALIGN_FLOOR(CubeFaceIndex * ExpectedQPitch, TileSize[0][1]) * ExpectedPitch,
                       OffsetInfo.Render.Offset64);              // Render offset is tile's base address on which cube face begins.
             EXPECT_EQ(0, OffsetInfo.Render.XOffset);            // X Offset should be 0
@@ -2427,6 +2513,8 @@ TEST_F(CTestGen9Resource, TestCubeTileXResource)
                       OffsetInfo.Render.YOffset);               // Y Offset should be (CubeFaceIndex * QPitch) % TileHeight
             EXPECT_EQ(0, OffsetInfo.Render.ZOffset);            // Z offset N/A should be 0
         }
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -2465,8 +2553,8 @@ TEST_F(CTestGen9Resource, TestCubeTileYResource)
         gmmParams.BaseHeight = 0x1;
         gmmParams.Depth = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign);
@@ -2480,12 +2568,14 @@ TEST_F(CTestGen9Resource, TestCubeTileYResource)
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
             OffsetInfo.CubeFace = static_cast<GMM_CUBE_FACE_ENUM>(CubeFaceIndex);
-            ResourceInfo.GetOffset(OffsetInfo);
+            ResourceInfo->GetOffset(OffsetInfo);
             EXPECT_EQ(0, OffsetInfo.Render.Offset64);           // Render offset should be 0 as its on single tile.
             EXPECT_EQ(0, OffsetInfo.Render.XOffset);            // X Offset should be 0
             EXPECT_EQ(CubeFaceIndex * VAlign, OffsetInfo.Render.YOffset);   // Y Offset should be VALIGN * CubeFace Index
             EXPECT_EQ(0, OffsetInfo.Render.ZOffset);
         }
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate 2 tiles in X dimension.
@@ -2498,8 +2588,8 @@ TEST_F(CTestGen9Resource, TestCubeTileYResource)
         gmmParams.BaseHeight = gmmParams.BaseWidth64;                    // Heigth must be equal to width.
         gmmParams.Depth = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign);
@@ -2522,7 +2612,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYResource)
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
             OffsetInfo.CubeFace = static_cast<GMM_CUBE_FACE_ENUM>(CubeFaceIndex);
-            ResourceInfo.GetOffset(OffsetInfo);
+            ResourceInfo->GetOffset(OffsetInfo);
             EXPECT_EQ(GMM_ULT_ALIGN_FLOOR(CubeFaceIndex * ExpectedQPitch, TileSize[0][1]) * ExpectedPitch,
                       OffsetInfo.Render.Offset64);                  // Render offset is tile's base address on which cube face begins.
             EXPECT_EQ(0, OffsetInfo.Render.XOffset);                // X Offset should be 0
@@ -2530,6 +2620,8 @@ TEST_F(CTestGen9Resource, TestCubeTileYResource)
                        OffsetInfo.Render.YOffset);                  // Y Offset should be (CubeFaceIndex * QPitch) % TileHeight
             EXPECT_EQ(0, OffsetInfo.Render.ZOffset);                // Z offset N/A should be 0
         }
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -2572,8 +2664,8 @@ TEST_F(CTestGen9Resource, TestCubeTileYsResource)
         gmmParams.BaseHeight = 0x1;
         gmmParams.Depth = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
@@ -2594,7 +2686,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYsResource)
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
             OffsetInfo.CubeFace = static_cast<GMM_CUBE_FACE_ENUM>(CubeFaceIndex);
-            ResourceInfo.GetOffset(OffsetInfo);
+            ResourceInfo->GetOffset(OffsetInfo);
 
             EXPECT_EQ((CubeFaceIndex * ExpectedQPitch) * ExpectedPitch,
                       OffsetInfo.Render.Offset64);                  // Render offset is tile's base address on which cube face begins.
@@ -2602,6 +2694,8 @@ TEST_F(CTestGen9Resource, TestCubeTileYsResource)
             EXPECT_EQ(0, OffsetInfo.Render.YOffset);                // Y Offset should be 0 as cube face starts on tile boundary
             EXPECT_EQ(0, OffsetInfo.Render.ZOffset);                // Z offset N/A should be 0
         }
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate 2 tiles in X dimension.
@@ -2614,8 +2708,8 @@ TEST_F(CTestGen9Resource, TestCubeTileYsResource)
         gmmParams.BaseHeight = gmmParams.BaseWidth64;  // Heigth must be equal to width.
         gmmParams.Depth = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
@@ -2636,13 +2730,15 @@ TEST_F(CTestGen9Resource, TestCubeTileYsResource)
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
             OffsetInfo.CubeFace = static_cast<GMM_CUBE_FACE_ENUM>(CubeFaceIndex);
-            ResourceInfo.GetOffset(OffsetInfo);
+            ResourceInfo->GetOffset(OffsetInfo);
             EXPECT_EQ((CubeFaceIndex * ExpectedQPitch) * ExpectedPitch,
                        OffsetInfo.Render.Offset64);             // Render offset is tile's base address on which cube face begins.
             EXPECT_EQ(0, OffsetInfo.Render.XOffset);            // X Offset should be 0 as cube face starts on tile boundary
             EXPECT_EQ(0, OffsetInfo.Render.YOffset);            // Y Offset should be 0 as cube face starts on tile boundary
             EXPECT_EQ(0, OffsetInfo.Render.ZOffset);            // Z offset N/A should be 0
         }
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -2685,8 +2781,8 @@ TEST_F(CTestGen9Resource, TestCubeTileYfResource)
         gmmParams.BaseHeight = 0x1;
         gmmParams.Depth = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
@@ -2707,7 +2803,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYfResource)
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
             OffsetInfo.CubeFace = static_cast<GMM_CUBE_FACE_ENUM>(CubeFaceIndex);
-            ResourceInfo.GetOffset(OffsetInfo);
+            ResourceInfo->GetOffset(OffsetInfo);
 
             EXPECT_EQ((CubeFaceIndex * ExpectedQPitch) * ExpectedPitch,
                       OffsetInfo.Render.Offset64);                  // Render offset is tile's base address on which cube face begins.
@@ -2715,6 +2811,8 @@ TEST_F(CTestGen9Resource, TestCubeTileYfResource)
             EXPECT_EQ(0, OffsetInfo.Render.YOffset);                // Y Offset should be 0 as cube face starts on tile boundary
             EXPECT_EQ(0, OffsetInfo.Render.ZOffset);                // Z offset N/A should be 0
         }
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
     // Allocate 2 tiles in X dimension.
@@ -2727,8 +2825,8 @@ TEST_F(CTestGen9Resource, TestCubeTileYfResource)
         gmmParams.BaseHeight = gmmParams.BaseWidth64;  // Heigth must be equal to width.
         gmmParams.Depth = 0x1;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
@@ -2749,13 +2847,15 @@ TEST_F(CTestGen9Resource, TestCubeTileYfResource)
             GMM_REQ_OFFSET_INFO OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
             OffsetInfo.CubeFace = static_cast<GMM_CUBE_FACE_ENUM>(CubeFaceIndex);
-            ResourceInfo.GetOffset(OffsetInfo);
+            ResourceInfo->GetOffset(OffsetInfo);
             EXPECT_EQ((CubeFaceIndex * ExpectedQPitch) * ExpectedPitch,
                        OffsetInfo.Render.Offset64);             // Render offset is tile's base address on which cube face begins.
             EXPECT_EQ(0, OffsetInfo.Render.XOffset);            // X Offset should be 0 as cube face starts on tile boundary
             EXPECT_EQ(0, OffsetInfo.Render.YOffset);            // Y Offset should be 0 as cube face starts on tile boundary
             EXPECT_EQ(0, OffsetInfo.Render.ZOffset);            // Z offset N/A should be 0
         }
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -2795,8 +2895,8 @@ TEST_F(CTestGen9Resource, TestCubeTileYMippedResourceArray)
         gmmParams.MaxLod        = MaxLod;
         gmmParams.ArraySize     = MaxArraySize;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign);
@@ -2824,7 +2924,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYMippedResourceArray)
         GMM_REQ_OFFSET_INFO OffsetInfo = {};
         OffsetInfo.ReqRender = 1;
         OffsetInfo.MipLevel = 0; //Mip 0
-        ResourceInfo.GetOffset(OffsetInfo);
+        ResourceInfo->GetOffset(OffsetInfo);
         EXPECT_EQ(0, OffsetInfo.Render.Offset64);
         EXPECT_EQ(0, OffsetInfo.Render.XOffset);
         EXPECT_EQ(0, OffsetInfo.Render.YOffset);
@@ -2837,7 +2937,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYMippedResourceArray)
         OffsetInfo = {};
         OffsetInfo.ReqRender = 1;
         OffsetInfo.MipLevel = 1;    //Mip 1
-        ResourceInfo.GetOffset(OffsetInfo);
+        ResourceInfo->GetOffset(OffsetInfo);
 
         EXPECT_EQ(GMM_ULT_ALIGN_FLOOR(AlignedHeightMip0, TileSize[Y]) * ExpectedPitch,     // Render offset is tile's base address on which mip begins
                   OffsetInfo.Render.Offset64);
@@ -2860,7 +2960,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYMippedResourceArray)
             OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
             OffsetInfo.MipLevel = i;
-            ResourceInfo.GetOffset(OffsetInfo);
+            ResourceInfo->GetOffset(OffsetInfo);
 
             HeightOfMip = GMM_ULT_ALIGN(ResWidth >> i, VAlign);
 
@@ -2896,7 +2996,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYMippedResourceArray)
                 OffsetInfo.ReqRender = 1;
                 OffsetInfo.ArrayIndex = ArrayIndex;
                 OffsetInfo.CubeFace = static_cast<GMM_CUBE_FACE_ENUM>(CubeFaceIndex);
-                ResourceInfo.GetOffset(OffsetInfo);
+                ResourceInfo->GetOffset(OffsetInfo);
 
                 //Verify cube face offsets
                 EXPECT_EQ(GMM_ULT_ALIGN_FLOOR(((6 * ArrayIndex) + CubeFaceIndex) * ExpectedQPitch, TileSize[Y]) * ExpectedPitch,
@@ -2912,7 +3012,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYMippedResourceArray)
                 for (uint32_t Lod = 0; Lod <= MaxLod; Lod++)
                 {
                     OffsetInfo.MipLevel = Lod;
-                    ResourceInfo.GetOffset(OffsetInfo);
+                    ResourceInfo->GetOffset(OffsetInfo);
 
                     uint32_t MipOffset = CubeFaceBaseOffset + RenderOffset[Lod].Offset;
 
@@ -2937,6 +3037,8 @@ TEST_F(CTestGen9Resource, TestCubeTileYMippedResourceArray)
                 }
             }
         }
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -3026,8 +3128,8 @@ TEST_F(CTestGen9Resource, TestCubeTileYsMippedResourceArray)
         gmmParams.MaxLod = MaxLod;
         gmmParams.ArraySize = MaxArraySize;
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         VerifyResourceHAlign<true>(ResourceInfo, HAlign[i]);
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
@@ -3055,7 +3157,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYsMippedResourceArray)
         GMM_REQ_OFFSET_INFO OffsetInfo = {};
         OffsetInfo.ReqRender = 1;
         OffsetInfo.MipLevel = 0; //Mip 0
-        ResourceInfo.GetOffset(OffsetInfo);
+        ResourceInfo->GetOffset(OffsetInfo);
         EXPECT_EQ(0, OffsetInfo.Render.Offset64);
         EXPECT_EQ(0, OffsetInfo.Render.XOffset);
         EXPECT_EQ(0, OffsetInfo.Render.YOffset);
@@ -3068,7 +3170,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYsMippedResourceArray)
         OffsetInfo = {};
         OffsetInfo.ReqRender = 1;
         OffsetInfo.MipLevel = 1;    //Mip 1
-        ResourceInfo.GetOffset(OffsetInfo);
+        ResourceInfo->GetOffset(OffsetInfo);
 
         EXPECT_EQ(AlignedHeightMip0 * ExpectedPitch,    // Render offset is tile's base address on which mip begins
             OffsetInfo.Render.Offset64);
@@ -3109,7 +3211,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYsMippedResourceArray)
             OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
             OffsetInfo.MipLevel = Lod;
-            ResourceInfo.GetOffset(OffsetInfo);
+            ResourceInfo->GetOffset(OffsetInfo);
 
             HeightOfMip = GMM_ULT_ALIGN(ResWidth >> Lod, VAlign[i]);
 
@@ -3134,7 +3236,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYsMippedResourceArray)
             OffsetInfo = {};
             OffsetInfo.ReqRender = 1;
             OffsetInfo.MipLevel = Lod;
-            ResourceInfo.GetOffset(OffsetInfo);
+            ResourceInfo->GetOffset(OffsetInfo);
 
             uint64_t ExpectedRenderAlignOffset =
                     (AlignedHeightMip0 + HeightLinesLevel2) * (uint64_t)ExpectedPitch +   // Render offset is tile's base address on which mip begins
@@ -3169,7 +3271,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYsMippedResourceArray)
                 OffsetInfo.ReqRender = 1;
                 OffsetInfo.ArrayIndex = ArrayIndex;
                 OffsetInfo.CubeFace = static_cast<GMM_CUBE_FACE_ENUM>(CubeFaceIndex);
-                ResourceInfo.GetOffset(OffsetInfo);
+                ResourceInfo->GetOffset(OffsetInfo);
 
                 //Verify cube face offsets
                 EXPECT_EQ((((6 * ArrayIndex) + CubeFaceIndex) * ExpectedQPitch) * (uint64_t)ExpectedPitch,
@@ -3185,7 +3287,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYsMippedResourceArray)
                 for (int Lod = 0; Lod < ExpectedMipTailStartLod; Lod++)
                 {
                     OffsetInfo.MipLevel = Lod;
-                    ResourceInfo.GetOffset(OffsetInfo);
+                    ResourceInfo->GetOffset(OffsetInfo);
 
                     uint64_t MipOffset = CubeFaceBaseOffset + RenderOffset[Lod].Offset;
 
@@ -3207,7 +3309,7 @@ TEST_F(CTestGen9Resource, TestCubeTileYsMippedResourceArray)
                 for (int Lod = ExpectedMipTailStartLod; Lod <= MaxLod; Lod++)
                 {
                     OffsetInfo.MipLevel = Lod;
-                    ResourceInfo.GetOffset(OffsetInfo);
+                    ResourceInfo->GetOffset(OffsetInfo);
 
                     uint64_t MipOffset = CubeFaceBaseOffset + RenderOffset[Lod].Offset;
 
@@ -3220,6 +3322,8 @@ TEST_F(CTestGen9Resource, TestCubeTileYsMippedResourceArray)
                 }
             }
         }
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
@@ -3322,11 +3426,10 @@ TEST_F(CTestGen9Resource, TestMSAA)
             gmmParams.Flags.Gpu.MCS = 0;
 
             //MSS surface
-            GMM_RESOURCE_INFO MSSResourceInfo;
-            GMM_STATUS Ret = MSSResourceInfo.Create(*pGmmGlobalContext, gmmParams);
-            EXPECT_EQ(GMM_SUCCESS, Ret);
+            GMM_RESOURCE_INFO *MSSResourceInfo;
+            MSSResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
-            if (Ret == GMM_SUCCESS)
+            if (MSSResourceInfo)
             {
                 VerifyResourceHAlign<true>(MSSResourceInfo, HAlign);
                 VerifyResourceVAlign<true>(MSSResourceInfo, VAlign);
@@ -3372,11 +3475,11 @@ TEST_F(CTestGen9Resource, TestMSAA)
             }
 
             //No MCS surface if MSS creation failed
-            if (Ret == GMM_SUCCESS)
+            if (MSSResourceInfo)
             {
                 gmmParams.Flags.Gpu.MCS = 1;
-                GMM_RESOURCE_INFO MCSResourceInfo;
-                EXPECT_EQ(GMM_SUCCESS, MCSResourceInfo.Create(*pGmmGlobalContext, gmmParams));
+                GMM_RESOURCE_INFO *MCSResourceInfo;
+                MCSResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
                 VerifyResourceHAlign<true>(MCSResourceInfo, MCSHAlign);
                 VerifyResourceVAlign<true>(MCSResourceInfo, MCSVAlign);
@@ -3394,7 +3497,11 @@ TEST_F(CTestGen9Resource, TestMSAA)
 
                 uint32_t ExpectedHeight = GMM_ULT_ALIGN(ExpectedQPitch*gmmParams.ArraySize, MCSTileSize[0][1]);
                 VerifyResourceSize<true>(MCSResourceInfo, GMM_ULT_ALIGN(ExpectedPitch*ExpectedHeight, GMM_KBYTE(4)));    //MCS Tile is TileY
+
+                pGmmULTClientContext->DestroyResInfoObject(MCSResourceInfo);
             }//MCS
+
+            pGmmULTClientContext->DestroyResInfoObject(MSSResourceInfo);
         }//NumSamples = k
     } //Iterate through all Input types
 
@@ -3472,16 +3579,15 @@ TEST_F(CTestGen9Resource, TestCCS)
         gmmParams.Flags.Gpu.CCS = 0;
 
         //RT surface
-        GMM_RESOURCE_INFO RTResourceInfo;
-        GMM_STATUS Ret = RTResourceInfo.Create(*pGmmGlobalContext, gmmParams);
-        EXPECT_EQ(GMM_SUCCESS, Ret);
+        GMM_RESOURCE_INFO *RTResourceInfo;
+        RTResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         //No CCS surface if RT creation failed
-        if (Ret == GMM_SUCCESS)
+        if (RTResourceInfo)
         {
             gmmParams.Flags.Gpu.CCS = 1;
-            GMM_RESOURCE_INFO CCSResourceInfo;
-            EXPECT_EQ(GMM_SUCCESS, CCSResourceInfo.Create(*pGmmGlobalContext, gmmParams));
+            GMM_RESOURCE_INFO *CCSResourceInfo;
+            CCSResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
             VerifyResourceHAlign<true>(CCSResourceInfo, RTHAlign); //Check if RT for CCS creation was aligned to CCS's RT alignment
             VerifyResourceVAlign<true>(CCSResourceInfo, RTVAlign);
@@ -3508,7 +3614,11 @@ TEST_F(CTestGen9Resource, TestCCS)
             ExpectedQPitch /= HeightDivisor;
             uint32_t ExpectedHeight = GMM_ULT_ALIGN(ExpectedQPitch*gmmParams.ArraySize, CCSTileSize[0][1]);
             VerifyResourceSize<true>(CCSResourceInfo, GMM_ULT_ALIGN(ExpectedPitch*ExpectedHeight, GMM_KBYTE(4)));
+
+            pGmmULTClientContext->DestroyResInfoObject(CCSResourceInfo);
         }//CCS
+
+        pGmmULTClientContext->DestroyResInfoObject(RTResourceInfo);
     }//Iterate through all input tuples
 
     //TBD: Mip-mapped case
@@ -3542,8 +3652,8 @@ TEST_F(CTestGen9Resource, TestMMC)
             TEST_BPP bpp = static_cast<TEST_BPP>(i);
             gmmParams.Format = SetResourceFormat(bpp);
 
-            GMM_RESOURCE_INFO ResourceInfo;
-            ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+            GMM_RESOURCE_INFO *ResourceInfo;
+            ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
             uint32_t ExpectedPitch = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[Tile - TEST_TILEY][i][0] / GetBppValue(bpp));
             ExpectedPitch *= GetBppValue(bpp);
@@ -3557,6 +3667,8 @@ TEST_F(CTestGen9Resource, TestMMC)
             VerifyResourceHAlign<false>(ResourceInfo, 0); // Tested elsewhere
             VerifyResourceVAlign<false>(ResourceInfo, 0); // Tested elsewhere
             VerifyResourceQPitch<false>(ResourceInfo, 0); // N/A for non-mipped surface
+
+            pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
         }
     }
 
@@ -3573,8 +3685,8 @@ TEST_F(CTestGen9Resource, TestMMC)
         SetTileFlag(gmmParams, TEST_TILEY); // TileY only
         gmmParams.Format = GMM_FORMAT_NV12; // 8bpp
 
-        GMM_RESOURCE_INFO ResourceInfo;
-        ResourceInfo.Create(*pGmmGlobalContext, gmmParams);
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject( &gmmParams);
 
         uint32_t ExpectedPitch = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[0][0][0]);
         ExpectedPitch += TileSize[0][0][0];     // MMC will have extra tile on the right
@@ -3585,6 +3697,8 @@ TEST_F(CTestGen9Resource, TestMMC)
         VerifyResourceHAlign<false>(ResourceInfo, 0); // Tested elsewhere
         VerifyResourceVAlign<false>(ResourceInfo, 0); // Tested elsewhere
         VerifyResourceQPitch<false>(ResourceInfo, 0); // N/A for non-mipped surface
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 
 }

@@ -39,11 +39,6 @@ OTHER DEALINGS IN THE SOFTWARE.
     #define __GMM_ASSERTPTR(expr, ret)
 #endif
 
-//Forward declaration
-GMM_GFX_SIZE_T     __GmmTexGetMipWidth(GMM_TEXTURE_INFO *pTexInfo, uint32_t MipLevel);
-uint32_t           __GmmTexGetMipHeight(GMM_TEXTURE_INFO *pTexInfo, uint32_t MipLevel);
-uint32_t           __GmmTexGetMipDepth(GMM_TEXTURE_INFO *pTexInfo, uint32_t MipLevel);
-
 /////////////////////////////////////////////////////////////////////////////////////
 /// @file GmmResourceInfoCommon.h
 /// @brief This file contains the functions and members of GmmResourceInfo that is
@@ -67,17 +62,16 @@ namespace GmmLib
             GMM_CLIENT                          ClientType;
             GMM_TEXTURE_INFO                    Surf;                       ///< Contains info about the surface being created
             GMM_TEXTURE_INFO                    AuxSurf;                    ///< Contains info about the auxiliary surface if using Unified Auxiliary surfaces.
-            GMM_TEXTURE_INFO                    AuxSecSurf;                 ///< For multi-Aux surfaces (eg: unified lossless MSAA compression, Z compression), contains info about the secondary auxiliary surface
+            GMM_TEXTURE_INFO                    AuxSecSurf;                 ///< For multi-Aux surfaces, contains info about the secondary auxiliary surface
             GMM_TEXTURE_INFO                    PlaneSurf[GMM_MAX_PLANE];   ///< Contains info for each plane for tiled Ys/Yf planar resources
-            GMM_TEXTURE_INFO                    PlaneAuxSurf[GMM_MAX_PLANE];   ///< Contains auxiliary surface info for each plane for tiled Ys/Yf planar resources
 
             uint32_t                            RotateInfo;
             GMM_EXISTING_SYS_MEM                ExistingSysMem;     ///< Info about resources initialized with existing system memory
             GMM_GFX_ADDRESS                     IsolatedGfxAddress; ///< PIGMS address (WDDM1.x only)
             GMM_GFX_ADDRESS                     SvmAddress;         ///< Driver managed SVM address
 
-            GMM_VOIDPTR64                       pGmmLibContext;     ///< Pointer to GmmLib context passed in during Create()
-            GMM_VOIDPTR64                       pPrivateData;       ///< Allows clients to attach any private data to GmmResourceInfo
+            uint64_t                            pGmmLibContext;     ///< Pointer to GmmLib context passed in during Create()
+            uint64_t                            pPrivateData;       ///< Allows clients to attach any private data to GmmResourceInfo
 
         private:
             GMM_STATUS          ApplyExistingSysMemRestrictions();
@@ -88,42 +82,12 @@ namespace GmmLib
             // Move GMM Restrictions to it's own class?
             void                GetGenericRestrictions(__GMM_BUFFER_TYPE *pBuff);
             __GMM_BUFFER_TYPE*  GetBestRestrictions(__GMM_BUFFER_TYPE *pFirstBuffer, const __GMM_BUFFER_TYPE *pSecondBuffer);
-            virtual uint8_t     CopyClientParams(GMM_RESCREATE_PARAMS &CreateParams);
+            virtual bool        CopyClientParams(GMM_RESCREATE_PARAMS &CreateParams);
             bool                RedescribePlanes();
             bool                ReAdjustPlaneProperties(bool IsAuxSurf);
+            const GMM_PLATFORM_INFO& GetPlatformInfo();
 
             /* Inline functions */
-
-            /////////////////////////////////////////////////////////////////////////////////////
-            /// Returns the Platform info.  If Platform has been overriden by the clients, then
-            /// it returns the overriden Platform Info struct.
-            /// @return     Reference to the relevent ::GMM_PLATFORM_INFO
-            /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE const GMM_PLATFORM_INFO& GetPlatformInfo()
-            {
-                #if(defined(__GMM_KMD__) && (_DEBUG || _RELEASE_INTERNAL))
-                    if(GFX_GET_CURRENT_RENDERCORE(Surf.Platform) !=  GFX_GET_CURRENT_RENDERCORE(((Context*)pGmmLibContext)->GetPlatformInfo().Platform))
-                    {
-                        return ((Context*)pGmmLibContext)->GetOverridePlatformInfo();
-                    }
-                    else
-                    {
-                        return ((Context*)pGmmLibContext)->GetPlatformInfo();
-                    }
-                #else
-                    return ((Context*)pGmmLibContext)->GetPlatformInfo();
-                #endif
-            }
-
-            /////////////////////////////////////////////////////////////////////////////////////
-            /// Returns GmmLib Context associated with this resource
-            /// @return ::GmmLib Context
-            /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE Context* GetGmmLibContext()
-            {
-                return reinterpret_cast<Context*>(pGmmLibContext);
-            }
-
             /////////////////////////////////////////////////////////////////////////////////////
             /// Checks where the restrictions are invalid or not
             /// @param[in]  pRestriction Restrictions to check
@@ -160,7 +124,6 @@ namespace GmmLib
                 AuxSurf(),
                 AuxSecSurf(),
                 PlaneSurf{},
-                PlaneAuxSurf{},
                 RotateInfo(),
                 ExistingSysMem(),
                 IsolatedGfxAddress(),
@@ -211,6 +174,17 @@ namespace GmmLib
             uint32_t                GMM_STDCALL GetPackedMipTailStartLod();
             uint8_t                 GMM_STDCALL GetDisplayFastClearSupport();
             uint8_t                 GMM_STDCALL GetDisplayCompressionSupport();
+            uint32_t                GMM_STDCALL GetCompressionBlockWidth();
+            uint32_t                GMM_STDCALL GetCompressionBlockHeight();
+            uint32_t                GMM_STDCALL GetCompressionBlockDepth();
+            uint8_t                 GMM_STDCALL IsArraySpacingSingleLod();
+            uint8_t                 GMM_STDCALL IsASTC();
+            MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GetMOCS();
+            uint32_t                GMM_STDCALL GetStdTilingModeExtSurfaceState();
+            GMM_SURFACESTATE_FORMAT GMM_STDCALL GetResourceFormatSurfaceState();
+            GMM_GFX_SIZE_T          GMM_STDCALL GetMipWidth(uint32_t MipLevel);
+            uint32_t                GMM_STDCALL GetMipHeight(uint32_t MipLevel);
+            uint32_t                GMM_STDCALL GetMipDepth(uint32_t MipLevel);
 
 
             /* inline functions */
@@ -343,51 +317,6 @@ namespace GmmLib
             }
 
             /////////////////////////////////////////////////////////////////////////////////////
-            /// Returns the resource's compressions block width
-            /// @return    Compression block width
-            /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE uint32_t GMM_STDCALL GetCompressionBlockWidth()
-            {
-                GMM_RESOURCE_FORMAT Format;
-                Format = Surf.Format;
-
-                __GMM_ASSERT((Format > GMM_FORMAT_INVALID) &&
-                              (Format < GMM_RESOURCE_FORMATS));
-
-                return pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].Element.Width;
-            }
-
-            /////////////////////////////////////////////////////////////////////////////////////
-            /// Returns the resource's compressions block height
-            /// @return    Compression block width
-            /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE uint32_t GMM_STDCALL GetCompressionBlockHeight()
-            {
-                GMM_RESOURCE_FORMAT Format;
-                Format = Surf.Format;
-
-                __GMM_ASSERT((Format > GMM_FORMAT_INVALID) &&
-                              (Format < GMM_RESOURCE_FORMATS));
-
-                return pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].Element.Height;
-            }
-
-            /////////////////////////////////////////////////////////////////////////////////////
-            /// Returns the resource's compressions block depth
-            /// @return    Compression block width
-            /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE uint32_t GMM_STDCALL GetCompressionBlockDepth()
-            {
-                GMM_RESOURCE_FORMAT Format;
-                Format = Surf.Format;
-
-                __GMM_ASSERT((Format > GMM_FORMAT_INVALID) &&
-                              (Format < GMM_RESOURCE_FORMATS));
-
-                return pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].Element.Depth;
-            }
-
-            /////////////////////////////////////////////////////////////////////////////////////
             /// Returns the auxiliary resource's QPitch
             /// @return    Aux QPitch
             /////////////////////////////////////////////////////////////////////////////////////
@@ -398,6 +327,11 @@ namespace GmmLib
                     if (GmmIsPlanar(Surf.Format))
                     {
                         return static_cast<uint32_t>(AuxSurf.OffsetInfo.Plane.ArrayQPitch);
+                    }
+                    else if (AuxSurf.Flags.Gpu.HiZ)
+                    {
+                        // HiZ        ==> 2 * HZ_QPitch
+                        return AuxSurf.Alignment.QPitch * 2;
                     }
                     else
                     {
@@ -626,36 +560,6 @@ namespace GmmLib
             }
 
             /////////////////////////////////////////////////////////////////////////////////////
-            /// Return the logical width of mip level
-            /// @param[in] MipLevel: Mip level for which the info is needed
-            /// @return    Mip width
-            /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE GMM_GFX_SIZE_T GMM_STDCALL GetMipWidth(uint32_t MipLevel)
-            {
-                return __GmmTexGetMipWidth(&Surf, MipLevel);
-            }
-
-            /////////////////////////////////////////////////////////////////////////////////////
-            /// Return the logical height of mip level
-            /// @param[in] MipLevel: Mip level for which the info is needed
-            /// @return    Mip width
-            /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE uint32_t GMM_STDCALL GetMipHeight(uint32_t MipLevel)
-            {
-                return __GmmTexGetMipHeight(&Surf, MipLevel);
-            }
-
-            /////////////////////////////////////////////////////////////////////////////////////
-            /// Return the logical depth of mip level
-            /// @param[in] MipLevel Mip level for which the info is needed
-            /// @return    Mip width
-            /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE uint32_t GMM_STDCALL GetMipDepth(uint32_t MipLevel)
-            {
-                return __GmmTexGetMipDepth(&Surf, MipLevel);
-            }
-
-            /////////////////////////////////////////////////////////////////////////////////////
             /// Returns CPU cacheability information
             /// @return    ::GMM_CPU_CACHE_TYPE
             /////////////////////////////////////////////////////////////////////////////////////
@@ -730,7 +634,7 @@ namespace GmmLib
             /// Sets mmc hints.
             /// @param[in]  Hint Mmc hint to store
             /// @param[in]  ArrayIndex ArrayIndex for which this info is needed
-            /// @return     true/false
+            /// @return
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE void GMM_STDCALL SetMmcHint(GMM_RESOURCE_MMC_HINT Hint, uint32_t ArrayIndex)
             {
@@ -804,11 +708,11 @@ namespace GmmLib
                     {
                         Offset = Surf.Size + (AuxSurf.Pitch * AuxSurf.OffsetInfo.Plane.Y[GMM_PLANE_U]); //Aux Offset in HwLayout
 
-                        if (Surf.Flags.Gpu.CCS && AuxSurf.Flags.Gpu.__NonMsaaLinearCCS) //ie Linear CCS
+                        if (Surf.Flags.Gpu.CCS && AuxSurf.Flags.Gpu.__NonMsaaLinearCCS)
                         {
                             Offset = Surf.Size + AuxSurf.OffsetInfo.Plane.X[GMM_PLANE_U];
                         }
-                        else if (Surf.Flags.Gpu.MMC && AuxSurf.Flags.Gpu.__NonMsaaLinearCCS ) //ie Linear CCS
+                        else if (Surf.Flags.Gpu.MMC && AuxSurf.Flags.Gpu.__NonMsaaLinearCCS )
                         {
                             Offset = Surf.Size + AuxSurf.OffsetInfo.Plane.X[GMM_PLANE_Y];
                         }
@@ -907,31 +811,6 @@ namespace GmmLib
             }
 
             /////////////////////////////////////////////////////////////////////////////////////
-            /// Returns whether resource uses LOD0-only or Full array spacing
-            /// @return     1/0
-            /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE uint8_t GMM_STDCALL IsArraySpacingSingleLod()
-            {
-                __GMM_ASSERT(GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) < IGFX_GEN8_CORE);
-                return Surf.Alignment.ArraySpacingSingleLod;
-            }
-
-            /////////////////////////////////////////////////////////////////////////////////////
-            /// Returns whether resource is ASTC
-            /// @return     1/0
-            /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE uint8_t GMM_STDCALL IsASTC()
-            {
-                GMM_RESOURCE_FORMAT Format;
-                Format = Surf.Format;
-
-                return
-                    (Format > GMM_FORMAT_INVALID) &&
-                    (Format < GMM_RESOURCE_FORMATS) &&
-                    pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].ASTC;
-            }
-
-            /////////////////////////////////////////////////////////////////////////////////////
             /// Returns indication of whether resource uses the MSFMT_DEPTH_STENCIL Multisampled
             /// Surface Storage Format.
             /// @return     1/0
@@ -960,7 +839,7 @@ namespace GmmLib
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE void GMM_STDCALL SetPrivateData(void *pNewPrivateData)
             {
-                this->pPrivateData = reinterpret_cast<GMM_VOIDPTR64>(pNewPrivateData);
+                this->pPrivateData = reinterpret_cast<uint64_t>(pNewPrivateData);
             }
 
             /////////////////////////////////////////////////////////////////////////////////////
@@ -1085,11 +964,11 @@ namespace GmmLib
                     {
                         Offset = Surf.Size + (AuxSurf.Pitch * AuxSurf.OffsetInfo.Plane.Y[GMM_PLANE_U]); //Aux Offset in HwLayout
 
-                        if (Surf.Flags.Gpu.CCS && AuxSurf.Flags.Gpu.__NonMsaaLinearCCS) //ie Linear CCS
+                        if (Surf.Flags.Gpu.CCS && AuxSurf.Flags.Gpu.__NonMsaaLinearCCS)
                         {
                             Offset = Surf.Size + AuxSurf.OffsetInfo.Plane.X[GMM_PLANE_U];
                         }
-                        else if (Surf.Flags.Gpu.MMC && AuxSurf.Flags.Gpu.__NonMsaaLinearCCS ) //ie Linear CCS
+                        else if (Surf.Flags.Gpu.MMC && AuxSurf.Flags.Gpu.__NonMsaaLinearCCS )
                         {
                             Offset = Surf.Size + AuxSurf.OffsetInfo.Plane.X[GMM_PLANE_Y];
                         }
@@ -1102,8 +981,7 @@ namespace GmmLib
                     {
                         Offset = Surf.Size + AuxSurf.OffsetInfo.Plane.X[GMM_PLANE_Y] + AuxSurf.OffsetInfo.Plane.X[GMM_PLANE_U];
                     }
-                    else if ((GmmAuxType == GMM_AUX_MCS_LCE && (Surf.MSAA.NumSamples > 1 && Surf.Flags.Gpu.CCS)) ||
-                        (GmmAuxType == GMM_AUX_ZCS && (Surf.Flags.Gpu.Depth && Surf.Flags.Gpu.CCS)))
+                    else if ((GmmAuxType == GMM_AUX_ZCS) && Surf.Flags.Gpu.Depth && Surf.Flags.Gpu.CCS)
                     {
                         if (AuxSecSurf.Type != RESOURCE_INVALID)
                         {
@@ -1164,7 +1042,7 @@ namespace GmmLib
                         return (AuxSurf.CCSize);
                     }
                 }
-                else if (GmmAuxType == GMM_AUX_MCS_LCE || GmmAuxType == GMM_AUX_ZCS)
+                else if (GmmAuxType == GMM_AUX_ZCS)
                 {
                     if (Surf.Flags.Gpu.UnifiedAuxSurface && AuxSecSurf.Type != RESOURCE_INVALID)
                     {
@@ -1212,7 +1090,7 @@ namespace GmmLib
             {
                 GMM_REQ_OFFSET_INFO GetOffset = {};
 
-                GetOffset.ReqStdLayout = true;
+                GetOffset.ReqStdLayout = 1;
                 GetOffset.StdLayout.Offset = static_cast<GMM_GFX_SIZE_T>(-1); // Special Req for StdLayout Size
                 this->GetOffset(GetOffset);
 
@@ -1304,34 +1182,6 @@ namespace GmmLib
                 return Surf.CachePolicy.Usage;
             }
 
-            /////////////////////////////////////////////////////////////////////////////////////
-            /// Returns MOCS associated with the resource
-            /// @param[in]     MOCS
-            /////////////////////////////////////////////////////////////////////////////////////
-            MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GetMOCS()
-            {
-                const GMM_CACHE_POLICY_ELEMENT *CachePolicy = pGmmGlobalContext->GetCachePolicyUsage();
-
-                __GMM_ASSERT(CachePolicy[GetCachePolicyUsage()].Initialized);
-
-                // Prevent wrong Usage for XAdapter resources. UMD does not call GetMemoryObject on shader resources but,
-                // when they add it someone could call it without knowing the restriction.
-                if (Surf.Flags.Info.XAdapter &&
-                    GetCachePolicyUsage() != GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE)
-                {
-                    __GMM_ASSERT(false);
-                }
-
-                if ((CachePolicy[GetCachePolicyUsage()].Override & CachePolicy[GetCachePolicyUsage()].IDCode) ||
-                    (CachePolicy[GetCachePolicyUsage()].Override == ALWAYS_OVERRIDE))
-                {
-                    return CachePolicy[GetCachePolicyUsage()].MemoryObjectOverride;
-                }
-
-                return CachePolicy[GetCachePolicyUsage()].MemoryObjectNoOverride;
-            }
-
-
             //##################################################################################
             // Functions that can help clients program the SURFACE_STATE with appropriate values.
             //##################################################################################
@@ -1352,39 +1202,6 @@ namespace GmmLib
             GMM_INLINE uint32_t GMM_STDCALL GetTileAddressMappingModeSurfaceState()
             {
                 return 0;
-            }
-
-
-            /////////////////////////////////////////////////////////////////////////////////////
-            /// Returns the surface state value for Standard Tiling Mode Extension
-            /// @return     Standard Tiling Mode Extension
-            /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE uint32_t GMM_STDCALL GetStdTilingModeExtSurfaceState()
-            {
-                const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
-                GMM_UNREFERENCED_LOCAL_VARIABLE(pPlatform); // Only used for debug
-                __GMM_ASSERT(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) > IGFX_GEN10_CORE);
-
-                if (pGmmGlobalContext->GetSkuTable().FtrStandardMipTailFormat)
-                {
-                    return 1;
-                }
-
-                return 0;
-            }
-
-            /////////////////////////////////////////////////////////////////////////////////////
-            /// Returns the surface state value for Resource Format
-            /// @return     Resource Format
-            /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE GMM_SURFACESTATE_FORMAT GMM_STDCALL GetResourceFormatSurfaceState()
-            {
-                GMM_RESOURCE_FORMAT Format;
-
-                Format = Surf.Format;
-                __GMM_ASSERT((Format > GMM_FORMAT_INVALID) && (Format < GMM_RESOURCE_FORMATS));
-
-                return pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].SurfaceStateFormat;
             }
 
             /////////////////////////////////////////////////////////////////////////////////////
@@ -1681,7 +1498,7 @@ namespace GmmLib
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE void GMM_STDCALL OverrideGmmLibContext(Context *pNewGmmLibContext)
             {
-                this->pGmmLibContext = reinterpret_cast<GMM_VOIDPTR64>(pNewGmmLibContext);
+                this->pGmmLibContext = reinterpret_cast<uint64_t>(pNewGmmLibContext);
             }
 
             /////////////////////////////////////////////////////////////////////////////////////

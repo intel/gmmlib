@@ -67,8 +67,8 @@ void GmmLib::GmmTextureCalc::SetTileMode(GMM_TEXTURE_INFO* pTexInfo)
                 case RESOURCE_3D: SET_TILE_MODE(YF_3D); break;
                 default: __GMM_ASSERT(0);
             }
-            pTexInfo->Flags.Info.TiledYf = true;
-            pTexInfo->Flags.Info.TiledYs = false;
+            pTexInfo->Flags.Info.TiledYf = 1;
+            pTexInfo->Flags.Info.TiledYs = 0;
         }
         else
         {
@@ -90,54 +90,54 @@ void GmmLib::GmmTextureCalc::SetTileMode(GMM_TEXTURE_INFO* pTexInfo)
                 case RESOURCE_3D: SET_TILE_MODE(YS_3D); break;
                 default: __GMM_ASSERT(0);
             }
-            pTexInfo->Flags.Info.TiledYf = false;
-            pTexInfo->Flags.Info.TiledYs = true;
+            pTexInfo->Flags.Info.TiledYf = 0;
+            pTexInfo->Flags.Info.TiledYs = 1;
         }
 
-        pTexInfo->Flags.Info.TiledY = true;
-        pTexInfo->Flags.Info.TiledX = false;
-        pTexInfo->Flags.Info.TiledW = false;
-        pTexInfo->Flags.Info.Linear = false;
+        pTexInfo->Flags.Info.TiledY = 1;
+        pTexInfo->Flags.Info.TiledX = 0;
+        pTexInfo->Flags.Info.TiledW = 0;
+        pTexInfo->Flags.Info.Linear = 0;
         #undef SET_TILE_MODE
     }
     else if (pTexInfo->Flags.Info.TiledY)
     {
-        pTexInfo->Flags.Info.TiledY = true;
-        pTexInfo->Flags.Info.TiledYf = false;
-        pTexInfo->Flags.Info.TiledYs = false;
-        pTexInfo->Flags.Info.TiledX = false;
-        pTexInfo->Flags.Info.TiledW = false;
-        pTexInfo->Flags.Info.Linear = false;
+        pTexInfo->Flags.Info.TiledY = 1;
+        pTexInfo->Flags.Info.TiledYf = 0;
+        pTexInfo->Flags.Info.TiledYs = 0;
+        pTexInfo->Flags.Info.TiledX = 0;
+        pTexInfo->Flags.Info.TiledW = 0;
+        pTexInfo->Flags.Info.Linear = 0;
         pTexInfo->TileMode = LEGACY_TILE_Y;
     }
     else if (pTexInfo->Flags.Info.TiledX)
     {
-        pTexInfo->Flags.Info.TiledY = false;
-        pTexInfo->Flags.Info.TiledYf = false;
-        pTexInfo->Flags.Info.TiledYs = false;
-        pTexInfo->Flags.Info.TiledX = true;
-        pTexInfo->Flags.Info.TiledW = false;
-        pTexInfo->Flags.Info.Linear = false;
+        pTexInfo->Flags.Info.TiledY = 0;
+        pTexInfo->Flags.Info.TiledYf = 0;
+        pTexInfo->Flags.Info.TiledYs = 0;
+        pTexInfo->Flags.Info.TiledX = 1;
+        pTexInfo->Flags.Info.TiledW = 0;
+        pTexInfo->Flags.Info.Linear = 0;
         pTexInfo->TileMode = LEGACY_TILE_X;
     }
     else if (pTexInfo->Flags.Info.TiledW)
     {
-        pTexInfo->Flags.Info.TiledY = false;
-        pTexInfo->Flags.Info.TiledYf = false;
-        pTexInfo->Flags.Info.TiledYs = false;
-        pTexInfo->Flags.Info.TiledX = false;
-        pTexInfo->Flags.Info.TiledW = true;
-        pTexInfo->Flags.Info.Linear = false;
+        pTexInfo->Flags.Info.TiledY = 0;
+        pTexInfo->Flags.Info.TiledYf = 0;
+        pTexInfo->Flags.Info.TiledYs = 0;
+        pTexInfo->Flags.Info.TiledX = 0;
+        pTexInfo->Flags.Info.TiledW = 1;
+        pTexInfo->Flags.Info.Linear = 0;
         pTexInfo->TileMode = LEGACY_TILE_Y;
     }
     else if (pTexInfo->Flags.Info.Linear)
     {
-        pTexInfo->Flags.Info.TiledY = false;
-        pTexInfo->Flags.Info.TiledYf = false;
-        pTexInfo->Flags.Info.TiledYs = false;
-        pTexInfo->Flags.Info.TiledX = false;
-        pTexInfo->Flags.Info.TiledW = false;
-        pTexInfo->Flags.Info.Linear = true;
+        pTexInfo->Flags.Info.TiledY = 0;
+        pTexInfo->Flags.Info.TiledYf = 0;
+        pTexInfo->Flags.Info.TiledYs = 0;
+        pTexInfo->Flags.Info.TiledX = 0;
+        pTexInfo->Flags.Info.TiledW = 0;
+        pTexInfo->Flags.Info.Linear = 1;
         pTexInfo->TileMode = TILE_NONE;
     }
     else
@@ -387,11 +387,11 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexPitchAndSize(GMM_TEXTURE_INFO  *pTexIn
         {
             pTexInfo->LegacyFlags |= GMM_TILE_Y;
         }
-        else if (pTexInfo->Flags.Info.TiledX == true)
+        else if (pTexInfo->Flags.Info.TiledX == 1)
         {
             pTexInfo->LegacyFlags |= GMM_TILE_X;
         }
-        else if (pTexInfo->Flags.Info.TiledW == true)
+        else if (pTexInfo->Flags.Info.TiledW == 1)
         {
             pTexInfo->LegacyFlags |= GMM_TILE_W;
         }
@@ -885,31 +885,31 @@ void GmmLib::GmmTextureCalc::FillTexPlanar_SetTilingBasedOnRequiredAlignment(
                         (pTexInfo->BitsPerPixel ==  16) ? TILE_##Submode##_16bpe  : \
                                                           TILE_##Submode##_8bpe
                 // Cool--Drop other possibilities...
-                pTexInfo->Flags.Info.Linear = false;
+                pTexInfo->Flags.Info.Linear = 0;
                 switch (TileType)
                 {
                 case Ys:
-                    pTexInfo->Flags.Info.TiledX = false;
-                    pTexInfo->Flags.Info.TiledY = false;
-                    pTexInfo->Flags.Info.TiledYf = false;
+                    pTexInfo->Flags.Info.TiledX = 0;
+                    pTexInfo->Flags.Info.TiledY = 0;
+                    pTexInfo->Flags.Info.TiledYf = 0;
                     pTexInfo->TileMode = (pTexInfo->Type == RESOURCE_2D) ? SET_TILE_MODE(YS_2D) : SET_TILE_MODE(YS_3D);
                     break;
                 case Yf:
-                    pTexInfo->Flags.Info.TiledX = false;
-                    pTexInfo->Flags.Info.TiledY = false;
-                    pTexInfo->Flags.Info.TiledYs = false;
+                    pTexInfo->Flags.Info.TiledX = 0;
+                    pTexInfo->Flags.Info.TiledY = 0;
+                    pTexInfo->Flags.Info.TiledYs = 0;
                     pTexInfo->TileMode = (pTexInfo->Type == RESOURCE_2D) ? SET_TILE_MODE(YF_2D) : SET_TILE_MODE(YF_3D);
                     break;
                 case Y:
-                    pTexInfo->Flags.Info.TiledX = false;
-                    pTexInfo->Flags.Info.TiledYs = false;
-                    pTexInfo->Flags.Info.TiledYf = false;
+                    pTexInfo->Flags.Info.TiledX = 0;
+                    pTexInfo->Flags.Info.TiledYs = 0;
+                    pTexInfo->Flags.Info.TiledYf = 0;
                     pTexInfo->TileMode = LEGACY_TILE_Y;
                     break;
                 default:
-                    pTexInfo->Flags.Info.TiledY = false;
-                    pTexInfo->Flags.Info.TiledYs = false;
-                    pTexInfo->Flags.Info.TiledYf = false;
+                    pTexInfo->Flags.Info.TiledY = 0;
+                    pTexInfo->Flags.Info.TiledYs = 0;
+                    pTexInfo->Flags.Info.TiledYf = 0;
                     pTexInfo->TileMode = LEGACY_TILE_X;
                 }
                 #undef SET_TILE_MODE
@@ -920,10 +920,10 @@ void GmmLib::GmmTextureCalc::FillTexPlanar_SetTilingBasedOnRequiredAlignment(
                 switch (TileType)
                 {
                 case Y:
-                    pTexInfo->Flags.Info.TiledY = false;
+                    pTexInfo->Flags.Info.TiledY = 0;
                     break;
                 case X:
-                    pTexInfo->Flags.Info.TiledX = false;
+                    pTexInfo->Flags.Info.TiledX = 0;
                     break;
                 default:
                     break;
@@ -957,7 +957,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmTextureCalc::FillTexPlanar(GMM_TEXTURE_INFO  *
     // Client should always give us linear-fallback option for planar surfaces,
     // except for MMC surfaces, which are TileY.
     __GMM_ASSERT(pTexInfo->Flags.Info.Linear || pTexInfo->Flags.Gpu.MMC);
-    pTexInfo->Flags.Info.Linear = true;
+    pTexInfo->Flags.Info.Linear = 1;
     pTexInfo->TileMode = TILE_NONE;
 
     const GMM_PLATFORM_INFO* pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
@@ -1135,7 +1135,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmTextureCalc::FillTexPlanar(GMM_TEXTURE_INFO  *
 
                 if(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) < IGFX_GEN8_CORE)
                 {
-                    pTexInfo->Alignment.ArraySpacingSingleLod = true;
+                    pTexInfo->Alignment.ArraySpacingSingleLod = 1;
                 }
 
                 // Get total height for one UV plane
@@ -1198,11 +1198,11 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmTextureCalc::FillTexPlanar(GMM_TEXTURE_INFO  *
             else //if(pTexInfo->Format == GMM_FORMAT_NV11)
             {
                 // Tiling not supported, since YPitch != UVPitch...
-                pTexInfo->Flags.Info.TiledY = false;
-                pTexInfo->Flags.Info.TiledYf = false;
-                pTexInfo->Flags.Info.TiledYs = false;
-                pTexInfo->Flags.Info.TiledX = false;
-                pTexInfo->Flags.Info.Linear = true;
+                pTexInfo->Flags.Info.TiledY = 0;
+                pTexInfo->Flags.Info.TiledYf = 0;
+                pTexInfo->Flags.Info.TiledYs = 0;
+                pTexInfo->Flags.Info.TiledX = 0;
+                pTexInfo->Flags.Info.Linear = 1;
             }
 
             UVPacked = true;
@@ -1249,11 +1249,11 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmTextureCalc::FillTexPlanar(GMM_TEXTURE_INFO  *
             Height = GFX_CEIL_DIV(YSize + UVSize, WidthBytesPhysical);
 
             // Tiling not supported, since YPitch != UVPitch...
-            pTexInfo->Flags.Info.TiledY = false;
-            pTexInfo->Flags.Info.TiledYf = false;
-            pTexInfo->Flags.Info.TiledYs = false;
-            pTexInfo->Flags.Info.TiledX = false;
-            pTexInfo->Flags.Info.Linear = true;
+            pTexInfo->Flags.Info.TiledY = 0;
+            pTexInfo->Flags.Info.TiledYf = 0;
+            pTexInfo->Flags.Info.TiledYs = 0;
+            pTexInfo->Flags.Info.TiledX = 0;
+            pTexInfo->Flags.Info.Linear = 1;
 
             break;
         }
@@ -1264,6 +1264,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmTextureCalc::FillTexPlanar(GMM_TEXTURE_INFO  *
         }
     }
 
+    // Align Height to even row to avoid hang if HW over-fetch
     Height = GFX_ALIGN(Height, __GMM_EVEN_ROW);
 
     SetTileMode(pTexInfo);
@@ -1274,7 +1275,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmTextureCalc::FillTexPlanar(GMM_TEXTURE_INFO  *
     {
         if (!(pTexInfo->Flags.Info.TiledY || pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs))
         {
-            pTexInfo->Flags.Gpu.MMC = false;
+            pTexInfo->Flags.Gpu.MMC = 0;
         }
     }
 
@@ -1332,7 +1333,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmTextureCalc::FillTexPlanar(GMM_TEXTURE_INFO  *
             }
         }
 
-        pTexInfo->Flags.Info.RedecribedPlanes = true;
+        pTexInfo->Flags.Info.RedecribedPlanes = 1;
     }
 
     // MMC above 16k bytes wide, while Yf NV12 does not support above 8k - 128 bytes.
@@ -1343,7 +1344,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmTextureCalc::FillTexPlanar(GMM_TEXTURE_INFO  *
                 (pTexInfo->Format == GMM_FORMAT_NV12 && pTexInfo->Flags.Info.TiledYf &&
                 (pTexInfo->BaseWidth * pTexInfo->BitsPerPixel / 8) >= (GMM_KBYTE(8) - 128)))
         {
-            pTexInfo->Flags.Gpu.MMC = false;
+            pTexInfo->Flags.Gpu.MMC = 0;
         }
     }
 
@@ -1400,12 +1401,12 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexBlockMem(GMM_TEXTURE_INFO    *pTexInfo
     __GMM_ASSERTPTR(pRestrictions, GMM_ERROR);
     __GMM_ASSERT(pTexInfo->BitsPerPixel == GMM_BITS(8) || (pTexInfo->Flags.Info.AllowVirtualPadding));
     __GMM_ASSERT(pTexInfo->BaseHeight == 1);
-    __GMM_ASSERT(pTexInfo->Flags.Info.Linear == true);
-    __GMM_ASSERT(pTexInfo->Flags.Info.TiledW == false);
-    __GMM_ASSERT(pTexInfo->Flags.Info.TiledX == false);
-    __GMM_ASSERT(pTexInfo->Flags.Info.TiledY == false);
-    __GMM_ASSERT(pTexInfo->Flags.Info.TiledYf == false);
-    __GMM_ASSERT(pTexInfo->Flags.Info.TiledYs == false);
+    __GMM_ASSERT(pTexInfo->Flags.Info.Linear == 1);
+    __GMM_ASSERT(pTexInfo->Flags.Info.TiledW == 0);
+    __GMM_ASSERT(pTexInfo->Flags.Info.TiledX == 0);
+    __GMM_ASSERT(pTexInfo->Flags.Info.TiledY == 0);
+    __GMM_ASSERT(pTexInfo->Flags.Info.TiledYf == 0);
+    __GMM_ASSERT(pTexInfo->Flags.Info.TiledYs == 0);
 
     GMM_DPF_ENTER;
 

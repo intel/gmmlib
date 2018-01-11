@@ -21,7 +21,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
 #pragma once
 
-// GmmConst.h needed for GMM_GEN9_MAX_NUMBER_MOCS_INDEXES
+// GmmConst.h needed for GMM_MAX_NUMBER_MOCS_INDEXES
 #include "GmmConst.h"
 #include "../../../Platform/GmmPlatforms.h"
 #include "GmmGttExt.h"
@@ -91,7 +91,7 @@ namespace GmmLib
         void                             *pUmdAdapter;
 
         GMM_CACHE_POLICY_ELEMENT         CachePolicy[GMM_RESOURCE_USAGE_MAX];
-        GMM_CACHE_POLICY_TBL_ELEMENT     CachePolicyTbl[GMM_GEN9_MAX_NUMBER_MOCS_INDEXES];
+        GMM_CACHE_POLICY_TBL_ELEMENT     CachePolicyTbl[GMM_MAX_NUMBER_MOCS_INDEXES];
         GMM_CACHE_POLICY                 *pGmmCachePolicy;
 
         //GMM Platform Override
@@ -121,7 +121,7 @@ namespace GmmLib
         static int32_t IncrementRefCount()  // Returns the current RefCount and then increment it
         {
 #if defined(_WIN32)
-            return(InterlockedIncrement(&RefCount) - 1);  //InterLockedIncrement() returns incremented value
+            return(InterlockedIncrement((LONG *)&RefCount) - 1);  //InterLockedIncrement() returns incremented value
 #elif defined(__linux__) ||  defined(__QNX__)
             return(__sync_fetch_and_add(&RefCount, 1));
 #elif defined( __ghs__)
@@ -145,7 +145,7 @@ namespace GmmLib
                     break;
                 }
 #if defined(_WIN32)
-            } while (!(InterlockedCompareExchange(&RefCount, TargetValue, CurrentValue) == CurrentValue));
+            } while (!(InterlockedCompareExchange((LONG *)&RefCount, TargetValue, CurrentValue) == CurrentValue));
 #elif defined(__linux__) || defined(__QNX__)
             } while (!__sync_bool_compare_and_swap(&RefCount, CurrentValue, TargetValue));
 #endif
@@ -456,7 +456,7 @@ extern "C" {
     const GT_SYSTEM_INFO*           GmmGetGtSysInfo(GMM_GLOBAL_CONTEXT *pGmmLibContext);
 
 #ifdef __GMM_KMD__
-    int32_t                GmmGetPrivatePATTableMemoryType(GMM_GLOBAL_CONTEXT *pGmmLibContext, GMM_GFX_PAT_TYPE PatType);
+    int32_t             GmmGetPrivatePATTableMemoryType(GMM_GLOBAL_CONTEXT *pGmmLibContext, GMM_GFX_PAT_TYPE PatType);
     GMM_PRIVATE_PAT     GmmGetPrivatePATEntry(GMM_GLOBAL_CONTEXT *pGmmLibContext, uint32_t  PatIndex);
     GMM_CONTEXT*        GmmGetGmmKmdContext(GMM_GLOBAL_CONTEXT *pGmmLibContext);
     GMM_GTT_CONTEXT*    GmmGetGttContext(GMM_GLOBAL_CONTEXT *pGmmLibContext);

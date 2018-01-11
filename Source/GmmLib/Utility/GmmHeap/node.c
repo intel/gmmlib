@@ -64,7 +64,7 @@ void __GmmCreateNodeMgmt(GMM_CONTEXT *pGmmContext, GMM_NODE_MGMT *pNodeMgmt,
     pNodeMgmt->NumNodes   = NumNodes;
     KeInitializeSpinLock(&pNodeMgmt->NodeLock);
 
-    pNodeMgmt->pFreeNodeList = (SLIST_HEADER *) GFX_ALIGN((ULONG_PTR) &pNodeMgmt->__FreeNodeListMemory, MEMORY_ALLOCATION_ALIGNMENT);
+    pNodeMgmt->pFreeNodeList = (SLIST_HEADER *) GFX_ALIGN((uintptr_t) &pNodeMgmt->__FreeNodeListMemory, MEMORY_ALLOCATION_ALIGNMENT);
     __GMM_ASSERT((void *)(pNodeMgmt->pFreeNodeList + 1) < (void *)(&pNodeMgmt->__FreeNodeListMemory + 1));
     InitializeSListHead(pNodeMgmt->pFreeNodeList);
 }
@@ -169,7 +169,7 @@ uint32_t __GmmGrowFreeNode(GMM_CONTEXT *pGmmContext, GMM_NODE_MGMT *pNodeMgmt)
     pNodeMgmt->pNodeBlockAddr[pNodeMgmt->NumAddr] = pNodeBlock;
     pNodeMgmt->NumAddr++;
 
-    pNode = (GMM_NODE *)(GFX_ALIGN((ULONG_PTR) pNodeBlock, MEMORY_ALLOCATION_ALIGNMENT));
+    pNode = (GMM_NODE *)(GFX_ALIGN((uintptr_t) pNodeBlock, MEMORY_ALLOCATION_ALIGNMENT));
     SizeLeft = AllocSize - GFX_VOID_PTR_DIFF(pNode, pNodeBlock);
 
     //Create as many node as you can

@@ -44,7 +44,7 @@ Arguments:
     PGMM_CONTEXT ==> ptr to GmmContext
 
 Return:
-    VOID
+    void
 ---------------------------------------------------------------------------*/
 void __GmmInitHeapNodes(GMM_CONTEXT *pGmmContext)
 {
@@ -71,7 +71,7 @@ Arguments:
     PGMM_CONTEXT ==> ptr to GmmContext
 
 Return:
-    VOID
+    void
 ---------------------------------------------------------------------------*/
 void __GmmDestroyHeapNodes(GMM_CONTEXT *pGmmContext)
 {
@@ -111,9 +111,9 @@ uint32_t __GmmCreateFencedSubHeap(GMM_CONTEXT         *pGmmContext,
                                uint32_t                Flags)
 {
     const __GMM_PLATFORM_RESOURCE     *pPlatformData;
-    uint32_t                       FenceIdx;
+    uint32_t                    FenceIdx;
     GMM_GFX_ADDRESS             GfxAddress;
-    uint32_t                       HeapIdx = __GMM_NO_HEAP_FOUND;
+    uint32_t                    HeapIdx = __GMM_NO_HEAP_FOUND;
     GMM_GFX_SIZE_T              HeapSize;
     GMM_GFX_SIZE_T              HeapPitch;
     GMM_HEAP                    *pLockHeapObj;
@@ -797,7 +797,7 @@ Arguments:
     pHeapNodePool ==> Ptr to HeapHodePool
 
 Return:
-    VOID
+    void
 ---------------------------------------------------------------------------*/
 void __GmmUmDestroyHeapNodePool(GMM_HEAPNODE* pHeapNodePool)
 {
@@ -825,7 +825,7 @@ Arguments:
     pHeapObj ==> Ptr to HeapObj
 
 Return:
-    VOID
+    void
 ---------------------------------------------------------------------------*/
 void __GmmUmResetHeap(GMM_HEAP            *pHeapObj)
 {
@@ -950,7 +950,7 @@ Arguments:
     Flags           ==> Indicate type of sub heap to create
 
 Return:
-    VOID
+    void
 ---------------------------------------------------------------------------*/
 GMM_STATUS __GmmSetupHeap(GMM_CONTEXT *pGmmContext,
                           GMM_HEAP    *pHeapObj,
@@ -1009,7 +1009,7 @@ Arguments:
     PGMM_HEAP ==> ptr to Heap object
 
 Return:
-    VOID
+    void
 ---------------------------------------------------------------------------*/
 GMM_STATUS __GmmInitHeap(GMM_CONTEXT  *pGmmContext,
                          GMM_HEAP     *pHeapObj)
@@ -1125,7 +1125,7 @@ Arguments:
     Size ==> Size of memory block need to be allocated
 
 Return:
-    VOID
+    void
 ---------------------------------------------------------------------------*/
 void __GmmFreeHeapBlockGfxAddress(GMM_CONTEXT *pGmmContext,
                                   GMM_HEAP    *pHeapObj,

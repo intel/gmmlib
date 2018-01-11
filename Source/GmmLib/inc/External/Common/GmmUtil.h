@@ -71,9 +71,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #define GMM_ESCAPE_OGL_SET_DEV_CTX(Escape, AdapterHandle, DeviceHandle)       \
     {                                                           \
-        Escape.hAdapter = (D3DKMT_HANDLE)(UINT_PTR)AdapterHandle;              \
-        Escape.hContext = (D3DKMT_HANDLE)(UINT_PTR)NULL;                  \
-        Escape.hDevice  = (D3DKMT_HANDLE)(UINT_PTR)DeviceHandle;               \
+        Escape.hAdapter = (D3DKMT_HANDLE)(uintptr_t)AdapterHandle;              \
+        Escape.hContext = (D3DKMT_HANDLE)(uintptr_t)NULL;                  \
+        Escape.hDevice  = (D3DKMT_HANDLE)(uintptr_t)DeviceHandle;               \
         Escape.Type     = D3DKMT_ESCAPE_DRIVERPRIVATE;          \
     }
 #define GMM_CALL_OGL_ESCAPE(pfnEscape, hAdapter, Escape) (pfnEscape(&Escape))

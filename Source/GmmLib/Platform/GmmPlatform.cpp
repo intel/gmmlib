@@ -50,7 +50,7 @@ GmmLib::PlatformInfo::PlatformInfo(PLATFORM &Platform) {
     Data.FormatTable[GmmFormat].Supported =           ((Availability) != 0);                                 \
     if(((_Depth) > 1) || ((_Height) > 1) || ((_Width) > 1))                                             \
     {                                                                                                   \
-        Data.FormatTable[GmmFormat].Compressed = true;                                                       \
+        Data.FormatTable[GmmFormat].Compressed = 1;                                                     \
     }                                                                                                   \
 }
 

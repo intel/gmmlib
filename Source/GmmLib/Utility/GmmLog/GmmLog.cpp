@@ -55,6 +55,7 @@ namespace spdlog
         {
             void log(const details::log_msg &msg) override
             {
+                OutputDebugString(GMM_PREFIX_STR);
                 OutputDebugString(msg.formatted.str().c_str());
             }
 
@@ -81,7 +82,7 @@ bool GmmLib::Logger::GmmLogInit()
 
     // Get logging method
 #if _WIN32
-    DWORD regkeyVal = 0;
+    uint32_t regkeyVal = 0;
     if (Utility::GmmUMDReadRegistryFullPath(GMM_LOG_REG_KEY_SUB_PATH, GMM_LOG_TO_FILE, &regkeyVal))
     {
         LogMethod = regkeyVal ? ToFile : ToOSLog;
@@ -225,4 +226,75 @@ GmmLib::Logger::~Logger()
     }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+/// Gmm Logger C wrappers
+/////////////////////////////////////////////////////////////////////////////////////
+#if !_WIN32
+// Linux/Android replacement for MS version of _vscprintf
+inline int vscprintf_lin(const char *msg, va_list args)
+{
+    char c;
+    va_list args_cpy;
+
+    // Copy `args' to prevent internal pointer modification from vsnprintf
+    va_copy(args_cpy, args);
+    int len = vsnprintf(&c, 1, msg, args_cpy);
+    va_end(args_cpy);
+    return len;
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Gmm Logger C wrapper for GMM_LOG_* Macros
+/////////////////////////////////////////////////////////////////////////////////////
+extern "C" void GMM_STDCALL GmmLibLogging(GmmLogLevel Level, const char* str, ...)
+{
+    va_list args;
+    va_start(args, str);
+
+#if _WIN32
+    const size_t length = _vscprintf(str, args);
+#else
+    const size_t length = vscprintf_lin(str, args);
+#endif
+
+    char* temp = new char[length + 1];
+
+    if (temp)
+    {
+
+#if _WIN32
+        vsprintf_s(temp, length + 1, str, args);
+#else
+        vsnprintf(temp, length + 1, str, args);
+#endif
+
+        if (GmmLoggerPerProc.SpdLogger)
+        {
+            switch (Level)
+            {
+                case Trace:
+                    // Set log level to trace if we want trace msges to be printed
+                    //GmmLoggerPerProc.SpdLogger->set_level(spdlog::level::trace);
+                    GmmLoggerPerProc.SpdLogger->trace(temp);
+                    break;
+                case Info:
+                    // Set log level to info if we want info msges to be printed
+                    //GmmLoggerPerProc.SpdLogger->set_level(spdlog::level::info);
+                    GmmLoggerPerProc.SpdLogger->info(temp);
+                    break;
+                case Error:
+                    GmmLoggerPerProc.SpdLogger->critical(temp);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        delete[] temp;
+    }
+
+    va_end(args);
+
+}
 #endif //#if GMM_LOG_AVAILABLE

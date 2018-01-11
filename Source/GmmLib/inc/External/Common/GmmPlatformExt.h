@@ -158,17 +158,17 @@ typedef struct __GMM_BUFFER_TYPE_REC
     uint32_t           RenderPitchAlignment;   // Pitch Alignment for render surface
     uint32_t           LockPitchAlignment;     // Pitch Alignment for locked surface
     uint32_t           MinPitch;               // Minimum pitch
-    GMM_GFX_SIZE_T  MaxPitch;               // Maximum pitch
-    GMM_GFX_SIZE_T  MinAllocationSize;      // Minimum Allocation size requirement
+    GMM_GFX_SIZE_T     MaxPitch;               // Maximum pitch
+    GMM_GFX_SIZE_T     MinAllocationSize;      // Minimum Allocation size requirement
 
     uint32_t           MinHeight;              // Mininum height in bytes
-    GMM_GFX_SIZE_T  MinWidth;               // Minimum width in bytes
+    GMM_GFX_SIZE_T     MinWidth;               // Minimum width in bytes
     uint32_t           MinDepth;               // Minimum depth  (only for volume)
-    GMM_GFX_SIZE_T  MaxHeight;              // Maximum height in bytes
-    GMM_GFX_SIZE_T  MaxWidth;               // Maximum Width in bytes
+    GMM_GFX_SIZE_T     MaxHeight;              // Maximum height in bytes
+    GMM_GFX_SIZE_T     MaxWidth;               // Maximum Width in bytes
     uint32_t           MaxDepth;               // Maximum depth  (only for volume)
     uint32_t           MaxArraySize;
-    uint8_t         NeedPow2LockAlignment;  // Locking surface need to be power of 2 aligned
+    uint8_t            NeedPow2LockAlignment;  // Locking surface need to be power of 2 aligned
 } __GMM_BUFFER_TYPE;
 
 //===========================================================================

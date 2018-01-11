@@ -36,6 +36,11 @@ namespace GmmLib
     class NON_PAGED_SECTION GmmResourceInfoLin:
                                 public GmmResourceInfoCommon
     {
+        public:
+            /* Constructors */
+            GmmResourceInfoLin()
+            {
+            }
 
     };
 

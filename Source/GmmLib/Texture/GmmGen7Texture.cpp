@@ -37,7 +37,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen7TextureCalc::FillTex2D(GMM_TEXTURE_INFO  *
     uint32_t                   HAlign, VAlign;
     uint32_t                   CompressHeight, CompressWidth, CompressDepth;
     uint32_t                   AlignedWidth, BlockHeight, ExpandedArraySize, Pitch;
-    bool                       Compress = false;
+    uint8_t                    Compress = 0;
     GMM_STATUS              Status;
 
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
@@ -206,7 +206,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen7TextureCalc::FillTex2D(GMM_TEXTURE_INFO  *
             uint32_t ColFactor = 0, RowFactor = 0;
             uint32_t TRTileWidth = 0, TRTileHeight = 0;
 
-            __GmmGetD3DToHwTileConversion(pTexInfo, &ColFactor, &RowFactor);
+            GmmGetD3DToHwTileConversion(pTexInfo, &ColFactor, &RowFactor);
             TRTileWidth = pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileWidth * ColFactor;
             TRTileHeight = pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileHeight * RowFactor;
 
@@ -216,8 +216,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen7TextureCalc::FillTex2D(GMM_TEXTURE_INFO  *
     }
 
     GMM_ASSERTDPF(pTexInfo->Flags.Info.LayoutBelow || !pTexInfo->Flags.Info.LayoutRight, "MIPLAYOUT_RIGHT not supported after Gen6!");
-    pTexInfo->Flags.Info.LayoutBelow = true;
-    pTexInfo->Flags.Info.LayoutRight = false;
+    pTexInfo->Flags.Info.LayoutBelow = 1;
+    pTexInfo->Flags.Info.LayoutRight = 0;
 
     // If a texture is YUV packed, 96, or 48 bpp then one row plus 16 bytes of
     // padding needs to be added. Since this will create a none pitch aligned
@@ -229,6 +229,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen7TextureCalc::FillTex2D(GMM_TEXTURE_INFO  *
         BlockHeight += GMM_SCANLINES(1) + GFX_CEIL_DIV(GMM_BYTES(16),Pitch);
     }
 
+    // Align height to even row to cover for HW over - fetch
     BlockHeight = GFX_ALIGN(BlockHeight, __GMM_EVEN_ROW);
 
     if( (Status = // <-- Note assignment.
@@ -262,7 +263,7 @@ GMM_GFX_SIZE_T GmmLib::GmmGen7TextureCalc::Get2DTexOffsetAddressPerMip(GMM_TEXTU
     uint32_t   AlignedMipHeight, i, MipHeight, OffsetHeight;
     uint32_t   HAlign, VAlign;
     uint32_t   CompressHeight, CompressWidth, CompressDepth;
-    bool       Compress;
+    uint8_t    Compress;
 
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
     GMM_DPF_ENTER;
@@ -351,7 +352,7 @@ uint32_t GmmLib::GmmGen7TextureCalc::Get2DMipMapHeight(GMM_TEXTURE_INFO   *pTexI
     uint32_t HeightLines, HeightLinesLevel0, HeightLinesLevel1, HeightLinesLevel2;
     uint32_t VAlign, CompressHeight, CompressWidth, CompressDepth;
     uint32_t i;
-    bool     Compress;
+    uint8_t  Compress;
 
     GMM_DPF_ENTER;
 
@@ -518,7 +519,7 @@ void GmmLib::GmmGen7TextureCalc::Fill2DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
 uint32_t GmmLib::GmmGen7TextureCalc::GetTotal3DHeight(GMM_TEXTURE_INFO* pTexInfo)
 {
     uint32_t       AlignedHeight, BlockHeight, Depth;
-    bool           Compressed;
+    uint8_t        Compressed;
     uint32_t       i, MipsInThisRow, MipLevel, MipRows;
     uint32_t       Total3DHeight = 0, UnitAlignHeight;
     uint32_t       CompressHeight, CompressWidth, CompressDepth;
@@ -596,7 +597,7 @@ void GmmLib::GmmGen7TextureCalc::Fill3DTexOffsetAddress(GMM_TEXTURE_INFO* pTexIn
     uint32_t             CompressHeight, CompressWidth, CompressDepth;
     uint32_t             OffsetMipRows = 0;
     GMM_GFX_SIZE_T    OffsetValue;
-    bool              Compress;
+    uint8_t           Compress;
     GMM_TEXTURE_CALC *pTextureCalc;
 
     __GMM_ASSERT(pTexInfo);
@@ -720,7 +721,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen7TextureCalc::FillTex3D(GMM_TEXTURE_INFO  *
     uint32_t                       UnitAlignWidth;
     uint32_t                       Total3DHeight;
     uint32_t                       WidthBytesPhysical;
-    bool                           Compress;
+    uint8_t                        Compress;
     uint32_t                       CompressHeight, CompressWidth, CompressDepth;
     bool                           SeparateStencil;
     GMM_STATUS                  Status;

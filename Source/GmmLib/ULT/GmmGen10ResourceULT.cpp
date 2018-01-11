@@ -138,11 +138,10 @@ TEST_F(CTestGen10Resource, TestMSAA)
             gmmParams.Flags.Gpu.MCS = 0;
 
             //MSS surface
-            GMM_RESOURCE_INFO MSSResourceInfo;
-            GMM_STATUS Ret = MSSResourceInfo.Create(*pGmmGlobalContext, gmmParams);
-            EXPECT_EQ(GMM_SUCCESS, Ret);
+            GMM_RESOURCE_INFO *MSSResourceInfo;
+            MSSResourceInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
 
-            if (Ret == GMM_SUCCESS)
+            if (MSSResourceInfo)
             {
                 VerifyResourceHAlign<true>(MSSResourceInfo, HAlign);
                 VerifyResourceVAlign<true>(MSSResourceInfo, VAlign);
@@ -189,11 +188,11 @@ TEST_F(CTestGen10Resource, TestMSAA)
             }
 
             //No MCS surface if MSS creation failed
-            if (Ret == GMM_SUCCESS)
+            if (MSSResourceInfo)
             {
                 gmmParams.Flags.Gpu.MCS = 1;
-                GMM_RESOURCE_INFO MCSResourceInfo;
-                EXPECT_EQ(GMM_SUCCESS, MCSResourceInfo.Create(*pGmmGlobalContext, gmmParams));
+                GMM_RESOURCE_INFO *MCSResourceInfo;
+                MCSResourceInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
 
                 VerifyResourceHAlign<true>(MCSResourceInfo, MCSHAlign);
                 VerifyResourceVAlign<true>(MCSResourceInfo, MCSVAlign);
@@ -211,7 +210,11 @@ TEST_F(CTestGen10Resource, TestMSAA)
 
                 uint32_t ExpectedHeight = GMM_ULT_ALIGN(ExpectedQPitch*gmmParams.ArraySize, MCSTileSize[0][1]);
                 VerifyResourceSize<true>(MCSResourceInfo, GMM_ULT_ALIGN(ExpectedPitch*ExpectedHeight, GMM_KBYTE(4)));    //MCS Tile is TileY
+
+                pGmmULTClientContext->DestroyResInfoObject(MCSResourceInfo);
             }//MCS
+
+            pGmmULTClientContext->DestroyResInfoObject(MSSResourceInfo);
         }//NumSamples = k
     } //Iterate through all Input types
 

@@ -27,9 +27,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 /// Copies parameters or sets flags based on info sent by the client.
 ///
 /// @param[in]  CreateParams: Flags which specify what sort of resource to create
-/// @return     0 if encountered invalid param. 1 otherwise.
+/// @return     false if encountered invalid param. true otherwise.
 /////////////////////////////////////////////////////////////////////////////////////
-uint8_t GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &CreateParams)
+bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &CreateParams)
 {
     Surf.Type = CreateParams.Type;
     Surf.Format = CreateParams.Format;
@@ -71,7 +71,7 @@ uint8_t GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Cr
     else
     {
         GMM_ASSERTDPF(0, "Format Error");
-        return 0;
+        return false;
     }
 
     ClientType = pGmmGlobalContext->GetClientType();
@@ -137,36 +137,50 @@ uint8_t GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Cr
     {
         AuxSurf = Surf;
 
-        if (Surf.MSAA.NumSamples > 1 && Surf.Flags.Gpu.CCS) //MSAA+MCS+CCS
+        if (Surf.Flags.Gpu.Depth && Surf.Flags.Gpu.CCS)  //Depth + HiZ+CCS
+        {
+            //GMM_ASSERTDPF(Surf.Flags.Gpu.HiZ, "Lossless Z compression supported when Depth+HiZ+CCS is unified");
+            AuxSecSurf = Surf;
+            Surf.Flags.Gpu.HiZ = 0;                            //Its depth buffer, so clear HiZ
+            AuxSecSurf.Flags.Gpu.HiZ = 0;
+            AuxSurf.Flags.Gpu.IndirectClearColor = 0;          //Clear Depth flags from HiZ, contained with separate/legacy HiZ when Depth isn't compressible.
+            AuxSurf.Flags.Gpu.CCS = 0;
+            AuxSurf.Flags.Info.RenderCompressed = AuxSurf.Flags.Info.MediaCompressed = 0;
+        }
+        else if (Surf.Flags.Gpu.SeparateStencil && Surf.Flags.Gpu.CCS) //Stencil compression
+        {
+            AuxSurf.Flags.Gpu.SeparateStencil = 0;
+            Surf.Flags.Gpu.CCS = 0;
+            if (GMM_SUCCESS != pTextureCalc->PreProcessTexSpecialCases(&Surf))
+            {
+                return false;
+            }
+            Surf.Flags.Gpu.CCS = 1;
+        }
+        else if (Surf.MSAA.NumSamples > 1 && Surf.Flags.Gpu.CCS) //MSAA+MCS+CCS
         {
             GMM_ASSERTDPF(Surf.Flags.Gpu.MCS, "Lossless MSAA supported when MSAA+MCS+CCS is unified");
             AuxSecSurf = Surf;
             AuxSecSurf.Flags.Gpu.MCS = 0;
             AuxSurf.Flags.Gpu.CCS = 0;
-        }
-        else if (Surf.Flags.Gpu.Depth && Surf.Flags.Gpu.CCS)  //Depth + HiZ+CCS
-        {
-            GMM_ASSERTDPF(Surf.Flags.Gpu.HiZ, "Lossless Z compression supported when Depth+HiZ+CCS is unified");
-            AuxSecSurf = Surf;
-            AuxSecSurf.Flags.Gpu.HiZ = 0;
-            AuxSurf.Flags.Gpu.CCS = 0;
+            AuxSurf.Flags.Info.RenderCompressed = AuxSurf.Flags.Info.MediaCompressed = 0;
         }
 
         if (GMM_SUCCESS != pTextureCalc->PreProcessTexSpecialCases(&AuxSurf))
         {
-            return 0;
+            return false;
         }
         if (AuxSecSurf.Type != RESOURCE_INVALID &&
             GMM_SUCCESS != pTextureCalc->PreProcessTexSpecialCases(&AuxSecSurf))
         {
-            return 0;
+            return false;
         }
     }
     else
     {
         if (GMM_SUCCESS != pTextureCalc->PreProcessTexSpecialCases(&Surf))
         {
-            return 0;
+            return false;
         }
     }
 
@@ -179,7 +193,7 @@ uint8_t GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Cr
         }
     #endif
 
-    return 1;
+    return true;
 }
 
 
@@ -193,8 +207,8 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
 {
     __GMM_BUFFER_TYPE           Restrictions = {0};
     const __GMM_PLATFORM_RESOURCE     *pPlatformResource = NULL;
-    bool                            AllowMaxWidthViolations = false;
-    bool                            AllowMaxHeightViolations = false;
+    bool                               AllowMaxWidthViolations = false;
+    bool                               AllowMaxHeightViolations = false;
 
     GMM_DPF_ENTER;
 
@@ -214,6 +228,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
             if (Surf.Flags.Gpu.UnifiedAuxSurface)
             {
                 AuxSurf.Platform = Surf.Platform;
+                AuxSecSurf.Platform = Surf.Platform;
             }
         }
 
@@ -264,12 +279,12 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
     // Check at least one tile pref set.
     // Yf/Ys checked explicitly here, require one of Y or Linear depending on resource type (e.g 1D-->Linear)
     // that TODO: could be automatically promoted.
-    if ((Surf.Flags.Info.Linear  == false) &&
-        (Surf.Flags.Info.TiledW  == false) &&
-        (Surf.Flags.Info.TiledX  == false) &&
-        (Surf.Flags.Info.TiledY  == false) &&
-        (Surf.Flags.Info.TiledYf == false) &&
-        (Surf.Flags.Info.TiledYs == false) )
+    if ((Surf.Flags.Info.Linear  == 0) &&
+        (Surf.Flags.Info.TiledW  == 0) &&
+        (Surf.Flags.Info.TiledX  == 0) &&
+        (Surf.Flags.Info.TiledY  == 0) &&
+        (Surf.Flags.Info.TiledYf == 0) &&
+        (Surf.Flags.Info.TiledYs == 0) )
     {
         GMM_ASSERTDPF(0, "No Tile or Linear preference specified!");
         goto ERROR_CASE;
@@ -435,8 +450,8 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
     }
 
     // check depth buffer tilings
-    if ((Surf.Flags.Gpu.Depth == true) &&
-        (Surf.Flags.Info.TiledX == true))
+    if ((Surf.Flags.Gpu.Depth == 1) &&
+        (Surf.Flags.Info.TiledX == 1))
     {
         GMM_ASSERTDPF(0, "Invalid Tiling for Depth Buffer!");
         goto ERROR_CASE;
@@ -444,12 +459,12 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
 
 #if DBG
     // Check if stencil buffer gpu flag is set w/ other flags
-    if (Surf.Flags.Gpu.SeparateStencil == true)
+    if (Surf.Flags.Gpu.SeparateStencil == 1)
     {
         GMM_RESOURCE_FLAG OnlySeparateStencilGpuFlag;
 
         memset(&OnlySeparateStencilGpuFlag.Gpu, 0, sizeof(OnlySeparateStencilGpuFlag.Gpu));
-        OnlySeparateStencilGpuFlag.Gpu.SeparateStencil = true;
+        OnlySeparateStencilGpuFlag.Gpu.SeparateStencil = 1;
 
         if (memcmp(&Surf.Flags.Gpu, &OnlySeparateStencilGpuFlag.Gpu, sizeof(OnlySeparateStencilGpuFlag.Gpu)))
         {

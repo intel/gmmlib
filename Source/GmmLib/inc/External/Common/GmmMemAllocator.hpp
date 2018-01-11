@@ -31,13 +31,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define GMM_FREE(p)         free(p)
 
 /////////////////////////////////////////////////////////////
-/// Overrides new() and delete() to work with both user mode 
+/// Overrides new() and delete() to work with both user mode
 /// and kernel mode.
 /////////////////////////////////////////////////////////////
 class NON_PAGED_SECTION GmmMemAllocator
 {
     public:
-        void* operator new(size_t size) 
+        void* operator new(size_t size)
         {
             return GMM_MALLOC(size);
         }
@@ -47,9 +47,9 @@ class NON_PAGED_SECTION GmmMemAllocator
             GMM_UNREFERENCED_PARAMETER(size);
             return ptr;
         }
-        
-        void operator delete(void *ptr) 
-        {       
+
+        void operator delete(void *ptr)
+        {
             GMM_FREE(ptr);
         }
 

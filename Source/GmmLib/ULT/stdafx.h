@@ -48,9 +48,6 @@ extern "C" {
 #include "../../inc/common/igfxfmid.h"
 #include "../../inc/common/sku_wa.h"
 #include "../../inc/common/gfxmacro.h"
-#ifdef _DEBUG
-#include "../inc/External/Common/GmmDebug.h"
-#endif
 #include "../inc/External/Common/GmmCommonExt.h"
 #include "../inc/External/Common/GmmPlatformExt.h"
 #include "../inc/External/Common/GmmCachePolicy.h"
@@ -60,6 +57,7 @@ extern "C" {
 #include "../inc/External/Common/GmmUtil.h"
 #include "../inc/External/Common/GmmInfoExt.h"
 #include "../inc/External/Common/GmmInfo.h"
+#include "../inc/External/Common/GmmClientContext.h"
 
 
 #ifdef __cplusplus

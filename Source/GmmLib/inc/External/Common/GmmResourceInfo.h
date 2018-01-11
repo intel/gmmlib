@@ -30,6 +30,7 @@ extern "C" {
 #pragma pack(push, 8)
 
 extern const uint32_t __GmmMSAAConversion[5][2];
+extern const uint32_t __GmmTileYConversionTable[5][2];
 
 //
 // Normally, GMM_RESOURCE_INFO should not contain any user mode pointers because
@@ -47,11 +48,11 @@ typedef struct TILE_POOL_INFO_REC
 typedef struct GMM_TILED_RESOURCE_INFO_REC
 {
     GMM_GFX_ADDRESS                     TiledResourceGfxAddress; // used for tiled resources
-    GMM_VOIDPTR64                       pMappedTiles;            // tracks which tiles have been mapped
-    GMM_VOIDPTR64                       pTilePoolArray;          // list of tile pool allocation
+    uint64_t                            pMappedTiles;            // tracks which tiles have been mapped
+    uint64_t                            pTilePoolArray;          // list of tile pool allocation
                                                                  // handles (D3DKMT_HANDLE),
                                                                  // only used for tiled resources
-    GMM_VOIDPTR64                       pAuxTilePoolResArray;    // list of aux tile pool allocation resource, and handles
+    uint64_t                            pAuxTilePoolResArray;    // list of aux tile pool allocation resource, and handles
 
     union{
             uint32_t                       TilePoolArraySize;
@@ -60,7 +61,7 @@ typedef struct GMM_TILED_RESOURCE_INFO_REC
 
     struct
     {
-        GMM_VOIDPTR64                   pTilePoolInfo;
+        uint64_t                        pTilePoolInfo;
         uint64_t                        PagingFenceValue;
         uint32_t                        TilePoolInfoTotalNumElements; // Number of elements in pTilePoolInfo array
         uint32_t                        TilePoolInfoFreeNumElements;  // Number of free tile pools
@@ -71,9 +72,9 @@ typedef struct GMM_EXISTING_SYS_MEM_REC
 {
     // 64bit kernel mode drivers must validate sizeof structs passed from
     // 32bit & 64bit user mode drivers. Store as 64bit to keep uniform size.
-    GMM_VOIDPTR64                   pExistingSysMem; //Original buffer address.
-    GMM_VOIDPTR64                   pVirtAddress;
-    GMM_VOIDPTR64                   pGfxAlignedVirtAddress;
+    uint64_t                        pExistingSysMem; //Original buffer address.
+    uint64_t                        pVirtAddress;
+    uint64_t                        pGfxAlignedVirtAddress;
 #if(LHDM)
     D3DKMT_HANDLE                   hParentAllocation;
 #endif
@@ -95,10 +96,9 @@ typedef struct GMM_EXISTING_SYS_MEM_REC
 // Reset packing alignment to project default
 #pragma pack(pop)
 
-uint8_t        GMM_STDCALL GmmResValidateParams(GMM_RESOURCE_INFO *pResourceInfo);
-void           GMM_STDCALL GmmResGetRestrictions(GMM_RESOURCE_INFO* pResourceInfo, __GMM_BUFFER_TYPE* pRestrictions);
-GMM_STATUS     __GmmResApplyExistingSysMemRestrictions(GMM_RESOURCE_INFO *pResourceInfo);
-uint8_t        __CanSupportStdTiling(GMM_TEXTURE_INFO Surface);
+uint8_t     GMM_STDCALL GmmResValidateParams(GMM_RESOURCE_INFO *pResourceInfo);
+void        GMM_STDCALL GmmResGetRestrictions(GMM_RESOURCE_INFO* pResourceInfo, __GMM_BUFFER_TYPE* pRestrictions);
+uint8_t     __CanSupportStdTiling(GMM_TEXTURE_INFO Surface);
 
 #ifdef __cplusplus
 }

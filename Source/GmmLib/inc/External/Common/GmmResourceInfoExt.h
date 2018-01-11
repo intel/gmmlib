@@ -28,7 +28,7 @@ extern "C" {
 
 #if _WIN32
     #if (GMM_OGL || OGL || GMM_OCL || GMM_EXCITE)
-        typedef int32_t NTSTATUS;
+        typedef LONG NTSTATUS;
         #include <windows.h>
         #include <d3d9types.h>
         #include <d3dkmthk.h>
@@ -267,8 +267,8 @@ typedef struct GMM_RESCREATE_PARAMS_REC
         D3DDDIFORMAT                    DdiD3d9Format;
         D3DDDI_VIDEO_PRESENT_SOURCE_ID  DdiVidPnSrcId;
     #endif
-    uint32_t                               RotateInfo;
-    GMM_VOIDPTR64                       pExistingSysMem;
+    uint32_t                            RotateInfo;
+    uint64_t                            pExistingSysMem;
     GMM_GFX_SIZE_T                      ExistingSysMemSize;
 #ifdef _WIN32
     D3DKMT_HANDLE                       hParentAllocation; //For ExistingSysMem Virtual Padding
@@ -326,7 +326,7 @@ typedef struct GMM_RESCREATE_PARAMS_REC
 //   C |                                                |
 //     |             Tag plane                          |
 //     |          for MSAA/Depth compr                  |
-//     |       (a.k.a ccs, zcs)             ------------|->GmmResGetSizeAuxSurface(pRes, GMM_AUX_MCS_LCE or GMM_AUX_ZCS)
+//     |       (a.k.a ccs, zcs)             ------------|->GmmResGetSizeAuxSurface(pRes, GMM_AUX_CCS or GMM_AUX_ZCS)
 //     |________________________________________________|
 //
 //     Where
@@ -334,10 +334,7 @@ typedef struct GMM_RESCREATE_PARAMS_REC
 //     NV. Clear color Native Value
 //     A. GmmResGetAuxSurfaceOffset(pRes, GMM_AUX_CCS)
 //     B. GmmResGetAuxSurfaceOffset(pRes, GMM_AUX_CC)
-//     C. GmmResGetAuxSurfaceOffset(pRes, GMM_AUX_MCS_LCE or GMM_AUX_ZCS)
-//        GmmResGetSizeAuxSurface(pRes, GMM_AUX_SURF) will return the total aux size (CCS + CC + Padding), (HiZ/MCS + CC + Padding + CCS)
-//     Unified Depth buffer (Hiz+ ZCS+ Indirect ClearColor) can be similarly implemented by declaring new enums.
-//        e.g. GMM_AUX_HIZ, GMM_AUX_ZCS, GMM_AUX_HIZ_CC
+//     C. GmmResGetAuxSurfaceOffset(pRes, GMM_AUX_CCS or GMM_AUX_ZCS)
 typedef enum
 {
     GMM_AUX_CCS,    // RT buffer's color control surface (Unpadded)
@@ -347,7 +344,6 @@ typedef enum
     GMM_AUX_COMP_STATE, // Media compression state (cacheline aligned 64B)
     GMM_AUX_HIZ,    // HiZ surface for unified Depth buffer
     GMM_AUX_MCS,    // multi-sample control surface for unified MSAA
-    GMM_AUX_MCS_LCE, // CCS for lossless MSAA compression
     GMM_AUX_ZCS,    // CCS for Depth Z compression
     GMM_AUX_SURF    // Total Aux Surface (CCS + CC + Padding)
 } GMM_UNIFIED_AUX_TYPE;
@@ -479,6 +475,8 @@ uint32_t               GMM_STDCALL GmmResGetCompressionBlockHeight(GMM_RESOURCE_
 uint32_t               GMM_STDCALL GmmResGetCompressionBlockWidth(GMM_RESOURCE_INFO *pGmmResource);
 GMM_CPU_CACHE_TYPE  GMM_STDCALL GmmResGetCpuCacheType(GMM_RESOURCE_INFO *pGmmResource);
 uint32_t               GMM_STDCALL GmmResGetDepth(GMM_RESOURCE_INFO *pGmmResource);
+void                GMM_STDCALL GmmResGetFlags(GMM_RESOURCE_INFO *pGmmResource, GMM_RESOURCE_FLAG *pFlags /*output*/); //TODO: Remove after changing all UMDs
+GMM_RESOURCE_FLAG   GMM_STDCALL GmmResGetResourceFlags(const GMM_RESOURCE_INFO *pGmmResource);
 GMM_GFX_ADDRESS     GMM_STDCALL GmmResGetGfxAddress(GMM_RESOURCE_INFO *pGmmResource);
 uint32_t               GMM_STDCALL GmmResGetHAlign(GMM_RESOURCE_INFO *pGmmResource);
 #define                         GmmResGetLockPitch GmmResGetRenderPitch // Support old name until UMDs drop use.
@@ -529,17 +527,17 @@ uint8_t             GMM_STDCALL GmmResIsLockDiscardCompatible(GMM_RESOURCE_INFO 
 uint8_t             GMM_STDCALL GmmResIsMediaMemoryCompressed(GMM_RESOURCE_INFO *pGmmResource, uint32_t ArrayIndex);
 uint8_t             GMM_STDCALL GmmResIsMsaaFormatDepthStencil(GMM_RESOURCE_INFO *pGmmResource);
 uint8_t             GMM_STDCALL GmmResIsSvm(GMM_RESOURCE_INFO *pGmmResource);
-void             GMM_STDCALL GmmResSetMmcMode(GMM_RESOURCE_INFO *pGmmResource, GMM_RESOURCE_MMC_INFO Mode, uint32_t ArrayIndex);
-void             GMM_STDCALL GmmResSetMmcHint(GMM_RESOURCE_INFO *pGmmResource, GMM_RESOURCE_MMC_HINT Hint, uint32_t ArrayIndex);
+void                GMM_STDCALL GmmResSetMmcMode(GMM_RESOURCE_INFO *pGmmResource, GMM_RESOURCE_MMC_INFO Mode, uint32_t ArrayIndex);
+void                GMM_STDCALL GmmResSetMmcHint(GMM_RESOURCE_INFO *pGmmResource, GMM_RESOURCE_MMC_HINT Hint, uint32_t ArrayIndex);
 GMM_RESOURCE_MMC_HINT  GMM_STDCALL GmmResGetMmcHint(GMM_RESOURCE_INFO *pGmmResource, uint32_t ArrayIndex);
 uint8_t                GMM_STDCALL GmmResIsColorSeparation(GMM_RESOURCE_INFO *pGmmResource);
-uint32_t            GMM_STDCALL GmmResTranslateColorSeparationX(GMM_RESOURCE_INFO *pGmmResource, uint32_t x);
-uint32_t            GMM_STDCALL GmmResGetColorSeparationArraySize(GMM_RESOURCE_INFO *pGmmResource);
-uint32_t            GMM_STDCALL GmmResGetColorSeparationPhysicalWidth(GMM_RESOURCE_INFO *pGmmResource);
-uint8_t             GMM_STDCALL GmmResGetSetHardwareProtection(GMM_RESOURCE_INFO *pGmmResource, uint8_t GetIsEncrypted, uint8_t SetIsEncrypted);
-uint32_t            GMM_STDCALL GmmResGetMaxGpuVirtualAddressBits(GMM_RESOURCE_INFO *pGmmResource);
+uint32_t               GMM_STDCALL GmmResTranslateColorSeparationX(GMM_RESOURCE_INFO *pGmmResource, uint32_t x);
+uint32_t               GMM_STDCALL GmmResGetColorSeparationArraySize(GMM_RESOURCE_INFO *pGmmResource);
+uint32_t               GMM_STDCALL GmmResGetColorSeparationPhysicalWidth(GMM_RESOURCE_INFO *pGmmResource);
+uint8_t                GMM_STDCALL GmmResGetSetHardwareProtection(GMM_RESOURCE_INFO *pGmmResource, uint8_t GetIsEncrypted, uint8_t SetIsEncrypted);
+uint32_t               GMM_STDCALL GmmResGetMaxGpuVirtualAddressBits(GMM_RESOURCE_INFO *pGmmResource);
 uint8_t                GMM_STDCALL GmmIsSurfaceFaultable(GMM_RESOURCE_INFO *pGmmResource);
-uint32_t            GMM_STDCALL GmmResGetMaximumRenamingListLength(GMM_RESOURCE_INFO* pGmmResource);
+uint32_t               GMM_STDCALL GmmResGetMaximumRenamingListLength(GMM_RESOURCE_INFO* pGmmResource);
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetPlanarGetXOffset(GMM_RESOURCE_INFO *pGmmResource, GMM_YUV_PLANE Plane);
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetPlanarGetYOffset(GMM_RESOURCE_INFO *pGmmResource, GMM_YUV_PLANE Plane);
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetPlanarAuxOffset(GMM_RESOURCE_INFO *pGmmResource, uint32_t ArrayIndex, GMM_UNIFIED_AUX_TYPE Plane);
@@ -591,6 +589,7 @@ uint8_t                     GMM_STDCALL GmmCachePolicyIsUsagePTECached(GMM_RESOU
 void                        GMM_STDCALL GmmCachePolicyOverrideResourceUsage(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage);
 uint32_t                    GMM_STDCALL GmmCachePolicyGetMaxMocsIndex();
 uint32_t                    GMM_STDCALL GmmCachePolicyGetMaxL1HdcMocsIndex();
+uint32_t                    GMM_STDCALL GmmCachePolicyGetMaxSpecialMocsIndex();
 
 
 void                        GMM_STDCALL GmmResSetPrivateData(GMM_RESOURCE_INFO *pGmmResource, void *pPrivateData);

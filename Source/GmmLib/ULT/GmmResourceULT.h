@@ -347,11 +347,11 @@ protected:
     /// @param[in]  ExpectedValue: expected value to check against
     /////////////////////////////////////////////////////////////////////////////////////
     template <bool Verify>
-    void VerifyResourceHAlign(GMM_RESOURCE_INFO &ResourceInfo, uint32_t ExpectedValue)
+    void VerifyResourceHAlign(GMM_RESOURCE_INFO *ResourceInfo, uint32_t ExpectedValue)
     {
         if(Verify)
         {
-            EXPECT_EQ(ExpectedValue, ResourceInfo.GetHAlign());
+            EXPECT_EQ(ExpectedValue, ResourceInfo->GetHAlign());
         }
     }
 
@@ -362,11 +362,11 @@ protected:
     /// @param[in]  ExpectedValue: expected value to check against
     /////////////////////////////////////////////////////////////////////////////////////
     template <bool Verify>
-    void VerifyResourceVAlign(GMM_RESOURCE_INFO &ResourceInfo, uint32_t ExpectedValue)
+    void VerifyResourceVAlign(GMM_RESOURCE_INFO *ResourceInfo, uint32_t ExpectedValue)
     {
         if(Verify)
         {
-            EXPECT_EQ(ExpectedValue, ResourceInfo.GetVAlign());
+            EXPECT_EQ(ExpectedValue, ResourceInfo->GetVAlign());
         }
     }
 
@@ -378,11 +378,11 @@ protected:
     /// @param[in]  ExpectedValue: expected value to check against
     /////////////////////////////////////////////////////////////////////////////////////
     template <bool Verify>
-    void VerifyResourcePitch(GMM_RESOURCE_INFO &ResourceInfo, uint32_t ExpectedValue)
+    void VerifyResourcePitch(GMM_RESOURCE_INFO *ResourceInfo, uint32_t ExpectedValue)
     {
         if(Verify)
         {
-            EXPECT_EQ(ExpectedValue, ResourceInfo.GetRenderPitch());
+            EXPECT_EQ(ExpectedValue, ResourceInfo->GetRenderPitch());
         }
     }
 
@@ -394,11 +394,11 @@ protected:
     /// @param[in]  ExpectedValue: expected value to check against
     /////////////////////////////////////////////////////////////////////////////////////
     template <bool Verify>
-    void VerifyResourcePitchInTiles(GMM_RESOURCE_INFO &ResourceInfo, uint32_t ExpectedValue)
+    void VerifyResourcePitchInTiles(GMM_RESOURCE_INFO *ResourceInfo, uint32_t ExpectedValue)
     {
         if(Verify)
         {
-            EXPECT_EQ(ExpectedValue, ResourceInfo.GetRenderPitchTiles());
+            EXPECT_EQ(ExpectedValue, ResourceInfo->GetRenderPitchTiles());
         }
     }
 
@@ -409,11 +409,11 @@ protected:
     /// @param[in]  ExpectedValue: expected value to check against
     /////////////////////////////////////////////////////////////////////////////////////
     template <bool Verify>
-    void VerifyResourceSize(GMM_RESOURCE_INFO &ResourceInfo, uint64_t ExpectedValue)
+    void VerifyResourceSize(GMM_RESOURCE_INFO *ResourceInfo, uint64_t ExpectedValue)
     {
         if(Verify)
         {
-            EXPECT_EQ(ExpectedValue, ResourceInfo.GetSizeMainSurface());
+            EXPECT_EQ(ExpectedValue, ResourceInfo->GetSizeMainSurface());
         }
     }
 
@@ -424,11 +424,11 @@ protected:
     /// @param[in]  ExpectedValue: expected value to check against
     /////////////////////////////////////////////////////////////////////////////////////
     template <bool Verify>
-    void VerifyResourceQPitch(GMM_RESOURCE_INFO &ResourceInfo, uint32_t ExpectedValue)
+    void VerifyResourceQPitch(GMM_RESOURCE_INFO *ResourceInfo, uint64_t ExpectedValue)
     {
         if(Verify)
         {
-            EXPECT_EQ(ExpectedValue, ResourceInfo.GetQPitch());
+            EXPECT_EQ(ExpectedValue, ResourceInfo->GetQPitch());
         }
     }
 

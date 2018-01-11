@@ -38,7 +38,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen8TextureCalc::FillTex2D(GMM_TEXTURE_INFO  *
     uint32_t                   HAlign, VAlign;
     uint32_t                   CompressHeight, CompressWidth, CompressDepth;
     uint32_t                   AlignedWidth, BlockHeight, ExpandedArraySize, Pitch;
-    bool                       Compress = false;
+    uint8_t                    Compress = 0;
     GMM_STATUS                 Status;
 
     GMM_DPF_ENTER;
@@ -253,7 +253,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen8TextureCalc::FillTex2D(GMM_TEXTURE_INFO  *
             uint32_t ColFactor = 0, RowFactor = 0;
             uint32_t TRTileWidth = 0, TRTileHeight = 0;
 
-            __GmmGetD3DToHwTileConversion(pTexInfo, &ColFactor, &RowFactor);
+            GmmGetD3DToHwTileConversion(pTexInfo, &ColFactor, &RowFactor);
             TRTileWidth = pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileWidth * ColFactor;
             TRTileHeight = pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileHeight * RowFactor;
 
@@ -263,8 +263,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen8TextureCalc::FillTex2D(GMM_TEXTURE_INFO  *
     }
 
     GMM_ASSERTDPF(pTexInfo->Flags.Info.LayoutBelow || !pTexInfo->Flags.Info.LayoutRight, "MIPLAYOUT_RIGHT not supported after Gen6!");
-    pTexInfo->Flags.Info.LayoutBelow = true;
-    pTexInfo->Flags.Info.LayoutRight = false;
+    pTexInfo->Flags.Info.LayoutBelow = 1;
+    pTexInfo->Flags.Info.LayoutRight = 0;
 
     // If a texture is YUV packed, 96, or 48 bpp then one row plus 16 bytes of
     // padding needs to be added. Since this will create a none pitch aligned
@@ -276,6 +276,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen8TextureCalc::FillTex2D(GMM_TEXTURE_INFO  *
         BlockHeight += GMM_SCANLINES(1) + GFX_CEIL_DIV(GMM_BYTES(16),Pitch);
     }
 
+    // Align height to even row to cover for HW over-fetch
     BlockHeight = GFX_ALIGN(BlockHeight, __GMM_EVEN_ROW);
 
     if( (Status = // <-- Note assignment.

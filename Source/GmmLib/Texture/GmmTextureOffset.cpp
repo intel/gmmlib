@@ -65,7 +65,7 @@ GMM_STATUS GmmTexGetMipMapOffset(GMM_TEXTURE_INFO*    pTexInfo,
     {
         if (pReqInfo->ReqRender)
         {
-            pReqInfo->ReqRender = false;
+            pReqInfo->ReqRender = 0;
             RestoreRenderReq = true;
         }
 
@@ -114,7 +114,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexStdLayoutOffset(GMM_TEXTURE_INFO*    pT
                                                          GMM_REQ_OFFSET_INFO *pReqInfo)
 {
     uint32_t ReqArrayIndex;
-    int32_t  NeedSurfaceSize = false;
+    bool     NeedSurfaceSize = false;
 
     __GMM_ASSERT(pTexInfo);
     __GMM_ASSERT(pTexInfo->Flags.Info.TiledYs || pTexInfo->Flags.Info.TiledYf);
@@ -190,9 +190,9 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexStdLayoutOffset(GMM_TEXTURE_INFO*    pT
             pReqInfo->StdLayout.Offset = 0;
             for(Lod = 0; Lod <= EffectiveMaxLod; Lod++)
             {
-                GMM_GFX_SIZE_T MipWidth = __GmmTexGetMipWidth(pTexInfo, Lod);
-                uint32_t MipHeight = __GmmTexGetMipHeight(pTexInfo, Lod);
-                uint32_t MipDepth = __GmmTexGetMipDepth(pTexInfo, Lod);
+                GMM_GFX_SIZE_T MipWidth = GmmTexGetMipWidth(pTexInfo, Lod);
+                uint32_t MipHeight = GmmTexGetMipHeight(pTexInfo, Lod);
+                uint32_t MipDepth = GmmTexGetMipDepth(pTexInfo, Lod);
 
                 uint32_t MipCols = GFX_ULONG_CAST(
                     GFX_CEIL_DIV(
@@ -388,7 +388,7 @@ void GmmLib::GmmTextureCalc::AlignTexHeightWidth(GMM_TEXTURE_INFO*   pTexInfo,
     uint32_t    UnitAlignHeight = 0;
     uint32_t    UnitAlignWidth  = 0;
 
-    bool        Compress = false;
+    uint8_t     Compress = 0;
 
     __GMM_ASSERTPTR(pTexInfo, VOIDRETURN);
     __GMM_ASSERTPTR(pWidth, VOIDRETURN);
@@ -708,7 +708,7 @@ GMM_GFX_SIZE_T GmmLib::GmmTextureCalc::Get3DMipByteAddress(GMM_TEXTURE_INFO     
     uint32_t               UnitAlignHeight, UnitAlignWidth ;
     GMM_GFX_SIZE_T         MipMapByteAddress, ExtraBytes;
     uint32_t               Slice, MipLevel, Pitch;
-    bool                   Compress;
+    uint8_t                Compress;
     GMM_RESOURCE_FORMAT GenericFormat;
     uint32_t               CompressHeight, CompressWidth, CompressDepth;
 

@@ -25,13 +25,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <portable_compiler.h>
 #endif
 
-//#define TRUE        1
-//#define FALSE       0
-
-#ifdef __cplusplus
-extern "C" {
-#endif /*__cplusplus*/
-
 #include "External/Common/GmmInternal.h"
 
 #include "External/Common/GmmConst.h"
@@ -57,10 +50,7 @@ extern "C" {
 #include "../Utility/GmmUtility.h"
 
 #include "External/Common/GmmProto.h"                   // TBD: Move internal GmmLib protos
-
-#ifdef __cplusplus
-}
-#endif /*__cplusplus*/
+#include "External/Common/GmmDebug.h"                   // Unified Definitions of GMM_ASSERT and GMM_DEBUG Macros
 
 #ifndef DXGKDDI_INTERFACE_VERSION_WDDM1_3
 //WinBlue DDK definitions

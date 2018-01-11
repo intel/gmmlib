@@ -32,11 +32,11 @@ namespace GmmLib
         protected:
             /* Function prototypes */
             GMM_PRIVATE_PAT GetPrivatePATEntry(uint32_t PATIdx);
-            bool         SetPrivatePATEntry(uint32_t PATIdx, GMM_PRIVATE_PAT Entry);
-            bool SelectNewPATIdx(GMM_GFX_MEMORY_TYPE WantedMT, GMM_GFX_TARGET_CACHE WantedTC,
-                GMM_GFX_MEMORY_TYPE MT1, GMM_GFX_TARGET_CACHE TC1,
-                GMM_GFX_MEMORY_TYPE MT2, GMM_GFX_TARGET_CACHE TC2);
-            bool GetUsagePTEValue(GMM_CACHE_POLICY_ELEMENT  CachePolicy,
+            bool            SetPrivatePATEntry(uint32_t PATIdx, GMM_PRIVATE_PAT Entry);
+            bool            SelectNewPATIdx(GMM_GFX_MEMORY_TYPE WantedMT, GMM_GFX_TARGET_CACHE WantedTC,
+                                            GMM_GFX_MEMORY_TYPE MT1, GMM_GFX_TARGET_CACHE TC1,
+                                            GMM_GFX_MEMORY_TYPE MT2, GMM_GFX_TARGET_CACHE TC2);
+            bool            GetUsagePTEValue(GMM_CACHE_POLICY_ELEMENT  CachePolicy,
                 uint32_t                     Usage,
                 uint32_t                    *pPTEDwordValue);
 
