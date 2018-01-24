@@ -44,6 +44,12 @@ typedef struct GMM_PLANAR_OFFSET_INFO_REC
     GMM_GFX_SIZE_T     ArrayQPitch;
     GMM_GFX_SIZE_T     X[GMM_MAX_PLANE];
     GMM_GFX_SIZE_T     Y[GMM_MAX_PLANE];
+    struct
+    {
+        GMM_GFX_SIZE_T     Height[GMM_MAX_PLANE];
+    } UnAligned;
+    uint32_t            NoOfPlanes;
+    bool                IsTileAlignedPlanes;
 }GMM_PLANAR_OFFSET_INFO;
 
 //===========================================================================

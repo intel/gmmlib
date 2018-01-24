@@ -37,7 +37,7 @@ namespace GmmLib {
 
     public:
         PlatformInfo(PLATFORM &Platform);
-        virtual ~PlatformInfo() 
+        virtual ~PlatformInfo()
         {
         }
 

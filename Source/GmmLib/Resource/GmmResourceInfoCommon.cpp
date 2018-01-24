@@ -873,6 +873,98 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::CpuBlt(GMM_RES_COPY_BLT *pBlt
 
     pTexInfo = &(Surf);
 
+    // YUV Planar surface
+    if (pTexInfo->OffsetInfo.Plane.IsTileAlignedPlanes && GmmIsPlanar(Surf.Format))
+    {
+        uint32_t PlaneId = GMM_NO_PLANE;
+        uint32_t TotalHeight = 0;
+
+        if (pTexInfo->OffsetInfo.Plane.NoOfPlanes == 2)
+        {
+            TotalHeight = GFX_ULONG_CAST(pTexInfo->OffsetInfo.Plane.UnAligned.Height[GMM_PLANE_Y] +
+                pTexInfo->OffsetInfo.Plane.UnAligned.Height[GMM_PLANE_U]);
+        }
+        else if (pTexInfo->OffsetInfo.Plane.NoOfPlanes == 3)
+        {
+            TotalHeight = GFX_ULONG_CAST(pTexInfo->OffsetInfo.Plane.UnAligned.Height[GMM_PLANE_Y] +
+                            pTexInfo->OffsetInfo.Plane.UnAligned.Height[GMM_PLANE_U] +
+                                pTexInfo->OffsetInfo.Plane.UnAligned.Height[GMM_PLANE_V]);
+        }
+        else
+        {
+            TotalHeight = GFX_ULONG_CAST(pTexInfo->OffsetInfo.Plane.UnAligned.Height[GMM_PLANE_Y]);  //YV12 exception
+        }
+
+        // Determine if BLT rectange is for monolithic surface or contained in specific Y/UV plane
+        if (((pBlt->Gpu.OffsetY + pBlt->Blt.Height <= Surf.OffsetInfo.Plane.Y[GMM_PLANE_U]) || pTexInfo->OffsetInfo.Plane.NoOfPlanes == 1) &&
+            (pBlt->Gpu.OffsetX + pBlt->Blt.Width <= Surf.BaseWidth))
+        {
+            PlaneId = GMM_PLANE_Y;
+        }
+        else if (pBlt->Gpu.OffsetY >= Surf.OffsetInfo.Plane.Y[GMM_PLANE_U] &&
+            (pBlt->Gpu.OffsetY + pBlt->Blt.Height <= (Surf.OffsetInfo.Plane.Y[GMM_PLANE_U] + pTexInfo->OffsetInfo.Plane.UnAligned.Height[GMM_PLANE_U])) &&
+            (pBlt->Gpu.OffsetX + pBlt->Blt.Width <= Surf.BaseWidth))
+        {
+            PlaneId = GMM_PLANE_U;
+        }
+        else if (pBlt->Gpu.OffsetY >= Surf.OffsetInfo.Plane.Y[GMM_PLANE_V] &&
+            (pBlt->Gpu.OffsetY + pBlt->Blt.Height <= (Surf.OffsetInfo.Plane.Y[GMM_PLANE_V] + pTexInfo->OffsetInfo.Plane.UnAligned.Height[GMM_PLANE_U])) &&
+            (pBlt->Gpu.OffsetX + pBlt->Blt.Width <= Surf.BaseWidth))
+        {
+            PlaneId = GMM_PLANE_V;
+        }
+
+        // For smaller surface, BLT rect may fall in Y Plane due to tile alignment but user may have requested monolithic BLT
+        if (pBlt->Gpu.OffsetX == 0 &&
+            pBlt->Gpu.OffsetY == 0 &&
+            pBlt->Blt.Height >= TotalHeight)
+        {
+            PlaneId = GMM_MAX_PLANE;
+        }
+
+        if (PlaneId == GMM_MAX_PLANE)
+        {
+            // TODO BLT rect should not overlap between planes.
+            {
+               // __GMM_ASSERT(0); // decide later, for now blt it
+                //return FALSE;
+            }
+
+            // BLT monolithic surface per plane and remove padding due to tiling.
+            for (PlaneId = GMM_PLANE_Y; PlaneId <= pTexInfo->OffsetInfo.Plane.NoOfPlanes; PlaneId++)
+            {
+                if (PlaneId == GMM_PLANE_Y)
+                {
+                    pBlt->Gpu.OffsetX = GFX_ULONG_CAST(Surf.OffsetInfo.Plane.X[GMM_PLANE_Y]);
+                    pBlt->Gpu.OffsetY = GFX_ULONG_CAST(Surf.OffsetInfo.Plane.Y[GMM_PLANE_Y]);
+                    pBlt->Blt.Height = GFX_ULONG_CAST(Surf.OffsetInfo.Plane.UnAligned.Height[GMM_PLANE_Y]);
+                }
+                else if (PlaneId == GMM_PLANE_U)
+                {
+                    pBlt->Gpu.OffsetX = GFX_ULONG_CAST(Surf.OffsetInfo.Plane.X[GMM_PLANE_U]);
+                    pBlt->Gpu.OffsetY = GFX_ULONG_CAST(Surf.OffsetInfo.Plane.Y[GMM_PLANE_U]);
+
+                    pBlt->Sys.pData = (char *)pBlt->Sys.pData + uint32_t(pBlt->Blt.Height * pBlt->Sys.RowPitch);
+                    pBlt->Blt.Height = GFX_ULONG_CAST(Surf.OffsetInfo.Plane.UnAligned.Height[GMM_PLANE_U]);
+                    if (Surf.Flags.Info.RedecribedPlanes)
+                    {
+                        __GMM_ASSERT(0);
+                    }
+                }
+                else
+                {
+                    pBlt->Gpu.OffsetX = GFX_ULONG_CAST(Surf.OffsetInfo.Plane.X[GMM_PLANE_V]);
+                    pBlt->Gpu.OffsetY = GFX_ULONG_CAST(Surf.OffsetInfo.Plane.Y[GMM_PLANE_V]);
+                    pBlt->Blt.Height = GFX_ULONG_CAST(Surf.OffsetInfo.Plane.UnAligned.Height[GMM_PLANE_U]);
+                    pBlt->Sys.pData = (char *)pBlt->Sys.pData + uint32_t(pBlt->Blt.Height * pBlt->Sys.RowPitch);
+                }
+
+                CpuBlt(pBlt);
+            }
+        }
+        // else  continue below
+    }
+
     // UV packed planar surfaces will have different tiling geometries for the
     // Y and UV planes. Blts cannot span across the tiling boundaries and we
     // must select the proper mode for each plane. Non-UV packed formats will

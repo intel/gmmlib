@@ -33,10 +33,10 @@ namespace GmmLib {
 
 #if __cplusplus
         uint32_t GMM_STDCALL GmmGetNumPlanes(GMM_RESOURCE_FORMAT Format);
-        GMM_RESOURCE_FORMAT GMM_STDCALL GmmGetFormatForASTC(uint8_t HDR, 
-                                                            uint8_t Float, 
-                                                            uint32_t BlockWidth, 
-                                                            uint32_t BlockHeight, 
+        GMM_RESOURCE_FORMAT GMM_STDCALL GmmGetFormatForASTC(uint8_t HDR,
+                                                            uint8_t Float,
+                                                            uint32_t BlockWidth,
+                                                            uint32_t BlockHeight,
                                                             uint32_t BlockDepth);
 #endif
 #if __cplusplus
@@ -67,7 +67,7 @@ extern NTSTATUS __GmmWriteDwordKeyValue(char *pCStringPath, WCHAR *pValueName, U
 #define REGISTRY_OVERRIDE_WRITE(Usage,CacheParam,Value)                                         \
         __GmmWriteDwordKeyValue(GMM_CACHE_POLICY_OVERRIDE_REGISTY_PATH_REGISTRY_KMD #Usage ,    \
                                 L#CacheParam,                                                   \
-                                Value); 
+                                Value);
 
 #define GMM_REGISTRY_READ(Path, RegkeyName,RegkeyValue)                             \
         (__GmmReadDwordKeyValue(Path,                                               \

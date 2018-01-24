@@ -956,7 +956,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmTextureCalc::FillTexPlanar(GMM_TEXTURE_INFO  *
     __GMM_ASSERT(!pTexInfo->Flags.Info.TiledW);
     // Client should always give us linear-fallback option for planar surfaces,
     // except for MMC surfaces, which are TileY.
-    __GMM_ASSERT(pTexInfo->Flags.Info.Linear || pTexInfo->Flags.Gpu.MMC);
+    //__GMM_ASSERT(pTexInfo->Flags.Info.Linear || pTexInfo->Flags.Gpu.MMC);
     pTexInfo->Flags.Info.Linear = 1;
     pTexInfo->TileMode = TILE_NONE;
 
