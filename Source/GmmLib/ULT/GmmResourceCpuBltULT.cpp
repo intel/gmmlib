@@ -31,7 +31,6 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////
 CTestCpuBltResource::CTestCpuBltResource()
 {
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -40,39 +39,32 @@ CTestCpuBltResource::CTestCpuBltResource()
 /////////////////////////////////////////////////////////////////////////////////////
 CTestCpuBltResource::~CTestCpuBltResource()
 {
-
 }
 
 void CTestCpuBltResource::SetUpTestCase()
 {
-
 }
 
 void CTestCpuBltResource::TearDownTestCase()
 {
-
 }
 
 /// @brief ULT for 1D Resource
 TEST_F(CTestCpuBltResource, TestCpuBlt1D)
 {
-
 }
 
 /// @brief ULT for 2D Resource
 TEST_F(CTestCpuBltResource, TestCpuBlt2D)
 {
-
 }
 
 /// @brief ULT for 3D Resource
 TEST_F(CTestCpuBltResource, TestCpuBlt3D)
 {
-
 }
 
 /// @brief ULT for Cube Resource
 TEST_F(CTestCpuBltResource, TestCpuBltCube)
 {
-
 }

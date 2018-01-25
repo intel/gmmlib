@@ -33,93 +33,98 @@ int32_t GmmLib::GmmCachePolicyCommon::RefCount = 0;
 // OverrideCachePolicy can take over a minute to compile when optimizations
 // are enabled. As this is only needed during init time for non-Release builds,
 // we can selectively disable optimizations for this function and improve build times
-#if( _DEBUG || _RELEASE_INTERNAL )
+#if(_DEBUG || _RELEASE_INTERNAL)
 #pragma optimize("", off)
 void GmmLib::GmmCachePolicyCommon::OverrideCachePolicy()
 {
     uint32_t UsageCount = 0;
 
-    int32_t  DefaultEnable = 0, DefaultLLC = 0, DefaultELLC = 0, DefaultL3 = 0;
-    int32_t  DefaultAge = 0, DefaultWT = 0, DefaultAOM = 0, DefaultLeCC_SCC = 0;
-    int32_t  DefaultL3_SCC = 0, DefaultSCF = 0, DefaultHDCL1 = 0, DefaultSSO = 0;
-    int32_t  DefaultCoS = 0, DefaultL3Eviction = 0;
+    int32_t DefaultEnable = 0, DefaultLLC = 0, DefaultELLC = 0, DefaultL3 = 0;
+    int32_t DefaultAge = 0, DefaultWT = 0, DefaultAOM = 0, DefaultLeCC_SCC = 0;
+    int32_t DefaultL3_SCC = 0, DefaultSCF = 0, DefaultHDCL1 = 0, DefaultSSO = 0;
+    int32_t DefaultCoS = 0, DefaultL3Eviction = 0;
 
     // Variables used in the REG_OVERRIDE macro block
-    int32_t  Enable = 0, LLC = -1, ELLC = -1, L3 = -1, Age = -1, WT = -1, AOM = -1, LeCC_SCC = -1, L3_SCC = -1, SCF = -1, SSO = -1, CoS = -1, HDCL1 = -1, L3Eviction = -1;
+    int32_t Enable = 0, LLC = -1, ELLC = -1, L3 = -1, Age = -1, WT = -1, AOM = -1, LeCC_SCC = -1, L3_SCC = -1, SCF = -1, SSO = -1, CoS = -1, HDCL1 = -1, L3Eviction = -1;
 
-#define READ_DEFAULT_OVERRIDE(CacheParam)                                             \
-{                                                                                     \
-    if (REGISTRY_OVERRIDE_READ(OverrideDefaults ,CacheParam) == false)                \
-    {                                                                                 \
-        CacheParam = -1;                                                              \
-    }                                                                                 \
-    Default##CacheParam = CacheParam;                                                 \
+#define READ_DEFAULT_OVERRIDE(CacheParam)                                 \
+    \
+{                                                                  \
+        if(REGISTRY_OVERRIDE_READ(OverrideDefaults, CacheParam) == false) \
+        {                                                                 \
+            CacheParam = -1;                                              \
+        }                                                                 \
+        Default##CacheParam = CacheParam;                                 \
+    \
 }
 
-#define OVERRIDE_DEFAULT(Usage)                             \
-{                                                           \
-    if (DefaultEnable)                                      \
-    {                                                       \
-        if (DefaultLLC != -1)                               \
-        {                                                   \
-            pCachePolicy[Usage].LLC = DefaultLLC;           \
-        }                                                   \
-        if (DefaultELLC != -1)                              \
-        {                                                   \
-            pCachePolicy[Usage].ELLC = DefaultELLC;         \
-        }                                                   \
-        if (DefaultL3 != -1)                                \
-        {                                                   \
-            pCachePolicy[Usage].L3 = DefaultL3;             \
-        }                                                   \
-        if (DefaultAge != -1)                               \
-        {                                                   \
-            pCachePolicy[Usage].AGE = DefaultAge;           \
-        }                                                   \
-        if (DefaultWT != -1)                                \
-        {                                                   \
-            pCachePolicy[Usage].WT = DefaultWT;             \
-        }                                                   \
-        if (DefaultAOM != -1)                               \
-        {                                                   \
-            pCachePolicy[Usage].AOM = DefaultAOM;           \
-        }                                                   \
-        if (DefaultLeCC_SCC != -1)                          \
-        {                                                   \
-            pCachePolicy[Usage].LeCC_SCC = DefaultLeCC_SCC; \
-        }                                                   \
-        if (DefaultL3_SCC != -1)                            \
-        {                                                   \
-            pCachePolicy[Usage].L3_SCC = DefaultL3_SCC;     \
-        }                                                   \
-        if (DefaultSCF != -1)                               \
-        {                                                   \
-            pCachePolicy[Usage].SCF = DefaultSCF;           \
-        }                                                   \
-        if (DefaultSSO != -1)                               \
-        {                                                   \
-            pCachePolicy[Usage].SSO = DefaultSSO;           \
-        }                                                   \
-        if (DefaultCoS != -1)                               \
-        {                                                   \
-            pCachePolicy[Usage].CoS = DefaultCoS;           \
-        }                                                   \
-        if (DefaultHDCL1 != -1)                             \
-        {                                                   \
-            pCachePolicy[Usage].HDCL1 = DefaultHDCL1;       \
-        }                                                   \
-        if (DefaultL3Eviction != -1)                            \
-        {                                                       \
-            pCachePolicy[Usage].L3Eviction = DefaultL3Eviction; \
-        }                                                       \
-    }                                                           \
+#define OVERRIDE_DEFAULT(Usage)                                     \
+    \
+{                                                            \
+        if(DefaultEnable)                                           \
+        {                                                           \
+            if(DefaultLLC != -1)                                    \
+            {                                                       \
+                pCachePolicy[Usage].LLC = DefaultLLC;               \
+            }                                                       \
+            if(DefaultELLC != -1)                                   \
+            {                                                       \
+                pCachePolicy[Usage].ELLC = DefaultELLC;             \
+            }                                                       \
+            if(DefaultL3 != -1)                                     \
+            {                                                       \
+                pCachePolicy[Usage].L3 = DefaultL3;                 \
+            }                                                       \
+            if(DefaultAge != -1)                                    \
+            {                                                       \
+                pCachePolicy[Usage].AGE = DefaultAge;               \
+            }                                                       \
+            if(DefaultWT != -1)                                     \
+            {                                                       \
+                pCachePolicy[Usage].WT = DefaultWT;                 \
+            }                                                       \
+            if(DefaultAOM != -1)                                    \
+            {                                                       \
+                pCachePolicy[Usage].AOM = DefaultAOM;               \
+            }                                                       \
+            if(DefaultLeCC_SCC != -1)                               \
+            {                                                       \
+                pCachePolicy[Usage].LeCC_SCC = DefaultLeCC_SCC;     \
+            }                                                       \
+            if(DefaultL3_SCC != -1)                                 \
+            {                                                       \
+                pCachePolicy[Usage].L3_SCC = DefaultL3_SCC;         \
+            }                                                       \
+            if(DefaultSCF != -1)                                    \
+            {                                                       \
+                pCachePolicy[Usage].SCF = DefaultSCF;               \
+            }                                                       \
+            if(DefaultSSO != -1)                                    \
+            {                                                       \
+                pCachePolicy[Usage].SSO = DefaultSSO;               \
+            }                                                       \
+            if(DefaultCoS != -1)                                    \
+            {                                                       \
+                pCachePolicy[Usage].CoS = DefaultCoS;               \
+            }                                                       \
+            if(DefaultHDCL1 != -1)                                  \
+            {                                                       \
+                pCachePolicy[Usage].HDCL1 = DefaultHDCL1;           \
+            }                                                       \
+            if(DefaultL3Eviction != -1)                             \
+            {                                                       \
+                pCachePolicy[Usage].L3Eviction = DefaultL3Eviction; \
+            }                                                       \
+        }                                                           \
+    \
 }
 
 #ifdef __GMM_KMD__
     uint32_t GenerateKeys = 0;
     REGISTRY_OVERRIDE_READ(, GenerateKeys);
 #endif
-    REGISTRY_OVERRIDE_READ(OverrideDefaults, Enable); DefaultEnable = Enable;
+    REGISTRY_OVERRIDE_READ(OverrideDefaults, Enable);
+    DefaultEnable = Enable;
 
 #ifdef __GMM_KMD__
     __GMM_ASSERT(!(DefaultEnable && GenerateKeys));
@@ -127,7 +132,7 @@ void GmmLib::GmmCachePolicyCommon::OverrideCachePolicy()
     DefaultEnable = GenerateKeys ? 0 : DefaultEnable;
 #endif
 
-    if (DefaultEnable)
+    if(DefaultEnable)
     {
         READ_DEFAULT_OVERRIDE(LLC);
         READ_DEFAULT_OVERRIDE(ELLC);
@@ -144,23 +149,26 @@ void GmmLib::GmmCachePolicyCommon::OverrideCachePolicy()
         READ_DEFAULT_OVERRIDE(L3Eviction);
     }
 
-    OVERRIDE_DEFAULT(GMM_RESOURCE_USAGE_UNKNOWN); REG_OVERRIDE(GMM_RESOURCE_USAGE_UNKNOWN);
+    OVERRIDE_DEFAULT(GMM_RESOURCE_USAGE_UNKNOWN);
+    REG_OVERRIDE(GMM_RESOURCE_USAGE_UNKNOWN);
 
 
-#define DEFINE_RESOURCE_USAGE(Usage) OVERRIDE_DEFAULT(Usage); REG_OVERRIDE(Usage);
-    #include "GmmCachePolicyResourceUsageDefinitions.h"
-    #undef DEFINE_RESOURCE_USAGE
-    #undef OVERRIDE_DEFAULT
-    #undef READ_DEFAULT_OVERRIDE
-        __GMM_ASSERT(UsageCount == GMM_RESOURCE_USAGE_MAX);
+#define DEFINE_RESOURCE_USAGE(Usage) \
+    OVERRIDE_DEFAULT(Usage);         \
+    REG_OVERRIDE(Usage);
+#include "GmmCachePolicyResourceUsageDefinitions.h"
+#undef DEFINE_RESOURCE_USAGE
+#undef OVERRIDE_DEFAULT
+#undef READ_DEFAULT_OVERRIDE
+    __GMM_ASSERT(UsageCount == GMM_RESOURCE_USAGE_MAX);
 
-    #ifdef __GMM_KMD__
-        if (GenerateKeys)
-        {
-            GenerateKeys = 0;
-            REGISTRY_OVERRIDE_WRITE(, GenerateKeys, GenerateKeys);
-        }
-    #endif
+#ifdef __GMM_KMD__
+    if(GenerateKeys)
+    {
+        GenerateKeys = 0;
+        REGISTRY_OVERRIDE_WRITE(, GenerateKeys, GenerateKeys);
+    }
+#endif
 }
 #pragma optimize("", on)
 #endif
@@ -186,11 +194,11 @@ GmmLib::GmmCachePolicyCommon::GmmCachePolicyCommon(GMM_CACHE_POLICY_ELEMENT *pCa
 GMM_GFX_MEMORY_TYPE GmmLib::GmmCachePolicyCommon::GetWantedMemoryType(GMM_CACHE_POLICY_ELEMENT CachePolicy)
 {
     GMM_GFX_MEMORY_TYPE WantedMemoryType = GMM_GFX_UC_WITH_FENCE;
-    if (CachePolicy.WT)
+    if(CachePolicy.WT)
     {
         WantedMemoryType = GMM_GFX_WT;
     }
-    else if (!(CachePolicy.LLC || CachePolicy.ELLC))
+    else if(!(CachePolicy.LLC || CachePolicy.ELLC))
     {
         WantedMemoryType = GMM_GFX_UC_WITH_FENCE;
     }
@@ -214,7 +222,7 @@ MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmCachePolicyCommon::CachePolic
 {
     MEMORY_OBJECT_CONTROL_STATE MOCS = pGmmGlobalContext->GetCachePolicyElement(GMM_RESOURCE_USAGE_UNKNOWN).MemoryObjectOverride;
 
-    if (pResInfo)
+    if(pResInfo)
     {
         MOCS = pResInfo->GetMOCS();
     }
@@ -241,16 +249,16 @@ MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmCachePolicyCommon::CachePolic
 
     // Prevent wrong Usage for XAdapter resources. UMD does not call GetMemoryObject on shader resources but,
     // when they add it someone could call it without knowing the restriction.
-    if (pResInfo &&
-        pResInfo->GetResFlags().Info.XAdapter &&
-        Usage != GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE)
+    if(pResInfo &&
+       pResInfo->GetResFlags().Info.XAdapter &&
+       Usage != GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE)
     {
         __GMM_ASSERT(false);
     }
 
-    if (!pResInfo ||
-        (CachePolicy[Usage].Override & CachePolicy[pResInfo->GetCachePolicyUsage()].IDCode) ||
-        (CachePolicy[Usage].Override == ALWAYS_OVERRIDE))
+    if(!pResInfo ||
+       (CachePolicy[Usage].Override & CachePolicy[pResInfo->GetCachePolicyUsage()].IDCode) ||
+       (CachePolicy[Usage].Override == ALWAYS_OVERRIDE))
     {
         return CachePolicy[Usage].MemoryObjectOverride;
     }

@@ -62,7 +62,7 @@ typedef struct GMM_FORMAT_ENTRY_REC
         uint8_t                 Width;
     }                       Element;
     GMM_SURFACESTATE_FORMAT SurfaceStateFormat;
-    uint32_t			    Reserved;
+    uint32_t                Reserved;
 }GMM_FORMAT_ENTRY;
 
 //===========================================================================

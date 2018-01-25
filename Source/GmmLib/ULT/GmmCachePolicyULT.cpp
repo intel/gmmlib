@@ -33,7 +33,7 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////
 void CTestCachePolicy::SetUpTestCase()
 {
-    GfxPlatform.eProductFamily = IGFX_BROADWELL;
+    GfxPlatform.eProductFamily    = IGFX_BROADWELL;
     GfxPlatform.eRenderCoreFamily = IGFX_GEN8_CORE;
 
     CommonULT::SetUpTestCase();
@@ -69,14 +69,13 @@ void CTestCachePolicy::CheckL3CachePolicy()
     // Check Usage MOCS index against MOCS settings
     for(uint32_t Usage = GMM_RESOURCE_USAGE_UNKNOWN; Usage < GMM_RESOURCE_USAGE_MAX; Usage++)
     {
-        GMM_CACHE_POLICY_ELEMENT     ClientRequest = pGmmGlobalContext->GetCachePolicyElement((GMM_RESOURCE_USAGE_TYPE)Usage);
-        MEMORY_OBJECT_CONTROL_STATE  Mocs            = ClientRequest.MemoryObjectOverride;
+        GMM_CACHE_POLICY_ELEMENT    ClientRequest = pGmmGlobalContext->GetCachePolicyElement((GMM_RESOURCE_USAGE_TYPE)Usage);
+        MEMORY_OBJECT_CONTROL_STATE Mocs          = ClientRequest.MemoryObjectOverride;
 
         // Not check WT/WB/UC since that doesn't really matter for L3
         if(ClientRequest.L3)
         {
-            EXPECT_EQ(TargetCache_L3_LLC_ELLC, Mocs.Gen8.TargetCache) <<
-                "Usage# " << Usage << ": Incorrect L3 target cache setting";
+            EXPECT_EQ(TargetCache_L3_LLC_ELLC, Mocs.Gen8.TargetCache) << "Usage# " << Usage << ": Incorrect L3 target cache setting";
         }
     }
 }
@@ -92,19 +91,19 @@ void CTestCachePolicy::CheckLlcEdramCachePolicy()
 {
     ASSERT_TRUE(pGmmGlobalContext);
 
-    const uint32_t TargetCache_ELLC         = 0;
-    const uint32_t TargetCache_LLC          = 1;
-    const uint32_t TargetCache_LLC_ELLC     = 2;
-    const uint32_t TargetCache_L3_LLC_ELLC  = 2;
+    const uint32_t TargetCache_ELLC        = 0;
+    const uint32_t TargetCache_LLC         = 1;
+    const uint32_t TargetCache_LLC_ELLC    = 2;
+    const uint32_t TargetCache_L3_LLC_ELLC = 2;
 
-    const uint32_t CC_UNCACHED             = 0x1;
-    const uint32_t CC_CACHED_WT            = 0x2;
-    const uint32_t CC_CACHED_WB            = 0x3;
+    const uint32_t CC_UNCACHED  = 0x1;
+    const uint32_t CC_CACHED_WT = 0x2;
+    const uint32_t CC_CACHED_WB = 0x3;
 
     // Setup SKU/WA flags
-    pGmmGlobalContext->GetGtSysInfo()->LLCCacheSizeInKb = 2 * 1024; //2 MB
-    pGmmGlobalContext->GetGtSysInfo()->EdramSizeInKb = 64 * 1024; //64 MB
-    const_cast<SKU_FEATURE_TABLE&>(pGmmGlobalContext->GetSkuTable()).FtrEDram = 1;
+    pGmmGlobalContext->GetGtSysInfo()->LLCCacheSizeInKb                        = 2 * 1024;  //2 MB
+    pGmmGlobalContext->GetGtSysInfo()->EdramSizeInKb                           = 64 * 1024; //64 MB
+    const_cast<SKU_FEATURE_TABLE &>(pGmmGlobalContext->GetSkuTable()).FtrEDram = 1;
 
     // Re-init cache policy with above info
     pGmmGlobalContext->GetCachePolicyObj()->InitCachePolicy();
@@ -112,8 +111,8 @@ void CTestCachePolicy::CheckLlcEdramCachePolicy()
     // Check Usage MOCS index against MOCS settings
     for(uint32_t Usage = GMM_RESOURCE_USAGE_UNKNOWN; Usage < GMM_RESOURCE_USAGE_MAX; Usage++)
     {
-        GMM_CACHE_POLICY_ELEMENT     ClientRequest = pGmmGlobalContext->GetCachePolicyElement((GMM_RESOURCE_USAGE_TYPE)Usage);
-        MEMORY_OBJECT_CONTROL_STATE  Mocs            = ClientRequest.MemoryObjectOverride;
+        GMM_CACHE_POLICY_ELEMENT    ClientRequest = pGmmGlobalContext->GetCachePolicyElement((GMM_RESOURCE_USAGE_TYPE)Usage);
+        MEMORY_OBJECT_CONTROL_STATE Mocs          = ClientRequest.MemoryObjectOverride;
 
         // Check for age
         EXPECT_EQ(ClientRequest.AGE, Mocs.Gen8.Age) << "Usage# " << Usage << ": Incorrect AGE settings";
@@ -126,36 +125,30 @@ void CTestCachePolicy::CheckLlcEdramCachePolicy()
 
         if(!ClientRequest.LLC && !ClientRequest.ELLC) // Uncached
         {
-            EXPECT_EQ(CC_UNCACHED, Mocs.Gen8.CacheControl) <<
-                "Usage# " << Usage << ": Incorrect cache control setting";
+            EXPECT_EQ(CC_UNCACHED, Mocs.Gen8.CacheControl) << "Usage# " << Usage << ": Incorrect cache control setting";
         }
         else
         {
             if(ClientRequest.WT) // Write-through
             {
-                EXPECT_EQ(CC_CACHED_WT, Mocs.Gen8.CacheControl) <<
-                    "Usage# " << Usage << ": Incorrect cache control setting";
+                EXPECT_EQ(CC_CACHED_WT, Mocs.Gen8.CacheControl) << "Usage# " << Usage << ": Incorrect cache control setting";
             }
             else // Write-back
             {
-                EXPECT_EQ(CC_CACHED_WB, Mocs.Gen8.CacheControl) <<
-                    "Usage# " << Usage << ": Incorrect cache control setting";
+                EXPECT_EQ(CC_CACHED_WB, Mocs.Gen8.CacheControl) << "Usage# " << Usage << ": Incorrect cache control setting";
             }
 
             if(ClientRequest.LLC && !ClientRequest.ELLC) // LLC only
             {
-                EXPECT_EQ(TargetCache_LLC, Mocs.Gen8.TargetCache) <<
-                    "Usage# " << Usage << ": Incorrect target cache setting";
+                EXPECT_EQ(TargetCache_LLC, Mocs.Gen8.TargetCache) << "Usage# " << Usage << ": Incorrect target cache setting";
             }
             else if(!ClientRequest.LLC && ClientRequest.ELLC) // eLLC only
             {
-                EXPECT_EQ(TargetCache_ELLC, Mocs.Gen8.TargetCache) <<
-                    "Usage# " << Usage << ": Incorrect target cache setting";
+                EXPECT_EQ(TargetCache_ELLC, Mocs.Gen8.TargetCache) << "Usage# " << Usage << ": Incorrect target cache setting";
             }
             else if(ClientRequest.LLC && ClientRequest.ELLC)
             {
-                EXPECT_EQ(TargetCache_LLC_ELLC, Mocs.Gen8.TargetCache) <<
-                    "Usage# " << Usage << ": Incorrect target cache setting";
+                EXPECT_EQ(TargetCache_LLC_ELLC, Mocs.Gen8.TargetCache) << "Usage# " << Usage << ": Incorrect target cache setting";
             }
         }
     }

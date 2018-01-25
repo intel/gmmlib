@@ -37,66 +37,66 @@ OTHER DEALINGS IN THE SOFTWARE.
 GMM_STATUS GmmLib::GmmGen8CachePolicy::InitCachePolicy()
 {
 
-    __GMM_ASSERTPTR(pCachePolicy,GMM_ERROR);
+    __GMM_ASSERTPTR(pCachePolicy, GMM_ERROR);
 
-#define DEFINE_CACHE_ELEMENT(usage,llc,ellc,l3,wt,age) DEFINE_CP_ELEMENT(usage,llc,ellc,l3,wt,age,0,0,0,0,0,0,0,0)
+#define DEFINE_CACHE_ELEMENT(usage, llc, ellc, l3, wt, age) DEFINE_CP_ELEMENT(usage, llc, ellc, l3, wt, age, 0, 0, 0, 0, 0, 0, 0, 0)
 #include "GmmGen8CachePolicy.h"
 
     {
-        // Gen8 Memory Object Definitions
-#define MO_ELLC         0x0
-#define MO_LLC          0x1
-#define MO_LLC_ELLC     0x2
-#define MO_L3_LLC_ELLC  0x3
+// Gen8 Memory Object Definitions
+#define MO_ELLC 0x0
+#define MO_LLC 0x1
+#define MO_LLC_ELLC 0x2
+#define MO_L3_LLC_ELLC 0x3
 
-#define MO_USE_PTE      0x0
-#define MO_UC           0x1
-#define MO_WT           0x2
-#define MO_WB           0x3
+#define MO_USE_PTE 0x0
+#define MO_UC 0x1
+#define MO_WT 0x2
+#define MO_WB 0x3
 
         // Define index of cache element
         uint32_t Usage = 0;
 
-#if( _WIN32 && (_DEBUG || _RELEASE_INTERNAL) )
+#if(_WIN32 && (_DEBUG || _RELEASE_INTERNAL))
         OverrideCachePolicy();
 #endif
 
         // Process Cache Policy and fill in look up table
-        for( ; Usage < GMM_RESOURCE_USAGE_MAX ; Usage++)
+        for(; Usage < GMM_RESOURCE_USAGE_MAX; Usage++)
         {
-            bool CachePolicyError = false;
-            uint32_t   PTEValue    = 0;
+            bool     CachePolicyError = false;
+            uint32_t PTEValue         = 0;
 
-            if (pCachePolicy[Usage].LLC && pCachePolicy[Usage].ELLC && pCachePolicy[Usage].L3)
+            if(pCachePolicy[Usage].LLC && pCachePolicy[Usage].ELLC && pCachePolicy[Usage].L3)
                 pCachePolicy[Usage].MemoryObjectOverride.Gen8.TargetCache = MO_L3_LLC_ELLC;
-            else if (pCachePolicy[Usage].LLC && pCachePolicy[Usage].ELLC)
+            else if(pCachePolicy[Usage].LLC && pCachePolicy[Usage].ELLC)
                 pCachePolicy[Usage].MemoryObjectOverride.Gen8.TargetCache = MO_LLC_ELLC;
-            else if (pCachePolicy[Usage].ELLC)
+            else if(pCachePolicy[Usage].ELLC)
                 pCachePolicy[Usage].MemoryObjectOverride.Gen8.TargetCache = MO_ELLC;
-            else if (pCachePolicy[Usage].LLC)
+            else if(pCachePolicy[Usage].LLC)
                 pCachePolicy[Usage].MemoryObjectOverride.Gen8.TargetCache = MO_LLC;
 
             pCachePolicy[Usage].MemoryObjectOverride.Gen8.Age = pCachePolicy[Usage].AGE;
 
-            if (pCachePolicy[Usage].WT)
+            if(pCachePolicy[Usage].WT)
                 pCachePolicy[Usage].MemoryObjectOverride.Gen8.CacheControl = MO_WT;
             // L3 is not included because WT vs UC vs WB only effects uncore (see bspec for more details)
-            else if (!(pCachePolicy[Usage].LLC || pCachePolicy[Usage].ELLC))
+            else if(!(pCachePolicy[Usage].LLC || pCachePolicy[Usage].ELLC))
                 pCachePolicy[Usage].MemoryObjectOverride.Gen8.CacheControl = MO_UC;
 
             else
                 pCachePolicy[Usage].MemoryObjectOverride.Gen8.CacheControl = MO_WB;
 
 
-            if (!GetUsagePTEValue(pCachePolicy[Usage], Usage, &PTEValue))
+            if(!GetUsagePTEValue(pCachePolicy[Usage], Usage, &PTEValue))
             {
                 CachePolicyError = true;
             }
             // On error, the PTE value is set to a UC PAT entry
             pCachePolicy[Usage].PTE.DwordValue = PTEValue;
-            pCachePolicy[Usage].Override = ALWAYS_OVERRIDE;
+            pCachePolicy[Usage].Override       = ALWAYS_OVERRIDE;
 
-            if( CachePolicyError )
+            if(CachePolicyError)
             {
                 GMM_ASSERTDPF("Cache Policy Init Error: Invalid Cache Programming - Element %d", Usage);
             }
@@ -137,9 +137,9 @@ uint8_t GMM_STDCALL GmmLib::GmmGen8CachePolicy::CachePolicyIsUsagePTECached(GMM_
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_STATUS GmmLib::GmmGen8CachePolicy::SetupPAT()
 {
-    GMM_STATUS  Status = GMM_SUCCESS;
+    GMM_STATUS Status = GMM_SUCCESS;
 #if(defined(__GMM_KMD__))
-    uint32_t       i = 0;
+    uint32_t i = 0;
 
     GMM_GFX_MEMORY_TYPE GfxMemType = GMM_GFX_UC_WITH_FENCE;
     // No optional selection on Age or Target Cache because for an SVM-OS Age and
@@ -147,26 +147,26 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetupPAT()
     // and we don't have control of the PAT Idx]. If there is a strong ask from D3D
     // or the performance analysis team, Age could be added.
     // Add Class of Service when required.
-    GMM_GFX_TARGET_CACHE GfxTargetCache = GMM_GFX_TC_ELLC_LLC;
-    uint8_t             Age = 1;
-    uint8_t             ServiceClass = 0;
-    int32_t             *pPrivatePATTableMemoryType = NULL;
+    GMM_GFX_TARGET_CACHE GfxTargetCache             = GMM_GFX_TC_ELLC_LLC;
+    uint8_t              Age                        = 1;
+    uint8_t              ServiceClass               = 0;
+    int32_t *            pPrivatePATTableMemoryType = NULL;
 
     pPrivatePATTableMemoryType = pGmmGlobalContext->GetPrivatePATTableMemoryType();
 
     __GMM_ASSERT(pGmmGlobalContext->GetSkuTable().FtrIA32eGfxPTEs);
 
-    for (i = 0; i < GMM_NUM_GFX_PAT_TYPES; i++)
+    for(i = 0; i < GMM_NUM_GFX_PAT_TYPES; i++)
     {
         pPrivatePATTableMemoryType[i] = -1;
     }
 
     // Set values for GmmGlobalInfo PrivatePATTable
-    for (i = 0; i < GMM_NUM_PAT_ENTRIES; i++)
+    for(i = 0; i < GMM_NUM_PAT_ENTRIES; i++)
     {
-        GMM_PRIVATE_PAT     PAT = { 0 };
+        GMM_PRIVATE_PAT PAT = {0};
 
-        if (pGmmGlobalContext->GetWaTable().WaNoMocsEllcOnly)
+        if(pGmmGlobalContext->GetWaTable().WaNoMocsEllcOnly)
         {
             GfxTargetCache = GMM_GFX_TC_ELLC_ONLY;
         }
@@ -175,103 +175,103 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetupPAT()
             GfxTargetCache = GMM_GFX_TC_ELLC_LLC;
         }
 
-        switch (i)
+        switch(i)
         {
-        case PAT0:
-            if (pGmmGlobalContext->GetWaTable().WaGttPat0)
-            {
-                if (pGmmGlobalContext->GetWaTable().WaGttPat0WB)
+            case PAT0:
+                if(pGmmGlobalContext->GetWaTable().WaGttPat0)
+                {
+                    if(pGmmGlobalContext->GetWaTable().WaGttPat0WB)
+                    {
+                        GfxMemType = GMM_GFX_WB;
+                        if(GFX_IS_ATOM_PLATFORM)
+                        {
+                            PAT.PreGen10.Snoop = 1;
+                        }
+                        pPrivatePATTableMemoryType[GMM_GFX_PAT_WB_COHERENT] = PAT0;
+                    }
+                    else
+                    {
+                        GfxMemType                                 = GMM_GFX_UC_WITH_FENCE;
+                        pPrivatePATTableMemoryType[GMM_GFX_PAT_UC] = PAT0;
+                    }
+                }
+                else // if GTT is not tied to PAT0 then WaGttPat0WB is NA
                 {
                     GfxMemType = GMM_GFX_WB;
-                    if (GFX_IS_ATOM_PLATFORM)
+                    if(GFX_IS_ATOM_PLATFORM)
                     {
                         PAT.PreGen10.Snoop = 1;
                     }
                     pPrivatePATTableMemoryType[GMM_GFX_PAT_WB_COHERENT] = PAT0;
                 }
+                break;
+
+            case PAT1:
+                if(pGmmGlobalContext->GetWaTable().WaGttPat0 && !pGmmGlobalContext->GetWaTable().WaGttPat0WB)
+                {
+                    GfxMemType = GMM_GFX_WB;
+                    if(GFX_IS_ATOM_PLATFORM)
+                    {
+                        PAT.PreGen10.Snoop = 1;
+                    }
+                    pPrivatePATTableMemoryType[GMM_GFX_PAT_WB_COHERENT] = PAT1;
+                }
                 else
                 {
-                    GfxMemType = GMM_GFX_UC_WITH_FENCE;
-                    pPrivatePATTableMemoryType[GMM_GFX_PAT_UC] = PAT0;
+                    GfxMemType                                 = GMM_GFX_UC_WITH_FENCE;
+                    pPrivatePATTableMemoryType[GMM_GFX_PAT_UC] = PAT1;
                 }
-            }
-            else // if GTT is not tied to PAT0 then WaGttPat0WB is NA
-            {
+                break;
+
+            case PAT2:
+                // This PAT idx shall be used for MOCS'Less resources like Page Tables
+                // Page Tables have TC hardcoded to eLLC+LLC in Adv Ctxt. Hence making this to have same in Leg Ctxt.
+                // For BDW-H, due to Perf issue, TC has to be eLLC only for Page Tables when eDRAM is present.
                 GfxMemType = GMM_GFX_WB;
-                if (GFX_IS_ATOM_PLATFORM)
+
+                if(pGmmGlobalContext->GetWaTable().WaNoMocsEllcOnly)
                 {
-                    PAT.PreGen10.Snoop = 1;
+                    GfxTargetCache = GMM_GFX_TC_ELLC_ONLY;
                 }
-                pPrivatePATTableMemoryType[GMM_GFX_PAT_WB_COHERENT] = PAT0;
-            }
-            break;
-
-        case PAT1:
-            if (pGmmGlobalContext->GetWaTable().WaGttPat0 && !pGmmGlobalContext->GetWaTable().WaGttPat0WB)
-            {
-                GfxMemType = GMM_GFX_WB;
-                if (GFX_IS_ATOM_PLATFORM)
+                else
                 {
-                    PAT.PreGen10.Snoop = 1;
+                    GfxTargetCache = GMM_GFX_TC_ELLC_LLC;
                 }
-                pPrivatePATTableMemoryType[GMM_GFX_PAT_WB_COHERENT] = PAT1;
-            }
-            else
-            {
-                GfxMemType = GMM_GFX_UC_WITH_FENCE;
-                pPrivatePATTableMemoryType[GMM_GFX_PAT_UC] = PAT1;
-            }
-            break;
 
-        case PAT2:
-            // This PAT idx shall be used for MOCS'Less resources like Page Tables
-            // Page Tables have TC hardcoded to eLLC+LLC in Adv Ctxt. Hence making this to have same in Leg Ctxt.
-            // For BDW-H, due to Perf issue, TC has to be eLLC only for Page Tables when eDRAM is present.
-            GfxMemType = GMM_GFX_WB;
+                pPrivatePATTableMemoryType[GMM_GFX_PAT_WB_MOCSLESS] = PAT2;
+                break;
 
-            if (pGmmGlobalContext->GetWaTable().WaNoMocsEllcOnly)
-            {
-                GfxTargetCache = GMM_GFX_TC_ELLC_ONLY;
-            }
-            else
-            {
-                GfxTargetCache = GMM_GFX_TC_ELLC_LLC;
-            }
+            case PAT3:
+                GfxMemType                                 = GMM_GFX_WB;
+                pPrivatePATTableMemoryType[GMM_GFX_PAT_WB] = PAT3;
+                break;
 
-            pPrivatePATTableMemoryType[GMM_GFX_PAT_WB_MOCSLESS] = PAT2;
-            break;
+            case PAT4:
+                GfxMemType                                 = GMM_GFX_WT;
+                pPrivatePATTableMemoryType[GMM_GFX_PAT_WT] = PAT4;
+                break;
 
-        case PAT3:
-            GfxMemType = GMM_GFX_WB;
-            pPrivatePATTableMemoryType[GMM_GFX_PAT_WB] = PAT3;
-            break;
+            case PAT5:
+            case PAT6:
+            case PAT7:
+                GfxMemType                                 = GMM_GFX_WC;
+                pPrivatePATTableMemoryType[GMM_GFX_PAT_WC] = PAT5;
+                break;
 
-        case PAT4:
-            GfxMemType = GMM_GFX_WT;
-            pPrivatePATTableMemoryType[GMM_GFX_PAT_WT] = PAT4;
-            break;
-
-        case PAT5:
-        case PAT6:
-        case PAT7:
-            GfxMemType = GMM_GFX_WC;
-            pPrivatePATTableMemoryType[GMM_GFX_PAT_WC] = PAT5;
-            break;
-
-        default:
-            __GMM_ASSERT(0);
-            Status = GMM_ERROR;
+            default:
+                __GMM_ASSERT(0);
+                Status = GMM_ERROR;
         }
 
-        PAT.PreGen10.MemoryType = GfxMemType;
+        PAT.PreGen10.MemoryType  = GfxMemType;
         PAT.PreGen10.TargetCache = GfxTargetCache;
-        PAT.PreGen10.Age = Age;
+        PAT.PreGen10.Age         = Age;
 
         SetPrivatePATEntry(i, PAT);
     }
 
 #else
-    Status = GMM_ERROR;
+    Status                                          = GMM_ERROR;
 #endif
     return Status;
 }
@@ -285,28 +285,28 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetupPAT()
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_STATUS GmmLib::GmmGen8CachePolicy::SetPATInitWA()
 {
-    GMM_STATUS  Status = GMM_SUCCESS;
-    WA_TABLE* pWaTable = &const_cast<WA_TABLE&>(pGmmGlobalContext->GetWaTable());
+    GMM_STATUS Status   = GMM_SUCCESS;
+    WA_TABLE * pWaTable = &const_cast<WA_TABLE &>(pGmmGlobalContext->GetWaTable());
 
 #if(defined(__GMM_KMD__))
-    if (pGmmGlobalContext->GetGtSysInfoPtr()->EdramSizeInKb)
+    if(pGmmGlobalContext->GetGtSysInfoPtr()->EdramSizeInKb)
     {
         pWaTable->WaNoMocsEllcOnly = 1;
     }
 
-    pWaTable->WaGttPat0 = 1;
-    pWaTable->WaGttPat0WB =1;
+    pWaTable->WaGttPat0                         = 1;
+    pWaTable->WaGttPat0WB                       = 1;
     pWaTable->WaGttPat0GttWbOverOsIommuEllcOnly = 1;
 
     // Platforms which support OS-IOMMU.
-    if (pGmmGlobalContext->GetSkuTable().FtrWddm2Svm)
+    if(pGmmGlobalContext->GetSkuTable().FtrWddm2Svm)
     {
         pWaTable->WaGttPat0GttWbOverOsIommuEllcOnly = 0;
-        pWaTable->WaGttPat0WB = 0;
+        pWaTable->WaGttPat0WB                       = 0;
     }
 
 #else
-    Status = GMM_ERROR;
+    Status                                          = GMM_ERROR;
 #endif
 
     return Status;
@@ -321,42 +321,42 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetPATInitWA()
 /////////////////////////////////////////////////////////////////////////////////////
 uint32_t GmmLib::GmmGen8CachePolicy::BestMatchingPATIdx(GMM_CACHE_POLICY_ELEMENT CachePolicy)
 {
-    uint32_t                i;
-    uint32_t                PATIdx = 0;
+    uint32_t             i;
+    uint32_t             PATIdx           = 0;
     GMM_GFX_MEMORY_TYPE  WantedMemoryType = GMM_GFX_UC_WITH_FENCE, MemoryType;
-    GMM_GFX_TARGET_CACHE WantedTC = GMM_GFX_TC_ELLC_LLC;
+    GMM_GFX_TARGET_CACHE WantedTC         = GMM_GFX_TC_ELLC_LLC;
 
     WantedMemoryType = GetWantedMemoryType(CachePolicy);
 
-    if (CachePolicy.LLC && CachePolicy.ELLC)
+    if(CachePolicy.LLC && CachePolicy.ELLC)
     {
         WantedTC = GMM_GFX_TC_ELLC_LLC;
     }
-    else if (CachePolicy.LLC)
+    else if(CachePolicy.LLC)
     {
         WantedTC = GMM_GFX_TC_LLC_ONLY;
     }
-    else if (CachePolicy.ELLC)
+    else if(CachePolicy.ELLC)
     {
         WantedTC = GMM_GFX_TC_ELLC_ONLY; // Note: this overrides the MOCS target cache selection.
     }
 
-    for (i = 1; i < GMM_NUM_PAT_ENTRIES; i++)
+    for(i = 1; i < GMM_NUM_PAT_ENTRIES; i++)
     {
         GMM_PRIVATE_PAT PAT1 = GetPrivatePATEntry(PATIdx);
         GMM_PRIVATE_PAT PAT2 = GetPrivatePATEntry(i);
 
-        if (SelectNewPATIdx(WantedMemoryType, WantedTC,
-            (GMM_GFX_MEMORY_TYPE) PAT1.PreGen10.MemoryType, (GMM_GFX_TARGET_CACHE) PAT1.PreGen10.TargetCache,
-            (GMM_GFX_MEMORY_TYPE) PAT2.PreGen10.MemoryType, (GMM_GFX_TARGET_CACHE) PAT2.PreGen10.TargetCache))
+        if(SelectNewPATIdx(WantedMemoryType, WantedTC,
+                           (GMM_GFX_MEMORY_TYPE)PAT1.PreGen10.MemoryType, (GMM_GFX_TARGET_CACHE)PAT1.PreGen10.TargetCache,
+                           (GMM_GFX_MEMORY_TYPE)PAT2.PreGen10.MemoryType, (GMM_GFX_TARGET_CACHE)PAT2.PreGen10.TargetCache))
         {
             PATIdx = i;
         }
     }
 
-    MemoryType = (GMM_GFX_MEMORY_TYPE) GetPrivatePATEntry(PATIdx).PreGen10.MemoryType;
+    MemoryType = (GMM_GFX_MEMORY_TYPE)GetPrivatePATEntry(PATIdx).PreGen10.MemoryType;
 
-    if (MemoryType != WantedMemoryType)
+    if(MemoryType != WantedMemoryType)
     {
         // Failed to find a matching PAT entry
         return GMM_PAT_ERROR;
@@ -375,7 +375,7 @@ uint32_t GmmLib::GmmGen8CachePolicy::BestMatchingPATIdx(GMM_CACHE_POLICY_ELEMENT
 /////////////////////////////////////////////////////////////////////////////////////
 bool GmmLib::GmmGen8CachePolicy::SetPrivatePATEntry(uint32_t PATIdx, GMM_PRIVATE_PAT Entry)
 {
-    if (PATIdx >= GMM_NUM_PAT_ENTRIES)
+    if(PATIdx >= GMM_NUM_PAT_ENTRIES)
     {
         GMM_ASSERTDPF(false, "CRITICAL ERROR: INVALID PAT IDX");
         return false;
@@ -399,9 +399,9 @@ bool GmmLib::GmmGen8CachePolicy::SetPrivatePATEntry(uint32_t PATIdx, GMM_PRIVATE
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_PRIVATE_PAT GmmLib::GmmGen8CachePolicy::GetPrivatePATEntry(uint32_t PATIdx)
 {
-    GMM_PRIVATE_PAT NullPAT = { 0 };
+    GMM_PRIVATE_PAT NullPAT = {0};
 
-    if (PATIdx >= GMM_NUM_PAT_ENTRIES)
+    if(PATIdx >= GMM_NUM_PAT_ENTRIES)
     {
         GMM_ASSERTDPF(false, "CRITICAL ERROR: INVALID PAT IDX");
         return NullPAT;
@@ -428,15 +428,15 @@ GMM_PRIVATE_PAT GmmLib::GmmGen8CachePolicy::GetPrivatePATEntry(uint32_t PATIdx)
 /// @return            Select the new PAT Index True/False
 /////////////////////////////////////////////////////////////////////////////////////
 bool GmmLib::GmmGen8CachePolicy::SelectNewPATIdx(GMM_GFX_MEMORY_TYPE WantedMT, GMM_GFX_TARGET_CACHE WantedTC,
-    GMM_GFX_MEMORY_TYPE MT1, GMM_GFX_TARGET_CACHE TC1,
-    GMM_GFX_MEMORY_TYPE MT2, GMM_GFX_TARGET_CACHE TC2)
+                                                 GMM_GFX_MEMORY_TYPE MT1, GMM_GFX_TARGET_CACHE TC1,
+                                                 GMM_GFX_MEMORY_TYPE MT2, GMM_GFX_TARGET_CACHE TC2)
 {
     bool SelectPAT2 = false;
 
     // select on Memory Type
-    if (MT1 != WantedMT)
+    if(MT1 != WantedMT)
     {
-        if (MT2 == WantedMT || MT2 == GMM_GFX_UC_WITH_FENCE)
+        if(MT2 == WantedMT || MT2 == GMM_GFX_UC_WITH_FENCE)
         {
             SelectPAT2 = true;
         }
@@ -444,9 +444,9 @@ bool GmmLib::GmmGen8CachePolicy::SelectNewPATIdx(GMM_GFX_MEMORY_TYPE WantedMT, G
     }
 
     // select on Target Cache
-    if (WantedTC != TC1)
+    if(WantedTC != TC1)
     {
-        if (WantedMT == MT2 && WantedTC == TC2)
+        if(WantedMT == MT2 && WantedTC == TC2)
         {
             SelectPAT2 = true;
         }
@@ -464,17 +464,17 @@ EXIT:
 ///
 /// @return          true: success, false: failure
 /////////////////////////////////////////////////////////////////////////////////////
-bool GmmLib::GmmGen8CachePolicy::GetUsagePTEValue(GMM_CACHE_POLICY_ELEMENT  CachePolicyUsage,
-    uint32_t                     Usage,
-    uint32_t                    *pPTEDwordValue)
+bool GmmLib::GmmGen8CachePolicy::GetUsagePTEValue(GMM_CACHE_POLICY_ELEMENT CachePolicyUsage,
+                                                  uint32_t                 Usage,
+                                                  uint32_t *               pPTEDwordValue)
 {
-    GMM_PTE_CACHE_CONTROL_BITS  PTE = { 0 };
-    bool                        Success = true;
-    uint32_t                    PATIdx = 0;
+    GMM_PTE_CACHE_CONTROL_BITS PTE     = {0};
+    bool                       Success = true;
+    uint32_t                   PATIdx  = 0;
 
-    // Don't setup PTE values in UMD
+// Don't setup PTE values in UMD
 #if __GMM_KMD__
-    if ((PATIdx = BestMatchingPATIdx(CachePolicyUsage)) == GMM_PAT_ERROR)
+    if((PATIdx = BestMatchingPATIdx(CachePolicyUsage)) == GMM_PAT_ERROR)
     {
         // IAe32 PAT table does not necessarily have an entry for WT memory type
         // => not a cache policy init error if WT is unavailable.
@@ -482,24 +482,24 @@ bool GmmLib::GmmGen8CachePolicy::GetUsagePTEValue(GMM_CACHE_POLICY_ELEMENT  Cach
 
         // degrade to UC
         {
-            GMM_CACHE_POLICY_ELEMENT CachePolicyElement = { 0 };
+            GMM_CACHE_POLICY_ELEMENT CachePolicyElement = {0};
 
-            const char* MemTypes[4] = { "UC", "WC", "WT", "WB" }; // matches GMM_GFX_MEMORY_TYPE enum values
+            const char *MemTypes[4] = {"UC", "WC", "WT", "WB"}; // matches GMM_GFX_MEMORY_TYPE enum values
 
             CachePolicyElement.Initialized = 1;
 
             GMM_DPF(GFXDBG_CRITICAL,
-                "Cache Policy Init: Degrading PAT settings to UC (uncached) from %s for Element %d\n",
-                MemTypes[GetWantedMemoryType(CachePolicyUsage)], Usage);
+                    "Cache Policy Init: Degrading PAT settings to UC (uncached) from %s for Element %d\n",
+                    MemTypes[GetWantedMemoryType(CachePolicyUsage)], Usage);
 
             PATIdx = BestMatchingPATIdx(CachePolicyElement);
-            if (PATIdx == GMM_PAT_ERROR)
+            if(PATIdx == GMM_PAT_ERROR)
             {
                 Success = false;
             }
         }
     }
-    if (PATIdx != GMM_PAT_ERROR)
+    if(PATIdx != GMM_PAT_ERROR)
     {
         PTE.Gen8.PAT = (PATIdx & __BIT(2)) ? 1 : 0;
         PTE.Gen8.PCD = (PATIdx & __BIT(1)) ? 1 : 0;

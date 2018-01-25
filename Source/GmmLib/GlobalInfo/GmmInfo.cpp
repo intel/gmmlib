@@ -30,9 +30,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 //     Handle to global GMM structure containing GMM context and platform info.
 //
 //----------------------------------------------------------------------------
-GMM_GLOBAL_CONTEXT* pGmmGlobalContext = NULL;
+GMM_GLOBAL_CONTEXT *pGmmGlobalContext = NULL;
 
-#if defined( __ghs__)
+#if defined(__ghs__)
 std::atomic<int> GmmLib::Context::RefCount = 0;
 #else
 int32_t GmmLib::Context::RefCount = 0;
@@ -57,37 +57,37 @@ int32_t GmmLib::Context::RefCount = 0;
 /////////////////////////////////////////////////////////////////////////////////////
 #if defined(LINUX)
 GMM_STATUS GMM_STDCALL GmmInitGlobalContext(const PLATFORM Platform,
-                                            const void* pSkuTable,
-                                            const void* pWaTable,
-                                            const void* pGtSysInfo,
-                                            GMM_CLIENT ClientType)
+                                            const void *   pSkuTable,
+                                            const void *   pWaTable,
+                                            const void *   pGtSysInfo,
+                                            GMM_CLIENT     ClientType)
 #else
-GMM_STATUS GMM_STDCALL GmmInitGlobalContext(const PLATFORM Platform,
-                                            const SKU_FEATURE_TABLE* pSkuTable,
-                                            const WA_TABLE* pWaTable,
-                                            const GT_SYSTEM_INFO* pGtSysInfo,
-                                            GMM_CLIENT ClientType)
+GMM_STATUS GMM_STDCALL GmmInitGlobalContext(const PLATFORM           Platform,
+                                            const SKU_FEATURE_TABLE *pSkuTable,
+                                            const WA_TABLE *         pWaTable,
+                                            const GT_SYSTEM_INFO *   pGtSysInfo,
+                                            GMM_CLIENT               ClientType)
 #endif
 {
     __GMM_ASSERTPTR(pSkuTable, GMM_ERROR);
     __GMM_ASSERTPTR(pWaTable, GMM_ERROR);
     __GMM_ASSERTPTR(pGtSysInfo, GMM_ERROR);
     SKU_FEATURE_TABLE *skuTable;
-    WA_TABLE          *waTable;
-    GT_SYSTEM_INFO    *sysInfo;
+    WA_TABLE *         waTable;
+    GT_SYSTEM_INFO *   sysInfo;
 
     skuTable = (SKU_FEATURE_TABLE *)pSkuTable;
-    waTable  = (WA_TABLE *) pWaTable;
+    waTable  = (WA_TABLE *)pWaTable;
     sysInfo  = (GT_SYSTEM_INFO *)pGtSysInfo;
 
     int32_t ContextRefCount = GmmLib::Context::IncrementRefCount();
-    if (ContextRefCount)
+    if(ContextRefCount)
     {
         return GMM_SUCCESS;
     }
 
     pGmmGlobalContext = new GMM_GLOBAL_CONTEXT();
-    if (!pGmmGlobalContext)
+    if(!pGmmGlobalContext)
     {
         GmmLib::Context::DecrementRefCount();
         return GMM_ERROR;
@@ -105,7 +105,7 @@ void GMM_STDCALL GmmDestroyGlobalContext(void)
     __GMM_ASSERTPTR(pGmmGlobalContext, VOIDRETURN);
 
     int32_t ContextRefCount = GmmLib::Context::DecrementRefCount();
-    if (!ContextRefCount && pGmmGlobalContext)
+    if(!ContextRefCount && pGmmGlobalContext)
     {
         pGmmGlobalContext->DestroyContext();
         delete pGmmGlobalContext;
@@ -116,27 +116,29 @@ void GMM_STDCALL GmmDestroyGlobalContext(void)
 /////////////////////////////////////////////////////////////////////////////////////
 /// Constructor to zero initialize the GmmLib::Context object
 /////////////////////////////////////////////////////////////////////////////////////
-GmmLib::Context::Context() :
-                    ClientType(),
-                    pPlatformInfo(),
-                    pTextureCalc(),
-                    SkuTable(),
-                    WaTable(),
-                    GtSysInfo(),
-                #if(defined(__GMM_KMD__))
-                    GttContext(),
-                #endif
-                    pGmmKmdContext(),
-                    pGmmUmdContext(),
-                    pKmdHwDev(),
-                    pUmdAdapter(),
-                    pGmmCachePolicy()
-                #if(defined(__GMM_KMD__) && (_DEBUG || _RELEASE_INTERNAL))
-                    ,Override()
-                #endif
-                    #if(defined(__GMM_KMD__))
-                    , IA32ePATTable()
-                    #endif
+GmmLib::Context::Context()
+    : ClientType(),
+      pPlatformInfo(),
+      pTextureCalc(),
+      SkuTable(),
+      WaTable(),
+      GtSysInfo(),
+#if(defined(__GMM_KMD__))
+      GttContext(),
+#endif
+      pGmmKmdContext(),
+      pGmmUmdContext(),
+      pKmdHwDev(),
+      pUmdAdapter(),
+      pGmmCachePolicy()
+#if(defined(__GMM_KMD__) && (_DEBUG || _RELEASE_INTERNAL))
+      ,
+      Override()
+#endif
+#if(defined(__GMM_KMD__))
+      ,
+      IA32ePATTable()
+#endif
 {
     memset(CachePolicy, 0, sizeof(CachePolicy));
     memset(CachePolicyTbl, 0, sizeof(CachePolicyTbl));
@@ -151,11 +153,11 @@ GmmLib::Context::Context() :
 
     //Default initialize 64KB Page padding percentage.
     AllowedPaddingFor64KbPagesPercentage = 10;
-    InternalGpuVaMax = 0;
+    InternalGpuVaMax                     = 0;
 
 #if(_WIN32 && (_DEBUG || _RELEASE_INTERNAL))
     uint32_t RegKey = 0;
-    if (GMM_REGISTRY_READ("SOFTWARE\\Intel\\GMM", AllowedPaddingFor64KbPagesPercentage, RegKey))
+    if(GMM_REGISTRY_READ("SOFTWARE\\Intel\\GMM", AllowedPaddingFor64KbPagesPercentage, RegKey))
     {
         AllowedPaddingFor64KbPagesPercentage = RegKey;
     }
@@ -167,7 +169,6 @@ GmmLib::Context::Context() :
 /////////////////////////////////////////////////////////////////////////////////////
 GmmLib::Context::~Context()
 {
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -181,23 +182,23 @@ GmmLib::Context::~Context()
 /// @return   GMM_SUCCESS if init is success, GMM_ERROR otherwise
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_STATUS GMM_STDCALL GmmLib::Context::InitContext(
-                                            const PLATFORM& Platform,
-                                            const SKU_FEATURE_TABLE* pSkuTable,
-                                            const WA_TABLE* pWaTable,
-                                            const GT_SYSTEM_INFO* pGtSysInfo,
-                                            GMM_CLIENT ClientType)
+const PLATFORM &         Platform,
+const SKU_FEATURE_TABLE *pSkuTable,
+const WA_TABLE *         pWaTable,
+const GT_SYSTEM_INFO *   pGtSysInfo,
+GMM_CLIENT               ClientType)
 {
     this->ClientType = ClientType;
 
     // Save the SKU and WA
-    this->SkuTable = *pSkuTable;
-    this->WaTable = *pWaTable;
+    this->SkuTable  = *pSkuTable;
+    this->WaTable   = *pWaTable;
     this->GtSysInfo = *pGtSysInfo;
 
     pGmmGlobalContext->pPlatformInfo = GmmLib::PlatformInfo::Create(Platform, false);
 
     this->pGmmCachePolicy = GmmLib::GmmCachePolicyCommon::Create();
-    if (this->pGmmCachePolicy == NULL)
+    if(this->pGmmCachePolicy == NULL)
     {
         return GMM_ERROR;
     }
@@ -205,14 +206,13 @@ GMM_STATUS GMM_STDCALL GmmLib::Context::InitContext(
     this->pGmmCachePolicy->InitCachePolicy();
 
 #if _WIN32 && (_DEBUG || _RELEASE_INTERNAL)
-
 #if !__GMM_KMD__
     __GmmInitSurfaceFaultingInfo();
 #endif
 #endif
 
     this->pTextureCalc = GmmLib::GmmTextureCalc::Create(Platform, false);
-    if (this->pTextureCalc == NULL)
+    if(this->pTextureCalc == NULL)
     {
         return GMM_ERROR;
     }
@@ -226,20 +226,20 @@ GMM_STATUS GMM_STDCALL GmmLib::Context::InitContext(
 /////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmLib::Context::DestroyContext()
 {
-    if (this->pGmmCachePolicy)
+    if(this->pGmmCachePolicy)
     {
         int32_t CachePolicyObjRefCount = GmmLib::GmmCachePolicyCommon::DecrementRefCount();
-        if (!CachePolicyObjRefCount)
+        if(!CachePolicyObjRefCount)
         {
             delete this->pGmmCachePolicy;
             this->pGmmCachePolicy = NULL;
         }
     }
 
-    if (this->pTextureCalc)
+    if(this->pTextureCalc)
     {
         int32_t TextureCalcObjRefCount = GmmLib::GmmTextureCalc::DecrementRefCount();
-        if (!TextureCalcObjRefCount)
+        if(!TextureCalcObjRefCount)
         {
             delete this->pTextureCalc;
             this->pTextureCalc = NULL;
@@ -247,17 +247,17 @@ void GMM_STDCALL GmmLib::Context::DestroyContext()
     }
 
 #if(defined(__GMM_KMD__) && (_DEBUG || _RELEASE_INTERNAL))
-    if (this->Override.pTextureCalc)
+    if(this->Override.pTextureCalc)
     {
         delete this->Override.pTextureCalc;
         this->Override.pTextureCalc = NULL;
     }
 #endif
 
-    if (pGmmGlobalContext->pPlatformInfo)
+    if(pGmmGlobalContext->pPlatformInfo)
     {
         int32_t PlatformInfoRefCount = GmmLib::PlatformInfo::DecrementRefCount();
-        if (!PlatformInfoRefCount)
+        if(!PlatformInfoRefCount)
         {
             delete pGmmGlobalContext->pPlatformInfo;
             pGmmGlobalContext->pPlatformInfo = NULL;
@@ -265,7 +265,7 @@ void GMM_STDCALL GmmLib::Context::DestroyContext()
     }
 
 #if(defined(__GMM_KMD__) && (_DEBUG || _RELEASE_INTERNAL))
-    if (pGmmGlobalContext->Override.pPlatformInfo)
+    if(pGmmGlobalContext->Override.pPlatformInfo)
     {
         delete pGmmGlobalContext->Override.pPlatformInfo;
         pGmmGlobalContext->Override.pPlatformInfo = NULL;
@@ -294,7 +294,7 @@ void GMM_STDCALL GmmLinkKmdContextToGlobalInfo(GMM_GLOBAL_CONTEXT *pGmmLibContex
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   const PlatformInfo ptr
 /////////////////////////////////////////////////////////////////////////
-const GMM_PLATFORM_INFO* GMM_STDCALL GmmGetPlatformInfo(GMM_GLOBAL_CONTEXT* pGmmLibContext)
+const GMM_PLATFORM_INFO *GMM_STDCALL GmmGetPlatformInfo(GMM_GLOBAL_CONTEXT *pGmmLibContext)
 {
     return (&pGmmLibContext->GetPlatformInfo());
 }
@@ -304,7 +304,7 @@ const GMM_PLATFORM_INFO* GMM_STDCALL GmmGetPlatformInfo(GMM_GLOBAL_CONTEXT* pGmm
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   const cache policy elment ptr
 /////////////////////////////////////////////////////////////////////////
-const GMM_CACHE_POLICY_ELEMENT* GmmGetCachePolicyUsage(GMM_GLOBAL_CONTEXT* pGmmLibContext)
+const GMM_CACHE_POLICY_ELEMENT *GmmGetCachePolicyUsage(GMM_GLOBAL_CONTEXT *pGmmLibContext)
 {
     return (pGmmLibContext->GetCachePolicyUsage());
 }
@@ -314,7 +314,7 @@ const GMM_CACHE_POLICY_ELEMENT* GmmGetCachePolicyUsage(GMM_GLOBAL_CONTEXT* pGmmL
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   TextureCalc ptr
 /////////////////////////////////////////////////////////////////////////
-GMM_TEXTURE_CALC* GmmGetTextureCalc(GMM_GLOBAL_CONTEXT* pGmmLibContext)
+GMM_TEXTURE_CALC *GmmGetTextureCalc(GMM_GLOBAL_CONTEXT *pGmmLibContext)
 {
     return (pGmmLibContext->GetTextureCalc());
 }
@@ -324,7 +324,7 @@ GMM_TEXTURE_CALC* GmmGetTextureCalc(GMM_GLOBAL_CONTEXT* pGmmLibContext)
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   const SkuTable ptr
 /////////////////////////////////////////////////////////////////////////
-const SKU_FEATURE_TABLE* GmmGetSkuTable(GMM_GLOBAL_CONTEXT* pGmmLibContext)
+const SKU_FEATURE_TABLE *GmmGetSkuTable(GMM_GLOBAL_CONTEXT *pGmmLibContext)
 {
     return (&pGmmLibContext->GetSkuTable());
 }
@@ -334,7 +334,7 @@ const SKU_FEATURE_TABLE* GmmGetSkuTable(GMM_GLOBAL_CONTEXT* pGmmLibContext)
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   const WaTable ptr
 /////////////////////////////////////////////////////////////////////////
-const WA_TABLE* GmmGetWaTable(GMM_GLOBAL_CONTEXT* pGmmLibContext)
+const WA_TABLE *GmmGetWaTable(GMM_GLOBAL_CONTEXT *pGmmLibContext)
 {
     return (&pGmmLibContext->GetWaTable());
 }
@@ -344,7 +344,7 @@ const WA_TABLE* GmmGetWaTable(GMM_GLOBAL_CONTEXT* pGmmLibContext)
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   const GtSysInfo ptr
 /////////////////////////////////////////////////////////////////////////
-const GT_SYSTEM_INFO* GmmGetGtSysInfo(GMM_GLOBAL_CONTEXT* pGmmLibContext)
+const GT_SYSTEM_INFO *GmmGetGtSysInfo(GMM_GLOBAL_CONTEXT *pGmmLibContext)
 {
     return (pGmmLibContext->GetGtSysInfoPtr());
 }
@@ -357,7 +357,7 @@ const GT_SYSTEM_INFO* GmmGetGtSysInfo(GMM_GLOBAL_CONTEXT* pGmmLibContext)
 /// @param[in]  PatIndex: PAT index
 /// @return   PAT Memory type
 /////////////////////////////////////////////////////////////////////////
-int32_t  GmmGetPrivatePATTableMemoryType(GMM_GLOBAL_CONTEXT *pGmmLibContext, GMM_GFX_PAT_TYPE PatType)
+int32_t GmmGetPrivatePATTableMemoryType(GMM_GLOBAL_CONTEXT *pGmmLibContext, GMM_GFX_PAT_TYPE PatType)
 {
     return (pGmmLibContext->GetPrivatePATTableMemoryType(PatType));
 }
@@ -368,11 +368,11 @@ int32_t  GmmGetPrivatePATTableMemoryType(GMM_GLOBAL_CONTEXT *pGmmLibContext, GMM
 /// @param[in]  PatIndex: PAT index
 /// @return   PAT entry
 /////////////////////////////////////////////////////////////////////////
-GMM_PRIVATE_PAT  GmmGetPrivatePATEntry(GMM_GLOBAL_CONTEXT *pGmmLibContext, uint32_t  PatIndex)
+GMM_PRIVATE_PAT GmmGetPrivatePATEntry(GMM_GLOBAL_CONTEXT *pGmmLibContext, uint32_t PatIndex)
 {
-    GMM_PRIVATE_PAT NullPAT = { 0 };
+    GMM_PRIVATE_PAT NullPAT = {0};
 
-    if (PatIndex >= GMM_NUM_PAT_ENTRIES)
+    if(PatIndex >= GMM_NUM_PAT_ENTRIES)
     {
         GMM_ASSERTDPF(false, "CRITICAL ERROR: INVALID PAT IDX");
         return NullPAT;
@@ -386,7 +386,7 @@ GMM_PRIVATE_PAT  GmmGetPrivatePATEntry(GMM_GLOBAL_CONTEXT *pGmmLibContext, uint3
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   GmmKmdContext ptr
 /////////////////////////////////////////////////////////////////////////
-GMM_CONTEXT* GmmGetGmmKmdContext(GMM_GLOBAL_CONTEXT *pGmmLibContext)
+GMM_CONTEXT *GmmGetGmmKmdContext(GMM_GLOBAL_CONTEXT *pGmmLibContext)
 {
     return (pGmmLibContext->GetGmmKmdContext());
 }
@@ -396,7 +396,7 @@ GMM_CONTEXT* GmmGetGmmKmdContext(GMM_GLOBAL_CONTEXT *pGmmLibContext)
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   GttContext ptr
 /////////////////////////////////////////////////////////////////////////
-GMM_GTT_CONTEXT* GmmGetGttContext(GMM_GLOBAL_CONTEXT *pGmmLibContext)
+GMM_GTT_CONTEXT *GmmGetGttContext(GMM_GLOBAL_CONTEXT *pGmmLibContext)
 {
     return (pGmmLibContext->GetGttContext());
 }
@@ -450,7 +450,7 @@ void GmmSetWaTable(GMM_GLOBAL_CONTEXT *pGmmLibContext, WA_TABLE WaTable)
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   PlatformInfo ptr
 ////////////////////////////////////////////////////////////////////////
-GMM_PLATFORM_INFO* GmmKmdGetPlatformInfo(GMM_GLOBAL_CONTEXT *pGmmLibContext)
+GMM_PLATFORM_INFO *GmmKmdGetPlatformInfo(GMM_GLOBAL_CONTEXT *pGmmLibContext)
 {
     return (&pGmmLibContext->GetPlatformInfo());
 }
@@ -461,7 +461,7 @@ GMM_PLATFORM_INFO* GmmKmdGetPlatformInfo(GMM_GLOBAL_CONTEXT *pGmmLibContext)
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   override PlatformInfo ptr
 ////////////////////////////////////////////////////////////////////////
-const GMM_PLATFORM_INFO* GmmGetOverridePlatformInfo(GMM_GLOBAL_CONTEXT *pGmmLibContext)
+const GMM_PLATFORM_INFO *GmmGetOverridePlatformInfo(GMM_GLOBAL_CONTEXT *pGmmLibContext)
 {
     return (&pGmmLibContext->GetOverridePlatformInfo());
 }
@@ -471,7 +471,7 @@ const GMM_PLATFORM_INFO* GmmGetOverridePlatformInfo(GMM_GLOBAL_CONTEXT *pGmmLibC
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   override Texture calc ptr
 ////////////////////////////////////////////////////////////////////////
-GMM_TEXTURE_CALC* GmmGetOverrideTextureCalc(GMM_GLOBAL_CONTEXT *pGmmLibContext)
+GMM_TEXTURE_CALC *GmmGetOverrideTextureCalc(GMM_GLOBAL_CONTEXT *pGmmLibContext)
 {
     return (pGmmLibContext->GetOverrideTextureCalc());
 }

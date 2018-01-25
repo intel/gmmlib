@@ -33,18 +33,18 @@ OTHER DEALINGS IN THE SOFTWARE.
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_RESOURCE_INFO *GMM_STDCALL GmmResCreate(GMM_RESCREATE_PARAMS *pCreateParams)
 {
-    GMM_RESOURCE_INFO* pRes = NULL;
+    GMM_RESOURCE_INFO *pRes = NULL;
 
     // GMM_RESOURCE_INFO...
     if(pCreateParams->pPreallocatedResInfo)
     {
         pRes = new(pCreateParams->pPreallocatedResInfo) GmmLib::GmmResourceInfo(); // Use preallocated memory as a class
         pCreateParams->Flags.Info.__PreallocatedResInfo =
-            pRes->GetResFlags().Info.__PreallocatedResInfo = 1; // Set both in case we can die before copying over the flags.
+        pRes->GetResFlags().Info.__PreallocatedResInfo = 1; // Set both in case we can die before copying over the flags.
     }
     else
     {
-        if ((pRes = new GMM_RESOURCE_INFO) == NULL)
+        if((pRes = new GMM_RESOURCE_INFO) == NULL)
         {
             GMM_ASSERTDPF(0, "Allocation failed!");
             goto ERROR_CASE;
@@ -59,7 +59,7 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmResCreate(GMM_RESCREATE_PARAMS *pCreateParams)
     return (pRes);
 
 ERROR_CASE:
-    if (pRes)
+    if(pRes)
     {
         GmmResFree(pRes);
     }
@@ -77,15 +77,16 @@ ERROR_CASE:
 /// @param[in] pRes: Pointer to the GmmResourceInfo class that needs to be copied
 /// @return     Pointer to newly copied GmmResourceInfo class
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_RESOURCE_INFO *GMM_STDCALL GmmResCopy(GMM_RESOURCE_INFO*  pRes)
+GMM_RESOURCE_INFO *GMM_STDCALL GmmResCopy(GMM_RESOURCE_INFO *pRes)
 {
-    GMM_RESOURCE_INFO*  pResCopy = NULL;
+    GMM_RESOURCE_INFO *pResCopy = NULL;
 
     GMM_DPF_ENTER;
     __GMM_ASSERTPTR(pRes, NULL);
 
-    pResCopy = new GMM_RESOURCE_INFO;;
-    if (!pResCopy)
+    pResCopy = new GMM_RESOURCE_INFO;
+
+    if(!pResCopy)
     {
         GMM_ASSERTDPF(0, "Allocation failed.");
         return NULL;
@@ -108,7 +109,7 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmResCopy(GMM_RESOURCE_INFO*  pRes)
 /////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResMemcpy(void *pDst, void *pSrc)
 {
-    GMM_RESOURCE_INFO *pResSrc = reinterpret_cast<GMM_RESOURCE_INFO*>(pSrc);
+    GMM_RESOURCE_INFO *pResSrc = reinterpret_cast<GMM_RESOURCE_INFO *>(pSrc);
     // Init memory correctly, in case the pointer is a raw memory pointer
     GMM_RESOURCE_INFO *pResDst = new(pDst) GMM_RESOURCE_INFO();
 
@@ -127,7 +128,7 @@ void GMM_STDCALL GmmResFree(GMM_RESOURCE_INFO *pRes)
     GMM_DPF_ENTER;
     __GMM_ASSERTPTR(pRes, VOIDRETURN);
 
-    if (pRes->GetResFlags().Info.__PreallocatedResInfo)
+    if(pRes->GetResFlags().Info.__PreallocatedResInfo)
     {
         *pRes = GmmLib::GmmResourceInfo();
     }
@@ -146,8 +147,8 @@ void GMM_STDCALL GmmResFree(GMM_RESOURCE_INFO *pRes)
 /// @param[in]  IsD3DDdiAllocation: Specifies where allocation was made by a D3D client
 /// @return     Pointer to system memory. NULL if not available.
 /////////////////////////////////////////////////////////////////////////////////////
-void* GMM_STDCALL GmmResGetSystemMemPointer(GMM_RESOURCE_INFO*  pRes,
-        uint8_t IsD3DDdiAllocation)
+void *GMM_STDCALL GmmResGetSystemMemPointer(GMM_RESOURCE_INFO *pRes,
+                                            uint8_t            IsD3DDdiAllocation)
 {
     GMM_DPF_ENTER;
     __GMM_ASSERTPTR(pRes, NULL);
@@ -162,9 +163,9 @@ void* GMM_STDCALL GmmResGetSystemMemPointer(GMM_RESOURCE_INFO*  pRes,
 /// @param[in]  pRes: Pointer to the GmmResourceInfo class
 /// @return     Size of memory.
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_GFX_SIZE_T GMM_STDCALL GmmResGetSystemMemSize( GMM_RESOURCE_INFO*  pRes )
+GMM_GFX_SIZE_T GMM_STDCALL GmmResGetSystemMemSize(GMM_RESOURCE_INFO *pRes)
 {
-    __GMM_ASSERTPTR( pRes, ( ( GMM_GFX_SIZE_T ) 0 ) );
+    __GMM_ASSERTPTR(pRes, ((GMM_GFX_SIZE_T)0));
     return pRes->GetSystemMemSize();
 }
 
@@ -184,8 +185,8 @@ uint32_t GMM_STDCALL GmmResGetSizeOfStruct(void)
 /// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @param[out] pFlags: Memory where resource flags will be copied
 /////////////////////////////////////////////////////////////////////////////////////
-void GMM_STDCALL GmmResGetFlags(GMM_RESOURCE_INFO* pGmmResource,
-                                GMM_RESOURCE_FLAG* pFlags /*output*/)
+void GMM_STDCALL GmmResGetFlags(GMM_RESOURCE_INFO *pGmmResource,
+                                GMM_RESOURCE_FLAG *pFlags /*output*/)
 {
     GMM_DPF_ENTER;
     __GMM_ASSERTPTR(pGmmResource, VOIDRETURN);
@@ -230,8 +231,8 @@ GMM_RESOURCE_FORMAT GMM_STDCALL GmmResGetResourceFormat(GMM_RESOURCE_INFO *pGmmR
 /// @param[in]  MipLevel: Requested mip level
 /// @return     Padded Width
 /////////////////////////////////////////////////////////////////////////////////////
-uint32_t GMM_STDCALL GmmResGetPaddedWidth(GMM_RESOURCE_INFO  *pGmmResource,
-                                       uint32_t              MipLevel)
+uint32_t GMM_STDCALL GmmResGetPaddedWidth(GMM_RESOURCE_INFO *pGmmResource,
+                                          uint32_t           MipLevel)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
     return pGmmResource->GetPaddedWidth(MipLevel);
@@ -246,7 +247,7 @@ uint32_t GMM_STDCALL GmmResGetPaddedWidth(GMM_RESOURCE_INFO  *pGmmResource,
 /// @return     Padded Height
 /////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmResGetPaddedHeight(GMM_RESOURCE_INFO *pGmmResource,
-                                        uint32_t              MipLevel)
+                                           uint32_t           MipLevel)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
     return pGmmResource->GetPaddedHeight(MipLevel);
@@ -260,8 +261,8 @@ uint32_t GMM_STDCALL GmmResGetPaddedHeight(GMM_RESOURCE_INFO *pGmmResource,
 /// @param[in]  MipLevel: Requested mip level
 /// @return     Padded Pitch
 /////////////////////////////////////////////////////////////////////////////////////
-uint32_t GMM_STDCALL GmmResGetPaddedPitch(GMM_RESOURCE_INFO  *pGmmResource,
-                                       uint32_t              MipLevel)
+uint32_t GMM_STDCALL GmmResGetPaddedPitch(GMM_RESOURCE_INFO *pGmmResource,
+                                          uint32_t           MipLevel)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
     return pGmmResource->GetPaddedPitch(MipLevel);
@@ -422,8 +423,8 @@ D3DDDI_RATIONAL GMM_STDCALL GmmResGetRefreshRate(GMM_RESOURCE_INFO *pGmmResource
 /// @param[in]  pGmmResource: Pointer to the GmmResourceInfo class
 /// @param[out] pD3d9Flags: Mscaps data is copied to this param
 /////////////////////////////////////////////////////////////////////////////////////
-void GMM_STDCALL GmmResGetD3d9Flags(GMM_RESOURCE_INFO* pGmmResource,
-                                    D3DDDI_RESOURCEFLAGS* pD3d9Flags)
+void GMM_STDCALL GmmResGetD3d9Flags(GMM_RESOURCE_INFO *   pGmmResource,
+                                    D3DDDI_RESOURCEFLAGS *pD3d9Flags)
 {
     __GMM_ASSERTPTR(pGmmResource, VOIDRETURN);
     __GMM_ASSERTPTR(pD3d9Flags, VOIDRETURN);
@@ -627,11 +628,11 @@ uint32_t GMM_STDCALL GmmResGetAuxBitsPerPixel(GMM_RESOURCE_INFO *pGmmResource)
 /// @param[in]  pRes: Pointer to the GmmResourceInfo class
 /// @return     Compression Block Width/Height/Depth
 /////////////////////////////////////////////////////////////////////////////////////
-#define GmmResGetCompressionBlockXxx(Xxx)                   \
+#define GmmResGetCompressionBlockXxx(Xxx)                                                \
     uint32_t GMM_STDCALL GmmResGetCompressionBlock##Xxx(GMM_RESOURCE_INFO *pGmmResource) \
-    {                                                       \
-        __GMM_ASSERTPTR(pGmmResource, 1);                   \
-        return pGmmResource->GetCompressionBlock##Xxx();    \
+    {                                                                                    \
+        __GMM_ASSERTPTR(pGmmResource, 1);                                                \
+        return pGmmResource->GetCompressionBlock##Xxx();                                 \
     } ///////////////////////////////////////////////////////
 GmmResGetCompressionBlockXxx(Width)
 GmmResGetCompressionBlockXxx(Height)
@@ -646,7 +647,7 @@ GmmResGetCompressionBlockXxx(Depth)
 ///                 passed back to the client in this parameter.
 /// @return         ::GMM_STATUS
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_STATUS GMM_STDCALL GmmResGetOffset(GMM_RESOURCE_INFO *pGmmResource,
+GMM_STATUS GMM_STDCALL GmmResGetOffset(GMM_RESOURCE_INFO *  pGmmResource,
                                        GMM_REQ_OFFSET_INFO *pReqInfo)
 {
     __GMM_ASSERTPTR(pGmmResource, GMM_ERROR);
@@ -689,7 +690,7 @@ GMM_TILE_TYPE GMM_STDCALL GmmResGetTileType(GMM_RESOURCE_INFO *pGmmResource)
 /// @param[in]      MipLevel: Mip level for which the info is needed
 /// @return         Mip Height
 /////////////////////////////////////////////////////////////////////////////////////
-uint32_t   GMM_STDCALL GmmResGetMipHeight(GMM_RESOURCE_INFO *pResourceInfo, uint32_t MipLevel)
+uint32_t GMM_STDCALL GmmResGetMipHeight(GMM_RESOURCE_INFO *pResourceInfo, uint32_t MipLevel)
 {
     return pResourceInfo->GetMipHeight(MipLevel);
 }
@@ -702,9 +703,9 @@ uint32_t   GMM_STDCALL GmmResGetMipHeight(GMM_RESOURCE_INFO *pResourceInfo, uint
 /// @param[in]      MipLevel: Mip level for which the info is needed
 /// @return         Mip Width
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_GFX_SIZE_T   GMM_STDCALL GmmResGetMipWidth(GMM_RESOURCE_INFO *pResourceInfo, uint32_t MipLevel)
+GMM_GFX_SIZE_T GMM_STDCALL GmmResGetMipWidth(GMM_RESOURCE_INFO *pResourceInfo, uint32_t MipLevel)
 {
-    return pResourceInfo->GetMipWidth(MipLevel);;
+    return pResourceInfo->GetMipWidth(MipLevel);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -715,9 +716,9 @@ GMM_GFX_SIZE_T   GMM_STDCALL GmmResGetMipWidth(GMM_RESOURCE_INFO *pResourceInfo,
 /// @param[in]      MipLevel: Mip level for which the info is needed
 /// @return         Mip Depth
 /////////////////////////////////////////////////////////////////////////////////////
-uint32_t  GMM_STDCALL GmmResGetMipDepth(GMM_RESOURCE_INFO *pResourceInfo, uint32_t MipLevel)
+uint32_t GMM_STDCALL GmmResGetMipDepth(GMM_RESOURCE_INFO *pResourceInfo, uint32_t MipLevel)
 {
-    return pResourceInfo->GetMipDepth(MipLevel);;
+    return pResourceInfo->GetMipDepth(MipLevel);
 }
 
 //=============================================================================
@@ -738,7 +739,7 @@ uint8_t GMM_STDCALL GmmResGetCornerTexelMode(GMM_RESOURCE_INFO *pGmmResource)
     GMM_DPF_ENTER;
     __GMM_ASSERT(pGmmResource);
 
-    return ((pGmmResource->GetResFlags().Info.CornerTexelMode) ? 1 : 0 );
+    return ((pGmmResource->GetResFlags().Info.CornerTexelMode) ? 1 : 0);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -986,7 +987,7 @@ void GMM_STDCALL GmmResSetPrivateData(GMM_RESOURCE_INFO *pGmmResource, void *pPr
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @return     pointer to opaque private data
 /////////////////////////////////////////////////////////////////////////////////////
-void* GMM_STDCALL GmmResGetPrivateData(GMM_RESOURCE_INFO *pGmmResource)
+void *GMM_STDCALL GmmResGetPrivateData(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERTPTR(pGmmResource, 0);
     return pGmmResource->GetPrivateData();
@@ -1012,7 +1013,7 @@ GMM_GFX_ADDRESS GMM_STDCALL GmmResGetGfxAddress(GMM_RESOURCE_INFO *pGmmResource)
 /// @param[in]  pResourceInfo: Pointer to GmmResourceInfo class
 /// @return     Surface height
 /////////////////////////////////////////////////////////////////////////////////////
-uint32_t GMM_STDCALL GmmResGetTallBufferHeight(GMM_RESOURCE_INFO   *pResourceInfo)
+uint32_t GMM_STDCALL GmmResGetTallBufferHeight(GMM_RESOURCE_INFO *pResourceInfo)
 {
     __GMM_ASSERTPTR(pResourceInfo, 0);
     return pResourceInfo->GetTallBufferHeight();
@@ -1026,7 +1027,7 @@ uint32_t GMM_STDCALL GmmResGetTallBufferHeight(GMM_RESOURCE_INFO   *pResourceInf
 /// @param[in]  pResourceInfo: Pointer to GmmResourceInfo class
 /// @return     Size of main surface
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_GFX_SIZE_T  GMM_STDCALL GmmResGetSizeMainSurface(const GMM_RESOURCE_INFO *pResourceInfo)
+GMM_GFX_SIZE_T GMM_STDCALL GmmResGetSizeMainSurface(const GMM_RESOURCE_INFO *pResourceInfo)
 {
     return pResourceInfo->GetSizeMainSurface();
 }
@@ -1039,7 +1040,7 @@ GMM_GFX_SIZE_T  GMM_STDCALL GmmResGetSizeMainSurface(const GMM_RESOURCE_INFO *pR
 /// @param[in]  pResourceInfo: Pointer to GmmResourceInfo class
 /// @return     Surface Size
 /////////////////////////////////////////////////////////////////////////////////////
-uint32_t  GMM_STDCALL GmmResGetRenderSize(GMM_RESOURCE_INFO *pResourceInfo)
+uint32_t GMM_STDCALL GmmResGetRenderSize(GMM_RESOURCE_INFO *pResourceInfo)
 {
     __GMM_ASSERTPTR(pResourceInfo, 0);
     return GFX_ULONG_CAST(pResourceInfo->GetSizeSurface());
@@ -1057,7 +1058,7 @@ uint32_t GMM_STDCALL GmmResGetAuxSurfaceSize(GMM_RESOURCE_INFO *pGmmResource, GM
 /// @param[in]  pResourceInfo: Pointer to GmmResourceInfo class
 /// @return     Surface Size
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_GFX_SIZE_T  GMM_STDCALL GmmResGetSizeSurface(GMM_RESOURCE_INFO *pResourceInfo)
+GMM_GFX_SIZE_T GMM_STDCALL GmmResGetSizeSurface(GMM_RESOURCE_INFO *pResourceInfo)
 {
     __GMM_ASSERTPTR(pResourceInfo, 0);
     return pResourceInfo->GetSizeSurface();
@@ -1070,7 +1071,7 @@ GMM_GFX_SIZE_T  GMM_STDCALL GmmResGetSizeSurface(GMM_RESOURCE_INFO *pResourceInf
 /// @param[in]  pResourceInfo: Pointer to GmmResourceInfo class
 /// @return     Allocation Size
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_GFX_SIZE_T  GMM_STDCALL GmmResGetSizeAllocation(GMM_RESOURCE_INFO *pResourceInfo)
+GMM_GFX_SIZE_T GMM_STDCALL GmmResGetSizeAllocation(GMM_RESOURCE_INFO *pResourceInfo)
 {
     __GMM_ASSERTPTR(pResourceInfo, 0);
     return pResourceInfo->GetSizeAllocation();
@@ -1103,10 +1104,10 @@ GMM_SURFACESTATE_FORMAT GMM_STDCALL GmmResGetSurfaceStateFormat(GMM_RESOURCE_INF
 //-----------------------------------------------------------------------------
 GMM_SURFACESTATE_FORMAT GMM_STDCALL GmmGetSurfaceStateFormat(GMM_RESOURCE_FORMAT Format)
 {
-    return
-        ((Format > GMM_FORMAT_INVALID) &&
-        (Format < GMM_RESOURCE_FORMATS)) ?
-        pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].SurfaceStateFormat : GMM_SURFACESTATE_FORMAT_INVALID;
+    return ((Format > GMM_FORMAT_INVALID) &&
+            (Format < GMM_RESOURCE_FORMATS)) ?
+           pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].SurfaceStateFormat :
+           GMM_SURFACESTATE_FORMAT_INVALID;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1204,8 +1205,8 @@ GMM_GFX_SIZE_T GMM_STDCALL GmmResGetSizeAuxSurface(GMM_RESOURCE_INFO *pGmmResour
 uint8_t GMM_STDCALL GmmResGetSetHardwareProtection(GMM_RESOURCE_INFO *pGmmResource, uint8_t GetIsEncrypted, uint8_t SetIsEncrypted)
 {
     return pGmmResource ?
-            pGmmResource->GetSetHardwareProtection(GetIsEncrypted, SetIsEncrypted) :
-            0;
+           pGmmResource->GetSetHardwareProtection(GetIsEncrypted, SetIsEncrypted) :
+           0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1317,7 +1318,7 @@ uint32_t GMM_STDCALL GmmResGetColorSeparationPhysicalWidth(GMM_RESOURCE_INFO *pG
 //-----------------------------------------------------------------------------
 uint32_t GMM_STDCALL GmmResGetMaxGpuVirtualAddressBits(GMM_RESOURCE_INFO *pGmmResource)
 {
-    if (pGmmResource == NULL)
+    if(pGmmResource == NULL)
     {
         __GMM_ASSERTPTR(pGmmGlobalContext, 0);
         const GMM_PLATFORM_INFO &PlatformInfo = pGmmGlobalContext->GetPlatformInfo();
@@ -1348,10 +1349,10 @@ uint8_t GMM_STDCALL GmmIsSurfaceFaultable(GMM_RESOURCE_INFO *pGmmResource)
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @return     Copy of ::GMM_RESOURCE_FLAGS
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_RESOURCE_FLAG GMM_STDCALL GmmResGetResourceFlags(const GMM_RESOURCE_INFO* pGmmResource)
+GMM_RESOURCE_FLAG GMM_STDCALL GmmResGetResourceFlags(const GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERT(pGmmResource);
-    return const_cast<GMM_RESOURCE_INFO*>(pGmmResource)->GetResFlags();
+    return const_cast<GMM_RESOURCE_INFO *>(pGmmResource)->GetResFlags();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1361,7 +1362,7 @@ GMM_RESOURCE_FLAG GMM_STDCALL GmmResGetResourceFlags(const GMM_RESOURCE_INFO* pG
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @return    maximum remaining list length
 /////////////////////////////////////////////////////////////////////////////////////
-uint32_t GMM_STDCALL GmmResGetMaximumRenamingListLength(GMM_RESOURCE_INFO* pGmmResource)
+uint32_t GMM_STDCALL GmmResGetMaximumRenamingListLength(GMM_RESOURCE_INFO *pGmmResource)
 {
     __GMM_ASSERT(pGmmResource);
     return pGmmResource->GetMaximumRenamingListLength();
@@ -1379,16 +1380,16 @@ uint32_t GMM_STDCALL GmmResGetMaximumRenamingListLength(GMM_RESOURCE_INFO* pGmmR
 // Returns:
 //      GMM_STATUS
 //-----------------------------------------------------------------------------
-GMM_STATUS  GMM_STDCALL GmmGetLogicalTileShape( uint32_t             TileMode,
-                                                uint32_t             *pWidthInBytes,
-                                                uint32_t             *pHeight,
-                                                uint32_t             *pDepth)
+GMM_STATUS GMM_STDCALL GmmGetLogicalTileShape(uint32_t  TileMode,
+                                              uint32_t *pWidthInBytes,
+                                              uint32_t *pHeight,
+                                              uint32_t *pDepth)
 {
     __GMM_ASSERT(TileMode < GMM_TILE_MODES);
 
     if(pWidthInBytes)
     {
-        *pWidthInBytes =  pGmmGlobalContext->GetPlatformInfo().TileInfo[TileMode].LogicalTileWidth;
+        *pWidthInBytes = pGmmGlobalContext->GetPlatformInfo().TileInfo[TileMode].LogicalTileWidth;
     }
 
     if(pHeight)
@@ -1663,7 +1664,7 @@ GMM_GFX_SIZE_T GMM_STDCALL GmmResGetPlanarGetYOffset(GMM_RESOURCE_INFO *pGmmReso
 /// @param[in]  Plane: Plane for which the offset is needed
 /// @return     Y offset
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_GFX_SIZE_T  GMM_STDCALL GmmResGetPlanarAuxOffset(GMM_RESOURCE_INFO *pGmmResource, uint32_t ArrayIndex, GMM_UNIFIED_AUX_TYPE AuxType)
+GMM_GFX_SIZE_T GMM_STDCALL GmmResGetPlanarAuxOffset(GMM_RESOURCE_INFO *pGmmResource, uint32_t ArrayIndex, GMM_UNIFIED_AUX_TYPE AuxType)
 {
     __GMM_ASSERT(pGmmResource);
     return pGmmResource->GetPlanarAuxOffset(ArrayIndex, AuxType);
@@ -1683,25 +1684,25 @@ GMM_GFX_SIZE_T  GMM_STDCALL GmmResGetPlanarAuxOffset(GMM_RESOURCE_INFO *pGmmReso
 //-----------------------------------------------------------------------------
 uint8_t __CanSupportStdTiling(GMM_TEXTURE_INFO Surf)
 {
-    const __GMM_PLATFORM_RESOURCE* pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
+    const __GMM_PLATFORM_RESOURCE *pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
 
     // SKL+ Tiled Resource Mode Restrictions
-    if ((Surf.Flags.Info.TiledYf || Surf.Flags.Info.TiledYs) &&
-        !((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) >= IGFX_GEN9_CORE) &&
-            // TiledY must be set unless 1D surface.
-        ((Surf.Flags.Info.TiledY && (Surf.Type != RESOURCE_1D)) ||
-            (Surf.Flags.Info.Linear && (Surf.Type == RESOURCE_1D ||
-                Surf.Type == RESOURCE_BUFFER))) &&
-            // 8, 16, 32, 64, or 128 bpp
-                ((!GmmIsCompressed(Surf.Format) &&
-            ((Surf.BitsPerPixel == 8) ||
-                (Surf.BitsPerPixel == 16) ||
-                (Surf.BitsPerPixel == 32) ||
-                (Surf.BitsPerPixel == 64) ||
-                (Surf.BitsPerPixel == 128))) ||
-                    // Compressed Modes: BC*, ETC*, EAC*, ASTC*
-                (GmmIsCompressed(Surf.Format) && (Surf.Format != GMM_FORMAT_FXT1)))))
-        /* Not currently supported...
+    if((Surf.Flags.Info.TiledYf || Surf.Flags.Info.TiledYs) &&
+       !((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) >= IGFX_GEN9_CORE) &&
+         // TiledY must be set unless 1D surface.
+         ((Surf.Flags.Info.TiledY && (Surf.Type != RESOURCE_1D)) ||
+          (Surf.Flags.Info.Linear && (Surf.Type == RESOURCE_1D ||
+                                      Surf.Type == RESOURCE_BUFFER))) &&
+         // 8, 16, 32, 64, or 128 bpp
+         ((!GmmIsCompressed(Surf.Format) &&
+           ((Surf.BitsPerPixel == 8) ||
+            (Surf.BitsPerPixel == 16) ||
+            (Surf.BitsPerPixel == 32) ||
+            (Surf.BitsPerPixel == 64) ||
+            (Surf.BitsPerPixel == 128))) ||
+          // Compressed Modes: BC*, ETC*, EAC*, ASTC*
+          (GmmIsCompressed(Surf.Format) && (Surf.Format != GMM_FORMAT_FXT1)))))
+    /* Not currently supported...
         // YCRCB* Formats
         GmmIsYUVPacked(Surf.Format) */
     {

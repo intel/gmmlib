@@ -32,7 +32,7 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////
 void CTestGen9CachePolicy::SetUpTestCase()
 {
-    GfxPlatform.eProductFamily = IGFX_SKYLAKE;
+    GfxPlatform.eProductFamily    = IGFX_SKYLAKE;
     GfxPlatform.eRenderCoreFamily = IGFX_GEN9_CORE;
 
     CommonULT::SetUpTestCase();
@@ -69,7 +69,7 @@ void CTestGen9CachePolicy::CheckL3CachePolicy()
     for(uint32_t Usage = GMM_RESOURCE_USAGE_UNKNOWN; Usage < GMM_RESOURCE_USAGE_MAX; Usage++)
     {
         GMM_CACHE_POLICY_ELEMENT     ClientRequest   = pGmmGlobalContext->GetCachePolicyElement((GMM_RESOURCE_USAGE_TYPE)Usage);
-        uint32_t                        AssignedMocsIdx = ClientRequest.MemoryObjectOverride.Gen9.Index;
+        uint32_t                     AssignedMocsIdx = ClientRequest.MemoryObjectOverride.Gen9.Index;
         GMM_CACHE_POLICY_TBL_ELEMENT Mocs            = pGmmGlobalContext->GetCachePolicyTlbElement()[AssignedMocsIdx];
 
         EXPECT_EQ(0, Mocs.L3.ESC) << "Usage# " << Usage << ": ESC is non-zero";
@@ -78,13 +78,11 @@ void CTestGen9CachePolicy::CheckL3CachePolicy()
 
         if(ClientRequest.L3)
         {
-            EXPECT_EQ(L3_WB_CACHEABLE, Mocs.L3.Cacheability) <<
-                "Usage# " << Usage << ": Incorrect L3 cachebility setting";
+            EXPECT_EQ(L3_WB_CACHEABLE, Mocs.L3.Cacheability) << "Usage# " << Usage << ": Incorrect L3 cachebility setting";
         }
         else
         {
-            EXPECT_EQ(L3_UNCACHEABLE, Mocs.L3.Cacheability) <<
-                "Usage# " << Usage << ": Incorrect L3 cachebility setting";
+            EXPECT_EQ(L3_UNCACHEABLE, Mocs.L3.Cacheability) << "Usage# " << Usage << ": Incorrect L3 cachebility setting";
         }
     }
 }
@@ -100,17 +98,17 @@ void CTestGen9CachePolicy::CheckLlcEdramCachePolicy()
 {
     ASSERT_TRUE(pGmmGlobalContext);
 
-    const uint32_t TargetCache_ELLC      = 0;
-    const uint32_t TargetCache_LLC       = 1;
-    const uint32_t TargetCache_LLC_ELLC  = 2;
+    const uint32_t TargetCache_ELLC     = 0;
+    const uint32_t TargetCache_LLC      = 1;
+    const uint32_t TargetCache_LLC_ELLC = 2;
 
-    const uint32_t LeCC_UNCACHEABLE    = 0x1;
-    const uint32_t LeCC_WB_CACHEABLE   = 0x3;
+    const uint32_t LeCC_UNCACHEABLE  = 0x1;
+    const uint32_t LeCC_WB_CACHEABLE = 0x3;
 
     // Setup SKU/WA flags
-    pGmmGlobalContext->GetGtSysInfo()->LLCCacheSizeInKb   = 2 * 1024; //2 MB
-    pGmmGlobalContext->GetGtSysInfo()->EdramSizeInKb = 128 * 1024; //128 MB
-    const_cast<SKU_FEATURE_TABLE&>(pGmmGlobalContext->GetSkuTable()).FtrEDram = 1;
+    pGmmGlobalContext->GetGtSysInfo()->LLCCacheSizeInKb                        = 2 * 1024;   //2 MB
+    pGmmGlobalContext->GetGtSysInfo()->EdramSizeInKb                           = 128 * 1024; //128 MB
+    const_cast<SKU_FEATURE_TABLE &>(pGmmGlobalContext->GetSkuTable()).FtrEDram = 1;
 
     // Re-init cache policy with above info
     pGmmGlobalContext->GetCachePolicyObj()->InitCachePolicy();
@@ -119,7 +117,7 @@ void CTestGen9CachePolicy::CheckLlcEdramCachePolicy()
     for(uint32_t Usage = GMM_RESOURCE_USAGE_UNKNOWN; Usage < GMM_RESOURCE_USAGE_MAX; Usage++)
     {
         GMM_CACHE_POLICY_ELEMENT     ClientRequest   = pGmmGlobalContext->GetCachePolicyElement((GMM_RESOURCE_USAGE_TYPE)Usage);
-        uint32_t                        AssignedMocsIdx = ClientRequest.MemoryObjectOverride.Gen9.Index;
+        uint32_t                     AssignedMocsIdx = ClientRequest.MemoryObjectOverride.Gen9.Index;
         GMM_CACHE_POLICY_TBL_ELEMENT Mocs            = pGmmGlobalContext->GetCachePolicyTlbElement()[AssignedMocsIdx];
 
         // Check for unused fields
@@ -137,28 +135,23 @@ void CTestGen9CachePolicy::CheckLlcEdramCachePolicy()
 
         if(!ClientRequest.LLC && !ClientRequest.ELLC) // Uncached
         {
-            EXPECT_EQ(LeCC_UNCACHEABLE, Mocs.LeCC.Cacheability) <<
-                "Usage# " << Usage << ": Incorrect LLC/eDRAM cachebility setting";
+            EXPECT_EQ(LeCC_UNCACHEABLE, Mocs.LeCC.Cacheability) << "Usage# " << Usage << ": Incorrect LLC/eDRAM cachebility setting";
         }
         else
         {
-            EXPECT_EQ(LeCC_WB_CACHEABLE, Mocs.LeCC.Cacheability) <<
-                "Usage# " << Usage << ": Incorrect LLC/eDRAM cachebility setting";
+            EXPECT_EQ(LeCC_WB_CACHEABLE, Mocs.LeCC.Cacheability) << "Usage# " << Usage << ": Incorrect LLC/eDRAM cachebility setting";
 
             if(ClientRequest.LLC && !ClientRequest.ELLC) // LLC only
             {
-                EXPECT_EQ(TargetCache_LLC, Mocs.LeCC.TargetCache) <<
-                    "Usage# " << Usage << ": Incorrect target cache setting";
+                EXPECT_EQ(TargetCache_LLC, Mocs.LeCC.TargetCache) << "Usage# " << Usage << ": Incorrect target cache setting";
             }
             else if(!ClientRequest.LLC && ClientRequest.ELLC) // eLLC only
             {
-                EXPECT_EQ(TargetCache_ELLC, Mocs.LeCC.TargetCache) <<
-                    "Usage# " << Usage << ": Incorrect target cache setting";
+                EXPECT_EQ(TargetCache_ELLC, Mocs.LeCC.TargetCache) << "Usage# " << Usage << ": Incorrect target cache setting";
             }
             else
             {
-                EXPECT_EQ(TargetCache_LLC_ELLC, Mocs.LeCC.TargetCache) <<
-                    "Usage# " << Usage << ": Incorrect target cache setting";
+                EXPECT_EQ(TargetCache_LLC_ELLC, Mocs.LeCC.TargetCache) << "Usage# " << Usage << ": Incorrect target cache setting";
             }
         }
     }

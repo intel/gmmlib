@@ -31,12 +31,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 ///
 /// @return     ::GMM_STATUS
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_STATUS GmmTexGetMipMapOffset(GMM_TEXTURE_INFO*    pTexInfo,
-                                 GMM_REQ_OFFSET_INFO* pReqInfo)
+GMM_STATUS GmmTexGetMipMapOffset(GMM_TEXTURE_INFO *   pTexInfo,
+                                 GMM_REQ_OFFSET_INFO *pReqInfo)
 {
-    GMM_STATUS Status = GMM_SUCCESS;
-    bool RestoreRenderReq = false;
-    GMM_TEXTURE_CALC* pTextureCalc;
+    GMM_STATUS        Status           = GMM_SUCCESS;
+    bool              RestoreRenderReq = false;
+    GMM_TEXTURE_CALC *pTextureCalc;
 
     GMM_DPF_ENTER;
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
@@ -45,54 +45,55 @@ GMM_STATUS GmmTexGetMipMapOffset(GMM_TEXTURE_INFO*    pTexInfo,
 
     pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo);
 
-    if ((pReqInfo->Plane >= GMM_MAX_PLANE) ||
-        (pReqInfo->Plane < GMM_NO_PLANE) ||
-        (pReqInfo->MipLevel >= GMM_MAX_MIPMAP))
+    if((pReqInfo->Plane >= GMM_MAX_PLANE) ||
+       (pReqInfo->Plane < GMM_NO_PLANE) ||
+       (pReqInfo->MipLevel >= GMM_MAX_MIPMAP))
     {
         GMM_ASSERTDPF(0, "Invalid parameter!");
         return GMM_ERROR;
     }
 
-    if ((pTexInfo->TileMode >= GMM_TILE_MODES) ||
-        (pTexInfo->TileMode < TILE_NONE))
+    if((pTexInfo->TileMode >= GMM_TILE_MODES) ||
+       (pTexInfo->TileMode < TILE_NONE))
     {
         GMM_ASSERTDPF(0, "Invalid parameter!");
         return GMM_ERROR;
     }
 
     // Retrieve offset info at pReqInfo->MipLevel
-    if (pReqInfo->ReqLock)
+    if(pReqInfo->ReqLock)
     {
-        if (pReqInfo->ReqRender)
+        if(pReqInfo->ReqRender)
         {
             pReqInfo->ReqRender = 0;
-            RestoreRenderReq = true;
+            RestoreRenderReq    = true;
         }
 
-        if (pTextureCalc->GetTexLockOffset(pTexInfo, pReqInfo) != GMM_SUCCESS)
+        if(pTextureCalc->GetTexLockOffset(pTexInfo, pReqInfo) != GMM_SUCCESS)
         {
-          GMM_ASSERTDPF(0, "ReqLock failed!");
-          Status = GMM_ERROR;
-        }
-    }
-
-    if (RestoreRenderReq == true) pReqInfo->ReqRender = 1;
-
-    if (pReqInfo->ReqRender)
-    {
-        if (pTextureCalc->GetTexRenderOffset(pTexInfo, pReqInfo) != GMM_SUCCESS)
-        {
-          GMM_ASSERTDPF(0, "ReqRender failed!");
-          Status = GMM_ERROR;
+            GMM_ASSERTDPF(0, "ReqLock failed!");
+            Status = GMM_ERROR;
         }
     }
 
-    if (pReqInfo->ReqStdLayout)
+    if(RestoreRenderReq == true)
+        pReqInfo->ReqRender = 1;
+
+    if(pReqInfo->ReqRender)
     {
-        if (pTextureCalc->GetTexStdLayoutOffset(pTexInfo, pReqInfo) != GMM_SUCCESS)
+        if(pTextureCalc->GetTexRenderOffset(pTexInfo, pReqInfo) != GMM_SUCCESS)
         {
-          GMM_ASSERTDPF(0, "ReqStdLayout failed!");
-          Status = GMM_ERROR;
+            GMM_ASSERTDPF(0, "ReqRender failed!");
+            Status = GMM_ERROR;
+        }
+    }
+
+    if(pReqInfo->ReqStdLayout)
+    {
+        if(pTextureCalc->GetTexStdLayoutOffset(pTexInfo, pReqInfo) != GMM_SUCCESS)
+        {
+            GMM_ASSERTDPF(0, "ReqStdLayout failed!");
+            Status = GMM_ERROR;
         }
     }
 
@@ -110,7 +111,7 @@ GMM_STATUS GmmTexGetMipMapOffset(GMM_TEXTURE_INFO*    pTexInfo,
 ///
 /// @return     ::GMM_STATUS
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_STATUS GmmLib::GmmTextureCalc::GetTexStdLayoutOffset(GMM_TEXTURE_INFO*    pTexInfo,
+GMM_STATUS GmmLib::GmmTextureCalc::GetTexStdLayoutOffset(GMM_TEXTURE_INFO *   pTexInfo,
                                                          GMM_REQ_OFFSET_INFO *pReqInfo)
 {
     uint32_t ReqArrayIndex;
@@ -119,21 +120,21 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexStdLayoutOffset(GMM_TEXTURE_INFO*    pT
     __GMM_ASSERT(pTexInfo);
     __GMM_ASSERT(pTexInfo->Flags.Info.TiledYs || pTexInfo->Flags.Info.TiledYf);
     __GMM_ASSERT(
-        (pTexInfo->Type == RESOURCE_2D) ||
-        (pTexInfo->Type == RESOURCE_3D) ||
-        (pTexInfo->Type == RESOURCE_CUBE));
+    (pTexInfo->Type == RESOURCE_2D) ||
+    (pTexInfo->Type == RESOURCE_3D) ||
+    (pTexInfo->Type == RESOURCE_CUBE));
     __GMM_ASSERT(GmmIsPlanar(pTexInfo->Format) == false); // Planar not support
 
     if(pReqInfo->StdLayout.Offset == -1) // Special Req for Surface Size
     {
         NeedSurfaceSize = true;
-        ReqArrayIndex = // TODO(Medium): Add planar support.
-            (pTexInfo->ArraySize * ((pTexInfo->Type == RESOURCE_CUBE) ? 6 : 1));
+        ReqArrayIndex   = // TODO(Medium): Add planar support.
+        (pTexInfo->ArraySize * ((pTexInfo->Type == RESOURCE_CUBE) ? 6 : 1));
     }
     else
     {
         ReqArrayIndex =
-            (pReqInfo->ArrayIndex * ((pTexInfo->Type == RESOURCE_CUBE) ? 6 : 1));
+        (pReqInfo->ArrayIndex * ((pTexInfo->Type == RESOURCE_CUBE) ? 6 : 1));
     }
 
     {
@@ -143,14 +144,14 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexStdLayoutOffset(GMM_TEXTURE_INFO*    pT
         {
             TileSize = GMM_KBYTE(64);
         }
-        else if (pTexInfo->Flags.Info.TiledYf)
+        else if(pTexInfo->Flags.Info.TiledYf)
         {
             TileSize = GMM_KBYTE(4);
         }
 
-        const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
-        uint32_t BytesPerElement = pTexInfo->BitsPerPixel / CHAR_BIT;
-        GMM_TILE_MODE TileMode = pTexInfo->TileMode;
+        const GMM_PLATFORM_INFO *pPlatform       = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+        uint32_t                 BytesPerElement = pTexInfo->BitsPerPixel / CHAR_BIT;
+        GMM_TILE_MODE            TileMode        = pTexInfo->TileMode;
         struct
         {
             uint32_t Width, Height, Depth;
@@ -159,57 +160,57 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexStdLayoutOffset(GMM_TEXTURE_INFO*    pT
         __GMM_ASSERT(TileMode < GMM_TILE_MODES);
 
         GetCompressionBlockDimensions(
-            pTexInfo->Format,
-            &Element.Width,
-            &Element.Height,
-            &Element.Depth);
+        pTexInfo->Format,
+        &Element.Width,
+        &Element.Height,
+        &Element.Depth);
 
         Tile.Width =
-            (pPlatform->TileInfo[TileMode].LogicalTileWidth / BytesPerElement) *
-            Element.Width;
+        (pPlatform->TileInfo[TileMode].LogicalTileWidth / BytesPerElement) *
+        Element.Width;
 
         Tile.Height =
-            pPlatform->TileInfo[TileMode].LogicalTileHeight *
-            Element.Height;
+        pPlatform->TileInfo[TileMode].LogicalTileHeight *
+        Element.Height;
 
         Tile.Depth =
-            pPlatform->TileInfo[TileMode].LogicalTileDepth *
-            Element.Depth;
+        pPlatform->TileInfo[TileMode].LogicalTileDepth *
+        Element.Depth;
 
         {
             GMM_GFX_ADDRESS TargetLodOffset = 0;
-            GMM_GFX_SIZE_T PrevMipSize = 0;
-            GMM_GFX_SIZE_T SliceOffset = 0;
-            GMM_GFX_SIZE_T SlicePitch = 0;
-            uint32_t Lod;
-            uint32_t EffectiveMaxLod =
-                (ReqArrayIndex == 0) ?
-                    pReqInfo->MipLevel :
-                    GFX_MIN(pTexInfo->MaxLod, pTexInfo->Alignment.MipTailStartLod);
+            GMM_GFX_SIZE_T  PrevMipSize     = 0;
+            GMM_GFX_SIZE_T  SliceOffset     = 0;
+            GMM_GFX_SIZE_T  SlicePitch      = 0;
+            uint32_t        Lod;
+            uint32_t        EffectiveMaxLod =
+            (ReqArrayIndex == 0) ?
+            pReqInfo->MipLevel :
+            GFX_MIN(pTexInfo->MaxLod, pTexInfo->Alignment.MipTailStartLod);
 
             pReqInfo->StdLayout.Offset = 0;
             for(Lod = 0; Lod <= EffectiveMaxLod; Lod++)
             {
-                GMM_GFX_SIZE_T MipWidth = GmmTexGetMipWidth(pTexInfo, Lod);
-                uint32_t MipHeight = GmmTexGetMipHeight(pTexInfo, Lod);
-                uint32_t MipDepth = GmmTexGetMipDepth(pTexInfo, Lod);
+                GMM_GFX_SIZE_T MipWidth  = GmmTexGetMipWidth(pTexInfo, Lod);
+                uint32_t       MipHeight = GmmTexGetMipHeight(pTexInfo, Lod);
+                uint32_t       MipDepth  = GmmTexGetMipDepth(pTexInfo, Lod);
 
                 uint32_t MipCols = GFX_ULONG_CAST(
-                    GFX_CEIL_DIV(
-                        MipWidth,
-                        Tile.Width));
+                GFX_CEIL_DIV(
+                MipWidth,
+                Tile.Width));
                 uint32_t MipRows =
-                    GFX_CEIL_DIV(
-                        MipHeight,
-                        Tile.Height);
+                GFX_CEIL_DIV(
+                MipHeight,
+                Tile.Height);
                 uint32_t MipDepthTiles =
-                    GFX_CEIL_DIV(
-                        MipDepth,
-                        Tile.Depth);
-                uint32_t RowPitch = MipCols * TileSize; // Bytes from one tile row to the next.
+                GFX_CEIL_DIV(
+                MipDepth,
+                Tile.Depth);
+                uint32_t RowPitch   = MipCols * TileSize; // Bytes from one tile row to the next.
                 uint32_t DepthPitch = RowPitch * MipRows; // Bytes from one depth slice of tiles to the next.
 
-                if (Lod <= pTexInfo->Alignment.MipTailStartLod)
+                if(Lod <= pTexInfo->Alignment.MipTailStartLod)
                 {
                     pReqInfo->StdLayout.Offset += PrevMipSize;
                 }
@@ -218,7 +219,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexStdLayoutOffset(GMM_TEXTURE_INFO*    pT
                 {
                     TargetLodOffset = pReqInfo->StdLayout.Offset;
 
-                    pReqInfo->StdLayout.TileRowPitch = RowPitch;
+                    pReqInfo->StdLayout.TileRowPitch   = RowPitch;
                     pReqInfo->StdLayout.TileDepthPitch = DepthPitch;
                 }
 
@@ -226,15 +227,15 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexStdLayoutOffset(GMM_TEXTURE_INFO*    pT
                 SlicePitch += DepthPitch;
             }
 
-            if( pReqInfo->Slice > 0 )
+            if(pReqInfo->Slice > 0)
             {
                 SliceOffset = SlicePitch * pReqInfo->Slice;
             }
 
-            if (!NeedSurfaceSize && pReqInfo->MipLevel >= pTexInfo->Alignment.MipTailStartLod)
+            if(!NeedSurfaceSize && pReqInfo->MipLevel >= pTexInfo->Alignment.MipTailStartLod)
             {
                 pReqInfo->StdLayout.Offset += (ReqArrayIndex * (pReqInfo->StdLayout.Offset + PrevMipSize)) +
-                    GetMipTailByteOffset(pTexInfo, pReqInfo->MipLevel);
+                                              GetMipTailByteOffset(pTexInfo, pReqInfo->MipLevel);
             }
             else
             {
@@ -258,14 +259,14 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexStdLayoutOffset(GMM_TEXTURE_INFO*    pT
 ///
 /// @return     ::GMM_STATUS
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_STATUS GmmLib::GmmTextureCalc::GetTexLockOffset(GMM_TEXTURE_INFO*    pTexInfo,
+GMM_STATUS GmmLib::GmmTextureCalc::GetTexLockOffset(GMM_TEXTURE_INFO *   pTexInfo,
                                                     GMM_REQ_OFFSET_INFO *pReqInfo)
 {
-    GMM_STATUS          Result = GMM_SUCCESS;
-    GMM_GFX_SIZE_T      AddressOffset;
-    uint32_t               Pitch, Slice;
-    uint32_t               MipHeight, MipWidth, MipLevel;
-    uint32_t               NumberOfMipsInSingleRow, SliceRow;
+    GMM_STATUS     Result = GMM_SUCCESS;
+    GMM_GFX_SIZE_T AddressOffset;
+    uint32_t       Pitch, Slice;
+    uint32_t       MipHeight, MipWidth, MipLevel;
+    uint32_t       NumberOfMipsInSingleRow, SliceRow;
 
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
     __GMM_ASSERTPTR(pReqInfo, GMM_ERROR);
@@ -274,21 +275,21 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexLockOffset(GMM_TEXTURE_INFO*    pTexInf
 
     // set default value
     AddressOffset = 0;
-    Pitch = GFX_ULONG_CAST(pTexInfo->Pitch);
-    MipLevel = pReqInfo->MipLevel;
-    Slice = pReqInfo->Slice;
+    Pitch         = GFX_ULONG_CAST(pTexInfo->Pitch);
+    MipLevel      = pReqInfo->MipLevel;
+    Slice         = pReqInfo->Slice;
 
-    if (GmmIsPlanar(pTexInfo->Format))
+    if(GmmIsPlanar(pTexInfo->Format))
     {
-        AddressOffset = GetMipMapByteAddress(pTexInfo, pReqInfo);
+        AddressOffset           = GetMipMapByteAddress(pTexInfo, pReqInfo);
         pReqInfo->Lock.Offset64 = AddressOffset;
-        pReqInfo->Lock.Pitch = Pitch;
+        pReqInfo->Lock.Pitch    = Pitch;
 
         // Adjust returned pitch for non-uniform-pitch U/V queries...
-        if( (pReqInfo->Plane == GMM_PLANE_U) ||
-            (pReqInfo->Plane == GMM_PLANE_V))
+        if((pReqInfo->Plane == GMM_PLANE_U) ||
+           (pReqInfo->Plane == GMM_PLANE_V))
         {
-            switch (pTexInfo->Format)
+            switch(pTexInfo->Format)
             {
                 case GMM_FORMAT_I420:
                 case GMM_FORMAT_IYUV:
@@ -308,7 +309,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexLockOffset(GMM_TEXTURE_INFO*    pTexInf
         return Result;
     }
 
-    switch (pTexInfo->Type)
+    switch(pTexInfo->Type)
     {
         case RESOURCE_3D:
         {
@@ -321,8 +322,8 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexLockOffset(GMM_TEXTURE_INFO*    pTexInf
             }
             else
             {
-                MipHeight =  pTexInfo->BaseHeight >> MipLevel;
-                MipWidth = GFX_ULONG_CAST(pTexInfo->BaseWidth) >> MipLevel;
+                MipHeight = pTexInfo->BaseHeight >> MipLevel;
+                MipWidth  = GFX_ULONG_CAST(pTexInfo->BaseWidth) >> MipLevel;
 
                 AlignTexHeightWidth(pTexInfo, &MipHeight, &MipWidth);
 
@@ -340,11 +341,11 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexLockOffset(GMM_TEXTURE_INFO*    pTexInf
                 AddressOffset += SliceRow * MipHeight * Pitch;
 
                 // Get to particular slice
-                if (Slice % NumberOfMipsInSingleRow)
+                if(Slice % NumberOfMipsInSingleRow)
                 {
                     AddressOffset += (((Slice % NumberOfMipsInSingleRow) *
-                                        MipWidth * pTexInfo->BitsPerPixel)
-                                        >> 3);
+                                       MipWidth * pTexInfo->BitsPerPixel) >>
+                                      3);
                 }
             }
             break;
@@ -357,7 +358,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexLockOffset(GMM_TEXTURE_INFO*    pTexInf
             break;
         }
         default:
-        {   // These resources dont' have multiple levels of detail
+        { // These resources dont' have multiple levels of detail
             AddressOffset = 0;
             break;
         }
@@ -379,50 +380,50 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexLockOffset(GMM_TEXTURE_INFO*    pTexInf
 /// @param[in]  pWidth: ptr to width of mip
 ///
 /////////////////////////////////////////////////////////////////////////////////////
-void GmmLib::GmmTextureCalc::AlignTexHeightWidth(GMM_TEXTURE_INFO*   pTexInfo,
-                                                 uint32_t*              pHeight,
-                                                 uint32_t*              pWidth)
+void GmmLib::GmmTextureCalc::AlignTexHeightWidth(GMM_TEXTURE_INFO *pTexInfo,
+                                                 uint32_t *        pHeight,
+                                                 uint32_t *        pWidth)
 {
-    uint32_t    MipWidth  = 0;
-    uint32_t    MipHeight = 0;
-    uint32_t    UnitAlignHeight = 0;
-    uint32_t    UnitAlignWidth  = 0;
+    uint32_t MipWidth        = 0;
+    uint32_t MipHeight       = 0;
+    uint32_t UnitAlignHeight = 0;
+    uint32_t UnitAlignWidth  = 0;
 
-    uint8_t     Compress = 0;
+    uint8_t Compress = 0;
 
     __GMM_ASSERTPTR(pTexInfo, VOIDRETURN);
     __GMM_ASSERTPTR(pWidth, VOIDRETURN);
     __GMM_ASSERTPTR(pHeight, VOIDRETURN);
     __GMM_ASSERTPTR(pGmmGlobalContext, VOIDRETURN);
 
-    MipWidth = *pWidth;
+    MipWidth  = *pWidth;
     MipHeight = *pHeight;
 
-    UnitAlignWidth =  pTexInfo->Alignment.HAlign;
+    UnitAlignWidth  = pTexInfo->Alignment.HAlign;
     UnitAlignHeight = pTexInfo->Alignment.VAlign;
-    Compress = GmmIsCompressed(pTexInfo->Format);
+    Compress        = GmmIsCompressed(pTexInfo->Format);
 
-    MipWidth = GFX_MAX(MipWidth, UnitAlignWidth);
+    MipWidth  = GFX_MAX(MipWidth, UnitAlignWidth);
     MipHeight = GFX_MAX(MipHeight, UnitAlignHeight);
 
-    MipWidth = GFX_ALIGN(MipWidth, UnitAlignWidth);
+    MipWidth  = GFX_ALIGN(MipWidth, UnitAlignWidth);
     MipHeight = GFX_ALIGN(MipHeight, UnitAlignHeight);
 
-    if (Compress)
+    if(Compress)
     {
-        uint32_t    CompressHeight, CompressWidth, CompressDepth;
+        uint32_t CompressHeight, CompressWidth, CompressDepth;
         GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
-        MipWidth  /= CompressWidth;
+        MipWidth /= CompressWidth;
         MipHeight /= CompressHeight;
     }
-    else if (pTexInfo->Flags.Gpu.SeparateStencil && pTexInfo->Flags.Info.TiledW)
+    else if(pTexInfo->Flags.Gpu.SeparateStencil && pTexInfo->Flags.Info.TiledW)
     {
-        MipWidth  *= 2;
+        MipWidth *= 2;
         MipHeight /= 2;
     }
 
     *pHeight = MipHeight;
-    *pWidth = MipWidth;
+    *pWidth  = MipWidth;
 }
 
 
@@ -434,30 +435,30 @@ void GmmLib::GmmTextureCalc::AlignTexHeightWidth(GMM_TEXTURE_INFO*   pTexInfo,
 ///
 /// @return     ::GMM_STATUS
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_STATUS GmmLib::GmmTextureCalc::GetTexRenderOffset(GMM_TEXTURE_INFO*    pTexInfo,
-                                                      GMM_REQ_OFFSET_INFO* pReqInfo)
+GMM_STATUS GmmLib::GmmTextureCalc::GetTexRenderOffset(GMM_TEXTURE_INFO *   pTexInfo,
+                                                      GMM_REQ_OFFSET_INFO *pReqInfo)
 {
 
-    const GMM_TILE_INFO       *pTileInfo          = NULL;
-    GMM_GFX_SIZE_T      AddressOffset       = 0;
-    GMM_GFX_SIZE_T      RenderAlignOffset   = 0;
-    uint32_t               OffsetX             = 0;
-    uint32_t               OffsetY             = 0;
-    uint32_t               OffsetZ             = 0;
-    const GMM_PLATFORM_INFO   *pPlatform          = NULL;
+    const GMM_TILE_INFO *    pTileInfo         = NULL;
+    GMM_GFX_SIZE_T           AddressOffset     = 0;
+    GMM_GFX_SIZE_T           RenderAlignOffset = 0;
+    uint32_t                 OffsetX           = 0;
+    uint32_t                 OffsetY           = 0;
+    uint32_t                 OffsetZ           = 0;
+    const GMM_PLATFORM_INFO *pPlatform         = NULL;
 
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
     __GMM_ASSERTPTR(pReqInfo, GMM_ERROR);
 
-    pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
-    pTileInfo = &pPlatform->TileInfo[pTexInfo->TileMode];
+    pPlatform     = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    pTileInfo     = &pPlatform->TileInfo[pTexInfo->TileMode];
     AddressOffset = GetMipMapByteAddress(pTexInfo, pReqInfo);
 
-    if (GMM_IS_TILED(*pTileInfo))
+    if(GMM_IS_TILED(*pTileInfo))
     {
-        uint32_t           TileAlignedOffsetX  = 0;
-        uint32_t           TileAlignedOffsetY  = 0;
-        GMM_GFX_SIZE_T  MipTailByteOffset   = 0;
+        uint32_t       TileAlignedOffsetX = 0;
+        uint32_t       TileAlignedOffsetY = 0;
+        GMM_GFX_SIZE_T MipTailByteOffset  = 0;
 
         //--- Compute Tile-Aligned Offset, and Corresponding X/Y Offsets -------
         // Render/Tiled-Aligned offsets and corresponding X/Y offsets are used
@@ -469,8 +470,8 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexRenderOffset(GMM_TEXTURE_INFO*    pTexI
         // pixels, this function will return the X Offset in bytes. Y Offset is
         // in pixel rows.)
 
-        if ((pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) &&
-            (pReqInfo->MipLevel >= pTexInfo->Alignment.MipTailStartLod))
+        if((pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) &&
+           (pReqInfo->MipLevel >= pTexInfo->Alignment.MipTailStartLod))
         {
             MipTailByteOffset = GetMipTailByteOffset(pTexInfo, pReqInfo->MipLevel);
 
@@ -479,30 +480,30 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexRenderOffset(GMM_TEXTURE_INFO*    pTexI
             AddressOffset -= MipTailByteOffset;
         }
 
-        if (!pTexInfo->Flags.Info.RedecribedPlanes)
+        if(!pTexInfo->Flags.Info.RedecribedPlanes)
         {
             GMM_GFX_SIZE_T Pitch = pTexInfo->Pitch;
-            if (!pTexInfo->Pitch)
+            if(!pTexInfo->Pitch)
             {
                 // If no pitch exists, but the surface is still marked as tiled, then it is a 1D TileYf/Ys surface.
                 // Technically no pitch exists for 1D surfaces, but we will fake it to make calculations work below.
                 // Since 1D surfaces only have an X-dimension, this Pitch calculation is only used for OffsetX calculation.
-                Pitch =  pTexInfo->Size;
+                Pitch = pTexInfo->Size;
             }
-            OffsetX = GFX_ULONG_CAST(AddressOffset % Pitch);
+            OffsetX            = GFX_ULONG_CAST(AddressOffset % Pitch);
             TileAlignedOffsetX = GFX_ALIGN_FLOOR(OffsetX, pTileInfo->LogicalTileWidth);
             OffsetX -= TileAlignedOffsetX;
 
-            if (pTexInfo->Pitch)
+            if(pTexInfo->Pitch)
             {
-                OffsetY = GFX_ULONG_CAST(AddressOffset / pTexInfo->Pitch);
+                OffsetY            = GFX_ULONG_CAST(AddressOffset / pTexInfo->Pitch);
                 TileAlignedOffsetY = GFX_ALIGN_FLOOR(OffsetY, pTileInfo->LogicalTileHeight * pTileInfo->LogicalTileDepth);
                 OffsetY -= TileAlignedOffsetY;
             }
 
             RenderAlignOffset =
-                TileAlignedOffsetY * pTexInfo->Pitch +
-                (TileAlignedOffsetX / pTileInfo->LogicalTileWidth) * pTileInfo->LogicalSize;
+            TileAlignedOffsetY * pTexInfo->Pitch +
+            (TileAlignedOffsetX / pTileInfo->LogicalTileWidth) * pTileInfo->LogicalSize;
 
             // For Gen9+, Miptail Lods should be reported in a way that
             //      - Base Address equals tile-aligned "Miptail start address"
@@ -510,10 +511,10 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexRenderOffset(GMM_TEXTURE_INFO*    pTexI
             //      - OffsetY and OffsetZ are their pixel distance from "Miptail start Lod" to "current Lod" in geometric Y, Z directions
             // Note: only Tile Yf and TileYs have Miptails and their Mips are always "tile aligned"
 
-            if ((pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) &&
-                (pReqInfo->MipLevel >= pTexInfo->Alignment.MipTailStartLod) &&
-                // Planar surfaces do not support MIPs
-                !GmmIsPlanar(pTexInfo->Format))
+            if((pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) &&
+               (pReqInfo->MipLevel >= pTexInfo->Alignment.MipTailStartLod) &&
+               // Planar surfaces do not support MIPs
+               !GmmIsPlanar(pTexInfo->Format))
             {
                 GetMipTailGeometryOffset(pTexInfo, pReqInfo->MipLevel, &OffsetX, &OffsetY, &OffsetZ);
             }
@@ -561,54 +562,54 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexRenderOffset(GMM_TEXTURE_INFO*    pTexI
 ///
 /// @return     ::GMM_GFX_SIZE_T byte offset
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_GFX_SIZE_T GmmLib::GmmTextureCalc::GetMipMapByteAddress(GMM_TEXTURE_INFO*    pTexInfo,
-                                                            GMM_REQ_OFFSET_INFO* pReqInfo)
+GMM_GFX_SIZE_T GmmLib::GmmTextureCalc::GetMipMapByteAddress(GMM_TEXTURE_INFO *   pTexInfo,
+                                                            GMM_REQ_OFFSET_INFO *pReqInfo)
 {
-    GMM_GFX_SIZE_T      ArrayQPitch, MipMapByteAddress, Pitch;
-    uint32_t               MipLevel;
+    GMM_GFX_SIZE_T ArrayQPitch, MipMapByteAddress, Pitch;
+    uint32_t       MipLevel;
 
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
     __GMM_ASSERTPTR(pReqInfo, GMM_ERROR);
     __GMM_ASSERT(!(pTexInfo->Flags.Gpu.CCS && !pTexInfo->Flags.Gpu.UnifiedAuxSurface));
     __GMM_ASSERT(pReqInfo->Plane < GMM_MAX_PLANE);
 
-    MipLevel = pReqInfo->MipLevel;
-    Pitch = pTexInfo->Pitch;
-    ArrayQPitch = pReqInfo->ReqRender?
-                    pTexInfo->OffsetInfo.Texture2DOffsetInfo.ArrayQPitchRender :
-                    pTexInfo->OffsetInfo.Texture2DOffsetInfo.ArrayQPitchLock;
+    MipLevel    = pReqInfo->MipLevel;
+    Pitch       = pTexInfo->Pitch;
+    ArrayQPitch = pReqInfo->ReqRender ?
+                  pTexInfo->OffsetInfo.Texture2DOffsetInfo.ArrayQPitchRender :
+                  pTexInfo->OffsetInfo.Texture2DOffsetInfo.ArrayQPitchLock;
 
     const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
 
-    if (pTexInfo->Type == RESOURCE_3D && !pTexInfo->Flags.Info.Linear)
+    if(pTexInfo->Type == RESOURCE_3D && !pTexInfo->Flags.Info.Linear)
     {
         ArrayQPitch *= pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileDepth;
     }
 
-    if ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE) &&
-        ((pTexInfo->MSAA.NumSamples > 1) &&
+    if((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE) &&
+       ((pTexInfo->MSAA.NumSamples > 1) &&
         !(pTexInfo->Flags.Gpu.Depth ||
-        pTexInfo->Flags.Gpu.SeparateStencil ||
-        pTexInfo->Flags.Info.TiledYs ||
-        pTexInfo->Flags.Info.TiledYf)))
+          pTexInfo->Flags.Gpu.SeparateStencil ||
+          pTexInfo->Flags.Info.TiledYs ||
+          pTexInfo->Flags.Info.TiledYf)))
     {
         ArrayQPitch *= pTexInfo->MSAA.NumSamples;
     }
 
-    if (GmmIsPlanar(pTexInfo->Format))
+    if(GmmIsPlanar(pTexInfo->Format))
     {
         uint32_t Plane = pReqInfo->Plane;
-        if (pTexInfo->Flags.Info.YUVShaderFriendlyLayout)
+        if(pTexInfo->Flags.Info.YUVShaderFriendlyLayout)
         {
-            uint32_t PlaneT = ((pReqInfo->ArrayIndex==0) && (Plane==GMM_PLANE_Y)) ?
-                                GMM_PLANE_3D_Y0 :
-                           ((pReqInfo->ArrayIndex==1) && (Plane==GMM_PLANE_Y)) ?
-                                GMM_PLANE_3D_Y1 :
-                           ((pReqInfo->ArrayIndex==0) && ((Plane==GMM_PLANE_U)||(Plane==GMM_PLANE_V))) ?
-                                GMM_PLANE_3D_UV0 :
-                           ((pReqInfo->ArrayIndex==1) && ((Plane==GMM_PLANE_U)||(Plane==GMM_PLANE_V))) ?
-                                GMM_PLANE_3D_UV1 :
-                                GMM_PLANE_3D_Y0;
+            uint32_t PlaneT = ((pReqInfo->ArrayIndex == 0) && (Plane == GMM_PLANE_Y)) ?
+                              GMM_PLANE_3D_Y0 :
+                              ((pReqInfo->ArrayIndex == 1) && (Plane == GMM_PLANE_Y)) ?
+                              GMM_PLANE_3D_Y1 :
+                              ((pReqInfo->ArrayIndex == 0) && ((Plane == GMM_PLANE_U) || (Plane == GMM_PLANE_V))) ?
+                              GMM_PLANE_3D_UV0 :
+                              ((pReqInfo->ArrayIndex == 1) && ((Plane == GMM_PLANE_U) || (Plane == GMM_PLANE_V))) ?
+                              GMM_PLANE_3D_UV1 :
+                              GMM_PLANE_3D_Y0;
 
             MipMapByteAddress = Pitch * pTexInfo->OffsetInfo.Plane.Y[PlaneT];
         }
@@ -616,12 +617,12 @@ GMM_GFX_SIZE_T GmmLib::GmmTextureCalc::GetMipMapByteAddress(GMM_TEXTURE_INFO*   
         {
             uint32_t OffsetX = 0;
             uint32_t OffsetY = 0;
-            if (Plane < GMM_MAX_PLANE)
+            if(Plane < GMM_MAX_PLANE)
             {
                 OffsetX = GFX_ULONG_CAST(pTexInfo->OffsetInfo.Plane.X[Plane]);
                 OffsetY = GFX_ULONG_CAST(pTexInfo->OffsetInfo.Plane.Y[Plane]);
             }
-            MipMapByteAddress = (OffsetY * Pitch) +  OffsetX;
+            MipMapByteAddress = (OffsetY * Pitch) + OffsetX;
 
             __GMM_ASSERT(!pReqInfo->ArrayIndex || (pReqInfo->ArrayIndex < pTexInfo->ArraySize));
 
@@ -630,19 +631,19 @@ GMM_GFX_SIZE_T GmmLib::GmmTextureCalc::GetMipMapByteAddress(GMM_TEXTURE_INFO*   
     }
     else
     {
-        switch (pTexInfo->Type)
+        switch(pTexInfo->Type)
         {
             case RESOURCE_CUBE:
             {
                 uint32_t CubeFace = pReqInfo->CubeFace;
 
                 GMM_ASSERTDPF( // Validate Cube Map Params...
-                    (!pReqInfo->ArrayIndex || (pReqInfo->ArrayIndex < pTexInfo->ArraySize)) &&
-                    (pReqInfo->CubeFace < __GMM_MAX_CUBE_FACE) &&
-                    (pReqInfo->CubeFace != __GMM_NO_CUBE_MAP) &&
-                    (pReqInfo->Plane == GMM_NO_PLANE) &&
-                    (pReqInfo->Slice == 0),
-                    "Invalid parameter!");
+                (!pReqInfo->ArrayIndex || (pReqInfo->ArrayIndex < pTexInfo->ArraySize)) &&
+                (pReqInfo->CubeFace < __GMM_MAX_CUBE_FACE) &&
+                (pReqInfo->CubeFace != __GMM_NO_CUBE_MAP) &&
+                (pReqInfo->Plane == GMM_NO_PLANE) &&
+                (pReqInfo->Slice == 0),
+                "Invalid parameter!");
 
                 // Support for CubeMap Arrays using 2D Arrays
                 MipMapByteAddress = pTexInfo->OffsetInfo.Texture2DOffsetInfo.Offset[MipLevel];
@@ -654,7 +655,7 @@ GMM_GFX_SIZE_T GmmLib::GmmTextureCalc::GetMipMapByteAddress(GMM_TEXTURE_INFO*   
             {
                 MipMapByteAddress = pTexInfo->OffsetInfo.Texture2DOffsetInfo.Offset[MipLevel];
 
-                if (pReqInfo->ArrayIndex)
+                if(pReqInfo->ArrayIndex)
                 {
                     MipMapByteAddress += (ArrayQPitch * pReqInfo->ArrayIndex);
                 }
@@ -678,7 +679,7 @@ GMM_GFX_SIZE_T GmmLib::GmmTextureCalc::GetMipMapByteAddress(GMM_TEXTURE_INFO*   
                 break;
             }
             default:
-            {   // These resources don't have multiple levels of detail
+            { // These resources don't have multiple levels of detail
                 MipMapByteAddress = 0;
                 break;
             }
@@ -686,7 +687,8 @@ GMM_GFX_SIZE_T GmmLib::GmmTextureCalc::GetMipMapByteAddress(GMM_TEXTURE_INFO*   
     }
 
     MipMapByteAddress += pTexInfo->Flags.Gpu.S3d ?
-        GetDisplayFrameOffset(pTexInfo, pReqInfo) : 0;
+                         GetDisplayFrameOffset(pTexInfo, pReqInfo) :
+                         0;
 
     return MipMapByteAddress;
 }
@@ -700,27 +702,27 @@ GMM_GFX_SIZE_T GmmLib::GmmTextureCalc::GetMipMapByteAddress(GMM_TEXTURE_INFO*   
 ///
 /// @return     byte offset
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_GFX_SIZE_T GmmLib::GmmTextureCalc::Get3DMipByteAddress(GMM_TEXTURE_INFO     *pTexInfo,
-                                                           GMM_REQ_OFFSET_INFO  *pReqInfo)
+GMM_GFX_SIZE_T GmmLib::GmmTextureCalc::Get3DMipByteAddress(GMM_TEXTURE_INFO *   pTexInfo,
+                                                           GMM_REQ_OFFSET_INFO *pReqInfo)
 {
-    uint32_t               MipsInThisRow, PlaneRows;
-    uint32_t               MipHeight, MipWidth;
-    uint32_t               UnitAlignHeight, UnitAlignWidth ;
-    GMM_GFX_SIZE_T         MipMapByteAddress, ExtraBytes;
-    uint32_t               Slice, MipLevel, Pitch;
-    uint8_t                Compress;
+    uint32_t            MipsInThisRow, PlaneRows;
+    uint32_t            MipHeight, MipWidth;
+    uint32_t            UnitAlignHeight, UnitAlignWidth;
+    GMM_GFX_SIZE_T      MipMapByteAddress, ExtraBytes;
+    uint32_t            Slice, MipLevel, Pitch;
+    uint8_t             Compress;
     GMM_RESOURCE_FORMAT GenericFormat;
-    uint32_t               CompressHeight, CompressWidth, CompressDepth;
+    uint32_t            CompressHeight, CompressWidth, CompressDepth;
 
     __GMM_ASSERTPTR(pGmmGlobalContext, 0);
 
     GenericFormat = pTexInfo->Format;
-    Slice = pReqInfo->Slice;
-    MipLevel = pReqInfo->MipLevel;
-    Pitch = GFX_ULONG_CAST(pTexInfo->Pitch);
+    Slice         = pReqInfo->Slice;
+    MipLevel      = pReqInfo->MipLevel;
+    Pitch         = GFX_ULONG_CAST(pTexInfo->Pitch);
 
     // For slice 0 for any mip address is simple and stored in table
-    if (Slice == 0)
+    if(Slice == 0)
     {
         MipMapByteAddress = pTexInfo->OffsetInfo.Texture3DOffsetInfo.Offset[MipLevel];
     }
@@ -735,15 +737,15 @@ GMM_GFX_SIZE_T GmmLib::GmmTextureCalc::Get3DMipByteAddress(GMM_TEXTURE_INFO     
         PlaneRows = Slice / MipsInThisRow;
 
         // make sure we get the height and mip of base level
-        MipWidth = GFX_ULONG_CAST(pTexInfo->BaseWidth);
+        MipWidth  = GFX_ULONG_CAST(pTexInfo->BaseWidth);
         MipHeight = pTexInfo->BaseHeight;
 
         MipWidth >>= MipLevel;
         MipHeight >>= MipLevel;
 
-        UnitAlignWidth =  pTexInfo->Alignment.HAlign;
+        UnitAlignWidth  = pTexInfo->Alignment.HAlign;
         UnitAlignHeight = pTexInfo->Alignment.VAlign;
-        Compress = GmmIsCompressed(pTexInfo->Format);
+        Compress        = GmmIsCompressed(pTexInfo->Format);
         GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
         // clamp such that mip height is at least min height
@@ -754,21 +756,22 @@ GMM_GFX_SIZE_T GmmLib::GmmTextureCalc::Get3DMipByteAddress(GMM_TEXTURE_INFO     
         MipWidth = GFX_MAX(MipWidth, UnitAlignWidth);
         MipWidth = GFX_ALIGN(MipWidth, UnitAlignWidth);
 
-        if (Compress)
+        if(Compress)
         {
-            MipWidth /=  CompressWidth;
+            MipWidth /= CompressWidth;
             MipHeight /= CompressHeight;
         }
-        else if (pTexInfo->Flags.Gpu.SeparateStencil)
+        else if(pTexInfo->Flags.Gpu.SeparateStencil)
         {
-            MipWidth  *= 2;
+            MipWidth *= 2;
             MipHeight /= 2;
         }
 
         ExtraBytes = PlaneRows * MipHeight * Pitch;
 
         ExtraBytes += ((Slice % MipsInThisRow) *
-                        MipWidth * pTexInfo->BitsPerPixel) >> 3;
+                       MipWidth * pTexInfo->BitsPerPixel) >>
+                      3;
 
         // get address offset
         MipMapByteAddress += ExtraBytes;
@@ -787,30 +790,30 @@ GMM_GFX_SIZE_T GmmLib::GmmTextureCalc::Get3DMipByteAddress(GMM_TEXTURE_INFO     
 ///
 /// @return     byte offset
 /////////////////////////////////////////////////////////////////////////////////////
-uint32_t GmmLib::GmmTextureCalc::GetDisplayFrameOffset(GMM_TEXTURE_INFO*    pTexInfo,
-                                                    GMM_REQ_OFFSET_INFO* pReqInfo)
+uint32_t GmmLib::GmmTextureCalc::GetDisplayFrameOffset(GMM_TEXTURE_INFO *   pTexInfo,
+                                                       GMM_REQ_OFFSET_INFO *pReqInfo)
 {
-    uint32_t       Offset;
+    uint32_t Offset;
 
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
     __GMM_ASSERTPTR(pReqInfo, GMM_ERROR);
 
-    switch (pReqInfo->Frame)
+    switch(pReqInfo->Frame)
     {
         case GMM_DISPLAY_L:
-             Offset = 0;
-             break;
+            Offset = 0;
+            break;
         case GMM_DISPLAY_R:
-             Offset = pTexInfo->S3d.RFrameOffset;
-             break;
+            Offset = pTexInfo->S3d.RFrameOffset;
+            break;
         case GMM_DISPLAY_BLANK_AREA:
-             Offset = pTexInfo->S3d.BlankAreaOffset;
-             break;
+            Offset = pTexInfo->S3d.BlankAreaOffset;
+            break;
         default:
-             Offset = 0;
-             GMM_ASSERTDPF(0, "Unknown Frame Type!");
-             break;
-     }
+            Offset = 0;
+            GMM_ASSERTDPF(0, "Unknown Frame Type!");
+            break;
+    }
 
     return Offset;
 }

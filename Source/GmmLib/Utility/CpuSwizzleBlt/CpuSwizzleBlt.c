@@ -19,7 +19,7 @@ OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
-
+// clang-format off
 // CpuSwizzleBlt.c - Surface swizzling definitions and BLT functionality.
 
 // [!] File serves as its own header:
@@ -1174,3 +1174,4 @@ void CpuSwizzleBlt( // #########################################################
 } // CpuSwizzleBlt
 
 #endif // #ifndef INCLUDE_CpuSwizzleBlt_c_AS_HEADER
+// clang-format on

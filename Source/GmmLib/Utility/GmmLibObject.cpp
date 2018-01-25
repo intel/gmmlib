@@ -22,12 +22,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Internal/Common/GmmLibInc.h"
 
-//Embargoed GenX Header Files includes goes here
-//@embargoedStart
 #include "Internal/Common/Platform/GmmGen10Platform.h"
 #include "External/Common/CachePolicy/GmmCachePolicyGen10.h"
+#include "Internal/Common/Texture/GmmTextureCalc.h"
 #include "Internal/Common/Texture/GmmGen10TextureCalc.h"
-//@embargoedEnd
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// Static function to return a PlatformInfo object based on input platform
@@ -36,14 +34,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 /// @param[in]  Override: Indicates if Override should be used (KMD and Debug/Release-Internal Only)
 /// @return     PlatformInfo object
 /////////////////////////////////////////////////////////////////////////////////////
-GmmLib::PlatformInfo* GmmLib::PlatformInfo::Create(PLATFORM Platform, bool Override)
+GmmLib::PlatformInfo *GmmLib::PlatformInfo::Create(PLATFORM Platform, bool Override)
 {
     GMM_DPF_ENTER;
 
-    if (Override == false)
+    if(Override == false)
     {
         GmmLib::PlatformInfo::IncrementRefCount();
-        if (pGmmGlobalContext->GetPlatformInfoObj() != NULL)
+        if(pGmmGlobalContext->GetPlatformInfoObj() != NULL)
         {
             return pGmmGlobalContext->GetPlatformInfoObj();
         }
@@ -51,18 +49,19 @@ GmmLib::PlatformInfo* GmmLib::PlatformInfo::Create(PLATFORM Platform, bool Overr
 #if(defined(__GMM_KMD__) && (_DEBUG || _RELEASE_INTERNAL))
     else
     {
-        if (pGmmGlobalContext->GetOverridePlatformInfoObj() != NULL) {
+        if(pGmmGlobalContext->GetOverridePlatformInfoObj() != NULL)
+        {
             delete pGmmGlobalContext->GetOverridePlatformInfoObj();
             pGmmGlobalContext->SetOverridePlatformInfoObj(NULL);
         }
     }
 #endif
     GMM_DPF_EXIT;
-    if (GFX_GET_CURRENT_RENDERCORE(Platform) >= IGFX_GEN10_CORE)
+    if(GFX_GET_CURRENT_RENDERCORE(Platform) >= IGFX_GEN10_CORE)
     {
         return new GmmLib::PlatformInfoGen10(Platform);
     }
-    else if (GFX_GET_CURRENT_RENDERCORE(Platform) >= IGFX_GEN9_CORE)
+    else if(GFX_GET_CURRENT_RENDERCORE(Platform) >= IGFX_GEN9_CORE)
     {
         return new GmmLib::PlatformInfoGen9(Platform);
     }
@@ -77,24 +76,24 @@ GmmLib::PlatformInfo* GmmLib::PlatformInfo::Create(PLATFORM Platform, bool Overr
 ///
 /// @return        GmmCachePolicyCommon
 /////////////////////////////////////////////////////////////////////////////////////
-GmmLib::GmmCachePolicyCommon* GmmLib::GmmCachePolicyCommon::Create()
+GmmLib::GmmCachePolicyCommon *GmmLib::GmmCachePolicyCommon::Create()
 {
-    GMM_CACHE_POLICY *pGmmCachePolicy = NULL;
-    GMM_CACHE_POLICY_ELEMENT *CachePolicy = NULL;
-    CachePolicy = pGmmGlobalContext->GetCachePolicyUsage();
+    GMM_CACHE_POLICY *        pGmmCachePolicy = NULL;
+    GMM_CACHE_POLICY_ELEMENT *CachePolicy     = NULL;
+    CachePolicy                               = pGmmGlobalContext->GetCachePolicyUsage();
 
     IncrementRefCount();
-    if (pGmmGlobalContext->GetCachePolicyObj())
+    if(pGmmGlobalContext->GetCachePolicyObj())
     {
         return pGmmGlobalContext->GetCachePolicyObj();
     }
 
-    if (GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN10_CORE)
+    if(GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN10_CORE)
     {
         pGmmCachePolicy = new GmmLib::GmmGen10CachePolicy(CachePolicy);
     }
 
-    else if (GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN9_CORE)
+    else if(GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN9_CORE)
     {
         pGmmCachePolicy = new GmmLib::GmmGen9CachePolicy(CachePolicy);
     }
@@ -103,7 +102,7 @@ GmmLib::GmmCachePolicyCommon* GmmLib::GmmCachePolicyCommon::Create()
         pGmmCachePolicy = new GmmLib::GmmGen8CachePolicy(CachePolicy);
     }
 
-    if (!pGmmCachePolicy)
+    if(!pGmmCachePolicy)
     {
         GMM_DPF_CRITICAL("unable to allocate memory for CachePolicy Object");
     }
@@ -119,18 +118,18 @@ GmmLib::GmmCachePolicyCommon* GmmLib::GmmCachePolicyCommon::Create()
 ///
 /// @return     Returns an instance of GmmTextureCalc's derived class
 /////////////////////////////////////////////////////////////////////////////////////
-GmmLib::GmmTextureCalc* GmmLib::GmmTextureCalc::Create(PLATFORM Platform, uint8_t Override)
+GmmLib::GmmTextureCalc *GmmLib::GmmTextureCalc::Create(PLATFORM Platform, uint8_t Override)
 {
-    if (!Override)
+    if(!Override)
     {
         IncrementRefCount();
-        if (pGmmGlobalContext->GetTextureCalc())
+        if(pGmmGlobalContext->GetTextureCalc())
         {
             return pGmmGlobalContext->GetTextureCalc();
         }
     }
 
-    switch (GFX_GET_CURRENT_RENDERCORE(Platform))
+    switch(GFX_GET_CURRENT_RENDERCORE(Platform))
     {
         case IGFX_GEN7_CORE:
         case IGFX_GEN7_5_CORE:

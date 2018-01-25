@@ -33,10 +33,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 /// Constructor to zero initialize the GmmLib::GmmClientContext object and create
 /// Utility class object
 /////////////////////////////////////////////////////////////////////////////////////
-GmmLib::GmmClientContext::GmmClientContext(GMM_CLIENT   ClientType):
-                                            ClientType(),
-                                            pUmdAdapter(),
-                                            pGmmUmdContext()
+GmmLib::GmmClientContext::GmmClientContext(GMM_CLIENT ClientType)
+    : ClientType(),
+      pUmdAdapter(),
+      pGmmUmdContext()
 {
     this->ClientType = ClientType;
 }
@@ -68,7 +68,7 @@ MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmClientContext::CachePolicyGet
 /// @param[in]  GMM_RESOURCE_USAGE_TYPE : Resource Usage Type
 /// @return     GMM_PTE_CACHE_CONTROL_BITS for the resource of "Usage" type.
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_PTE_CACHE_CONTROL_BITS  GMM_STDCALL GmmLib::GmmClientContext::CachePolicyGetPteType(GMM_RESOURCE_USAGE_TYPE Usage)
+GMM_PTE_CACHE_CONTROL_BITS GMM_STDCALL GmmLib::GmmClientContext::CachePolicyGetPteType(GMM_RESOURCE_USAGE_TYPE Usage)
 {
     return pGmmGlobalContext->GetCachePolicyObj()->CachePolicyGetPteType(Usage);
 }
@@ -105,8 +105,8 @@ uint8_t GMM_STDCALL GmmLib::GmmClientContext::CachePolicyIsUsagePTECached(GMM_RE
 /////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmLib::GmmClientContext::CachePolicyGetMaxMocsIndex()
 {
-    GMM_CACHE_POLICY *pCachePolicy = pGmmGlobalContext->GetCachePolicyObj();
-    GmmLib::GmmGen9CachePolicy *ptr = static_cast<GmmLib::GmmGen9CachePolicy*>(pCachePolicy);
+    GMM_CACHE_POLICY *          pCachePolicy = pGmmGlobalContext->GetCachePolicyObj();
+    GmmLib::GmmGen9CachePolicy *ptr          = static_cast<GmmLib::GmmGen9CachePolicy *>(pCachePolicy);
     return ptr->CurrentMaxMocsIndex;
 }
 
@@ -118,8 +118,8 @@ uint32_t GMM_STDCALL GmmLib::GmmClientContext::CachePolicyGetMaxMocsIndex()
 /////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmLib::GmmClientContext::CachePolicyGetMaxL1HdcMocsIndex()
 {
-    GMM_CACHE_POLICY *pCachePolicy = pGmmGlobalContext->GetCachePolicyObj();
-    GmmLib::GmmGen9CachePolicy *ptr = static_cast<GmmLib::GmmGen9CachePolicy*>(pCachePolicy);
+    GMM_CACHE_POLICY *          pCachePolicy = pGmmGlobalContext->GetCachePolicyObj();
+    GmmLib::GmmGen9CachePolicy *ptr          = static_cast<GmmLib::GmmGen9CachePolicy *>(pCachePolicy);
     return ptr->CurrentMaxL1HdcMocsIndex;
 }
 
@@ -140,7 +140,7 @@ uint32_t GMM_STDCALL GmmLib::GmmClientContext::CachePolicyGetMaxSpecialMocsIndex
 ///
 /// @return     Const GMM_CACHE_POLICY_ELEMENT Table
 /////////////////////////////////////////////////////////////////////////////////////
-const GMM_CACHE_POLICY_ELEMENT* GMM_STDCALL GmmLib::GmmClientContext::GetCachePolicyUsage()
+const GMM_CACHE_POLICY_ELEMENT *GMM_STDCALL GmmLib::GmmClientContext::GetCachePolicyUsage()
 {
     return (pGmmGlobalContext->GetCachePolicyUsage());
 }
@@ -165,9 +165,9 @@ void GMM_STDCALL GmmLib::GmmClientContext::GetCacheSizes(GMM_CACHE_SIZES *pCache
 /// @return     Boolean indicating whether command should use GTT or PPGTT address
 ///             space Global GTT aliasing; 0 otherwise.
 /////////////////////////////////////////////////////////////////////////////////////
-uint8_t GMM_STDCALL GmmLib::GmmClientContext::GetUseGlobalGtt(GMM_HW_COMMAND_STREAMER cs,
-                                                       GMM_HW_COMMAND Command,
-                                                       D3DDDI_PATCHLOCATIONLIST_DRIVERID *pDriverId)
+uint8_t GMM_STDCALL GmmLib::GmmClientContext::GetUseGlobalGtt(GMM_HW_COMMAND_STREAMER            cs,
+                                                              GMM_HW_COMMAND                     Command,
+                                                              D3DDDI_PATCHLOCATIONLIST_DRIVERID *pDriverId)
 {
     return GmmGetUseGlobalGtt(cs, Command, pDriverId);
 }
@@ -189,7 +189,7 @@ GMM_CACHE_POLICY_ELEMENT GMM_STDCALL GmmLib::GmmClientContext::GetCachePolicyEle
 ///
 /// @return     GMM_CACHE_POLICY_TBL_ELEMENT
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_CACHE_POLICY_TBL_ELEMENT GMM_STDCALL GmmLib::GmmClientContext::GetCachePolicyTlbElement(uint32_t  MocsIdx)
+GMM_CACHE_POLICY_TBL_ELEMENT GMM_STDCALL GmmLib::GmmClientContext::GetCachePolicyTlbElement(uint32_t MocsIdx)
 {
     return pGmmGlobalContext->GetCachePolicyTlbElement()[MocsIdx];
 }
@@ -199,7 +199,7 @@ GMM_CACHE_POLICY_TBL_ELEMENT GMM_STDCALL GmmLib::GmmClientContext::GetCachePolic
 ///
 /// @return     GMM_PLATFORM_INFO&
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_PLATFORM_INFO& GMM_STDCALL GmmLib::GmmClientContext::GetPlatformInfo()
+GMM_PLATFORM_INFO &GMM_STDCALL GmmLib::GmmClientContext::GetPlatformInfo()
 {
     return pGmmGlobalContext->GetPlatformInfo();
 }
@@ -214,7 +214,7 @@ uint8_t GMM_STDCALL GmmLib::GmmClientContext::IsPlanar(GMM_RESOURCE_FORMAT Forma
 {
     uint8_t Status = 0;
 
-    switch (Format)
+    switch(Format)
     {
         // YUV Planar Formats
         case GMM_FORMAT_BGRP:
@@ -222,7 +222,7 @@ uint8_t GMM_STDCALL GmmLib::GmmClientContext::IsPlanar(GMM_RESOURCE_FORMAT Forma
         case GMM_FORMAT_IMC2:
         case GMM_FORMAT_IMC3:
         case GMM_FORMAT_IMC4:
-        case GMM_FORMAT_I420:       //Same as IYUV.
+        case GMM_FORMAT_I420: //Same as IYUV.
         case GMM_FORMAT_IYUV:
         case GMM_FORMAT_MFX_JPEG_YUV411:
         case GMM_FORMAT_MFX_JPEG_YUV411R:
@@ -260,7 +260,7 @@ uint8_t GMM_STDCALL GmmLib::GmmClientContext::IsP0xx(GMM_RESOURCE_FORMAT Format)
 {
     uint8_t Status = 0;
 
-    switch (Format)
+    switch(Format)
     {
         case GMM_FORMAT_P010:
         case GMM_FORMAT_P012:
@@ -285,7 +285,7 @@ uint8_t GMM_STDCALL GmmLib::GmmClientContext::IsUVPacked(GMM_RESOURCE_FORMAT For
 {
     uint8_t Status = 0;
 
-    switch (Format)
+    switch(Format)
     {
         case GMM_FORMAT_NV11:
         case GMM_FORMAT_NV12:
@@ -311,10 +311,9 @@ uint8_t GMM_STDCALL GmmLib::GmmClientContext::IsUVPacked(GMM_RESOURCE_FORMAT For
 /////////////////////////////////////////////////////////////////////////////////////
 uint8_t GMM_STDCALL GmmLib::GmmClientContext::IsCompressed(GMM_RESOURCE_FORMAT Format)
 {
-    return
-        (Format > GMM_FORMAT_INVALID) &&
-        (Format < GMM_RESOURCE_FORMATS) &&
-        pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].Compressed;
+    return (Format > GMM_FORMAT_INVALID) &&
+           (Format < GMM_RESOURCE_FORMATS) &&
+           pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].Compressed;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -327,7 +326,7 @@ uint8_t GMM_STDCALL GmmLib::GmmClientContext::IsYUVPacked(GMM_RESOURCE_FORMAT Fo
 {
     uint8_t Status = 0;
 
-    switch (Format)
+    switch(Format)
     {
         // YCRCB_xxx Format Supported by the Sampler...
         case GMM_FORMAT_YUY2:
@@ -357,27 +356,27 @@ uint8_t GMM_STDCALL GmmLib::GmmClientContext::IsYUVPacked(GMM_RESOURCE_FORMAT Fo
 /// @param[in] pCreateParams: Flags which specify what sort of resource to create
 /// @return     Pointer to GmmResourceInfo class.
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_RESOURCE_INFO* GMM_STDCALL GmmLib::GmmClientContext::CreateResInfoObject(GMM_RESCREATE_PARAMS *pCreateParams)
+GMM_RESOURCE_INFO *GMM_STDCALL GmmLib::GmmClientContext::CreateResInfoObject(GMM_RESCREATE_PARAMS *pCreateParams)
 {
-    GMM_RESOURCE_INFO* pRes = NULL;
+    GMM_RESOURCE_INFO *pRes = NULL;
 
     // GMM_RESOURCE_INFO...
-    if (pCreateParams->pPreallocatedResInfo)
+    if(pCreateParams->pPreallocatedResInfo)
     {
         pRes = new(pCreateParams->pPreallocatedResInfo) GmmLib::GmmResourceInfo(); // Use preallocated memory as a class
         pCreateParams->Flags.Info.__PreallocatedResInfo =
-            pRes->GetResFlags().Info.__PreallocatedResInfo = 1; // Set both in case we can die before copying over the flags.
+        pRes->GetResFlags().Info.__PreallocatedResInfo = 1; // Set both in case we can die before copying over the flags.
     }
     else
     {
-        if ((pRes = new GMM_RESOURCE_INFO) == NULL)
+        if((pRes = new GMM_RESOURCE_INFO) == NULL)
         {
             GMM_ASSERTDPF(0, "Allocation failed!");
             goto ERROR_CASE;
         }
     }
 
-    if (pRes->Create(*pGmmGlobalContext, *pCreateParams) != GMM_SUCCESS)
+    if(pRes->Create(*pGmmGlobalContext, *pCreateParams) != GMM_SUCCESS)
     {
         goto ERROR_CASE;
     }
@@ -385,13 +384,12 @@ GMM_RESOURCE_INFO* GMM_STDCALL GmmLib::GmmClientContext::CreateResInfoObject(GMM
     return (pRes);
 
 ERROR_CASE:
-    if (pRes)
+    if(pRes)
     {
         GmmResFree(pRes);
     }
 
     return (NULL);
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -402,14 +400,14 @@ ERROR_CASE:
 /// @param[in] pSrcRes: Existing ResInfoObj
 /// @return     Pointer to GmmResourceInfo class.
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_RESOURCE_INFO* GMM_STDCALL GmmLib::GmmClientContext::CopyResInfoObject(GMM_RESOURCE_INFO *pSrcRes)
+GMM_RESOURCE_INFO *GMM_STDCALL GmmLib::GmmClientContext::CopyResInfoObject(GMM_RESOURCE_INFO *pSrcRes)
 {
-    GMM_RESOURCE_INFO*  pResCopy = NULL;
+    GMM_RESOURCE_INFO *pResCopy = NULL;
 
     __GMM_ASSERTPTR(pSrcRes, NULL);
 
     pResCopy = new GMM_RESOURCE_INFO;
-    if (!pResCopy)
+    if(!pResCopy)
     {
         GMM_ASSERTDPF(0, "Allocation failed.");
         return NULL;
@@ -433,7 +431,7 @@ GMM_RESOURCE_INFO* GMM_STDCALL GmmLib::GmmClientContext::CopyResInfoObject(GMM_R
 /////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmLib::GmmClientContext::ResMemcpy(void *pDst, void *pSrc)
 {
-    GMM_RESOURCE_INFO *pResSrc = reinterpret_cast<GMM_RESOURCE_INFO*>(pSrc);
+    GMM_RESOURCE_INFO *pResSrc = reinterpret_cast<GMM_RESOURCE_INFO *>(pSrc);
     // Init memory correctly, in case the pointer is a raw memory pointer
     GMM_RESOURCE_INFO *pResDst = new(pDst) GMM_RESOURCE_INFO();
 
@@ -446,11 +444,11 @@ void GMM_STDCALL GmmLib::GmmClientContext::ResMemcpy(void *pDst, void *pSrc)
 /// @param[in] pResInfo: Pointer to ResInfoObject
 /// @return     void.
 /////////////////////////////////////////////////////////////////////////////////////
-void GMM_STDCALL GmmLib::GmmClientContext::DestroyResInfoObject(GMM_RESOURCE_INFO    *pResInfo)
+void GMM_STDCALL GmmLib::GmmClientContext::DestroyResInfoObject(GMM_RESOURCE_INFO *pResInfo)
 {
     __GMM_ASSERTPTR(pResInfo, VOIDRETURN);
 
-    if (pResInfo->GetResFlags().Info.__PreallocatedResInfo)
+    if(pResInfo->GetResFlags().Info.__PreallocatedResInfo)
     {
         *pResInfo = GmmLib::GmmResourceInfo();
     }
@@ -459,7 +457,6 @@ void GMM_STDCALL GmmLib::GmmClientContext::DestroyResInfoObject(GMM_RESOURCE_INF
         delete pResInfo;
         pResInfo = NULL;
     }
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -470,9 +467,9 @@ void GMM_STDCALL GmmLib::GmmClientContext::DestroyResInfoObject(GMM_RESOURCE_INF
 ///
 /// @return     Pointer to GmmClientContext, if Context is created
 /////////////////////////////////////////////////////////////////////////////////////
-extern "C" GMM_CLIENT_CONTEXT* GMM_STDCALL GmmCreateClientContext(GMM_CLIENT ClientType)
+extern "C" GMM_CLIENT_CONTEXT *GMM_STDCALL GmmCreateClientContext(GMM_CLIENT ClientType)
 {
-    GMM_CLIENT_CONTEXT  *pGmmClientContext = nullptr;
+    GMM_CLIENT_CONTEXT *pGmmClientContext = nullptr;
 
     pGmmClientContext = new GMM_CLIENT_CONTEXT(ClientType);
 
@@ -488,11 +485,9 @@ extern "C" GMM_CLIENT_CONTEXT* GMM_STDCALL GmmCreateClientContext(GMM_CLIENT Cli
 /////////////////////////////////////////////////////////////////////////////////////
 extern "C" void GMM_STDCALL GmmDeleteClientContext(GMM_CLIENT_CONTEXT *pGmmClientContext)
 {
-    if (pGmmClientContext)
+    if(pGmmClientContext)
     {
         delete pGmmClientContext;
         pGmmClientContext = NULL;
     }
 }
-
-

@@ -26,12 +26,8 @@ using namespace std;
 
 TEST_F(CTestGen10CachePolicy, TestCachePolicyOverrides)
 {
-
-
 }
 
 TEST_F(CTestGen10CachePolicy, TestCachePolicyConditionals)
 {
-
-
 }

@@ -22,9 +22,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "GmmCommonULT.h"
 
-ADAPTER_INFO *CommonULT::pGfxAdapterInfo = NULL;
-PLATFORM CommonULT::GfxPlatform = {};
-GMM_CLIENT_CONTEXT* CommonULT::pGmmULTClientContext = NULL;
+ADAPTER_INFO *      CommonULT::pGfxAdapterInfo      = NULL;
+PLATFORM            CommonULT::GfxPlatform          = {};
+GMM_CLIENT_CONTEXT *CommonULT::pGmmULTClientContext = NULL;
 
 void CommonULT::SetUpTestCase()
 {
@@ -33,11 +33,11 @@ void CommonULT::SetUpTestCase()
     if(GfxPlatform.eProductFamily == IGFX_UNKNOWN ||
        GfxPlatform.eRenderCoreFamily == IGFX_UNKNOWN_CORE)
     {
-        GfxPlatform.eProductFamily = IGFX_BROADWELL;
+        GfxPlatform.eProductFamily    = IGFX_BROADWELL;
         GfxPlatform.eRenderCoreFamily = IGFX_GEN8_CORE;
     }
 
-    pGfxAdapterInfo = (ADAPTER_INFO *) malloc(sizeof(ADAPTER_INFO));
+    pGfxAdapterInfo = (ADAPTER_INFO *)malloc(sizeof(ADAPTER_INFO));
 
     if(!pGfxAdapterInfo)
     {
@@ -47,17 +47,15 @@ void CommonULT::SetUpTestCase()
     memset(pGfxAdapterInfo, 0, sizeof(ADAPTER_INFO));
 
     GMM_STATUS GmmStatus = GmmInitGlobalContext(GfxPlatform,
-        &pGfxAdapterInfo->SkuTable,
-        &pGfxAdapterInfo->WaTable,
-        &pGfxAdapterInfo->SystemInfo,
-        GMM_D3D9_VISTA
-        );
+                                                &pGfxAdapterInfo->SkuTable,
+                                                &pGfxAdapterInfo->WaTable,
+                                                &pGfxAdapterInfo->SystemInfo,
+                                                GMM_D3D9_VISTA);
 
     ASSERT_EQ(GmmStatus, GMM_SUCCESS);
 
     pGmmULTClientContext = GmmCreateClientContext(GMM_EXCITE_VISTA);
     ASSERT_TRUE(pGmmULTClientContext);
-
 }
 
 void CommonULT::TearDownTestCase()
@@ -67,5 +65,5 @@ void CommonULT::TearDownTestCase()
     GmmDestroyGlobalContext();
     free(pGfxAdapterInfo);
     pGfxAdapterInfo = NULL;
-    GfxPlatform = {};
+    GfxPlatform     = {};
 }

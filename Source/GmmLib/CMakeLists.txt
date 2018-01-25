@@ -229,7 +229,7 @@ set(HEADERS_
 	${BS_DIR_GMMLIB}/inc/GmmLib.h
 )
 
-set(UMD_HEADERS 
+set(UMD_HEADERS
 	${HEADERS_}
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmClientContext.h
 	)
@@ -263,8 +263,6 @@ set(SOURCES_
   ${BS_DIR_GMMLIB}/Utility/GmmLibObject.cpp
   ${BS_DIR_GMMLIB}/Utility/GmmLog/GmmLog.cpp
   ${BS_DIR_GMMLIB}/Utility/GmmUtility.cpp
-  ${BS_DIR_GMMLIB}/Utility/GmmHeap/GmmHeap.c
-  ${BS_DIR_GMMLIB}/Utility/GmmHeap/node.c
 )
 
 set(UMD_SOURCES

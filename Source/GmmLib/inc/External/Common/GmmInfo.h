@@ -49,7 +49,6 @@ typedef struct GMM_UMD_CONTEXT_REC
     uint32_t   TBD3;
 } GMM_UMD_CONTEXT;
 
-
 //===========================================================================
 // typedef:
 //      GMM_GLOBAL_CONTEXT

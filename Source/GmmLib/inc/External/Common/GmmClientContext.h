@@ -94,7 +94,6 @@ namespace GmmLib
         GMM_RESOURCE_INFO* GMM_STDCALL       CopyResInfoObject(GMM_RESOURCE_INFO *pSrcRes);
         void GMM_STDCALL                     ResMemcpy(void *pDst, void *pSrc);
         void  GMM_STDCALL                    DestroyResInfoObject(GMM_RESOURCE_INFO    *pResInfo);
-
     };
 }
 

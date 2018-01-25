@@ -53,7 +53,7 @@ OTHER DEALINGS IN THE SOFTWARE.
   (See bottom of file for more info.)
 
   Supported (ALWAYS / *) -----------------------------------------------------------o
-  Reserved----------------------------------------------------------------o         |
+  Reserved ---------------------------------------------------------------o         |
   RCS SURFACE_STATE.Format (or NA) --------------------------------o      |         |
   ASTC Format (A / x) ----------------------------------------o    |      |         |
   Render Target Eligibility (R / x / *) -------------------o  |    |      |         |
@@ -164,7 +164,7 @@ GMM_FORMAT( P8A8_UNORM_PALETTE0          ,  16,  1,  1, 1, R, x, 0x122, NC  ,   
 GMM_FORMAT( P8A8_UNORM_PALETTE1          ,  16,  1,  1, 1, R, x, 0x123, NC  ,     ALWAYS      )
 GMM_FORMAT( PLANAR_420_8                 ,   8,  1,  1, 1, R, x, 0x1A5, NC  ,     x         ) // No current GMM support by this name.
 GMM_FORMAT( PLANAR_420_16                ,  16,  1,  1, 1, R, x, 0x1A6, NC  ,     x         ) // "
-GMM_FORMAT( PLANAR_422_8                 ,   8,  1,  1, 1, R, x, 0x00F, NC  ,     x         ) // <-- TODO(Minor): Remove this HW-internal format.
+GMM_FORMAT( PLANAR_422_8                 ,   8,  1,  1, 1, R, x, 0x00F, NC  ,     x         )           // <-- TODO(Minor): Remove this HW-internal format.
 GMM_FORMAT( R1_UNORM                     ,   1,  1,  1, 1, R, x, 0x181, NC  ,     x         ) // "
 GMM_FORMAT( R8_SINT                      ,   8,  1,  1, 1, R, x, 0x142, 0xA ,     ALWAYS      )
 GMM_FORMAT( R8_SNORM                     ,   8,  1,  1, 1, R, x, 0x141, 0xA ,     ALWAYS      )

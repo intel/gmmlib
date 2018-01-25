@@ -31,13 +31,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 /// @return     offset value in bytes
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_GFX_SIZE_T GmmLib::GmmGen9TextureCalc::Get1DTexOffsetAddressPerMip(GMM_TEXTURE_INFO *pTexInfo,
-                                                                       uint32_t            MipLevel)
+                                                                       uint32_t          MipLevel)
 {
-    uint32_t           AlignedMipWidth, MipWidth, __MipLevel;
-    uint32_t           i, HAlign;
-    GMM_GFX_SIZE_T     MipOffset = 0;
-    uint8_t            Compressed;
-    uint32_t           CompressHeight, CompressWidth, CompressDepth;
+    uint32_t       AlignedMipWidth, MipWidth, __MipLevel;
+    uint32_t       i, HAlign;
+    GMM_GFX_SIZE_T MipOffset = 0;
+    uint8_t        Compressed;
+    uint32_t       CompressHeight, CompressWidth, CompressDepth;
 
     GMM_DPF_ENTER;
 
@@ -45,8 +45,9 @@ GMM_GFX_SIZE_T GmmLib::GmmGen9TextureCalc::Get1DTexOffsetAddressPerMip(GMM_TEXTU
     MipWidth = GFX_ULONG_CAST(pTexInfo->BaseWidth);
 
     __MipLevel =
-        (pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) ?
-            GFX_MIN(MipLevel, pTexInfo->Alignment.MipTailStartLod) : MipLevel;
+    (pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) ?
+    GFX_MIN(MipLevel, pTexInfo->Alignment.MipTailStartLod) :
+    MipLevel;
 
     Compressed = GmmIsCompressed(pTexInfo->Format);
     GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
@@ -55,7 +56,7 @@ GMM_GFX_SIZE_T GmmLib::GmmGen9TextureCalc::Get1DTexOffsetAddressPerMip(GMM_TEXTU
     {
         AlignedMipWidth = __GMM_EXPAND_WIDTH(this, MipWidth, HAlign, pTexInfo);
 
-        if (Compressed)
+        if(Compressed)
         {
             AlignedMipWidth /= CompressWidth;
         }
@@ -75,7 +76,7 @@ GMM_GFX_SIZE_T GmmLib::GmmGen9TextureCalc::Get1DTexOffsetAddressPerMip(GMM_TEXTU
 
     GMM_DPF_EXIT;
 
-    return(MipOffset);
+    return (MipOffset);
 }
 
 
@@ -93,8 +94,8 @@ void GmmLib::GmmGen9TextureCalc::Fill1DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
     GMM_DPF_ENTER;
 
     pTexInfo->OffsetInfo.Texture2DOffsetInfo.ArrayQPitchRender =
-        pTexInfo->OffsetInfo.Texture2DOffsetInfo.ArrayQPitchLock =
-            pTexInfo->Alignment.QPitch * pTexInfo->BitsPerPixel >> 3;
+    pTexInfo->OffsetInfo.Texture2DOffsetInfo.ArrayQPitchLock =
+    pTexInfo->Alignment.QPitch * pTexInfo->BitsPerPixel >> 3;
 
     for(i = 0; i <= pTexInfo->MaxLod; i++)
     {
@@ -113,14 +114,14 @@ void GmmLib::GmmGen9TextureCalc::Fill1DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
 ///
 /// @return     ::GMM_STATUS
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex1D(GMM_TEXTURE_INFO  *pTexInfo,
+GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex1D(GMM_TEXTURE_INFO * pTexInfo,
                                                              __GMM_BUFFER_TYPE *pRestrictions)
 {
-    uint32_t               ArraySize, BitsPerPixel, HAlign, i, Width, MipWidth;
-    int64_t                Size;
-    GMM_STATUS             Status = GMM_SUCCESS;
-    uint8_t                Compressed;
-    uint32_t               CompressHeight, CompressWidth, CompressDepth;
+    uint32_t   ArraySize, BitsPerPixel, HAlign, i, Width, MipWidth;
+    int64_t    Size;
+    GMM_STATUS Status = GMM_SUCCESS;
+    uint8_t    Compressed;
+    uint32_t   CompressHeight, CompressWidth, CompressDepth;
 
     GMM_DPF_ENTER;
 
@@ -135,7 +136,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex1D(GMM_TEXTURE_INFO  *
     pTexInfo->Flags.Info.TiledX = 0;
     pTexInfo->Flags.Info.TiledY = 0;
 
-    const GMM_PLATFORM_INFO* pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
 
     ArraySize    = GFX_MAX(pTexInfo->ArraySize, 1);
     BitsPerPixel = pTexInfo->BitsPerPixel;
@@ -153,7 +154,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex1D(GMM_TEXTURE_INFO  *
     // Calculate Surface QPitch
     /////////////////////////////
 
-    Width = __GMM_EXPAND_WIDTH(this, GFX_ULONG_CAST(pTexInfo->BaseWidth), HAlign, pTexInfo);
+    Width    = __GMM_EXPAND_WIDTH(this, GFX_ULONG_CAST(pTexInfo->BaseWidth), HAlign, pTexInfo);
     MipWidth = Width;
 
     if((pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) &&
@@ -179,7 +180,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex1D(GMM_TEXTURE_INFO  *
 
                 AlignedMipWidth = __GMM_EXPAND_WIDTH(this, MipWidth, HAlign, pTexInfo);
 
-                if (Compressed)
+                if(Compressed)
                 {
                     AlignedMipWidth /= CompressWidth;
                 }
@@ -199,7 +200,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex1D(GMM_TEXTURE_INFO  *
 
     Width *= BitsPerPixel >> 3;
 
-    Size = GFX_ALIGN((uint64_t) Width * ArraySize, PAGE_SIZE);
+    Size = GFX_ALIGN((uint64_t)Width * ArraySize, PAGE_SIZE);
 
     if(Size <= pPlatform->SurfaceMaxSize)
     {
@@ -228,13 +229,14 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex1D(GMM_TEXTURE_INFO  *
     else
     {
         pTexInfo->Alignment.BaseAlignment = pTexInfo->Alignment.BaseAlignment * pRestrictions->Alignment;
-        GMM_ASSERTDPF(0, "Client requested alignment that is not properly aligned to HW requirements."
-                         "Alignment is going to be much higher to match both client and HW requirements.\r\n");
+        GMM_ASSERTDPF(0,
+                      "Client requested alignment that is not properly aligned to HW requirements."
+                      "Alignment is going to be much higher to match both client and HW requirements.\r\n");
     }
 
     GMM_DPF_EXIT;
 
-    return(Status);
+    return (Status);
 }
 
 
@@ -247,13 +249,13 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex1D(GMM_TEXTURE_INFO  *
 /////////////////////////////////////////////////////////////////////////////////////
 uint32_t GmmLib::GmmGen9TextureCalc::Get2DMipMapHeight(GMM_TEXTURE_INFO *pTexInfo)
 {
-    uint32_t               BlockHeight, MipHeight;
-    uint32_t               HeightLinesLevel0, HeightLinesLevel1, HeightLinesLevel2;
-    uint32_t               i, MipLevel, VAlign, CompressHeight, CompressWidth, CompressDepth;
-    uint8_t                Compressed;
+    uint32_t BlockHeight, MipHeight;
+    uint32_t HeightLinesLevel0, HeightLinesLevel1, HeightLinesLevel2;
+    uint32_t i, MipLevel, VAlign, CompressHeight, CompressWidth, CompressDepth;
+    uint8_t  Compressed;
     GMM_DPF_ENTER;
 
-    const GMM_PLATFORM_INFO* pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
 
     Compressed = GmmIsCompressed(pTexInfo->Format);
     MipHeight  = pTexInfo->BaseHeight;
@@ -339,9 +341,9 @@ uint32_t GmmLib::GmmGen9TextureCalc::Get2DMipMapHeight(GMM_TEXTURE_INFO *pTexInf
         }
 
         // If Mip1 height covers all others, then that is all we need...
-        if (!(pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs))
+        if(!(pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs))
         {
-            if (HeightLinesLevel1 >= HeightLinesLevel2)
+            if(HeightLinesLevel1 >= HeightLinesLevel2)
             {
                 BlockHeight += GFX_ALIGN(HeightLinesLevel1, VAlign);
             }
@@ -360,7 +362,7 @@ uint32_t GmmLib::GmmGen9TextureCalc::Get2DMipMapHeight(GMM_TEXTURE_INFO *pTexInf
 
     GMM_DPF_EXIT;
 
-    return(BlockHeight);
+    return (BlockHeight);
 }
 
 
@@ -373,20 +375,21 @@ uint32_t GmmLib::GmmGen9TextureCalc::Get2DMipMapHeight(GMM_TEXTURE_INFO *pTexInf
 /////////////////////////////////////////////////////////////////////////////////////
 uint32_t GmmLib::GmmGen9TextureCalc::Get2DMipMapTotalHeight(GMM_TEXTURE_INFO *pTexInfo)
 {
-    uint32_t               BlockHeight, MipHeight;
-    uint32_t               HeightLinesLevel0, HeightLinesLevel1, HeightLinesLevel2;
-    uint32_t               i, MipLevel, VAlign;
-    uint32_t               AlignedHeightLines;
+    uint32_t BlockHeight, MipHeight;
+    uint32_t HeightLinesLevel0, HeightLinesLevel1, HeightLinesLevel2;
+    uint32_t i, MipLevel, VAlign;
+    uint32_t AlignedHeightLines;
 
     GMM_DPF_ENTER;
 
     MipHeight = pTexInfo->BaseHeight;
-    MipLevel = pTexInfo->MaxLod;
-    VAlign = pTexInfo->Alignment.VAlign;
+    MipLevel  = pTexInfo->MaxLod;
+    VAlign    = pTexInfo->Alignment.VAlign;
 
     MipLevel =
-        (pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) ?
-        GFX_MIN(MipLevel, pTexInfo->Alignment.MipTailStartLod) : MipLevel;
+    (pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) ?
+    GFX_MIN(MipLevel, pTexInfo->Alignment.MipTailStartLod) :
+    MipLevel;
 
 
     HeightLinesLevel0 = __GMM_EXPAND_HEIGHT(this, MipHeight, VAlign, pTexInfo);
@@ -396,13 +399,13 @@ uint32_t GmmLib::GmmGen9TextureCalc::Get2DMipMapTotalHeight(GMM_TEXTURE_INFO *pT
 
     // Height of Mip1 and Mip2..n needed later...
     HeightLinesLevel1 = HeightLinesLevel2 = 0;
-    for (i = 1; i <= MipLevel; i++)
+    for(i = 1; i <= MipLevel; i++)
     {
         MipHeight = GmmTexGetMipHeight(pTexInfo, i);
 
         AlignedHeightLines = __GMM_EXPAND_HEIGHT(this, MipHeight, VAlign, pTexInfo);
 
-        if (i == 1)
+        if(i == 1)
         {
             HeightLinesLevel1 = AlignedHeightLines;
         }
@@ -413,7 +416,7 @@ uint32_t GmmLib::GmmGen9TextureCalc::Get2DMipMapTotalHeight(GMM_TEXTURE_INFO *pT
     }
 
     // If Mip1 height covers all others, then that is all we need...
-    if (HeightLinesLevel1 >= HeightLinesLevel2)
+    if(HeightLinesLevel1 >= HeightLinesLevel2)
     {
         BlockHeight += HeightLinesLevel1;
     }
@@ -424,7 +427,7 @@ uint32_t GmmLib::GmmGen9TextureCalc::Get2DMipMapTotalHeight(GMM_TEXTURE_INFO *pT
 
     GMM_DPF_EXIT;
 
-    return(BlockHeight);
+    return (BlockHeight);
 }
 
 
@@ -436,31 +439,32 @@ uint32_t GmmLib::GmmGen9TextureCalc::Get2DMipMapTotalHeight(GMM_TEXTURE_INFO *pT
 /// @return     ::GMM_GFX_SIZE_T  offset value in bytes
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_GFX_SIZE_T GmmLib::GmmGen9TextureCalc::Get2DTexOffsetAddressPerMip(GMM_TEXTURE_INFO *pTexInfo,
-                                                                       uint32_t            MipLevel)
+                                                                       uint32_t          MipLevel)
 {
-    uint32_t               AlignedMipHeight, i, OffsetHeight;
-    uint8_t                Compressed;
-    uint32_t               HAlign, VAlign, __MipLevel;
-    uint32_t               CompressHeight, CompressWidth, CompressDepth;
-    uint32_t               MipHeight;
-    GMM_GFX_SIZE_T      MipOffset;
+    uint32_t       AlignedMipHeight, i, OffsetHeight;
+    uint8_t        Compressed;
+    uint32_t       HAlign, VAlign, __MipLevel;
+    uint32_t       CompressHeight, CompressWidth, CompressDepth;
+    uint32_t       MipHeight;
+    GMM_GFX_SIZE_T MipOffset;
 
     GMM_DPF_ENTER;
 
-    const GMM_PLATFORM_INFO* pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
 
-    HAlign = pTexInfo->Alignment.HAlign;
-    VAlign = pTexInfo->Alignment.VAlign;
+    HAlign     = pTexInfo->Alignment.HAlign;
+    VAlign     = pTexInfo->Alignment.VAlign;
     Compressed = GmmIsCompressed(pTexInfo->Format);
 
-    MipHeight = pTexInfo->BaseHeight;
+    MipHeight    = pTexInfo->BaseHeight;
     OffsetHeight = 0;
 
     GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
     __MipLevel =
-        (pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) ?
-            GFX_MIN(MipLevel, pTexInfo->Alignment.MipTailStartLod) : MipLevel;
+    (pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) ?
+    GFX_MIN(MipLevel, pTexInfo->Alignment.MipTailStartLod) :
+    MipLevel;
 
     if(__MipLevel < 2) // LOD0 and LOD1 are on the left edge...
     {
@@ -468,7 +472,7 @@ GMM_GFX_SIZE_T GmmLib::GmmGen9TextureCalc::Get2DTexOffsetAddressPerMip(GMM_TEXTU
     }
     else // LOD2 and beyond are to the right of LOD1...
     {
-        uint32_t MipWidth = GFX_ULONG_CAST(GmmTexGetMipWidth(pTexInfo, 1));
+        uint32_t MipWidth     = GFX_ULONG_CAST(GmmTexGetMipWidth(pTexInfo, 1));
         uint32_t BitsPerPixel = pTexInfo->BitsPerPixel;
 
         MipWidth = __GMM_EXPAND_WIDTH(this, MipWidth, HAlign, pTexInfo);
@@ -487,10 +491,17 @@ GMM_GFX_SIZE_T GmmLib::GmmGen9TextureCalc::Get2DTexOffsetAddressPerMip(GMM_TEXTU
 
             switch(pTexInfo->BitsPerPixel)
             {
-                case 32:  MipWidth /= 8; break;
-                case 64:  MipWidth /= 4; break;
-                case 128: MipWidth /= 2; break;
-                default: __GMM_ASSERT(0);
+                case 32:
+                    MipWidth /= 8;
+                    break;
+                case 64:
+                    MipWidth /= 4;
+                    break;
+                case 128:
+                    MipWidth /= 2;
+                    break;
+                default:
+                    __GMM_ASSERT(0);
             }
         }
 
@@ -529,7 +540,7 @@ GMM_GFX_SIZE_T GmmLib::GmmGen9TextureCalc::Get2DTexOffsetAddressPerMip(GMM_TEXTU
     }
 
     GMM_DPF_EXIT;
-    return(MipOffset);
+    return (MipOffset);
 }
 
 
@@ -542,35 +553,35 @@ GMM_GFX_SIZE_T GmmLib::GmmGen9TextureCalc::Get2DTexOffsetAddressPerMip(GMM_TEXTU
 /////////////////////////////////////////////////////////////////////////////////////
 void GmmLib::GmmGen9TextureCalc::Fill2DTexOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
 {
-    uint32_t               i;
+    uint32_t i;
     GMM_DPF_ENTER;
 
-    const GMM_PLATFORM_INFO* pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
 
     // QPitch: Array Element-to-Element, or Cube Face-to-Face Pitch...
     if((pTexInfo->ArraySize <= 1) &&
        (pTexInfo->Type != RESOURCE_3D) &&
        (pTexInfo->Type != RESOURCE_CUBE) &&
-        !(pTexInfo->Flags.Gpu.ColorSeparation ||
-          pTexInfo->Flags.Gpu.ColorSeparationRGBX))
+       !(pTexInfo->Flags.Gpu.ColorSeparation ||
+         pTexInfo->Flags.Gpu.ColorSeparationRGBX))
     {
         pTexInfo->OffsetInfo.Texture2DOffsetInfo.ArrayQPitchRender =
-            pTexInfo->OffsetInfo.Texture2DOffsetInfo.ArrayQPitchLock = 0;
+        pTexInfo->OffsetInfo.Texture2DOffsetInfo.ArrayQPitchLock = 0;
     }
     else
     {
-        uint32_t   ArrayQPitch, Alignment;
+        uint32_t ArrayQPitch, Alignment;
 
         Alignment = pTexInfo->Alignment.VAlign;
-        if ((pTexInfo->Type == RESOURCE_3D  && !pTexInfo->Flags.Info.Linear) ||
-            (pTexInfo->Flags.Gpu.S3dDx      && pGmmGlobalContext->GetSkuTable().FtrDisplayEngineS3d))
+        if((pTexInfo->Type == RESOURCE_3D && !pTexInfo->Flags.Info.Linear) ||
+           (pTexInfo->Flags.Gpu.S3dDx && pGmmGlobalContext->GetSkuTable().FtrDisplayEngineS3d))
         {
             Alignment = pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileHeight;
         }
 
         // Calculate the overall Block height...Mip0Height + Max(Mip1Height, Sum of Mip2Height..MipnHeight)
-        ArrayQPitch = Get2DMipMapTotalHeight(pTexInfo);
-        ArrayQPitch = GFX_ALIGN_NP2(ArrayQPitch, Alignment);
+        ArrayQPitch                = Get2DMipMapTotalHeight(pTexInfo);
+        ArrayQPitch                = GFX_ALIGN_NP2(ArrayQPitch, Alignment);
         pTexInfo->Alignment.QPitch = ArrayQPitch;
 
         if(GmmIsCompressed(pTexInfo->Format))
@@ -596,7 +607,7 @@ void GmmLib::GmmGen9TextureCalc::Fill2DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
         }
 
         pTexInfo->OffsetInfo.Texture2DOffsetInfo.ArrayQPitchRender =
-            pTexInfo->OffsetInfo.Texture2DOffsetInfo.ArrayQPitchLock = ArrayQPitch * pTexInfo->Pitch;
+        pTexInfo->OffsetInfo.Texture2DOffsetInfo.ArrayQPitchLock = ArrayQPitch * pTexInfo->Pitch;
     }
 
     for(i = 0; i <= pTexInfo->MaxLod; i++)
@@ -616,18 +627,18 @@ void GmmLib::GmmGen9TextureCalc::Fill2DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
 ///
 /// @return     Aligned BlockHeight
 /////////////////////////////////////////////////////////////////////////////////////
-uint32_t   GmmLib::GmmGen9TextureCalc::GetAligned3DBlockHeight(GMM_TEXTURE_INFO*    pTexInfo,
-                                                       uint32_t BlockHeight,
-                                                       uint32_t ExpandedArraySize)
+uint32_t GmmLib::GmmGen9TextureCalc::GetAligned3DBlockHeight(GMM_TEXTURE_INFO *pTexInfo,
+                                                             uint32_t          BlockHeight,
+                                                             uint32_t          ExpandedArraySize)
 {
     GMM_DPF_ENTER;
 
     GMM_UNREFERENCED_PARAMETER(ExpandedArraySize);
     __GMM_ASSERTPTR(pTexInfo, 0);
 
-    const GMM_PLATFORM_INFO* pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
 
-    if ((pTexInfo->Type == RESOURCE_3D) && !pTexInfo->Flags.Info.Linear)
+    if((pTexInfo->Type == RESOURCE_3D) && !pTexInfo->Flags.Info.Linear)
     {
         BlockHeight = GFX_ALIGN(BlockHeight, pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileHeight);
     }
@@ -645,31 +656,31 @@ uint32_t   GmmLib::GmmGen9TextureCalc::GetAligned3DBlockHeight(GMM_TEXTURE_INFO*
 ///
 /// @return     ::GMM_STATUS
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex2D(GMM_TEXTURE_INFO  *pTexInfo,
+GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex2D(GMM_TEXTURE_INFO * pTexInfo,
                                                              __GMM_BUFFER_TYPE *pRestrictions)
 {
-    uint32_t                   Width, Height, BitsPerPixel;
-    uint32_t                   HAlign, VAlign, DAlign, CompressHeight, CompressWidth, CompressDepth;
-    uint32_t                   AlignedWidth, BlockHeight, ExpandedArraySize, Pitch;
-    uint8_t                    Compress = 0;
-    GMM_STATUS              Status;
+    uint32_t   Width, Height, BitsPerPixel;
+    uint32_t   HAlign, VAlign, DAlign, CompressHeight, CompressWidth, CompressDepth;
+    uint32_t   AlignedWidth, BlockHeight, ExpandedArraySize, Pitch;
+    uint8_t    Compress = 0;
+    GMM_STATUS Status;
 
     GMM_DPF_ENTER;
 
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
     __GMM_ASSERTPTR(pRestrictions, GMM_ERROR);
 
-    const GMM_PLATFORM_INFO* pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
 
     BitsPerPixel = pTexInfo->BitsPerPixel;
-    if (pTexInfo->Flags.Gpu.CCS && pTexInfo->Flags.Gpu.__NonMsaaTileYCcs)
+    if(pTexInfo->Flags.Gpu.CCS && pTexInfo->Flags.Gpu.__NonMsaaTileYCcs)
     {
         // Aux Surfaces are 8bpp.
         BitsPerPixel = 8;
     }
 
-    Height       = pTexInfo->BaseHeight;
-    Width        = GFX_ULONG_CAST(pTexInfo->BaseWidth);
+    Height = pTexInfo->BaseHeight;
+    Width  = GFX_ULONG_CAST(pTexInfo->BaseWidth);
 
     pTexInfo->MSAA.NumSamples = GFX_MAX(pTexInfo->MSAA.NumSamples, 1);
 
@@ -679,14 +690,15 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex2D(GMM_TEXTURE_INFO  *
     }
 
     ExpandedArraySize =
-        GFX_MAX(pTexInfo->ArraySize, 1) *
-        ((pTexInfo->Type == RESOURCE_CUBE) ? 6 : 1) * // Cubemaps simply 6-element, 2D arrays.
-        ((pTexInfo->Type == RESOURCE_3D) ? pTexInfo->Depth : 1) * // 3D's simply 2D arrays.
-        ((pTexInfo->Flags.Gpu.Depth || pTexInfo->Flags.Gpu.SeparateStencil ||
-          (pTexInfo->Flags.Info.TiledYs || pTexInfo->Flags.Info.TiledYf)) ?   // MSAA Ys samples are NOT stored as array planes.
-            1 : pTexInfo->MSAA.NumSamples); // MSAA (non-Depth/Stencil) RT samples stored as array planes.
+    GFX_MAX(pTexInfo->ArraySize, 1) *
+    ((pTexInfo->Type == RESOURCE_CUBE) ? 6 : 1) *             // Cubemaps simply 6-element, 2D arrays.
+    ((pTexInfo->Type == RESOURCE_3D) ? pTexInfo->Depth : 1) * // 3D's simply 2D arrays.
+    ((pTexInfo->Flags.Gpu.Depth || pTexInfo->Flags.Gpu.SeparateStencil ||
+      (pTexInfo->Flags.Info.TiledYs || pTexInfo->Flags.Info.TiledYf)) ? // MSAA Ys samples are NOT stored as array planes.
+     1 :
+     pTexInfo->MSAA.NumSamples); // MSAA (non-Depth/Stencil) RT samples stored as array planes.
 
-    if (pTexInfo->Flags.Info.TiledYs || pTexInfo->Flags.Info.TiledYf)
+    if(pTexInfo->Flags.Info.TiledYs || pTexInfo->Flags.Info.TiledYf)
     {
         ExpandedArraySize = GFX_CEIL_DIV(ExpandedArraySize, pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileDepth);
     }
@@ -696,17 +708,16 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex2D(GMM_TEXTURE_INFO  *
     //
     if(pTexInfo->Flags.Gpu.ColorSeparation || pTexInfo->Flags.Gpu.ColorSeparationRGBX)
     {
-        bool csRestrictionsMet = ( ( ( ExpandedArraySize <= 2 ) &&
-                                        ( ExpandedArraySize == pTexInfo->ArraySize ) &&
-                                        ( ( pTexInfo->Format == GMM_FORMAT_R8G8B8A8_UNORM ) ||
-                                          ( pTexInfo->Format == GMM_FORMAT_R8G8B8A8_UNORM_SRGB ) ||
-                                          ( pTexInfo->Format == GMM_FORMAT_B8G8R8A8_UNORM ) ||
-                                          ( pTexInfo->Format == GMM_FORMAT_B8G8R8A8_UNORM_SRGB ) ||
-                                          ( pTexInfo->Format == GMM_FORMAT_B8G8R8X8_UNORM ) ||
-                                          ( pTexInfo->Format == GMM_FORMAT_B8G8R8X8_UNORM_SRGB ) ) &&
-                                        ( ( pTexInfo->Flags.Gpu.ColorSeparation && ( Width % 16 ) == 0 ) ||
-                                          ( pTexInfo->Flags.Gpu.ColorSeparationRGBX && ( Width % 12 ) == 0 ) ) )
-                                    );
+        bool csRestrictionsMet = (((ExpandedArraySize <= 2) &&
+                                   (ExpandedArraySize == pTexInfo->ArraySize) &&
+                                   ((pTexInfo->Format == GMM_FORMAT_R8G8B8A8_UNORM) ||
+                                    (pTexInfo->Format == GMM_FORMAT_R8G8B8A8_UNORM_SRGB) ||
+                                    (pTexInfo->Format == GMM_FORMAT_B8G8R8A8_UNORM) ||
+                                    (pTexInfo->Format == GMM_FORMAT_B8G8R8A8_UNORM_SRGB) ||
+                                    (pTexInfo->Format == GMM_FORMAT_B8G8R8X8_UNORM) ||
+                                    (pTexInfo->Format == GMM_FORMAT_B8G8R8X8_UNORM_SRGB)) &&
+                                   ((pTexInfo->Flags.Gpu.ColorSeparation && (Width % 16) == 0) ||
+                                    (pTexInfo->Flags.Gpu.ColorSeparationRGBX && (Width % 12) == 0))));
 
         if(csRestrictionsMet)
         {
@@ -714,7 +725,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex2D(GMM_TEXTURE_INFO  *
         }
         else
         {
-            pTexInfo->Flags.Gpu.ColorSeparation = false;
+            pTexInfo->Flags.Gpu.ColorSeparation     = false;
             pTexInfo->Flags.Gpu.ColorSeparationRGBX = false;
         }
     }
@@ -733,8 +744,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex2D(GMM_TEXTURE_INFO  *
     if(ExpandedArraySize > 1)
     {
         uint32_t Alignment = VAlign;
-        if( (pTexInfo->Type == RESOURCE_3D && !pTexInfo->Flags.Info.Linear) ||
-            (pTexInfo->Flags.Gpu.S3dDx     && pGmmGlobalContext->GetSkuTable().FtrDisplayEngineS3d))
+        if((pTexInfo->Type == RESOURCE_3D && !pTexInfo->Flags.Info.Linear) ||
+           (pTexInfo->Flags.Gpu.S3dDx && pGmmGlobalContext->GetSkuTable().FtrDisplayEngineS3d))
         {
             Alignment = pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileHeight;
         }
@@ -806,22 +817,29 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex2D(GMM_TEXTURE_INFO  *
     {
         switch(pTexInfo->BitsPerPixel)
         {
-            case 32:  AlignedWidth /= 8; break;
-            case 64:  AlignedWidth /= 4; break;
-            case 128: AlignedWidth /= 2; break;
-            default: __GMM_ASSERT(0);
+            case 32:
+                AlignedWidth /= 8;
+                break;
+            case 64:
+                AlignedWidth /= 4;
+                break;
+            case 128:
+                AlignedWidth /= 2;
+                break;
+            default:
+                __GMM_ASSERT(0);
         }
     }
-    else if( pTexInfo->Flags.Gpu.ColorSeparation )
+    else if(pTexInfo->Flags.Gpu.ColorSeparation)
     {
         AlignedWidth *= pTexInfo->ArraySize;
-        __GMM_ASSERT( 0 == ( AlignedWidth % GMM_COLOR_SEPARATION_WIDTH_DIVISION ) );
+        __GMM_ASSERT(0 == (AlignedWidth % GMM_COLOR_SEPARATION_WIDTH_DIVISION));
         AlignedWidth /= GMM_COLOR_SEPARATION_WIDTH_DIVISION;
     }
-    else if( pTexInfo->Flags.Gpu.ColorSeparationRGBX )
+    else if(pTexInfo->Flags.Gpu.ColorSeparationRGBX)
     {
         AlignedWidth *= pTexInfo->ArraySize;
-        __GMM_ASSERT( 0 == ( AlignedWidth % GMM_COLOR_SEPARATION_RGBX_WIDTH_DIVISION ) );
+        __GMM_ASSERT(0 == (AlignedWidth % GMM_COLOR_SEPARATION_RGBX_WIDTH_DIVISION));
         AlignedWidth /= GMM_COLOR_SEPARATION_RGBX_WIDTH_DIVISION;
     }
 
@@ -840,7 +858,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex2D(GMM_TEXTURE_INFO  *
 
     if(GMM_IS_TILED(pPlatform->TileInfo[pTexInfo->TileMode]))
     {
-        Pitch =       GFX_ALIGN(Pitch,       pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileWidth);
+        Pitch       = GFX_ALIGN(Pitch, pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileWidth);
         BlockHeight = GFX_ALIGN(BlockHeight, pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileHeight);
     }
 
@@ -851,26 +869,26 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex2D(GMM_TEXTURE_INFO  *
     // If a texture is YUV packed, 96, or 48 bpp then one row plus 16 bytes of
     // padding needs to be added. Since this will create a none pitch aligned
     // surface the padding is aligned to the next row
-    if( GmmIsYUVPacked( pTexInfo->Format ) ||
-        (pTexInfo->BitsPerPixel == GMM_BITS(96)) ||
-        (pTexInfo->BitsPerPixel == GMM_BITS(48)))
+    if(GmmIsYUVPacked(pTexInfo->Format) ||
+       (pTexInfo->BitsPerPixel == GMM_BITS(96)) ||
+       (pTexInfo->BitsPerPixel == GMM_BITS(48)))
     {
-        BlockHeight += GMM_SCANLINES(1) + GFX_CEIL_DIV(GMM_BYTES(16),Pitch);
+        BlockHeight += GMM_SCANLINES(1) + GFX_CEIL_DIV(GMM_BYTES(16), Pitch);
     }
 
     // Align height to even row to cover for HW over-fetch
     BlockHeight = GFX_ALIGN(BlockHeight, __GMM_EVEN_ROW);
 
-    if( (Status = // <-- Note assignment.
-            FillTexPitchAndSize(
-                pTexInfo, Pitch, BlockHeight, pRestrictions)) == GMM_SUCCESS)
+    if((Status = // <-- Note assignment.
+        FillTexPitchAndSize(
+        pTexInfo, Pitch, BlockHeight, pRestrictions)) == GMM_SUCCESS)
     {
         Fill2DTexOffsetAddress(pTexInfo);
     }
 
     GMM_DPF_EXIT;
 
-    return(Status);
+    return (Status);
 }
 
 
@@ -883,40 +901,74 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex2D(GMM_TEXTURE_INFO  *
 /// @return     offset value of LOD in bytes
 /////////////////////////////////////////////////////////////////////////////////////
 uint32_t GmmLib::GmmGen9TextureCalc::GetMipTailByteOffset(GMM_TEXTURE_INFO *pTexInfo,
-                                                       uint32_t            MipLevel)
+                                                          uint32_t          MipLevel)
 {
-    uint32_t   ByteOffset = 0, Slot;
+    uint32_t ByteOffset = 0, Slot;
 
     GMM_DPF_ENTER;
 
     if((pTexInfo->Type == RESOURCE_1D) || (pTexInfo->Type == RESOURCE_3D))
     {
         Slot = MipLevel - pTexInfo->Alignment.MipTailStartLod +
-                    (pTexInfo->Flags.Info.TiledYf ? 4 : 0);
+               (pTexInfo->Flags.Info.TiledYf ? 4 : 0);
 
         switch(Slot)
         {
-            case  0:  ByteOffset = GMM_KBYTE(   32 );  break;
-            case  1:  ByteOffset = GMM_KBYTE(   16 );  break;
-            case  2:  ByteOffset = GMM_KBYTE(    8 );  break;
-            case  3:  ByteOffset = GMM_KBYTE(    4 );  break;
-            case  4:  ByteOffset = GMM_KBYTE(    2 );  break;
-            case  5:  ByteOffset = GMM_KBYTE(    1 );  break;
-            case  6:  ByteOffset = GMM_BYTES(  768 );  break;
-            case  7:  ByteOffset = GMM_BYTES(  512 );  break;
-            case  8:  ByteOffset = GMM_BYTES(  448 );  break;
-            case  9:  ByteOffset = GMM_BYTES(  384 );  break;
-            case 10:  ByteOffset = GMM_BYTES(  320 );  break;
-            case 11:  ByteOffset = GMM_BYTES(  256 );  break;
-            case 12:  ByteOffset = GMM_BYTES(  192 );  break;
-            case 13:  ByteOffset = GMM_BYTES(  128 );  break;
-            case 14:  ByteOffset = GMM_BYTES(   64 );  break;
-            case 15:  ByteOffset = GMM_BYTES(    0 );  break;
-            default:  __GMM_ASSERT(0);
+            case 0:
+                ByteOffset = GMM_KBYTE(32);
+                break;
+            case 1:
+                ByteOffset = GMM_KBYTE(16);
+                break;
+            case 2:
+                ByteOffset = GMM_KBYTE(8);
+                break;
+            case 3:
+                ByteOffset = GMM_KBYTE(4);
+                break;
+            case 4:
+                ByteOffset = GMM_KBYTE(2);
+                break;
+            case 5:
+                ByteOffset = GMM_KBYTE(1);
+                break;
+            case 6:
+                ByteOffset = GMM_BYTES(768);
+                break;
+            case 7:
+                ByteOffset = GMM_BYTES(512);
+                break;
+            case 8:
+                ByteOffset = GMM_BYTES(448);
+                break;
+            case 9:
+                ByteOffset = GMM_BYTES(384);
+                break;
+            case 10:
+                ByteOffset = GMM_BYTES(320);
+                break;
+            case 11:
+                ByteOffset = GMM_BYTES(256);
+                break;
+            case 12:
+                ByteOffset = GMM_BYTES(192);
+                break;
+            case 13:
+                ByteOffset = GMM_BYTES(128);
+                break;
+            case 14:
+                ByteOffset = GMM_BYTES(64);
+                break;
+            case 15:
+                ByteOffset = GMM_BYTES(0);
+                break;
+            default:
+                __GMM_ASSERT(0);
         }
     }
-    else if (pTexInfo->Type == RESOURCE_2D || pTexInfo->Type == RESOURCE_CUBE)
+    else if(pTexInfo->Type == RESOURCE_2D || pTexInfo->Type == RESOURCE_CUBE)
     {
+        // clang-format off
         Slot = MipLevel - pTexInfo->Alignment.MipTailStartLod +
                     // TileYs
                    ((pTexInfo->Flags.Info.TiledYs && pTexInfo->MSAA.NumSamples == 16) ? 4 :
@@ -926,31 +978,63 @@ uint32_t GmmLib::GmmGen9TextureCalc::GetMipTailByteOffset(GMM_TEXTURE_INFO *pTex
                     (pTexInfo->Flags.Info.TiledYs                                   ) ? 0 :
                     // TileYf
                     (pTexInfo->Flags.Info.TiledYf                                   ) ?  4: 0);
+        // clang-format on
 
         switch(Slot)
         {
-            case  0:  ByteOffset = GMM_KBYTE(   32 );  break;
-            case  1:  ByteOffset = GMM_KBYTE(   16 );  break;
-            case  2:  ByteOffset = GMM_KBYTE(    8 );  break;
-            case  3:  ByteOffset = GMM_KBYTE(    4 );  break;
-            case  4:  ByteOffset = GMM_KBYTE(    2 );  break;
-            case  5:  ByteOffset = GMM_BYTES( 1536 );  break;
-            case  6:  ByteOffset = GMM_BYTES( 1280 );  break;
-            case  7:  ByteOffset = GMM_BYTES( 1024 );  break;
-            case  8:  ByteOffset = GMM_BYTES(  768 );  break;
-            case  9:  ByteOffset = GMM_BYTES(  512 );  break;
-            case 10:  ByteOffset = GMM_BYTES(  256 );  break;
-            case 11:  ByteOffset = GMM_BYTES(  192 );  break;
-            case 12:  ByteOffset = GMM_BYTES(  128 );  break;
-            case 13:  ByteOffset = GMM_BYTES(   64 );  break;
-            case 14:  ByteOffset = GMM_BYTES(    0 );  break;
-            default:  __GMM_ASSERT(0);
+            case 0:
+                ByteOffset = GMM_KBYTE(32);
+                break;
+            case 1:
+                ByteOffset = GMM_KBYTE(16);
+                break;
+            case 2:
+                ByteOffset = GMM_KBYTE(8);
+                break;
+            case 3:
+                ByteOffset = GMM_KBYTE(4);
+                break;
+            case 4:
+                ByteOffset = GMM_KBYTE(2);
+                break;
+            case 5:
+                ByteOffset = GMM_BYTES(1536);
+                break;
+            case 6:
+                ByteOffset = GMM_BYTES(1280);
+                break;
+            case 7:
+                ByteOffset = GMM_BYTES(1024);
+                break;
+            case 8:
+                ByteOffset = GMM_BYTES(768);
+                break;
+            case 9:
+                ByteOffset = GMM_BYTES(512);
+                break;
+            case 10:
+                ByteOffset = GMM_BYTES(256);
+                break;
+            case 11:
+                ByteOffset = GMM_BYTES(192);
+                break;
+            case 12:
+                ByteOffset = GMM_BYTES(128);
+                break;
+            case 13:
+                ByteOffset = GMM_BYTES(64);
+                break;
+            case 14:
+                ByteOffset = GMM_BYTES(0);
+                break;
+            default:
+                __GMM_ASSERT(0);
         }
     }
 
     GMM_DPF_EXIT;
 
-    return(ByteOffset);
+    return (ByteOffset);
 }
 
 GMM_MIPTAIL_SLOT_OFFSET Gen9MipTailSlotOffset1DSurface[16][5] = GEN9_MIPTAIL_SLOT_OFFSET_1D_SURFACE;
@@ -968,29 +1052,39 @@ GMM_MIPTAIL_SLOT_OFFSET Gen9MipTailSlotOffset3DSurface[16][5] = GEN9_MIPTAIL_SLO
 ///
 /////////////////////////////////////////////////////////////////////////////////////
 void GmmLib::GmmGen9TextureCalc::GetMipTailGeometryOffset(GMM_TEXTURE_INFO *pTexInfo,
-                                                          uint32_t            MipLevel,
-                                                          uint32_t*           OffsetX,
-                                                          uint32_t*           OffsetY,
-                                                          uint32_t*           OffsetZ)
+                                                          uint32_t          MipLevel,
+                                                          uint32_t *        OffsetX,
+                                                          uint32_t *        OffsetY,
+                                                          uint32_t *        OffsetZ)
 {
-    uint32_t ArrayIndex  = 0;
-    uint32_t Slot = 0;
+    uint32_t ArrayIndex = 0;
+    uint32_t Slot       = 0;
 
     GMM_DPF_ENTER;
 
-    switch (pTexInfo->BitsPerPixel)
+    switch(pTexInfo->BitsPerPixel)
     {
-        case 128: ArrayIndex = 0; break;
-        case 64:  ArrayIndex = 1; break;
-        case 32:  ArrayIndex = 2; break;
-        case 16:  ArrayIndex = 3; break;
-        case 8:   ArrayIndex = 4; break;
+        case 128:
+            ArrayIndex = 0;
+            break;
+        case 64:
+            ArrayIndex = 1;
+            break;
+        case 32:
+            ArrayIndex = 2;
+            break;
+        case 16:
+            ArrayIndex = 3;
+            break;
+        case 8:
+            ArrayIndex = 4;
+            break;
         default:
             __GMM_ASSERT(0);
             break;
     }
 
-    if (pTexInfo->Type == RESOURCE_1D)
+    if(pTexInfo->Type == RESOURCE_1D)
     {
         Slot = MipLevel - pTexInfo->Alignment.MipTailStartLod +
                (pTexInfo->Flags.Info.TiledYf ? 4 : 0);
@@ -1001,6 +1095,7 @@ void GmmLib::GmmGen9TextureCalc::GetMipTailGeometryOffset(GMM_TEXTURE_INFO *pTex
     }
     else if(pTexInfo->Type == RESOURCE_2D || pTexInfo->Type == RESOURCE_CUBE)
     {
+        // clang-format off
         Slot = MipLevel - pTexInfo->Alignment.MipTailStartLod +
                     // TileYs
                    ((pTexInfo->Flags.Info.TiledYs && pTexInfo->MSAA.NumSamples == 16) ? 4 :
@@ -1010,12 +1105,13 @@ void GmmLib::GmmGen9TextureCalc::GetMipTailGeometryOffset(GMM_TEXTURE_INFO *pTex
                     (pTexInfo->Flags.Info.TiledYs                                   ) ? 0 :
                     // TileYf
                     (pTexInfo->Flags.Info.TiledYf                                   ) ?  4: 0);
+        // clang-format on
 
         *OffsetX = Gen9MipTailSlotOffset2DSurface[Slot][ArrayIndex].X * pTexInfo->BitsPerPixel / 8;
         *OffsetY = Gen9MipTailSlotOffset2DSurface[Slot][ArrayIndex].Y;
         *OffsetZ = Gen9MipTailSlotOffset2DSurface[Slot][ArrayIndex].Z;
     }
-    else if (pTexInfo->Type == RESOURCE_3D)
+    else if(pTexInfo->Type == RESOURCE_3D)
     {
         Slot = MipLevel - pTexInfo->Alignment.MipTailStartLod +
                (pTexInfo->Flags.Info.TiledYf ? 4 : 0);
@@ -1038,8 +1134,8 @@ void GmmLib::GmmGen9TextureCalc::GetMipTailGeometryOffset(GMM_TEXTURE_INFO *pTex
 ///
 /// @return     ::GMM_STATUS
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_STATUS GMM_STDCALL  GmmLib::GmmGen9TextureCalc::FillTex3D(GMM_TEXTURE_INFO   *pTexInfo,
-                                                              __GMM_BUFFER_TYPE  *pRestrictions)
+GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex3D(GMM_TEXTURE_INFO * pTexInfo,
+                                                             __GMM_BUFFER_TYPE *pRestrictions)
 {
     return FillTex2D(pTexInfo, pRestrictions);
 }
@@ -1053,8 +1149,8 @@ GMM_STATUS GMM_STDCALL  GmmLib::GmmGen9TextureCalc::FillTex3D(GMM_TEXTURE_INFO  
 ///
 /// @return     ::GMM_STATUS
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_STATUS GMM_STDCALL  GmmLib::GmmGen9TextureCalc::FillTexCube(GMM_TEXTURE_INFO   *pTexInfo,
-                                                                __GMM_BUFFER_TYPE  *pRestrictions)
+GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTexCube(GMM_TEXTURE_INFO * pTexInfo,
+                                                               __GMM_BUFFER_TYPE *pRestrictions)
 {
     return FillTex2D(pTexInfo, pRestrictions);
 }

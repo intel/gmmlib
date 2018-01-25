@@ -22,7 +22,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 #include "GmmUtil.h"
-
 #include <stdlib.h>
 
 #define NON_PAGED_SECTION

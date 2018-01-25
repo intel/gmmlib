@@ -24,10 +24,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 using namespace std;
 
-int         g_argc;
-char**      g_argv;
+int    g_argc;
+char **g_argv;
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     int FailCount = 0;
 
@@ -40,4 +40,3 @@ int main(int argc, char* argv[])
 
     return FailCount;
 }
-

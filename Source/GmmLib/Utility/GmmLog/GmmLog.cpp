@@ -41,7 +41,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #endif
 
 /// Logger instance shared by all of GmmLib within a process
-GmmLib::Logger& GmmLoggerPerProc = GmmLib::Logger::CreateGmmLogSingleton();
+GmmLib::Logger &GmmLoggerPerProc = GmmLib::Logger::CreateGmmLogSingleton();
 
 #if _WIN32
 namespace spdlog
@@ -51,7 +51,7 @@ namespace spdlog
         /////////////////////////////////////////////////////////////////////////////////////
         /// class defines a sink which prints the messages to the debugger
         /////////////////////////////////////////////////////////////////////////////////////
-        class Debugger: public sink
+        class Debugger : public sink
         {
             void log(const details::log_msg &msg) override
             {
@@ -61,7 +61,6 @@ namespace spdlog
 
             void flush()
             {
-
             }
         };
     }
@@ -75,27 +74,35 @@ namespace spdlog
 /////////////////////////////////////////////////////////////////////////////////////
 bool GmmLib::Logger::GmmLogInit()
 {
-    std::string     LogFilePath;
-    std::string     ProcPath;
-    std::string     ProcName;
-    int             Pid = 0;
+    std::string LogFilePath;
+    std::string ProcPath;
+    std::string ProcName;
+    int         Pid = 0;
 
-    // Get logging method
+// Get logging method
 #if _WIN32
     uint32_t regkeyVal = 0;
-    if (Utility::GmmUMDReadRegistryFullPath(GMM_LOG_REG_KEY_SUB_PATH, GMM_LOG_TO_FILE, &regkeyVal))
+    if(Utility::GmmUMDReadRegistryFullPath(GMM_LOG_REG_KEY_SUB_PATH, GMM_LOG_TO_FILE, &regkeyVal))
     {
         LogMethod = regkeyVal ? ToFile : ToOSLog;
     }
 
-    if (Utility::GmmUMDReadRegistryFullPath(GMM_LOG_REG_KEY_SUB_PATH, GMM_LOG_LEVEL_REGKEY, &regkeyVal))
+    if(Utility::GmmUMDReadRegistryFullPath(GMM_LOG_REG_KEY_SUB_PATH, GMM_LOG_LEVEL_REGKEY, &regkeyVal))
     {
         switch(static_cast<GmmLogLevel>(regkeyVal))
         {
-            case Off:   LogLevel = spdlog::level::off;      break;
-            case Trace: LogLevel = spdlog::level::trace;    break;
-            case Info:  LogLevel = spdlog::level::info;     break;
-            case Error: LogLevel = spdlog::level::err;      break;
+            case Off:
+                LogLevel = spdlog::level::off;
+                break;
+            case Trace:
+                LogLevel = spdlog::level::trace;
+                break;
+            case Info:
+                LogLevel = spdlog::level::info;
+                break;
+            case Error:
+                LogLevel = spdlog::level::err;
+                break;
         }
     }
 
@@ -104,56 +111,56 @@ bool GmmLib::Logger::GmmLogInit()
     {
         if(LogMethod == ToFile)
         {
-            // Get process name
-            #if _WIN32
-                TCHAR ProcPathTChar[MAX_PATH];
-                GetModuleFileName(NULL, ProcPathTChar, MAX_PATH);
-                ProcPath = std::string(ProcPathTChar);
+// Get process name
+#if _WIN32
+            TCHAR ProcPathTChar[MAX_PATH];
+            GetModuleFileName(NULL, ProcPathTChar, MAX_PATH);
+            ProcPath = std::string(ProcPathTChar);
 
-                size_t PosOfLastSlash = ProcPath.find_last_of("\\") + 1;
-                size_t PosOfLastDot = ProcPath.find_last_of(".");
+            size_t PosOfLastSlash = ProcPath.find_last_of("\\") + 1;
+            size_t PosOfLastDot   = ProcPath.find_last_of(".");
 
-                if (PosOfLastDot <= PosOfLastSlash || PosOfLastDot >= ProcPath.length() || PosOfLastSlash >= ProcPath.length())
+            if(PosOfLastDot <= PosOfLastSlash || PosOfLastDot >= ProcPath.length() || PosOfLastSlash >= ProcPath.length())
+            {
+                ProcName = GMM_UNKNOWN_PROCESS;
+            }
+            else
+            {
+                ProcName = ProcPath.substr(PosOfLastSlash, PosOfLastDot - PosOfLastSlash);
+            }
+#else
+            ProcPath = "Unknown_Proc_Path";
+            ProcName = GMM_UNKNOWN_PROCESS;
+
+            std::ifstream file;
+            file.open("/proc/self/cmdline");
+            if(file.is_open())
+            {
+                // Get process name
+                getline(file, ProcPath);
+
+                size_t PosOfLastSlash = ProcPath.find_last_of("/") + 1;
+                if(PosOfLastSlash >= ProcPath.length())
                 {
                     ProcName = GMM_UNKNOWN_PROCESS;
                 }
                 else
                 {
-                    ProcName = ProcPath.substr(PosOfLastSlash, PosOfLastDot - PosOfLastSlash);
-                }
-            #else
-                ProcPath = "Unknown_Proc_Path";
-                ProcName = GMM_UNKNOWN_PROCESS;
-
-                std::ifstream file;
-                file.open("/proc/self/cmdline");
-                if(file.is_open())
-                {
-                    // Get process name
-                    getline(file, ProcPath);
-
-                    size_t PosOfLastSlash = ProcPath.find_last_of("/") + 1;
-                    if (PosOfLastSlash >= ProcPath.length())
-                    {
-                        ProcName = GMM_UNKNOWN_PROCESS;
-                    }
-                    else
-                    {
-                        // "length-1" to remove null character
-                        ProcName = ProcPath.substr(PosOfLastSlash, ProcPath.length()-1);
-                    }
-
-                    file.close();
+                    // "length-1" to remove null character
+                    ProcName = ProcPath.substr(PosOfLastSlash, ProcPath.length() - 1);
                 }
 
-            #endif
+                file.close();
+            }
 
-            // Get process ID
-            #if _WIN32
-                Pid = _getpid();
-            #else
-                Pid = getpid();
-            #endif
+#endif
+
+// Get process ID
+#if _WIN32
+            Pid = _getpid();
+#else
+            Pid = getpid();
+#endif
             std::string PidStr = std::to_string(Pid);
 
             // TODO: Multiple GmmLib instance can be running in the same process. In that case, the file name will be
@@ -162,9 +169,9 @@ bool GmmLib::Logger::GmmLogInit()
 
             // Create logger
             SpdLogger = spdlog::rotating_logger_mt(GMM_LOGGER_NAME,
-                LogFilePath,
-                GMM_LOG_FILE_SIZE,
-                GMM_ROTATE_FILE_NUMBER);
+                                                   LogFilePath,
+                                                   GMM_LOG_FILE_SIZE,
+                                                   GMM_ROTATE_FILE_NUMBER);
 
             // Log process path
             SpdLogger->set_pattern("Process path: %v");
@@ -172,23 +179,23 @@ bool GmmLib::Logger::GmmLogInit()
         }
         else
         {
-            #if defined(_WIN32)
-                // Log to debugger
-                auto debugger_sink = std::make_shared<spdlog::sinks::Debugger>();
-                SpdLogger = std::make_shared<spdlog::logger>(GMM_LOGGER_NAME, debugger_sink);
-            #elif defined(__ANDROID__)
-                // Log to logcat
-                SpdLogger = spdlog::android_logger(GMM_LOGGER_NAME, GMM_LOG_TAG);
-            #elif defined(__linux__)
-                // Log to syslog
-                SpdLogger = spdlog::syslog_logger(GMM_LOGGER_NAME, GMM_LOG_TAG, 1 /*Log Pid*/);
-            #else
-                __GMM_ASSERT(0);
-                return false;
-            #endif
+#if defined(_WIN32)
+            // Log to debugger
+            auto debugger_sink = std::make_shared<spdlog::sinks::Debugger>();
+            SpdLogger          = std::make_shared<spdlog::logger>(GMM_LOGGER_NAME, debugger_sink);
+#elif defined(__ANDROID__)
+            // Log to logcat
+            SpdLogger   = spdlog::android_logger(GMM_LOGGER_NAME, GMM_LOG_TAG);
+#elif defined(__linux__)
+            // Log to syslog
+            SpdLogger = spdlog::syslog_logger(GMM_LOGGER_NAME, GMM_LOG_TAG, 1 /*Log Pid*/);
+#else
+            __GMM_ASSERT(0);
+            return false;
+#endif
         }
     }
-    catch (const spdlog::spdlog_ex& ex)
+    catch(const spdlog::spdlog_ex &ex)
     {
         __GMM_ASSERT(0);
         return false;
@@ -197,7 +204,7 @@ bool GmmLib::Logger::GmmLogInit()
     // Set log level
     SpdLogger->set_level(LogLevel);
     // Set log pattern
-    SpdLogger->set_pattern("[%T.%e] [Thread %t] [%l] %v");    // [Time] [Thread id] [Log Level] [Text to Log]
+    SpdLogger->set_pattern("[%T.%e] [Thread %t] [%l] %v"); // [Time] [Thread id] [Log Level] [Text to Log]
 
     return true;
 }
@@ -205,9 +212,9 @@ bool GmmLib::Logger::GmmLogInit()
 /////////////////////////////////////////////////////////////////////////////////////
 /// Gmm Logger constructor
 /////////////////////////////////////////////////////////////////////////////////////
-GmmLib::Logger::Logger() :
-                LogMethod(ToOSLog),
-                LogLevel(spdlog::level::err)
+GmmLib::Logger::Logger()
+    : LogMethod(ToOSLog),
+      LogLevel(spdlog::level::err)
 {
     if(!GmmLogInit())
     {
@@ -220,7 +227,7 @@ GmmLib::Logger::Logger() :
 /////////////////////////////////////////////////////////////////////////////////////
 GmmLib::Logger::~Logger()
 {
-    if (SpdLogger)
+    if(SpdLogger)
     {
         SpdLogger->flush();
     }
@@ -233,7 +240,7 @@ GmmLib::Logger::~Logger()
 // Linux/Android replacement for MS version of _vscprintf
 inline int vscprintf_lin(const char *msg, va_list args)
 {
-    char c;
+    char    c;
     va_list args_cpy;
 
     // Copy `args' to prevent internal pointer modification from vsnprintf
@@ -247,7 +254,7 @@ inline int vscprintf_lin(const char *msg, va_list args)
 /////////////////////////////////////////////////////////////////////////////////////
 /// Gmm Logger C wrapper for GMM_LOG_* Macros
 /////////////////////////////////////////////////////////////////////////////////////
-extern "C" void GMM_STDCALL GmmLibLogging(GmmLogLevel Level, const char* str, ...)
+extern "C" void GMM_STDCALL GmmLibLogging(GmmLogLevel Level, const char *str, ...)
 {
     va_list args;
     va_start(args, str);
@@ -258,9 +265,9 @@ extern "C" void GMM_STDCALL GmmLibLogging(GmmLogLevel Level, const char* str, ..
     const size_t length = vscprintf_lin(str, args);
 #endif
 
-    char* temp = new char[length + 1];
+    char *temp = new char[length + 1];
 
-    if (temp)
+    if(temp)
     {
 
 #if _WIN32
@@ -269,9 +276,9 @@ extern "C" void GMM_STDCALL GmmLibLogging(GmmLogLevel Level, const char* str, ..
         vsnprintf(temp, length + 1, str, args);
 #endif
 
-        if (GmmLoggerPerProc.SpdLogger)
+        if(GmmLoggerPerProc.SpdLogger)
         {
-            switch (Level)
+            switch(Level)
             {
                 case Trace:
                     // Set log level to trace if we want trace msges to be printed
@@ -295,6 +302,5 @@ extern "C" void GMM_STDCALL GmmLibLogging(GmmLogLevel Level, const char* str, ..
     }
 
     va_end(args);
-
 }
 #endif //#if GMM_LOG_AVAILABLE
