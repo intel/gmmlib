@@ -76,7 +76,8 @@ set(CMAKE_DISABLE_SOURCE_CHANGES ON)
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 
 set (TARGET_LIST
-	gmm_umd
+	igfxgmmumd
+    gmm_umd
 	igfx_gmmumd_excite
 	#igfx_gmmumd_ocl
 	)
@@ -268,6 +269,7 @@ set(SOURCES_
 set(UMD_SOURCES
   ${SOURCES_}
   ${BS_DIR_GMMLIB}/GlobalInfo/GmmClientContext.cpp
+  ${BS_DIR_GMMLIB}/GlobalInfo/GmmOCL.cpp
   )
 
 source_group("Source Files\\Cache Policy\\Client Files" FILES
@@ -472,6 +474,11 @@ endforeach()
 	#bs_set_extra_target_properties(igfx_gmmumd_ocl
 	#	GMM_OCL
     #)
+
+    bs_set_extra_target_properties(igfxgmmumd
+				ISTDLIB_UMD
+				UNUSED_ISTDLIB_MT
+	)
 
 
 	if(ARCH EQUAL 32)

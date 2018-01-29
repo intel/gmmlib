@@ -27,12 +27,12 @@ extern "C" {
 #endif /*__cplusplus*/
 
 #if _WIN32
-    #if (GMM_OGL || OGL || GMM_OCL || GMM_EXCITE)
-        typedef LONG NTSTATUS;
-        #include <windows.h>
-        #include <d3d9types.h>
-        #include <d3dkmthk.h>
-    #endif
+#ifndef __GMM_KMD__
+    typedef LONG NTSTATUS;
+    #include <windows.h>
+    #include <d3d9types.h>
+    #include <d3dkmthk.h>
+#endif
 #endif
 
 // Set packing alignment
@@ -593,6 +593,18 @@ uint32_t                    GMM_STDCALL GmmCachePolicyGetMaxSpecialMocsIndex();
 
 
 void                        GMM_STDCALL GmmResSetPrivateData(GMM_RESOURCE_INFO *pGmmResource, void *pPrivateData);
+
+#ifdef GMM_OCL
+/////////////////////////////////////////////////////////////////////////////////////
+/// C wrapper functions for OCL Translation layer from OLD GMM APIs to New
+/// unified GMM Lib APIs
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_STATUS              GmmCreateGlobalOCLClientContext();
+void                    GmmDestroyGlobalOCLClientContext();
+GMM_RESOURCE_INFO*      GmmResCreateForOCL(GMM_RESCREATE_PARAMS *pCreateParams);
+void                    GmmResFreeForOCL(GMM_RESOURCE_INFO *pRes);
+GMM_RESOURCE_INFO*      GmmResCopyForOCL(GMM_RESOURCE_INFO*  pSrcRes);
+#endif
 
 // Hack to define and undefine typedef name to avoid redefinition of the
 // typedef.  Part 2.

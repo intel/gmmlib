@@ -75,8 +75,6 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
         return false;
     }
 
-    ClientType = pGmmGlobalContext->GetClientType();
-
     if((GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) <= IGFX_GEN10_CORE))
     {
         if(Surf.Flags.Gpu.MCS)
@@ -331,7 +329,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
         goto ERROR_CASE;
     }
 
-    if((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) < IGFX_GEN9_CORE) &&
+     if((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) < IGFX_GEN9_CORE) &&
 #if(_DEBUG || _RELEASE_INTERNAL)
        !pGmmGlobalContext->GetWaTable().WaDisregardPlatformChecks &&
 #endif
@@ -514,7 +512,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
             goto ERROR_CASE;
         }
 
-        if(Surf.Flags.Info.RenderCompressed && Surf.Flags.Info.MediaCompressed)
+         if(Surf.Flags.Info.RenderCompressed && Surf.Flags.Info.MediaCompressed)
         {
             GMM_ASSERTDPF(0, "Invalid CCS usage - can't be both RC and MC!");
             goto ERROR_CASE;
@@ -543,7 +541,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
         goto ERROR_CASE;
     }
 
-    // check 2D, 3D & Cubemap dimensions
+     // check 2D, 3D & Cubemap dimensions
     switch(Surf.Type)
     {
         case RESOURCE_1D:
@@ -666,15 +664,15 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetDisplayCompressionSupport(
         bool IsRenderCompressed = false;
         bool IsMediaCompressed  = false;
 
-        if(IsSupportedRGB32_8_8_8_8 || //RGB32 8 : 8 : 8 : 8
-            (GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN10_CORE &&
-            IsSupportedRGB32_2_10_10_10)) //RGB32 2 : 10 : 10 : 10))
-        {
-            IsRenderCompressed = true;
-        }
+                if(IsSupportedRGB32_8_8_8_8 || //RGB32 8 : 8 : 8 : 8
+                   (GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN10_CORE &&
+                    IsSupportedRGB32_2_10_10_10)) //RGB32 2 : 10 : 10 : 10))
+                {
+                    IsRenderCompressed = true;
+                }
 
-        ComprSupported = IsRenderCompressed || IsMediaCompressed;
-    }
+            ComprSupported = IsRenderCompressed || IsMediaCompressed;
+        }
 
     return ComprSupported;
 }

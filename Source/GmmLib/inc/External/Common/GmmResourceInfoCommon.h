@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "GmmInfo.h"
 #include "../../../Platform/GmmPlatforms.h"
 #include "../../../../inc/common/gfxmacro.h"
+#include "GmmClientContext.h"
 
 // Macro definitions
 #ifndef __GMM_ASSERT
@@ -72,6 +73,11 @@ namespace GmmLib
 
             uint64_t                            pGmmLibContext;     ///< Pointer to GmmLib context passed in during Create()
             uint64_t                            pPrivateData;       ///< Allows clients to attach any private data to GmmResourceInfo
+#ifdef __GMM_KMD__
+            void                               *pClientContext;    ///< void * in oreder to of same size for the ResInfo Object across KMD and UMD
+#else
+            GmmClientContext                   *pClientContext;    ///< ClientContext of the client creating this Resource
+#endif
 
         private:
             GMM_STATUS          ApplyExistingSysMemRestrictions();
@@ -129,10 +135,30 @@ namespace GmmLib
                 IsolatedGfxAddress(),
                 SvmAddress(),
                 pGmmLibContext(),
-                pPrivateData()
+                pPrivateData(),
+                pClientContext()
             {
 
             }
+
+#ifndef __GMM_KMD__
+            GmmResourceInfoCommon(GmmClientContext  *pClientContextIn) :
+                ClientType(),
+                Surf(),
+                AuxSurf(),
+                AuxSecSurf(),
+                PlaneSurf{},
+                RotateInfo(),
+                ExistingSysMem(),
+                IsolatedGfxAddress(),
+                SvmAddress(),
+                pGmmLibContext(),
+                pPrivateData(),
+                pClientContext()
+            {
+                pClientContext = pClientContextIn;
+            }
+#endif
 
             GmmResourceInfoCommon& operator=(const GmmResourceInfoCommon& rhs)
             {
@@ -145,6 +171,7 @@ namespace GmmLib
                 SvmAddress          = rhs.SvmAddress;
                 pPrivateData        = rhs.pPrivateData;
                 pGmmLibContext      = rhs.pGmmLibContext;
+                pClientContext      = rhs.pClientContext;
 
                 return *this;
             }
@@ -158,8 +185,10 @@ namespace GmmLib
             }
 
             /* Function prototypes */
+            // Overloaded Create function to keep backward compatible. This shall be deprecated soon
             GMM_STATUS              GMM_STDCALL Create(Context &GmmLibContext, GMM_RESCREATE_PARAMS &CreateParams);
             uint8_t                 GMM_STDCALL ValidateParams();
+            GMM_STATUS              GMM_STDCALL Create(GMM_RESCREATE_PARAMS &CreateParams);
             void                    GMM_STDCALL GetRestrictions(__GMM_BUFFER_TYPE& Restrictions);
             uint32_t                GMM_STDCALL GetPaddedWidth(uint32_t MipLevel);
             uint32_t                GMM_STDCALL GetPaddedHeight(uint32_t MipLevel);
@@ -188,6 +217,36 @@ namespace GmmLib
 
 
             /* inline functions */
+
+#ifndef __GMM_KMD__
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Returns GmmClientContext associated with this resource
+            /// @return ::GmmClientContext
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE GmmClientContext* GetGmmClientContext()
+            {
+                return pClientContext;
+            }
+
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Sets GmmClientContext to be associated with this resource
+            /// @return ::void
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE void SetGmmClientContext(GmmClientContext* pGmmClientContext)
+            {
+                pClientContext = pGmmClientContext;
+                GET_GMM_CLIENT_TYPE(pGmmClientContext, ClientType);
+            }
+#endif
+
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Returns GMM_CLIENT Type that has created this resource
+            /// @return ::GMM_CLIENT
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE GMM_CLIENT GetClientType()
+            {
+                return ClientType;
+            }
 
             /////////////////////////////////////////////////////////////////////////////////////
             /// Returns the system memory pointer. It selectively returns either the natural

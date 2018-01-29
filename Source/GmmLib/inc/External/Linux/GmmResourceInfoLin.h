@@ -42,6 +42,12 @@ namespace GmmLib
             {
             }
 
+#ifndef __GMM_KMD__
+        GmmResourceInfoLin(GmmClientContext  *pClientContextIn) : GmmResourceInfoCommon(pClientContextIn)
+        {
+        }
+#endif
+
     };
 
     typedef GmmResourceInfoLin GmmResourceInfo;
