@@ -408,12 +408,12 @@ GMM_FORMAT( IMC2                         ,   8,  1,  1, 1, R, x,   NA , NC  ,   
 GMM_FORMAT( IMC3                         ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      )
 GMM_FORMAT( IMC4                         ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      )
 GMM_FORMAT( L4A4                         ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      ) // MSFT's A4L4. No HW support.
-GMM_FORMAT( MFX_JPEG_YUV411              ,   8,  1,  1, 1, R, x,   NA , NC  ,     GEN(7)      )
-GMM_FORMAT( MFX_JPEG_YUV411R             ,   8,  1,  1, 1, R, x,   NA , NC  ,     GEN(7)      )
-GMM_FORMAT( MFX_JPEG_YUV420              ,   8,  1,  1, 1, R, x,   NA , NC  ,     GEN(7)      ) // Same as IMC3.
-GMM_FORMAT( MFX_JPEG_YUV422H             ,   8,  1,  1, 1, R, x,   NA , NC  ,     GEN(7)      )
-GMM_FORMAT( MFX_JPEG_YUV422V             ,   8,  1,  1, 1, R, x,   NA , NC  ,     GEN(7)      )
-GMM_FORMAT( MFX_JPEG_YUV444              ,   8,  1,  1, 1, R, x,   NA , NC  ,     GEN(7)      )
+GMM_FORMAT( MFX_JPEG_YUV411              ,   8,  1,  1, 1, R, x,   NA , 0xF ,     GEN(7)      )
+GMM_FORMAT( MFX_JPEG_YUV411R             ,   8,  1,  1, 1, R, x,   NA , 0xF ,     GEN(7)      )
+GMM_FORMAT( MFX_JPEG_YUV420              ,   8,  1,  1, 1, R, x,   NA , 0xF ,     GEN(7)      ) // Same as IMC3.
+GMM_FORMAT( MFX_JPEG_YUV422H             ,   8,  1,  1, 1, R, x,   NA , 0xF ,     GEN(7)      )
+GMM_FORMAT( MFX_JPEG_YUV422V             ,   8,  1,  1, 1, R, x,   NA , 0xF ,     GEN(7)      )
+GMM_FORMAT( MFX_JPEG_YUV444              ,   8,  1,  1, 1, R, x,   NA , 0xF ,     GEN(7)      )
 GMM_FORMAT( NV11                         ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      )
 GMM_FORMAT( NV12                         ,   8,  1,  1, 1, R, x,   NA , 0xF ,     ALWAYS      )
 GMM_FORMAT( NV21                         ,   8,  1,  1, 1, R, x,   NA , 0xF ,     ALWAYS      )
@@ -425,7 +425,7 @@ GMM_FORMAT( R10G10B10_XR_BIAS_A2_UNORM   ,  32,  1,  1, 1, x, x,   NA , 0x18,   
 GMM_FORMAT( R24G8_TYPELESS               ,  32,  1,  1, 1, x, x,   NA , 0x11,     ALWAYS      ) // DXGI_FORMAT_R24G8_TYPELESS (To differentiate between GENERIC_32BIT.)
 GMM_FORMAT( R32G8X24_TYPELESS            ,  64,  1,  1, 1, x, x,   NA , 0x11,     ALWAYS      ) // DXGI_FORMAT_R32G8X24_TYPELESS (To differentiate between GENERIC_64BIT.)
 GMM_FORMAT( RENDER_8BIT                  ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      )
-GMM_FORMAT( RGBP                         ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      ) // FOURCC:RGBP
+GMM_FORMAT( RGBP                         ,   8,  1,  1, 1, R, x,   NA , 0xF ,     ALWAYS      ) // FOURCC:RGBP
 GMM_FORMAT( Y1_UNORM                     ,   1,  1,  1, 1, x, x,   NA , NC  ,     GEN(8)      )
 GMM_FORMAT( Y8_UNORM_VA                  ,   8,  1,  1, 1, x, x,   NA , 0xF ,     GEN(8)      )
 GMM_FORMAT( Y16_SNORM                    ,  16,  1,  1, 1, x, x,   NA , 0x7 ,     GEN(8)      )
