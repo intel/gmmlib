@@ -650,6 +650,10 @@ typedef enum __NATIVEGTTYPE
 #define IKBL_GT4_SERV_DEVICE_F0_ID              0x593A
 #define IKBL_GT4_WRK_DEVICE_F0_ID               0x593D
 
+//GLK Device ids
+#define IGLK_GT2_ULT_18EU_DEVICE_F0_ID          0x3184
+#define IGLK_GT2_ULT_12EU_DEVICE_F0_ID          0x3185
+
 //GWL
 #define IGWL_GT1_MOB_DEVICE_F0_ID               0xFF0F      //For Pre-Si, temp
 
