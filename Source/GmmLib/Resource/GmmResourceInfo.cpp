@@ -35,11 +35,6 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmResCreate(GMM_RESCREATE_PARAMS *pCreateParams)
 {
     GMM_RESOURCE_INFO *pRes = NULL;
 
-#ifdef GMM_OCL
-    pRes = GmmResCreateForOCL(pCreateParams);
-    return pRes;
-#else
-
     // GMM_RESOURCE_INFO...
     if(pCreateParams->pPreallocatedResInfo)
     {
@@ -71,8 +66,6 @@ ERROR_CASE:
 
     GMM_DPF_EXIT;
     return (NULL);
-
-#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -91,11 +84,6 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmResCopy(GMM_RESOURCE_INFO *pRes)
     GMM_DPF_ENTER;
     __GMM_ASSERTPTR(pRes, NULL);
 
-#ifdef GMM_OCL
-    pResCopy = GmmResCopyForOCL(pRes);
-    return pResCopy;
-#else
-
     pResCopy = new GMM_RESOURCE_INFO;
 
     if(!pResCopy)
@@ -111,8 +99,6 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmResCopy(GMM_RESOURCE_INFO *pRes)
 
     GMM_DPF_EXIT;
     return (pResCopy);
-
-#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -142,10 +128,6 @@ void GMM_STDCALL GmmResFree(GMM_RESOURCE_INFO *pRes)
     GMM_DPF_ENTER;
     __GMM_ASSERTPTR(pRes, VOIDRETURN);
 
-#ifdef GMM_OCL
-    GmmResFreeForOCL(pRes);
-#else
-
     if(pRes->GetResFlags().Info.__PreallocatedResInfo)
     {
         *pRes = GmmLib::GmmResourceInfo();
@@ -155,8 +137,6 @@ void GMM_STDCALL GmmResFree(GMM_RESOURCE_INFO *pRes)
         delete pRes;
         pRes = NULL;
     }
-
-#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

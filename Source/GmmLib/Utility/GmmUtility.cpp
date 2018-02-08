@@ -555,41 +555,41 @@ namespace GmmLib
                 Format.BlockDimension = GMM_SURFACESTATE_FORMAT_ASTC_BLOCK_DIMENSION_2D;
 
                 // clang-format off
-            Format.BlockWidth2D =
-                (BlockWidth == 4) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_4px :
-                (BlockWidth == 5) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_5px :
-                (BlockWidth == 6) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_6px :
-                (BlockWidth == 8) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_8px :
-                (BlockWidth == 10) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_10px :
-                GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_12px;
-            Format.BlockHeight2D =
-                (BlockHeight == 4) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_4px :
-                (BlockHeight == 5) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_5px :
-                (BlockHeight == 6) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_6px :
-                (BlockHeight == 8) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_8px :
-                (BlockHeight == 10) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_10px :
-                GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_12px;
+                Format.BlockWidth2D =
+                    (BlockWidth ==  4) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_4px :
+                    (BlockWidth ==  5) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_5px :
+                    (BlockWidth ==  6) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_6px :
+                    (BlockWidth ==  8) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_8px :
+                    (BlockWidth == 10) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_10px :
+                    GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_12px;
+                Format.BlockHeight2D =
+                    (BlockHeight ==  4) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_4px :
+                    (BlockHeight ==  5) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_5px :
+                    (BlockHeight ==  6) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_6px :
+                    (BlockHeight ==  8) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_8px :
+                    (BlockHeight == 10) ? GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_10px :
+                    GMM_SURFACESTATE_FORMAT_ASTC_2D_BLOCK_SIZE_12px;
                 // clang-format on
             }
             else
             {
                 Format.BlockDimension = GMM_SURFACESTATE_FORMAT_ASTC_BLOCK_DIMENSION_3D;
                 // clang-format off
-            Format.BlockWidth3D =
-                (BlockWidth == 3) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_3px :
-                (BlockWidth == 4) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_4px :
-                (BlockWidth == 5) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_5px :
-                GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_6px;
-            Format.BlockHeight3D =
-                (BlockHeight == 3) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_3px :
-                (BlockHeight == 4) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_4px :
-                (BlockHeight == 5) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_5px :
-                GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_6px;
-            Format.BlockDepth3D =
-                (BlockDepth == 3) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_3px :
-                (BlockDepth == 4) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_4px :
-                (BlockDepth == 5) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_5px :
-                GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_6px;
+                Format.BlockWidth3D =
+                    (BlockWidth == 3) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_3px :
+                    (BlockWidth == 4) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_4px :
+                    (BlockWidth == 5) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_5px :
+                    GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_6px;
+                Format.BlockHeight3D =
+                    (BlockHeight == 3) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_3px :
+                    (BlockHeight == 4) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_4px :
+                    (BlockHeight == 5) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_5px :
+                    GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_6px;
+                Format.BlockDepth3D =
+                    (BlockDepth == 3) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_3px :
+                    (BlockDepth == 4) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_4px :
+                    (BlockDepth == 5) ? GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_5px :
+                    GMM_SURFACESTATE_FORMAT_ASTC_3D_BLOCK_SIZE_6px;
                 // clang-format on
             }
 

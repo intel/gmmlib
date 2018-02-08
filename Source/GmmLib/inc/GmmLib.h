@@ -31,12 +31,16 @@ extern "C" {
 #endif
 
 #if defined(LHDM) && !defined(__GMM_KMD__) && defined(_WIN32)
-
-#include <WINDOWS.h>
-#include <d3d9Types.h>
-#include <WTypesbase.h>
-#include <d3dumddi.h>
-
+    #if GMM_OGL || GMM_OCL
+        #include <WINDOWS.h>
+        #include <d3d9Types.h>
+        #include <d3dumddi.h>
+    #else
+        #include <WINDOWS.h>
+        #include <d3d9Types.h>
+        #include <WTypesbase.h>
+        #include <d3dumddi.h>
+    #endif
 #else
     // Since we are compiled not for WinOS, we don't want to include later any Visual Studio specific files.
     #define VER_H

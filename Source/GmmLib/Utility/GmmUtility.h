@@ -57,14 +57,8 @@ namespace GmmLib {
 
 #ifdef _WIN32
 #ifdef __GMM_KMD__
-#if __cplusplus
-extern "C" {
-#endif
-    extern NTSTATUS __GmmReadDwordKeyValue(char *pPath, WCHAR *pValueName, ULONG *pValueData);
-    extern NTSTATUS __GmmWriteDwordKeyValue(char *pCStringPath, WCHAR *pValueName, ULONG DWord);
-#if __cplusplus
-}
-#endif
+extern NTSTATUS __GmmReadDwordKeyValue(char *pPath, WCHAR *pValueName, ULONG *pValueData);
+extern NTSTATUS __GmmWriteDwordKeyValue(char *pCStringPath, WCHAR *pValueName, ULONG DWord);
 
 #define REGISTRY_OVERRIDE_READ(Usage,  CacheParam)                                              \
         (__GmmReadDwordKeyValue(GMM_CACHE_POLICY_OVERRIDE_REGISTY_PATH_REGISTRY_KMD  #Usage ,   \

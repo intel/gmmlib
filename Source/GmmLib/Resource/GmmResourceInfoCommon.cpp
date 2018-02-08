@@ -76,30 +76,6 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::Is64KBPageSuitable()
     return 0;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-/// Allows clients to "create" any type of resource. This function does not
-/// allocate any memory for the resource. It just calculates the various parameters
-/// which are useful for the client and can be queried using other functions.
-///
-/// @param[in]  GmmLib Context: Reference to ::GmmLibContext
-/// @param[in]  CreateParams: Flags which specify what sort of resource to create
-///
-/// @return     ::GMM_STATUS
-/////////////////////////////////////////////////////////////////////////////////////
-GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(GMM_RESCREATE_PARAMS &CreateParams)
-{
-    GMM_STATUS Status = GMM_ERROR;
-
-#if defined(__GMM_KMD__)
-    ClientType = GMM_KMD_VISTA;
-#else
-    GET_GMM_CLIENT_TYPE(pClientContext, ClientType);
-#endif
-
-    Status = Create(*pGmmGlobalContext, CreateParams);
-
-    return Status;
-}
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// Allows clients to "create" any type of resource. This function does not
@@ -132,10 +108,6 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
     }
 
     pGmmLibContext = reinterpret_cast<uint64_t>(&GmmLibContext);
-#if defined(__GMM_KMD__)
-    ClientType = GMM_KMD_VISTA;
-#endif
-
     if(!CopyClientParams(CreateParams))
     {
         Status = GMM_INVALIDPARAM;

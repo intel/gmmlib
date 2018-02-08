@@ -69,7 +69,6 @@ GMM_STATUS GMM_STDCALL GmmInitGlobalContext(const PLATFORM           Platform,
                                             GMM_CLIENT               ClientType)
 #endif
 {
-    GMM_STATUS Status = GMM_ERROR;
     __GMM_ASSERTPTR(pSkuTable, GMM_ERROR);
     __GMM_ASSERTPTR(pWaTable, GMM_ERROR);
     __GMM_ASSERTPTR(pGtSysInfo, GMM_ERROR);
@@ -94,13 +93,7 @@ GMM_STATUS GMM_STDCALL GmmInitGlobalContext(const PLATFORM           Platform,
         return GMM_ERROR;
     }
 
-    Status = (pGmmGlobalContext->InitContext(Platform, skuTable, waTable, sysInfo, ClientType));
-
-#ifdef GMM_OCL
-    Status = GmmCreateGlobalOCLClientContext();
-#endif
-
-    return Status;
+    return (pGmmGlobalContext->InitContext(Platform, skuTable, waTable, sysInfo, ClientType));
 }
 
 
@@ -114,9 +107,6 @@ void GMM_STDCALL GmmDestroyGlobalContext(void)
     int32_t ContextRefCount = GmmLib::Context::DecrementRefCount();
     if(!ContextRefCount && pGmmGlobalContext)
     {
-#ifdef GMM_OCL
-        GmmDestroyGlobalOCLClientContext();
-#endif
         pGmmGlobalContext->DestroyContext();
         delete pGmmGlobalContext;
         pGmmGlobalContext = NULL;
