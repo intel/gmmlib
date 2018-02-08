@@ -21,69 +21,25 @@ OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
 #pragma once
 
-
 #if __cplusplus
-namespace GmmLib {
-    namespace Utility {
+namespace GmmLib
+{
+    namespace Utility
+    {
 
-#endif
-#if (!defined(__GMM_KMD__) && (_DEBUG || _RELEASE_INTERNAL) && (_WIN32))
-        extern bool GmmUMDReadRegistryFullPath(PCTSTR pszSubKeyPath, PCTSTR pszDWORDValueName, uint32_t * pdwData);
-#endif
-
-#if __cplusplus
         uint32_t GMM_STDCALL GmmGetNumPlanes(GMM_RESOURCE_FORMAT Format);
         GMM_RESOURCE_FORMAT GMM_STDCALL GmmGetFormatForASTC(uint8_t HDR,
                                                             uint8_t Float,
                                                             uint32_t BlockWidth,
                                                             uint32_t BlockHeight,
                                                             uint32_t BlockDepth);
-#endif
-#if __cplusplus
     }
 }
 #endif
 
-#ifdef __GMM_KMD__
-    void* GmmAllocKmdSystemMem(uint32_t Size, uint8_t bPageable, uint32_t Tag);
-    void GmmFreeKmdSystemMem(void* pMem, uint32_t Tag);
-
-    #define GMM_MALLOC(size)    GmmAllocKmdSystemMem((size), 0, GFX_COMPONENT_GMM_TAG)
-    #define GMM_FREE(p)         GmmFreeKmdSystemMem((p), GFX_COMPONENT_GMM_TAG)
-#else
+#ifndef __GMM_KMD__
     #define GMM_MALLOC(size)    malloc(size)
     #define GMM_FREE(p)         free(p)
-#endif
-
-#ifdef _WIN32
-#ifdef __GMM_KMD__
-extern NTSTATUS __GmmReadDwordKeyValue(char *pPath, WCHAR *pValueName, ULONG *pValueData);
-extern NTSTATUS __GmmWriteDwordKeyValue(char *pCStringPath, WCHAR *pValueName, ULONG DWord);
-
-#define REGISTRY_OVERRIDE_READ(Usage,  CacheParam)                                              \
-        (__GmmReadDwordKeyValue(GMM_CACHE_POLICY_OVERRIDE_REGISTY_PATH_REGISTRY_KMD  #Usage ,   \
-                                L#CacheParam,                                                   \
-                                (ULONG*)&CacheParam) == STATUS_SUCCESS)
-#define REGISTRY_OVERRIDE_WRITE(Usage,CacheParam,Value)                                         \
-        __GmmWriteDwordKeyValue(GMM_CACHE_POLICY_OVERRIDE_REGISTY_PATH_REGISTRY_KMD #Usage ,    \
-                                L#CacheParam,                                                   \
-                                Value);
-
-#define GMM_REGISTRY_READ(Path, RegkeyName,RegkeyValue)                             \
-        (__GmmReadDwordKeyValue(Path,                                               \
-                                L#RegkeyName,                                       \
-                                (ULONG*)&RegkeyValue) == STATUS_SUCCESS)
-#else
-#define REGISTRY_OVERRIDE_READ(Usage,CacheParam)                                                                \
-        GmmLib::Utility::GmmUMDReadRegistryFullPath(GMM_CACHE_POLICY_OVERRIDE_REGISTY_PATH_REGISTRY_UMD #Usage ,\
-                                                    #CacheParam,                                                \
-                                                    (uint32_t*)&CacheParam)
-
-#define GMM_REGISTRY_READ(Path, RegkeyName, RegkeyValue)                                \
-        GmmLib::Utility::GmmUMDReadRegistryFullPath(Path,                               \
-                                                    #RegkeyName,                        \
-                                                    (uint32_t*)&RegkeyValue)
-#endif
 #endif
 
 void GMM_STDCALL GmmGetCacheSizes(GMM_CACHE_SIZES* pCacheSizes);
