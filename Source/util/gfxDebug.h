@@ -35,6 +35,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #ifndef _GFXDEBUG_H_
 #define _GFXDEBUG_H_
 
+#include <stdint.h>
+
 #if defined(D3D) && !defined (USERMODE_DRIVER)
 // The D3D XP Kernel Mode driver will continue to use the old scheme until it
 // has been updated.
@@ -65,17 +67,18 @@ OTHER DEALINGS IN THE SOFTWARE.
 #if __DEBUG_MESSAGE || __RELEASE_MESSAGE
 #ifdef __UMD
 #include "stdlib.h"
+
 #define MESSAGE_FUNCTION(FUNCTION_NAME,COMPONENT_ID)                        \
                                                                             \
-    void FUNCTION_NAME(uint32_t MessageLevel, const char *MessageFmt, ...)     \
+    void FUNCTION_NAME(unsigned long MessageLevel, const char *MessageFmt, ...)     \
 {                                                                           \
     uint32_t Length = 0;                                                       \
     char *PrintBuffer = NULL;                                               \
     char *Prefix = NULL;                                                    \
     va_list ArgList;                                                        \
                                                                             \
-    uint32_t ComponentId   = COMPONENT_ID;                                     \
-    uint32_t ComponentMask = 1 << COMPONENT_ID;                                \
+    unsigned long ComponentId   = COMPONENT_ID;                                     \
+    unsigned long ComponentMask = 1 << COMPONENT_ID;                                \
                                                                             \
     /* Ensure that CRITICAL messages are printed if the setting of the */   \
     /* global debug variables flag is NORMAL or VERBOSE. Similarly, if */   \
@@ -127,15 +130,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #define MESSAGE_FUNCTION(FUNCTION_NAME,COMPONENT_ID)                        \
                                                                             \
-    void FUNCTION_NAME(uint32_t MessageLevel, const char *MessageFmt, ...)     \
+    void FUNCTION_NAME(unsigned long MessageLevel, const char *MessageFmt, ...)     \
 {                                                                           \
     int32_t Length = 0;                                                       \
     char PrintBuffer[GFX_MAX_MESSAGE_LENGTH];                               \
     char *Prefix = NULL;                                                    \
     va_list ArgList;                                                        \
-    uint32_t GfxDbgLvl = MessageLevel;                                         \
-    uint32_t ComponentId   = COMPONENT_ID;                                     \
-    uint32_t ComponentMask = 1 << COMPONENT_ID;                                \
+    unsigned long GfxDbgLvl = MessageLevel;                                         \
+    unsigned long ComponentId   = COMPONENT_ID;                                     \
+    unsigned long ComponentMask = 1 << COMPONENT_ID;                                \
                                                                             \
     /* Ensure that CRITICAL messages are printed if the setting of the */   \
     /* global debug variables flag is NORMAL or VERBOSE. Similarly, if */   \
@@ -221,17 +224,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 typedef struct GFX_DEBUG_CONTROL_REC
 {
-    uint32_t   Version;
-    uint32_t   Size;
-    uint32_t   AssertEnableMask;
-    uint32_t   EnableDebugFileDump;
-    uint32_t   DebugEnableMask;
-    uint32_t   RingBufDbgMask;
-    uint32_t   ReportAssertEnable;
-    uint32_t   AssertBreakDisable;
+    unsigned long   Version;
+    unsigned long   Size;
+    unsigned long   AssertEnableMask;
+    unsigned long   EnableDebugFileDump;
+    unsigned long   DebugEnableMask;
+    unsigned long   RingBufDbgMask;
+    unsigned long   ReportAssertEnable;
+    unsigned long   AssertBreakDisable;
 
 #ifndef __UMD
-    uint32_t   DebugLevel[MAX_COMPONENT_COUNT_DONOTUSE];
+    unsigned long   DebugLevel[MAX_COMPONENT_COUNT_DONOTUSE];
 #endif
 
 } GFX_DEBUG_CONTROL, *PGFX_DEBUG_CONTROL;
@@ -358,7 +361,7 @@ typedef struct GFX_DEBUG_CONTROL_REC
     #define GFXASSERT       KM_ASSERT
 #endif
 
-
+#include <stdint.h>
 #include "g_gfxDebug.h"     // Include automatically generated component
                             // specific macros etc.
 

@@ -51,7 +51,7 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
     !(pGmmGlobalContext->GetSkuTable().FtrWddm2GpuMmu ||
       pGmmGlobalContext->GetSkuTable().FtrWddm2Svm);
 
-#if !__GMM_KMD__
+#if !__GMM_KMD__ && _WIN32
     if(pGmmGlobalContext->GetWaTable().WaLLCCachingUnsupported)
     {
         Surf.Flags.Info.GttMapType = (CreateParams.Flags.Info.Cacheable) ?

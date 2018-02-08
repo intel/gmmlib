@@ -102,10 +102,10 @@ typedef struct __KMD_OVERLAY_CAPS_INFO
 
     KMD_OVERLAY_OVERRIDE    OVOverride;
 
-    uint32_t                    MaxOverlayDisplayWidth;
-    uint32_t                    MaxOverlayDisplayHeight;
+    uint32_t                MaxOverlayDisplayWidth;
+    uint32_t                MaxOverlayDisplayHeight;
     uint8_t                 HWScalerExists;
-    uint32_t                   MaxHWScalerStride;
+    uint32_t                MaxHWScalerStride;
 } KMD_OVERLAY_CAPS_INFO;
 
 // Frame Rate
@@ -120,10 +120,10 @@ typedef struct __KM_SYSTEM_INFO
 
     GT_SYSTEM_INFO      SystemInfo;
     // ShadowReg 119 caluclated value required for WA <WaProgramMgsrForCorrectSliceSpecificMmioReads>
-    uint32_t               ShadowRegValue;
-    uint32_t               ShadowRegValueforL3SpecificRegReads; // Shadow reg value for L3 bank specific MMIO reads.
+    uint32_t            ShadowRegValue;
+    uint32_t            ShadowRegValueforL3SpecificRegReads; // Shadow reg value for L3 bank specific MMIO reads.
 
-    uint32_t               GfxDevId;         // DeviceID
+    uint32_t            GfxDevId;         // DeviceID
 }KM_SYSTEM_INFO;
 
 
@@ -149,47 +149,47 @@ typedef struct _KM_DEFERRED_WAIT_INFO
 #pragma pack (push,1)
 typedef struct _ADAPTER_INFO
 {
-    uint32_t                        KmdVersionInfo;         // Version ID
+    uint32_t                    KmdVersionInfo;         // Version ID
     DRIVER_VERSION_INFO         DriverVersionInfo;      //
     PLATFORM                    GfxPlatform;            // Chipset Gfx family, product, render core, display core, etc
     SKU_FEATURE_TABLE           SkuTable;               // SKU feature table
     WA_TABLE                    WaTable;                // WA table
-    uint32_t                        GfxTimeStampFreq;       // In Hz (No. of clock ticks per second). So timestamp base = 1 / GfxTimeStampFreq
-    uint32_t                        GfxCoreFrequency;       // In MHz.
-    uint32_t                        FSBFrequency;           // In MHz.
-    uint32_t                        MinRenderFreq;          // In MHz.
-    uint32_t                        MaxRenderFreq;          // In MHz.
-    uint32_t                       PackageTdp;             // TDP Power for the platform (In Watt)
-    uint32_t                        MaxFillRate;            // Fillrate with Alphablend (In Pix/Clk)
-    uint32_t                        NumberOfEUs;            // Number of EUs in GT
+    uint32_t                    GfxTimeStampFreq;       // In Hz (No. of clock ticks per second). So timestamp base = 1 / GfxTimeStampFreq
+    uint32_t                    GfxCoreFrequency;       // In MHz.
+    uint32_t                    FSBFrequency;           // In MHz.
+    uint32_t                    MinRenderFreq;          // In MHz.
+    uint32_t                    MaxRenderFreq;          // In MHz.
+    uint32_t                    PackageTdp;             // TDP Power for the platform (In Watt)
+    uint32_t                    MaxFillRate;            // Fillrate with Alphablend (In Pix/Clk)
+    uint32_t                    NumberOfEUs;            // Number of EUs in GT
 
     // NOTE: Name is kept same so that we don't have to change PC_TARGET macro and usage
     //       of that.
-    uint32_t                        dwReleaseTarget;        // PC Release Target Information supplied by INF
+    uint32_t                    dwReleaseTarget;        // PC Release Target Information supplied by INF
 
     // Following member can be use by UMD for optimal use of DMA and
     // command buffer
-    uint32_t                        SizeOfDmaBuffer;        // Size of DMA buffer set (In Bytes)
-    uint32_t                        PatchLocationListSize;  // Size of Patch Location List (In number of entries)
-    uint32_t                        AllocationListSize;     // Size of Patch Location List (In number of entries)
-    uint32_t                        SmallPatchLocationListSize;  // Size of Patch Location List for UMD context that needs a small Patch Location List,
+    uint32_t                    SizeOfDmaBuffer;        // Size of DMA buffer set (In Bytes)
+    uint32_t                    PatchLocationListSize;  // Size of Patch Location List (In number of entries)
+    uint32_t                    AllocationListSize;     // Size of Patch Location List (In number of entries)
+    uint32_t                    SmallPatchLocationListSize;  // Size of Patch Location List for UMD context that needs a small Patch Location List,
                                                              // currently only used by media context (In number of entries)
-    uint32_t                        DefaultCmdBufferSize;   // Size of Cmd buffer default location
+    uint32_t                    DefaultCmdBufferSize;   // Size of Cmd buffer default location
 
     // Following Members can be use for any UMD optimization (like Size of vertex buffer to allocate)
     // any cacheline related read/write, etc
-    int64_t                       GfxMemorySize;          // Total GFX memory (In MBytes)
-    uint32_t                        SystemMemorySize;       // Total System Memory (In MBytes)
-    uint32_t                        CacheLineSize;          // Processor CacheLine size
+    int64_t                     GfxMemorySize;          // Total GFX memory (In MBytes)
+    uint32_t                    SystemMemorySize;       // Total System Memory (In MBytes)
+    uint32_t                    CacheLineSize;          // Processor CacheLine size
     PROCESSOR_FAMILY            ProcessorFamily;        // Processor Family
     uint8_t                     IsHTSupported;          // Is Hyper Threaded CPU
     uint8_t                     IsMutiCoreCpu;          // Is Multi Core CPU
     uint8_t                     IsVTDSupported;         // Is Chipset VT is supported
     char                        DeviceRegistryPath[UMD_KMD_MAX_REGISTRY_PATH_LENGTH];    // Array that contains the device registry path
-    uint32_t                        RegistryPathLength;     // Actual chars (not including any trailing NULL) in the array set by the KMD
-    int64_t                       DedicatedVideoMemory;   // Dedicated Video Memory
-    int64_t                       SystemSharedMemory;     // System Shared Memory
-    int64_t                       SystemVideoMemory;      // SystemVideoMemory
+    uint32_t                    RegistryPathLength;     // Actual chars (not including any trailing NULL) in the array set by the KMD
+    int64_t                     DedicatedVideoMemory;   // Dedicated Video Memory
+    int64_t                     SystemSharedMemory;     // System Shared Memory
+    int64_t                     SystemVideoMemory;      // SystemVideoMemory
     FRAME_RATE                  OutputFrameRate;        // Output Frame Rate
     FRAME_RATE                  InputFrameRate;         // Input Frame Rate
     KMD_CAPS_INFO               Caps;                   // List of capabilities supported by the KMD

@@ -151,7 +151,7 @@ enum
 #ifdef __cplusplus
 extern "C" {
 #endif
-void GMMPrintMessage(uint32_t DebugLevel, const char *DebugMessageFmt, ...);
+void GMMPrintMessage(unsigned long DebugLevel, const char *DebugMessageFmt, ...);
 
 #ifdef __cplusplus
 }

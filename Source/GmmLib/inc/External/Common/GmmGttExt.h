@@ -22,6 +22,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#ifdef _WIN32
+
 // Set packing alignment
 #pragma pack(push, 8)
 
@@ -58,3 +60,5 @@ typedef enum GMM_GTT_CACHETYPE_ENUM
     GMM_GTT_CACHETYPE_WB_ELLC_AGE_0     = 19,   // Gen7.5+
     GMM_GTT_CACHETYPE_MAX
 }GMM_GTT_CACHETYPE;
+
+#endif

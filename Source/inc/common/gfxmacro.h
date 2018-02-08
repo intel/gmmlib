@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <limits.h>
 #include <string.h> // for memcpy
+#include <stdint.h>
 
 // ### __GFXMACRO_ASSERT ######################################################
 // Since an "always-callable" GFX_ASSERT/etc. is no longer really in-place,
@@ -66,9 +67,9 @@ OTHER DEALINGS IN THE SOFTWARE.
                                  ((1UL << (hi)) -    \
                                   (1UL << (lo))))
 
-#define GFX_MASK_LARGE(lo,hi)    (((UINT64)1 << (hi)) |  \
-                                 (((UINT64)1 << (hi)) -  \
-                                  ((UINT64)1 << (lo))))
+#define GFX_MASK_LARGE(lo,hi)    (((uint64_t)1 << (hi)) |  \
+                                 (((uint64_t)1 << (hi)) -  \
+                                  ((uint64_t)1 << (lo))))
 
 #define GFX_IS_POWER_OF_2(a)     (((a) > 0) && !((a) & ((a) - 1)))
 
@@ -289,7 +290,7 @@ __S_INLINE int64_t GFX_POW2_SIZE (int64_t x)
             {
                 #ifdef __CT__
                 {
-                    _BitScanReverse64(&HighBit, x - 1);
+                    _BitScanReverse64((DWORD *)&HighBit, x - 1);
                 }
                 #else // Break into separate Upper/Lower scans...
                 {
@@ -297,11 +298,11 @@ __S_INLINE int64_t GFX_POW2_SIZE (int64_t x)
 
                     if(x < UDW_1)
                     {
-                        _BitScanReverse(&HighBit, GFX_ULONG_CAST(x - 1));
+                        _BitScanReverse((DWORD *)&HighBit, GFX_ULONG_CAST(x - 1));
                     }
                     else if(x > UDW_1)
                     {
-                        _BitScanReverse(&HighBit, GFX_ULONG_CAST((x - 1) >> 32));
+                        _BitScanReverse((DWORD *)&HighBit, GFX_ULONG_CAST((x - 1) >> 32));
                         HighBit += 32;
                     }
                     else

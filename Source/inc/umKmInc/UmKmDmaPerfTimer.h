@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #if defined (LHDM) || defined(KM_PERF_CONTROLLER_BUILD) || defined(_PERF_REPORT)
     #include "UmKmEnum.h"
 #endif
-
+#include <stdint.h>
 // Set packing alignment
 #pragma pack(push, 1)
 

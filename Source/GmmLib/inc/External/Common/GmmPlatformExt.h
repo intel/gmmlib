@@ -29,6 +29,11 @@ extern "C" {
 #pragma pack(push, 8)
 
 #ifndef __GMM_KMD__
+#ifdef _WIN32
+    #ifndef PHYSICAL_ADDRESS
+    #define PHYSICAL_ADDRESS LARGE_INTEGER
+    #endif
+#endif
     #ifndef PAGE_SIZE
     #define PAGE_SIZE 4096
     #endif

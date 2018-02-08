@@ -136,7 +136,7 @@ Description:
     Sends message to the system log.
 
 Input:
-    const ULONG ComponentMask
+    const unsigned long ComponentMask
         Contains the component id for which raised assert (KMD, MINIPORT..)
     const char *expr -
         The expression passed to function.
