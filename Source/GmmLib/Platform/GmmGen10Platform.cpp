@@ -247,7 +247,7 @@ GmmLib::PlatformInfoGen10::PlatformInfoGen10(PLATFORM &Platform)
     Data.ASyncFlipSurface.RenderPitchAlignment = GMM_BYTES(64);
     Data.ASyncFlipSurface.LockPitchAlignment   = GMM_BYTES(64);
     Data.ASyncFlipSurface.MinPitch             = GMM_BYTES(64);
-    Data.ASyncFlipSurface.MaxPitch             = GMM_KBYTE(32);
+    Data.ASyncFlipSurface.MaxPitch             = Data.Texture2DSurface.MaxPitch;
     Data.ASyncFlipSurface.MinAllocationSize    = PAGE_SIZE;
     Data.ASyncFlipSurface.MinHeight            = GMM_SCANLINES(1);
     Data.ASyncFlipSurface.MinWidth             = GMM_PIXELS(1);
