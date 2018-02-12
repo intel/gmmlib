@@ -693,6 +693,7 @@ typedef enum __NATIVEGTTYPE
 #define ICNL_3x8_ULX_DEVICE_F0_ID               0x5A41      //GT1
 #define ICNL_2x8_ULX_DEVICE_F0_ID               0x5A49      //GT0.5
 #define ICNL_4x8_HALO_DEVICE_F0_ID              0x5A5C      //GT1.5
+#define ICNL_2x8_HALO_DEVICE_F0_ID              0x5A4C      //GT0.5
 
 //CFL
 #define ICFL_GT1_DT_DEVICE_F0_ID                0x3E90
