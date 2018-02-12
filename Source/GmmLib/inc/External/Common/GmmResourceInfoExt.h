@@ -572,7 +572,6 @@ void                GMM_STDCALL GmmResOverrideAuxResourceTiling(GMM_RESOURCE_INF
 void                GMM_STDCALL GmmResOverrideAllocationTextureInfo(GMM_RESOURCE_INFO *pGmmResource, GMM_CLIENT Client, const GMM_TEXTURE_INFO *pTexInfo);
 void                GMM_STDCALL GmmResOverrideAllocationFormat(GMM_RESOURCE_INFO *pGmmResource, GMM_RESOURCE_FORMAT Format);
 void                GMM_STDCALL GmmResOverrideSurfaceType(GMM_RESOURCE_INFO *pGmmResource, GMM_RESOURCE_TYPE ResourceType);
-void                GMM_STDCALL GmmResOverrideIsolatedGfxAddress(GMM_RESOURCE_INFO *pGmmResource, GMM_GFX_ADDRESS IsolatedGfxAddress);
 void                GMM_STDCALL GmmResOverrideSvmGfxAddress(GMM_RESOURCE_INFO *pGmmResource, GMM_GFX_ADDRESS SvmGfxAddress);
 void                GMM_STDCALL GmmResOverrideAllocationArraySize(GMM_RESOURCE_INFO *pGmmResource, uint32_t ArraySize);
 void                GMM_STDCALL GmmResOverrideAllocationMaxLod(GMM_RESOURCE_INFO *pGmmResource, uint32_t MaxLod);

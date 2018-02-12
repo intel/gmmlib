@@ -1576,22 +1576,10 @@ void GMM_STDCALL GmmResOverrideSurfaceType(GMM_RESOURCE_INFO *pGmmResource, GMM_
     pGmmResource->OverrideSurfaceType(ResourceType);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-/// C wrapper for GmmResourceInfoCommon::OverrideIsolatedGfxAddress
-/// @see    GmmLib::GmmResourceInfoCommon::OverrideIsolatedGfxAddress()
-///
-/// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
-/// @param[in]  IsolatedGfxAddress: new isolated gfx address for the resource
-/////////////////////////////////////////////////////////////////////////////////////
-void GMM_STDCALL GmmResOverrideIsolatedGfxAddress(GMM_RESOURCE_INFO *pGmmResource, GMM_GFX_ADDRESS IsolatedGfxAddress)
-{
-    __GMM_ASSERT(pGmmResource);
-    pGmmResource->OverrideIsolatedGfxAddress(IsolatedGfxAddress);
-}
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// C wrapper for GmmResourceInfoCommon::OverrideIsolatedGfxAddress
-/// @see    GmmLib::GmmResourceInfoCommon::OverrideIsolatedGfxAddress()
+/// C wrapper for GmmResourceInfoCommon::GmmResOverrideSvmGfxAddress
+/// @see    GmmLib::GmmResourceInfoCommon::GmmResOverrideSvmGfxAddress()
 ///
 /// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
 /// @param[in]  SvmGfxAddress: new svm gfx address for the resource

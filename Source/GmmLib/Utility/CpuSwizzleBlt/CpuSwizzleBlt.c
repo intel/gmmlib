@@ -27,7 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 //      #include "CpuSwizzleBlt.c"
 
 #define SUB_ELEMENT_SUPPORT         // Support for Partial Element Transfer (e.g. separating/merging depth-stencil).
-#define INTEL_CSX_SWIZZLE_SUPPORT   // Discontinued with Gen8.
 #define INTEL_TILE_W_SUPPORT        // Stencil Only;
 
 #ifndef CpuSwizzleBlt_INCLUDED
@@ -131,16 +130,6 @@ spatial locality for 3D or MSAA sample neighbors can be controlled, also. */
         struct          _SWIZZLE_DESCRIPTOR_MASKS {
             int             x, y, z;
         }               Mask;
-
-        #ifdef INTEL_CSX_SWIZZLE_SUPPORT
-            /* Where swizzling strays from parallel index-bit mapping and
-            involves XOR's or similar bit interchanges, we'll specify and
-            handle as special-case: */
-            #define SWIZZLE_DESCRIPTOR_XOR_NONE 0
-            #define INTEL_CSX_X                 1 // A6' = A6 xor A9 xor A10
-            #define INTEL_CSX_Y                 2 // A6' = A6 xor A9
-            int         XOR;
-        #endif
     }               SWIZZLE_DESCRIPTOR;
 
     // Definition Helper Macros...
@@ -246,26 +235,8 @@ spatial locality for 3D or MSAA sample neighbors can be controlled, also. */
     SWIZZLE(( ST_3D_64KB_16bpp          X Y Z X Y Z Y Z LOW_3D ));
     SWIZZLE(( ST_3D_64KB_8bpp           X Y Z X Y Z Y Z LOW_3D ));
 
-    #ifdef INTEL_CSX_SWIZZLE_SUPPORT
-        #ifdef INCLUDE_CpuSwizzleBlt_c_AS_HEADER
-            extern const SWIZZLE_DESCRIPTOR INTEL_TILE_X_CSX;
-            extern const SWIZZLE_DESCRIPTOR INTEL_TILE_Y_CSX;
-        #else // C Compile...
-            const SWIZZLE_DESCRIPTOR INTEL_TILE_X_CSX = {0x1ff, 0xe00, 0, INTEL_CSX_X};
-            const SWIZZLE_DESCRIPTOR INTEL_TILE_Y_CSX = {0xe0f, 0x1f0, 0, INTEL_CSX_Y};
-        #endif
-    #endif
-
     #ifdef INTEL_TILE_W_SUPPORT
         SWIZZLE(( INTEL_TILE_W          o o o o X X X Y Y Y Y X Y X Y X ));
-
-        #ifdef INTEL_CSX_SWIZZLE_SUPPORT
-            #ifdef INCLUDE_CpuSwizzleBlt_c_AS_HEADER
-                extern const SWIZZLE_DESCRIPTOR INTEL_TILE_W_CSX;
-            #else // C Compile...
-                const SWIZZLE_DESCRIPTOR INTEL_TILE_W_CSX = {0xe15, 0x1ea, 0, INTEL_CSX_Y}; // Yes, Tile-W uses Tile-Y CSX.
-            #endif
-        #endif
     #endif
 
     #undef LOW_3D
@@ -601,10 +572,6 @@ void CpuSwizzleBlt( // #########################################################
                     (pSwizzledSurface->Element.Size == pSwizzledSurface->Element.Pitch));
             #endif
 
-            #ifdef INTEL_CSX_SWIZZLE_SUPPORT
-                assert(pSwizzledSurface->pSwizzle->XOR == SWIZZLE_DESCRIPTOR_XOR_NONE);
-            #endif
-
             for(y = y0; y < y1; y++)
             {
                 for(x = x0; x < x1; x++)
@@ -636,34 +603,6 @@ void CpuSwizzleBlt( // #########################################################
             /* Key Performance Gains from...
                 (1) Efficient Memory Transfers (Ordering + Instruction)
                 (2) Minimizing Work in Inner Loops */
-
-            #ifdef INTEL_CSX_SWIZZLE_SUPPORT
-
-                /* Where swizzling strays from parallel index-bit mapping and
-                involves XOR's or similar bit interchanges, we'll specify and
-                handle as special-case. To avoid conditional branching in inner
-                loops, we'll pass-in precomputed params that will either
-                perform the necessary additional swizzle or perform a benign
-                operation as appropriate. */
-
-                char CsxRsh0 =
-                    ((pSwizzledSurface->pSwizzle->XOR == INTEL_CSX_Y) ||
-                     (pSwizzledSurface->pSwizzle->XOR == INTEL_CSX_X)) ?
-                        (char)(9 - 6) : (char)(sizeof(uintptr_t) * 8 - 1);
-                char CsxRsh1 =
-                    (pSwizzledSurface->pSwizzle->XOR == INTEL_CSX_X) ?
-                        (10 - 6) : (sizeof(uintptr_t) * 8 - 1);
-
-                #define CSX_SWIZZLE(Address)                        \
-                {                                                   \
-                    (Address) = (char *)(((uintptr_t)(Address)) ^   \
-                        ((1 << 6) &                                 \
-                         ((((uintptr_t)(Address)) >> CsxRsh0) ^     \
-                          (((uintptr_t)(Address)) >> CsxRsh1))));   \
-                }
-            #else
-                #define CSX_SWIZZLE(Address)
-            #endif
 
             #if(_MSC_VER >= 1600)
                 #include <stdint.h>
@@ -819,15 +758,7 @@ void CpuSwizzleBlt( // #########################################################
 
                 // Narrow optimized transfer height by looking for inflection from Y's...
                 SwizzleMaxXfer.Height = MAX_XFER_HEIGHT;
-                #ifdef INTEL_CSX_SWIZZLE_SUPPORT
-                {
-                    if( (pSwizzledSurface->pSwizzle->XOR == INTEL_CSX_Y) ||
-                        (pSwizzledSurface->pSwizzle->XOR == INTEL_CSX_X))
-                    {
-                        SwizzleMaxXfer.Height = (SwizzleMaxXfer.Height <= 4) ? SwizzleMaxXfer.Height : 4;
-                    }
-                }
-                #endif
+
                 while(  (TargetMask = (SwizzleMaxXfer.Height - 1) * SwizzleMaxXfer.Width) &&
                         ((pSwizzledSurface->pSwizzle->Mask.y & TargetMask) != TargetMask))
                 {
@@ -1031,8 +962,6 @@ void CpuSwizzleBlt( // #########################################################
                     while(pLinearAddress < pLinearAddressEnd)                               \
                     {                                                                       \
                         pSwizzledAddress = pSwizzledAddressLine + SwizzledOffsetX;          \
-                                                                                            \
-                        CSX_SWIZZLE(pSwizzledAddress);                                      \
                                                                                             \
                         XFER_LOAD(0, XFER_Load, XFER_pSrc, XFER_SrcPitch, XFER_Height);     \
                         XFER_LOAD(1, XFER_Load, XFER_pSrc, XFER_SrcPitch, XFER_Height);     \

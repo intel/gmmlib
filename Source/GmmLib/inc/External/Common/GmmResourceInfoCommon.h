@@ -67,7 +67,6 @@ namespace GmmLib
 
             uint32_t                            RotateInfo;
             GMM_EXISTING_SYS_MEM                ExistingSysMem;     ///< Info about resources initialized with existing system memory
-            GMM_GFX_ADDRESS                     IsolatedGfxAddress; ///< PIGMS address (WDDM1.x only)
             GMM_GFX_ADDRESS                     SvmAddress;         ///< Driver managed SVM address
 
             uint64_t                            pGmmLibContext;     ///< Pointer to GmmLib context passed in during Create()
@@ -126,7 +125,6 @@ namespace GmmLib
                 PlaneSurf{},
                 RotateInfo(),
                 ExistingSysMem(),
-                IsolatedGfxAddress(),
                 SvmAddress(),
                 pGmmLibContext(),
                 pPrivateData()
@@ -141,7 +139,6 @@ namespace GmmLib
                 AuxSurf             = rhs.AuxSurf;
                 RotateInfo          = rhs.RotateInfo;
                 ExistingSysMem      = rhs.ExistingSysMem;
-                IsolatedGfxAddress  = rhs.IsolatedGfxAddress;
                 SvmAddress          = rhs.SvmAddress;
                 pPrivateData        = rhs.pPrivateData;
                 pGmmLibContext      = rhs.pGmmLibContext;
@@ -857,7 +854,6 @@ namespace GmmLib
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE GMM_GFX_ADDRESS GMM_STDCALL GetGfxAddress()
             {
-                // Currently only supports Isolated GFX Space cases.
                 // Support for Sparse/Tiled resources will be unified in later
                 if (SvmAddress)
                 {
@@ -865,7 +861,7 @@ namespace GmmLib
                 }
                 else
                 {
-                    return GMM_GFX_ADDRESS_CANONIZE(IsolatedGfxAddress);
+                    return 0;
                 }
             }
 
@@ -1433,15 +1429,6 @@ namespace GmmLib
             GMM_INLINE void GMM_STDCALL OverrideSurfaceType(GMM_RESOURCE_TYPE Type)
             {
                 Surf.Type = Type;
-            }
-
-            /////////////////////////////////////////////////////////////////////////////////////
-            /// Overrides the isolated gfx address
-            /// @param[in]  NewIsolatedGfxAddress: new isolated gfx address for the resource
-            /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE void GMM_STDCALL OverrideIsolatedGfxAddress(GMM_GFX_ADDRESS NewIsolatedGfxAddress)
-            {
-                this->IsolatedGfxAddress = NewIsolatedGfxAddress;
             }
 
             /////////////////////////////////////////////////////////////////////////////////////

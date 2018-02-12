@@ -81,14 +81,12 @@ typedef struct GMM_RESOURCE_FLAG_REC
         uint32_t UnifiedAuxSurface         : 1; // Flag to indicate unified aux surfaces where a number of buffers are allocated as one resource creation call (e.g. for Android/gralloc when a combined CCS with its partner MSAA). A conveneince over making two GmmResCreate calls. Gen9+.
         uint32_t Vertex                    : 1;
         uint32_t Video                     : 1; // Apply Video restrictions when padding/aligning this resource (see GmmRestrictions.c)
-        uint32_t VxdRenderTarget           : 1; // Flag to indicate that the surface will be used by the MSVDX device. RT is xTiled and pitch alligned to VXD device.
         uint32_t __NonMsaaTileXCcs         : 1; // Internal GMM flag--Clients don’t set.
         uint32_t __NonMsaaTileYCcs         : 1; // Internal GMM flag--Clients don’t set.
         uint32_t __MsaaTileMcs             : 1; // Internal GMM flag--Clients don’t set.
         uint32_t __NonMsaaLinearCCS        : 1; // Internal GMM flag--Clients don't set.
-        uint32_t UmdDeferredMap            : 1; // Defer resource mapping by GMM and let UMD manage map/unmap later.
 
-        uint32_t __Remaining               : 19;// Defining rather than letting float for the two zero-and-memcmp we do with the .Gpu struct (in case ={0} doesn't zero unnamed fields).
+        uint32_t __Remaining               : 21;// Defining rather than letting float for the two zero-and-memcmp we do with the .Gpu struct (in case ={0} doesn't zero unnamed fields).
     } Gpu;
 
     // Info: Used to specify preferences at surface creation time
