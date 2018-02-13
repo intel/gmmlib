@@ -977,7 +977,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::CpuBlt(GMM_RES_COPY_BLT *pBlt
             // TODO BLT rect should not overlap between planes.
             {
                 // __GMM_ASSERT(0); // decide later, for now blt it
-                //return FALSE;
+                //return 0;
             }
 
             // BLT monolithic surface per plane and remove padding due to tiling.

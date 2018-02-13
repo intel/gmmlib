@@ -82,7 +82,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define GMM_DBG_BREAK __builtin_trap()
 #else
 #include <assert.h>
-#define GMM_DBG_BREAK assert(FALSE)
+#define GMM_DBG_BREAK assert(0)
 #endif
 
 #define GMMLibDebugMessage(DebugLevel, message, ...)                                \
@@ -97,7 +97,7 @@ OTHER DEALINGS IN THE SOFTWARE.
     }                                                                               \
     else if(DebugLevel == GFXDBG_OFF)                                               \
     {                                                                               \
-        GMM_LOG_TRACE_IF(FALSE, message, ##__VA_ARGS__)                             \
+        GMM_LOG_TRACE_IF(0, message, ##__VA_ARGS__)                             \
     }                                                                               \
     else                                                                            \
     {                                                                               \

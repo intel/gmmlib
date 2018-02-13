@@ -93,10 +93,6 @@ macro(GmmLibSetTargetConfig libTarget)
 
 endmacro()
 
-foreach(lib_target ${TARGET_LIST})
-	GmmLibSetTargetConfig(${lib_target})
-endforeach()
-
 set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /W1 /WX-")
 set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /W1 /WX-")
 
@@ -378,17 +374,6 @@ set(headers
     ${SOURCES_}
   )
 
-# common defines
-macro (GmmLibaddCommonTargetDefines target)
-    if (TARGET ${target})
-        set_property(TARGET ${target} APPEND PROPERTY COMPILE_DEFINITIONS
-            $<$<CONFIG:Release>:_RELEASE NDEBUG _MBCS>
-            $<$<CONFIG:ReleaseInternal>: _RELEASE_INTERNAL NDEBUG _MBCS>
-            $<$<CONFIG:Debug>: _DEBUG DEBUG>
-        )
-    endif()
-endmacro()
-
 #clear all default-cmake settings
 SET (CMAKE_SHARED_LINKER_FLAGS_RELEASEINTERNAL "")
 SET (CMAKE_SHARED_LINKER_FLAGS_RELEASE "")
@@ -420,6 +405,10 @@ endif()
 foreach(lib_target ${TARGET_LIST})
 
   add_library( ${lib_target} STATIC ${UMD_HEADERS} ${UMD_SOURCES})
+endforeach()
+
+foreach(lib_target ${TARGET_LIST})
+	GmmLibSetTargetConfig(${lib_target})
 endforeach()
 
 set_target_properties(${EXE_NAME} PROPERTIES VS_PRE_DEFAULT_PROPS "${GMMLIB_SOURCE_DIR}/../WrkSpace/PropertySheets/igfx_env.props")
