@@ -49,6 +49,10 @@ typedef struct GMM_UMD_CONTEXT_REC
     uint32_t   TBD3;
 } GMM_UMD_CONTEXT;
 
+#if (!defined(__GMM_KMD__) && !defined(GMM_UNIFIED_LIB))
+#include "GmmClientContext.h"
+#endif
+
 //===========================================================================
 // typedef:
 //      GMM_GLOBAL_CONTEXT
@@ -160,6 +164,10 @@ namespace GmmLib
                                     GMM_CLIENT ClientType);
 
         void GMM_STDCALL DestroyContext();
+
+#if (!defined(__GMM_KMD__) && !defined(GMM_UNIFIED_LIB))
+        GMM_CLIENT_CONTEXT *pGmmGlobalClientContext;
+#endif
 
 
         //Inline functions

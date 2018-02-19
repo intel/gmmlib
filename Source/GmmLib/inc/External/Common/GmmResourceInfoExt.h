@@ -27,12 +27,12 @@ extern "C" {
 #endif /*__cplusplus*/
 
 #if _WIN32
-    #if (GMM_OGL || OGL || GMM_OCL || GMM_EXCITE)
-        typedef LONG NTSTATUS;
-        #include <windows.h>
-        #include <d3d9types.h>
-        #include <d3dkmthk.h>
-    #endif
+#ifndef __GMM_KMD__
+    typedef LONG NTSTATUS;
+    #include <windows.h>
+    #include <d3d9types.h>
+    #include <d3dkmthk.h>
+#endif
 #endif
 
 // Set packing alignment
@@ -592,6 +592,19 @@ uint32_t                    GMM_STDCALL GmmCachePolicyGetMaxSpecialMocsIndex();
 
 
 void                        GMM_STDCALL GmmResSetPrivateData(GMM_RESOURCE_INFO *pGmmResource, void *pPrivateData);
+
+#if (!defined(__GMM_KMD__) && !defined(GMM_UNIFIED_LIB))
+/////////////////////////////////////////////////////////////////////////////////////
+/// C wrapper functions for UMD clients Translation layer from OLD GMM APIs to New
+/// unified GMM Lib APIs
+///////////////////////////////////////////////////////////////////////////////////// 
+GMM_STATUS              GmmCreateGlobalClientContext(GMM_CLIENT  ClientType);
+void                    GmmDestroyGlobalClientContext();
+GMM_RESOURCE_INFO*      GmmResCreateThroughClientCtxt(GMM_RESCREATE_PARAMS *pCreateParams);
+void                    GmmResFreeThroughClientCtxt(GMM_RESOURCE_INFO *pRes);
+GMM_RESOURCE_INFO*      GmmResCopyThroughClientCtxt(GMM_RESOURCE_INFO*  pSrcRes);
+void                    GmmResMemcpyThroughClientCtxt(void *pDst, void *pSrc);
+#endif
 
 // Hack to define and undefine typedef name to avoid redefinition of the
 // typedef.  Part 2.

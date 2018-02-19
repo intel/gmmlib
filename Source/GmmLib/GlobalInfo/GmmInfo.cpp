@@ -38,6 +38,7 @@ std::atomic<int> GmmLib::Context::RefCount = 0;
 int32_t GmmLib::Context::RefCount = 0;
 #endif
 
+
 /////////////////////////////////////////////////////////////////////////////////////
 /// C wrapper for creating GmmLib::Context object
 /// @see        Class GmmLib::Context
@@ -69,6 +70,7 @@ GMM_STATUS GMM_STDCALL GmmInitGlobalContext(const PLATFORM           Platform,
                                             GMM_CLIENT               ClientType)
 #endif
 {
+    GMM_STATUS Status = GMM_ERROR;
     __GMM_ASSERTPTR(pSkuTable, GMM_ERROR);
     __GMM_ASSERTPTR(pWaTable, GMM_ERROR);
     __GMM_ASSERTPTR(pGtSysInfo, GMM_ERROR);
@@ -93,7 +95,13 @@ GMM_STATUS GMM_STDCALL GmmInitGlobalContext(const PLATFORM           Platform,
         return GMM_ERROR;
     }
 
-    return (pGmmGlobalContext->InitContext(Platform, skuTable, waTable, sysInfo, ClientType));
+    Status = (pGmmGlobalContext->InitContext(Platform, skuTable, waTable, sysInfo, ClientType));
+
+#if(!defined(__GMM_KMD__) && !defined(GMM_UNIFIED_LIB))
+    Status = GmmCreateGlobalClientContext(ClientType);
+#endif
+
+    return Status;
 }
 
 
@@ -107,6 +115,9 @@ void GMM_STDCALL GmmDestroyGlobalContext(void)
     int32_t ContextRefCount = GmmLib::Context::DecrementRefCount();
     if(!ContextRefCount && pGmmGlobalContext)
     {
+#if(!defined(__GMM_KMD__) && !defined(GMM_UNIFIED_LIB))
+        GmmDestroyGlobalClientContext();
+#endif
         pGmmGlobalContext->DestroyContext();
         delete pGmmGlobalContext;
         pGmmGlobalContext = NULL;
@@ -154,6 +165,10 @@ GmmLib::Context::Context()
     //Default initialize 64KB Page padding percentage.
     AllowedPaddingFor64KbPagesPercentage = 10;
     InternalGpuVaMax                     = 0;
+
+#if(!defined(__GMM_KMD__) && !defined(GMM_UNIFIED_LIB))
+    pGmmGlobalClientContext = NULL;
+#endif
 
 #if(_WIN32 && (_DEBUG || _RELEASE_INTERNAL))
     uint32_t RegKey = 0;

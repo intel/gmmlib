@@ -358,25 +358,32 @@ uint8_t GMM_STDCALL GmmLib::GmmClientContext::IsYUVPacked(GMM_RESOURCE_FORMAT Fo
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_RESOURCE_INFO *GMM_STDCALL GmmLib::GmmClientContext::CreateResInfoObject(GMM_RESCREATE_PARAMS *pCreateParams)
 {
-    GMM_RESOURCE_INFO *pRes = NULL;
+    GMM_RESOURCE_INFO *pRes             = NULL;
+    GmmClientContext * pClientContextIn = NULL;
+
+#if(!defined(GMM_UNIFIED_LIB))
+    pClientContextIn = pGmmGlobalContext->pGmmGlobalClientContext;
+#else
+    pClientContextIn = this;
+#endif
 
     // GMM_RESOURCE_INFO...
     if(pCreateParams->pPreallocatedResInfo)
     {
-        pRes = new(pCreateParams->pPreallocatedResInfo) GmmLib::GmmResourceInfo(); // Use preallocated memory as a class
+        pRes = new(pCreateParams->pPreallocatedResInfo) GmmLib::GmmResourceInfo(pClientContextIn); // Use preallocated memory as a class
         pCreateParams->Flags.Info.__PreallocatedResInfo =
         pRes->GetResFlags().Info.__PreallocatedResInfo = 1; // Set both in case we can die before copying over the flags.
     }
     else
     {
-        if((pRes = new GMM_RESOURCE_INFO) == NULL)
+        if((pRes = new GMM_RESOURCE_INFO(pClientContextIn)) == NULL)
         {
             GMM_ASSERTDPF(0, "Allocation failed!");
             goto ERROR_CASE;
         }
     }
 
-    if(pRes->Create(*pGmmGlobalContext, *pCreateParams) != GMM_SUCCESS)
+    if(pRes->Create(*pCreateParams) != GMM_SUCCESS)
     {
         goto ERROR_CASE;
     }
@@ -386,7 +393,7 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmLib::GmmClientContext::CreateResInfoObject(GMM
 ERROR_CASE:
     if(pRes)
     {
-        GmmResFree(pRes);
+        DestroyResInfoObject(pRes);
     }
 
     return (NULL);

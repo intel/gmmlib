@@ -35,6 +35,11 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmResCreate(GMM_RESCREATE_PARAMS *pCreateParams)
 {
     GMM_RESOURCE_INFO *pRes = NULL;
 
+#if(!defined(__GMM_KMD__) && !defined(GMM_UNIFIED_LIB))
+    pRes = GmmResCreateThroughClientCtxt(pCreateParams);
+    return pRes;
+#else
+
     // GMM_RESOURCE_INFO...
     if(pCreateParams->pPreallocatedResInfo)
     {
@@ -66,6 +71,8 @@ ERROR_CASE:
 
     GMM_DPF_EXIT;
     return (NULL);
+
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -84,6 +91,11 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmResCopy(GMM_RESOURCE_INFO *pRes)
     GMM_DPF_ENTER;
     __GMM_ASSERTPTR(pRes, NULL);
 
+#if(!defined(__GMM_KMD__) && !defined(GMM_UNIFIED_LIB))
+    pResCopy = GmmResCopyThroughClientCtxt(pRes);
+    return pResCopy;
+#else
+
     pResCopy = new GMM_RESOURCE_INFO;
 
     if(!pResCopy)
@@ -99,6 +111,8 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmResCopy(GMM_RESOURCE_INFO *pRes)
 
     GMM_DPF_EXIT;
     return (pResCopy);
+
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -109,11 +123,15 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmResCopy(GMM_RESOURCE_INFO *pRes)
 /////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmResMemcpy(void *pDst, void *pSrc)
 {
+#if(!defined(__GMM_KMD__) && !defined(GMM_UNIFIED_LIB))
+    GmmResMemcpyThroughClientCtxt(pDst, pSrc);
+#else
     GMM_RESOURCE_INFO *pResSrc = reinterpret_cast<GMM_RESOURCE_INFO *>(pSrc);
     // Init memory correctly, in case the pointer is a raw memory pointer
     GMM_RESOURCE_INFO *pResDst = new(pDst) GMM_RESOURCE_INFO();
 
     *pResDst = *pResSrc;
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -128,6 +146,10 @@ void GMM_STDCALL GmmResFree(GMM_RESOURCE_INFO *pRes)
     GMM_DPF_ENTER;
     __GMM_ASSERTPTR(pRes, VOIDRETURN);
 
+#if(!defined(__GMM_KMD__) && !defined(GMM_UNIFIED_LIB))
+    GmmResFreeThroughClientCtxt(pRes);
+#else
+
     if(pRes->GetResFlags().Info.__PreallocatedResInfo)
     {
         *pRes = GmmLib::GmmResourceInfo();
@@ -137,6 +159,8 @@ void GMM_STDCALL GmmResFree(GMM_RESOURCE_INFO *pRes)
         delete pRes;
         pRes = NULL;
     }
+
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
