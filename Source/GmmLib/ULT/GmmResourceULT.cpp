@@ -2593,7 +2593,7 @@ TEST_F(CTestResource, TestHiZ)
         VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
         VerifyResourcePitchInTiles<true>(ResourceInfo, 2); // 2 tileY wide
 
-        uint32_t ExpectedQPitch;
+        uint32_t ExpectedQPitch = 0;
         if(gmmParams.ArraySize > 1 || gmmParams.Type == RESOURCE_CUBE)
         {
             ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
@@ -2631,7 +2631,7 @@ TEST_F(CTestResource, TestHiZ)
         VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
         VerifyResourcePitchInTiles<true>(ResourceInfo, 2); // 2 tile wide
 
-        uint32_t TwoDQPitch, ExpectedQPitch;
+        uint32_t TwoDQPitch = 0, ExpectedQPitch = 0;
         if(gmmParams.Type == RESOURCE_3D)
         {
             TwoDQPitch     = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);

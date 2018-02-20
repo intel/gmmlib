@@ -68,7 +68,6 @@ SET (GMMLIB_COMPILER_FLAGS_COMMON
     -ffunction-sections
     -fmessage-length=0
     -fvisibility=hidden
-    -fno-tree-pre
     -fPIC
     -g
     -Wl,--no-undefined
