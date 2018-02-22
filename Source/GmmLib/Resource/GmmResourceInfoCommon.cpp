@@ -196,7 +196,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
                 goto ERROR_CASE;
             }
 
-            if(AuxSurf.Size == 0 && GMM_SUCCESS != pTextureCalc->AllocateTexture(&AuxSurf))
+            if(AuxSurf.Size == 0 && AuxSurf.Type != RESOURCE_INVALID && GMM_SUCCESS != pTextureCalc->AllocateTexture(&AuxSurf))
             {
                 GMM_ASSERTDPF(0, "GmmTexAlloc failed!");
                 goto ERROR_CASE;

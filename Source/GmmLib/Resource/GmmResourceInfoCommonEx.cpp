@@ -75,8 +75,6 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
         return false;
     }
 
-    ClientType = pGmmGlobalContext->GetClientType();
-
     if((GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) <= IGFX_GEN10_CORE))
     {
         if(Surf.Flags.Gpu.MCS)
@@ -139,6 +137,7 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
             AuxSecSurf.Flags.Gpu.HiZ             = 0;
             AuxSurf.Flags.Gpu.IndirectClearColor = 0; //Clear Depth flags from HiZ, contained with separate/legacy HiZ when Depth isn't compressible.
             AuxSurf.Flags.Gpu.CCS                = 0;
+            AuxSurf.Type                         = (AuxSurf.Flags.Gpu.HiZ) ? AuxSurf.Type : RESOURCE_INVALID;
             AuxSurf.Flags.Info.RenderCompressed = AuxSurf.Flags.Info.MediaCompressed = 0;
         }
         else if(Surf.Flags.Gpu.SeparateStencil && Surf.Flags.Gpu.CCS) //Stencil compression
