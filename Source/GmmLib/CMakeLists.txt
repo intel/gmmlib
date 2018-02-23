@@ -157,11 +157,11 @@ MESSAGE("IncDir: ${BS_DIR_INC}")
 # build instead of doing fallback to GMM defined values. It's required to
 # specify LIBDRM_SRC explicitly.
 if (DEFINED GMM_REQUIRE_MESA_MOCS)
-        if (NOT DEFINED LIBDRM_SRC)
+        if (NOT DEFINED GMM_LIBDRM_SRC)
                 message(FATAL_ERROR "Libdrm path not specified")
         endif()
 
-        if (NOT EXISTS "${LIBDRM_SRC}/intel/intel_mocs_table.h")
+        if (NOT EXISTS "${GMM_LIBDRM_SRC}/intel/intel_mocs_table.h")
                 message(FATAL_ERROR "MOCS not found in libdrm")
         endif()
 endif()
@@ -173,10 +173,10 @@ if(DEFINED UFO_DRIVER_OPTIMIZATION_LEVEL)
 endif()
 
 # Includes are searched left-to-right, cmake add_definitions is appending,
-# if both files exist, user specified location (LIBDRM_SRC) will be used.
-if (EXISTS "${LIBDRM_SRC}/intel/intel_mocs_table.h")
+# if both files exist, user specified location (GMM_LIBDRM_SRC) will be used.
+if (EXISTS "${GMM_LIBDRM_SRC}/intel/intel_mocs_table.h")
    add_definitions(-DHAVE_MESA_MOCS)
-   include_directories(${LIBDRM_SRC}/intel/)
+   include_directories(${GMM_LIBDRM_SRC}/intel/)
 endif()
 
 if (EXISTS "/usr/include/libdrm/intel_mocs_table.h")
