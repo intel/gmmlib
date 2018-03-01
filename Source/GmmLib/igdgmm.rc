@@ -18,45 +18,33 @@ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
 OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
+
+File Name:  igdgmm.rc
+
+Abstract:
+
+Notes:
+
 ============================================================================*/
+#ifdef _WIN32
+#include <windows.h>
 
-#pragma once
-
-#ifdef __cplusplus
-#include "../Common/GmmResourceInfoCommon.h"
-
-/////////////////////////////////////////////////////////////////////////////////////
-/// @file GmmResourceInfoLin.h
-/// @brief This file contains the functions and members of GmmResourceInfo that is
-///        Linux specific.
-///
-/////////////////////////////////////////////////////////////////////////////////////
-namespace GmmLib
-{
-    class NON_PAGED_SECTION GmmResourceInfoLin:
-                                public GmmResourceInfoCommon
-    {
-        public:
-            /* Constructors */
-            GmmResourceInfoLin()
-            {
-            }
-
-#ifndef __GMM_KMD__
-        GmmResourceInfoLin(GmmClientContext  *pClientContextIn) : GmmResourceInfoCommon(pClientContextIn)
-        {
-        }
+#include <..\..\..\install\intcver.h>
 #endif
 
-            virtual ~GmmResourceInfoLin()
-            {
-            }
+#define VER_FILETYPE                 VFT_DLL
+#define VER_FILESUBTYPE              VFT2_DRV_INSTALLABLE
+#define VER_FILEOS                   VOS_NT_WINDOWS32
+#define VER_FILEDESCRIPTION         "User Mode Driver for Intel(R) Graphics Technology\0"
 
-    };
-
-    typedef GmmResourceInfoLin GmmResourceInfo;
-
-} // namespace GmmLib
+#ifdef _WIN64
+#define VER_INTERNALNAME            "igdgmm64.dll"
+#define VER_ORIGINALNAME            "igdgmm64.dll"
 #else
-    typedef struct GmmResourceInfo GmmResourceInfo;
-#endif // #ifdef __cplusplus
+#define VER_INTERNALNAME            "igdgmm32.dll"
+#define VER_ORIGINALNAME            "igdgmm32.dll"
+#endif
+
+#ifdef _WIN32
+#include <..\..\..\inc\verinfo.ver>
+#endif

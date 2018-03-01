@@ -28,7 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "..\..\..\miniport\LHDM\inc\gmmEscape.h"
 #endif
 
-
 /////////////////////////////////////////////////////////////////////////////////////
 /// Constructor to zero initialize the GmmLib::GmmClientContext object and create
 /// Utility class object
@@ -450,6 +449,110 @@ void GMM_STDCALL GmmLib::GmmClientContext::DestroyResInfoObject(GMM_RESOURCE_INF
         pResInfo = NULL;
     }
 }
+
+#ifdef GMM_LIB_DLL
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of ClientContext class for creation of ResourceInfo Object .
+/// @see        GmmLib::GmmResourceInfoCommon::Create()
+///
+/// @param[in] pCreateParams: Flags which specify what sort of resource to create
+/// @return     Pointer to GmmResourceInfo class.
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_RESOURCE_INFO *GMM_STDCALL GmmLib::GmmClientContext::CreateResInfoObject(GMM_RESCREATE_PARAMS *        pCreateParams,
+                                                                             GmmClientAllocationCallbacks *pAllocCbs)
+{
+    if(!pAllocCbs || !pAllocCbs->pfnAllocation)
+    {
+        return CreateResInfoObject(pCreateParams);
+    }
+    else
+    {
+        GMM_RESOURCE_INFO *pRes   = NULL;
+        void *             pConst = NULL;
+
+        // GMM_RESOURCE_INFO...
+        if(pCreateParams->pPreallocatedResInfo)
+        {
+            pRes = new(pCreateParams->pPreallocatedResInfo) GmmLib::GmmResourceInfo(this); // Use preallocated memory as a class
+            pCreateParams->Flags.Info.__PreallocatedResInfo =
+            pRes->GetResFlags().Info.__PreallocatedResInfo = 1; // Set both in case we can die before copying over the flags.
+        }
+        else
+        {
+            pConst = pAllocCbs->pfnAllocation(pAllocCbs->pUserData,
+                                              sizeof(GMM_RESOURCE_INFO),
+                                              alignof(GMM_RESOURCE_INFO));
+            if(pConst == NULL)
+            {
+                GMM_ASSERTDPF(0, "Allocation failed!");
+                goto ERROR_CASE;
+            }
+            else
+            {
+                pRes = new(pConst) GMM_RESOURCE_INFO(this);
+            }
+        }
+
+        if(pRes->Create(*pCreateParams) != GMM_SUCCESS)
+        {
+            goto ERROR_CASE;
+        }
+
+        return (pRes);
+
+    ERROR_CASE:
+        if(pRes)
+        {
+            if(pAllocCbs->pfnFree)
+            {
+#ifdef _WIN32
+                pRes->~GmmResourceInfoWin();
+#else
+                pRes->~GmmResourceInfoLin();
+#endif
+
+                pAllocCbs->pfnFree(pAllocCbs->pUserData, (void *)pRes);
+            }
+        }
+
+        return (NULL);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of ClientContext class for Destroying ResInfoObject
+///
+/// @param[in] pResInfo: Pointer to ResInfoObject
+/// @return     void.
+/////////////////////////////////////////////////////////////////////////////////////
+void GMM_STDCALL GmmLib::GmmClientContext::DestroyResInfoObject(GMM_RESOURCE_INFO *           pResInfo,
+                                                                GmmClientAllocationCallbacks *pAllocCbs)
+{
+    __GMM_ASSERTPTR(pResInfo, VOIDRETURN);
+
+    if(!pAllocCbs || !pAllocCbs->pfnFree)
+    {
+        return DestroyResInfoObject(pResInfo);
+    }
+    else
+    {
+        if(pResInfo->GetResFlags().Info.__PreallocatedResInfo)
+        {
+            *pResInfo = GmmLib::GmmResourceInfo();
+        }
+        else
+        {
+#ifdef _WIN32
+            pResInfo->~GmmResourceInfoWin();
+#else
+            pResInfo->~GmmResourceInfoLin();
+#endif
+            pAllocCbs->pfnFree(pAllocCbs->pUserData, (void *)pResInfo);
+            pResInfo = NULL;
+        }
+    }
+}
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// Gmm lib DLL exported C wrapper for creating GmmLib::GmmClientContext object

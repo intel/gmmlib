@@ -22,6 +22,41 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+//===========================================================================
+// Macros to be defined for GMM Lib DLL
+//===========================================================================
+#ifdef GMM_LIB_DLL                                      /* To be defined by Clients if GMMlib needs to be in DLL/so */
+
+#ifdef _DEBUG
+    #define GMM_INLINE_VIRTUAL              virtual     // inline functions are made virtual for Debug version of Gmmlib Dll to export them from Dll
+                                                        // For RI and Release, inline functions can be exported from DLL without being made virtual
+#else
+    #define GMM_INLINE_VIRTUAL
+#endif
+
+#define GMM_VIRTUAL                     virtual
+
+#ifdef _WIN32
+
+#ifdef GMM_LIB_DLL_EXPORTS      /* To be defined for WIN32 only*/
+    #define GMM_LIB_API                     __declspec(dllexport)   /* Macro to define GMM Lib DLL exports */
+#else
+    #define GMM_LIB_API                     __declspec(dllimport)       /* Macro to define GMM Lib DLL imports */
+#endif  /* GMM_LIB_DLL_EXPORTS */
+
+#else // Linux doesnt need declspec macro
+    #define GMM_LIB_API
+#endif
+
+#else // !GMM_LIB_DLL
+
+#define GMM_INLINE_VIRTUAL
+#define GMM_VIRTUAL
+#define GMM_LIB_API
+
+#endif  /* GMM_LIB_DLL */
+
+
 #define INCLUDE_CpuSwizzleBlt_c_AS_HEADER
 #include "../../../Utility/CpuSwizzleBlt/CpuSwizzleBlt.c"
 extern const SWIZZLE_DESCRIPTOR INTEL_64KB_UNDEFINED_8bpp;
@@ -71,6 +106,7 @@ typedef uint32_t GMM_GLOBAL_GFX_ADDRESS, GMM_GLOBAL_GFX_SIZE_T;
     #define GMM_GLOBAL_GFX_ADDRESS_CAST(x)  ((GMM_GLOBAL_GFX_ADDRESS)(x))
     #define GMM_GLOBAL_GFX_SIZE_T_CAST(x)   ((GMM_GLOBAL_GFX_SIZE_T)(x))
 #endif
+
 
 #define GMM_GFX_ADDRESS_CANONIZE(a)     (((int64_t)(a) << (64 - 48)) >> (64 - 48)) // TODO(Minor): When GMM adds platform-dependent VA size caps, change from 48.
 #define GMM_GFX_ADDRESS_DECANONIZE(a)   ((uint64_t)(a) & (((uint64_t) 1 << 48) - 1)) // "

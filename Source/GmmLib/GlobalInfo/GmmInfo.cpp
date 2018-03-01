@@ -34,6 +34,244 @@ GMM_GLOBAL_CONTEXT *pGmmGlobalContext = NULL;
 
 int32_t GmmLib::Context::RefCount = 0;
 
+#ifdef GMM_LIB_DLL
+
+// Create Mutex Object used for syncronization of ProcessSingleton Context
+#ifdef _WIN32
+GMM_MUTEX_HANDLE GmmLib::Context::SingletonContextSyncMutex = ::CreateMutex(NULL, FALSE, NULL);
+#else
+GMM_MUTEX_HANDLE      GmmLib::Context::SingletonContextSyncMutex = PTHREAD_MUTEX_INITIALIZER;
+#endif // _WIN32
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// GMM lib DLL exported functions for creating Singleton Context (GmmLib::Context)
+/// object which shall be process singleton across all UMD clients within a process.
+/// @see        Class GmmLib::Context
+///
+/// @param[in]  Platform: platform variable. Includes product family (Haswell, Cherryview,
+///                       Broxton) with related render and display core revision (GEN3,
+//                        ..., GEN10)
+/// @param[in]  pSkuTable: Pointer to the sku feature table. Set of capabilities to
+///                        allow code paths to be feature based and GEN agnostic.
+/// @param[in]  pWaTable:  Pointer to the work around table. A set of anti-features,
+///                        often in early/prototype silicon that require work-arounds
+///                        until they are resolved to allow code paths to be GEN agnostic.
+/// @param[in]  pGtSysInfo: Pointer to the GT system info. Contains various GT System
+///                        Information such as EU counts, Thread Counts, Cache Sizes etc.
+/// @return     GMM_SUCCESS if Context is created, GMM_ERROR otherwise
+/////////////////////////////////////////////////////////////////////////////////////
+#ifdef _WIN32
+extern "C" GMM_STATUS GMM_STDCALL GmmCreateSingletonContext(const PLATFORM           Platform,
+                                                            const SKU_FEATURE_TABLE *pSkuTable,
+                                                            const WA_TABLE *         pWaTable,
+                                                            const GT_SYSTEM_INFO *   pGtSysInfo)
+#else
+extern "C" GMM_STATUS GMM_STDCALL GmmCreateSingletonContext(const PLATFORM Platform,
+                                                            const void *   pSkuTable,
+                                                            const void *   pWaTable,
+                                                            const void *   pGtSysInfo)
+#endif
+{
+    __GMM_ASSERTPTR(pSkuTable, GMM_ERROR);
+    __GMM_ASSERTPTR(pWaTable, GMM_ERROR);
+    __GMM_ASSERTPTR(pGtSysInfo, GMM_ERROR);
+
+    GMM_STATUS         Status = GMM_SUCCESS;
+    SKU_FEATURE_TABLE *skuTable;
+    WA_TABLE *         waTable;
+    GT_SYSTEM_INFO *   sysInfo;
+
+    skuTable = (SKU_FEATURE_TABLE *)pSkuTable;
+    waTable  = (WA_TABLE *)pWaTable;
+    sysInfo  = (GT_SYSTEM_INFO *)pGtSysInfo;
+
+
+    GMM_STATUS SyncLockStatus = GmmLib::Context::LockSingletonContextSyncMutex();
+    if(SyncLockStatus == GMM_SUCCESS)
+    {
+        int32_t ContextRefCount = GmmLib::Context::IncrementRefCount();
+        if(ContextRefCount)
+        {
+            GmmLib::Context::UnlockSingletonContextSyncMutex();
+            return GMM_SUCCESS;
+        }
+
+        pGmmGlobalContext = new GMM_GLOBAL_CONTEXT();
+        if(!pGmmGlobalContext)
+        {
+            GmmLib::Context::DecrementRefCount();
+            GmmLib::Context::UnlockSingletonContextSyncMutex();
+            return GMM_ERROR;
+        }
+
+        Status = (pGmmGlobalContext->InitContext(Platform, skuTable, waTable, sysInfo, GMM_KMD_VISTA));
+
+#ifdef _WIN32
+        // Intialize SingletonContext Data.
+        // TBD: ProcessHeap creation requires size and GfxAddress parameters. These parameters are contants
+        // and are given by GMM lib internally by PageTableMgr. Hence pHeapObj should be created here at the
+        // time of SingletonContext creation. But untill all UMD clients have moved to GMM DLL, then we will
+        // create this here.
+        pGmmGlobalContext->pHeapObj           = NULL;
+        pGmmGlobalContext->ProcessHeapCounter = 0;
+
+        // TBD: ProcessVA Gfx partition should be created here using VirtualAlloc at the time of SingletonContext
+        // creation. But untill all UMD clients have moved to GMM DLL, then we will
+        // create this here.
+        pGmmGlobalContext->ProcessVA        = {0};
+        pGmmGlobalContext->ProcessVACounter = 0;
+#endif
+
+        GmmLib::Context::UnlockSingletonContextSyncMutex();
+
+        return Status;
+    }
+    else ///< Error in Acquiring SyncLock, return Error
+    {
+        return GMM_ERROR;
+    }
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// GMM lib DLL exported functions for deleting the Singleton Context.
+/// Reference Count will be decremented and once the reference count reaches 0,
+/// Singleton Context will be freeed in memory
+/////////////////////////////////////////////////////////////////////////////////////
+extern "C" void GMM_STDCALL GmmDestroySingletonContext(void)
+{
+    __GMM_ASSERTPTR(pGmmGlobalContext, VOIDRETURN);
+    // Dont delete/destruct singletonContext. This is needed so that SingletonContext is not
+    // deleted even after UMDs are unloaded and process is still active.
+    // Free of SingletonContext shall be handled as part of process clean up
+}
+
+#ifdef _WIN32
+/////////////////////////////////////////////////////////////////////////
+/// Get ProcessHeapVA Singleton HeapObj
+/////////////////////////////////////////////////////////////////////////
+GMM_HEAP *GmmLib::Context::GetSharedHeapObject()
+{
+    GMM_HEAP *pHeapObjOut = NULL;
+    // Obtain ProcessSingleton Lock
+    GmmLib::Context::LockSingletonContextSyncMutex();
+
+    //Check if the ProcessHeapCounter is 0 or not, if not 0 increment the counter and return the heapObj
+    // that is stored in the DLL Singleton context
+    if(ProcessHeapCounter)
+    {
+        ProcessHeapCounter++;
+        pHeapObjOut = pHeapObj;
+    }
+
+    // Unlock ProcessSingleton Lock
+    GmmLib::Context::UnlockSingletonContextSyncMutex();
+
+    return pHeapObjOut;
+}
+/////////////////////////////////////////////////////////////////////////
+/// Set ProcessHeapVA Singleton HeapObj
+/////////////////////////////////////////////////////////////////////////
+uint32_t GmmLib::Context::SetSharedHeapObject(GMM_HEAP **pProcessHeapObj)
+{
+    uint32_t DllClientsCount = 0;
+    // Obtain ProcessSingleton Lock
+    GmmLib::Context::LockSingletonContextSyncMutex();
+
+    if(pProcessHeapObj)
+    {
+        if(!ProcessHeapCounter)
+        {
+            // Setting it for the first time
+            ProcessHeapCounter++;
+            pHeapObj = *pProcessHeapObj;
+        }
+        else
+        {
+            ProcessHeapCounter++;
+            *pProcessHeapObj = pHeapObj;
+        }
+    }
+    else // Destroy the HeapObj Handle Case
+    {
+        ProcessHeapCounter--;
+        if(!ProcessHeapCounter)
+        {
+            // When all UMDs clients have called destroy
+            pHeapObj = NULL;
+        }
+    }
+
+    DllClientsCount = ProcessHeapCounter;
+
+    // Unlock ProcessSingleton Lock
+    GmmLib::Context::UnlockSingletonContextSyncMutex();
+
+    return DllClientsCount;
+}
+
+/////////////////////////////////////////////////////////////////////////
+/// Get ProcessGfxPartition
+/////////////////////////////////////////////////////////////////////////
+void GmmLib::Context::GetProcessGfxPartition(GMM_GFX_PARTITIONING *pProcessVA)
+{
+    // Obtain ProcessSingleton Lock
+    GmmLib::Context::LockSingletonContextSyncMutex();
+
+    //Check if the ProcessVACounter is 0 or not, if not 0 increment the counter and return the ProcessVA
+    // that is stored in the DLL Singleton context
+    if(ProcessVACounter)
+    {
+        ProcessVACounter++;
+        if(pProcessVA)
+        {
+            *pProcessVA = ProcessVA;
+        }
+    }
+
+    // Unlock ProcessSingleton Lock
+    GmmLib::Context::UnlockSingletonContextSyncMutex();
+}
+
+/////////////////////////////////////////////////////////////////////////
+/// Set ProcessGfxPartition
+/////////////////////////////////////////////////////////////////////////
+void GmmLib::Context::SetProcessGfxPartition(GMM_GFX_PARTITIONING *pProcessVA)
+{
+    // Obtain ProcessSingleton Lock
+    GmmLib::Context::LockSingletonContextSyncMutex();
+
+    if(pProcessVA)
+    {
+        if(!ProcessVACounter)
+        {
+            // Setting it for the first time
+            ProcessVACounter++;
+            ProcessVA = *pProcessVA;
+        }
+        else
+        {
+            ProcessVACounter++;
+            // TBD: Add code to return the stored value of ProcessVA when Escapes are removed
+        }
+    }
+    else // Reset the ProcessVA Case
+    {
+        ProcessVACounter--;
+        if(!ProcessVACounter)
+        {
+            // When all UMDs clients have called destroy
+            ProcessVA = {0};
+        }
+    }
+
+    // Unlock ProcessSingleton Lock
+    GmmLib::Context::UnlockSingletonContextSyncMutex();
+}
+
+#endif // _WIN32
+
+#endif // GMM_LIB_DLL
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// C wrapper for creating GmmLib::Context object
@@ -165,6 +403,9 @@ GmmLib::Context::Context()
 /////////////////////////////////////////////////////////////////////////////////////
 GmmLib::Context::~Context()
 {
+#ifdef GMM_LIB_DLL
+    DestroySingletonContextSyncMutex();
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

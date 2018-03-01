@@ -82,6 +82,11 @@ set (TARGET_LIST
 	#igfx_gmmumd_ocl
 	)
 
+################################################################################
+# Define GMM_DLL Target
+################################################################################
+set (GMM_LIB_DLL_NAME igfx_gmmumd_dll)
+
 macro(GmmLibSetTargetConfig libTarget)
 	if (TARGET ${libTarget})
 			set_property(TARGET ${libTarget} APPEND PROPERTY COMPILE_DEFINITIONS
@@ -229,6 +234,7 @@ set(HEADERS_
 set(UMD_HEADERS
 	${HEADERS_}
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmClientContext.h
+        ${BS_DIR_GMMLIB}/inc/External/Common/GmmLibDll.h
 	)
 
 
@@ -266,6 +272,7 @@ set(UMD_SOURCES
   ${SOURCES_}
   ${BS_DIR_GMMLIB}/GlobalInfo/GmmClientContext.cpp
   ${BS_DIR_GMMLIB}/GlobalInfo/GmmOldApi.cpp
+   ${BS_DIR_GMMLIB}/GlobalInfo/GmmLibDllMain.cpp
   )
 
 source_group("Source Files\\Cache Policy\\Client Files" FILES
@@ -403,7 +410,6 @@ else()
 endif()
 
 foreach(lib_target ${TARGET_LIST})
-
   add_library( ${lib_target} STATIC ${UMD_HEADERS} ${UMD_SOURCES})
 endforeach()
 
@@ -411,8 +417,30 @@ foreach(lib_target ${TARGET_LIST})
 	GmmLibSetTargetConfig(${lib_target})
 endforeach()
 
-set_target_properties(${EXE_NAME} PROPERTIES VS_PRE_DEFAULT_PROPS "${GMMLIB_SOURCE_DIR}/../WrkSpace/PropertySheets/igfx_env.props")
+###################################################################################
+# create dll library
+###################################################################################
+add_library( ${GMM_LIB_DLL_NAME} SHARED igdgmm.rc ${UMD_SOURCES} ${UMD_HEADERS})
 
+set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES OUTPUT_NAME "igdgmm${ARCH}")
+
+if(MSVC)
+
+bs_set_wdk(${GMM_LIB_DLL_NAME})
+GmmLibSetTargetConfig( ${GMM_LIB_DLL_NAME} )
+
+set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES VS_GLOBAL_DriverTargetPlatform Universal)
+set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES VS_PLATFORM_TOOLSET WindowsApplicationForDrivers10.0)
+windows_umd_props_universal(${GMM_LIB_DLL_NAME})
+
+target_link_libraries( ${GMM_LIB_DLL_NAME}
+            onecoreuap.lib
+        )
+endif()
+
+###################################################################################
+# End of DLL create library
+###################################################################################
 
 bs_set_defines()
 
@@ -448,33 +476,72 @@ foreach(lib_target ${TARGET_LIST})
 
 endforeach()
 
-    if ("${GMM_CLIENT_TYPE}" STREQUAL "OCL")
-    	bs_set_extra_target_properties(gmm_umd
-		    GMM_OCL
+###################################################################################
+# Set common macros for DLL
+###################################################################################
+bs_set_extra_target_properties(${GMM_LIB_DLL_NAME}
+      _ATL_NO_WIN_SUPPORT
+      SMALL_POOL_ALLOC
+      __GMM
+      __GFX_MACRO_C__
+      UNUSED_ISTDLIB_MT
+	  __UMD
+	  GMM_UNIFY_DAF_API
+	  )
+
+if(CMAKE_BUILD_TYPE STREQUAL "ReleaseInternal")
+	bs_set_extra_target_properties(${GMM_LIB_DLL_NAME} _RELEASE_INTERNAL)
+endif()
+
+target_include_directories(${GMM_LIB_DLL_NAME} INTERFACE
+        ${BS_DIR_GMMLIB}/inc
+        ${BS_DIR_INC}
+        ${BS_DIR_INC}/common)
+
+###################################################################################
+# End of Set macros DLL
+###################################################################################
+
+if ("${GMM_CLIENT_TYPE}" STREQUAL "OCL")
+	bs_set_extra_target_properties(gmm_umd
+	    GMM_OCL
             UNUSED_ISTDLIB_MT
         )
-    else()
+else()
     	bs_set_extra_target_properties(gmm_umd
-		    GMM_OGL
-		    UNUSED_ISTDLIB_MT
+	    GMM_OGL
+	    UNUSED_ISTDLIB_MT
         )
-    endif()
+endif()
 
-    #bs_set_extra_target_properties(igfx_gmmumd_ocl
-	#	GMM_OCL
-    #)
+#bs_set_extra_target_properties(igfx_gmmumd_ocl
+#	GMM_OCL
+#)
 
-	bs_set_extra_target_properties(igfxgmmumd
-					ISTDLIB_UMD
-					UNUSED_ISTDLIB_MT
-					GMM_UNIFIED_LIB
-	)
+bs_set_extra_target_properties(igfxgmmumd
+	ISTDLIB_UMD
+	UNUSED_ISTDLIB_MT
+	GMM_UNIFIED_LIB
+)
 
-	if(ARCH EQUAL 32)
-		#bs_set_extra_target_properties(igfx_gmmumd_ocl UNUSED_ISTDLIB_MT)
+bs_set_extra_target_properties(${GMM_LIB_DLL_NAME}
+	ISTDLIB_UMD
+	UNUSED_ISTDLIB_MT
+	GMM_UNIFIED_LIB
+	GMM_LIB_DLL
+)
 
-		if((CMAKE_BUILD_TYPE STREQUAL "Release") OR (CMAKE_BUILD_TYPE STREQUAL "ReleaseInternal"))
-			bs_set_extra_target_properties(gmm_umd ISTDLIB_UMD)
-		endif()
+if("${ARCH}" MATCHES "64")
+	bs_set_extra_target_properties(${GMM_LIB_DLL_NAME}
+		_X64)
+endif()
+
+if(ARCH EQUAL 32)
+	#bs_set_extra_target_properties(igfx_gmmumd_ocl UNUSED_ISTDLIB_MT)
+
+	if((CMAKE_BUILD_TYPE STREQUAL "Release") OR (CMAKE_BUILD_TYPE STREQUAL "ReleaseInternal"))
+		bs_set_extra_target_properties(gmm_umd ISTDLIB_UMD)
 	endif()
+endif()
+
 add_subdirectory(ULT)

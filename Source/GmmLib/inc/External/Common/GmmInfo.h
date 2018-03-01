@@ -26,6 +26,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "../../../Platform/GmmPlatforms.h"
 #include "GmmGttExt.h"
 
+#ifdef GMM_LIB_DLL
+#ifdef _WIN32
+#define GMM_MUTEX_HANDLE    HANDLE
+#else
+#include <pthread.h>
+#define GMM_MUTEX_HANDLE    pthread_mutex_t
+#endif
+#endif
+
 // Set packing alignment
 #pragma pack(push, 8)
 
@@ -48,6 +57,7 @@ typedef struct GMM_UMD_CONTEXT_REC
     uint32_t   TBD2;
     uint32_t   TBD3;
 } GMM_UMD_CONTEXT;
+
 
 #if (!defined(__GMM_KMD__) && !defined(GMM_UNIFIED_LIB))
 #include "GmmClientContext.h"
@@ -80,6 +90,7 @@ namespace GmmLib
         SKU_FEATURE_TABLE                SkuTable;
         WA_TABLE                         WaTable;
         GT_SYSTEM_INFO                   GtSysInfo;
+
     #if(defined(__GMM_KMD__))
         GMM_GTT_CONTEXT              GttContext;
     #endif
@@ -102,6 +113,11 @@ namespace GmmLib
         // Padding Percentage limit on 64KB paged resource
         uint32_t               AllowedPaddingFor64KbPagesPercentage;
         uint64_t              InternalGpuVaMax;
+
+#ifdef GMM_LIB_DLL
+        // Mutex Object used for synchronization of ProcessSingleton Context
+        static GMM_MUTEX_HANDLE           SingletonContextSyncMutex;
+#endif
 
     public :
         //Constructors and destructors
@@ -276,6 +292,111 @@ namespace GmmLib
         {
             return InternalGpuVaMax;
         }
+
+    #ifdef GMM_LIB_DLL
+        #ifdef _WIN32
+            // ProcessHeapVA Singleton HeapObj
+            GMM_HEAP            *pHeapObj;
+            uint32_t            ProcessHeapCounter;
+            // ProcessVA Partition Address space
+            GMM_GFX_PARTITIONING ProcessVA;
+            uint32_t            ProcessVACounter;
+
+            /////////////////////////////////////////////////////////////////////////
+            /// Get ProcessHeapVA Singleton HeapObj
+            /////////////////////////////////////////////////////////////////////////
+            GMM_HEAP* GetSharedHeapObject();
+
+            /////////////////////////////////////////////////////////////////////////
+            /// Set ProcessHeapVA Singleton HeapObj
+            /////////////////////////////////////////////////////////////////////////
+            uint32_t SetSharedHeapObject(GMM_HEAP **pProcessHeapObj);
+
+            /////////////////////////////////////////////////////////////////////////
+            /// Get or Sets ProcessGfxPartition VA
+            /////////////////////////////////////////////////////////////////////////
+            void GetProcessGfxPartition(GMM_GFX_PARTITIONING* pProcessVA);
+
+            /////////////////////////////////////////////////////////////////////////
+            /// Get or Sets ProcessGfxPartition VA
+            /////////////////////////////////////////////////////////////////////////
+            void SetProcessGfxPartition(GMM_GFX_PARTITIONING* pProcessVA);
+
+            /////////////////////////////////////////////////////////////////////////
+            /// Destroy Sync Mutex created for Singleton Context access
+            /////////////////////////////////////////////////////////////////////////
+            static void   DestroySingletonContextSyncMutex()
+            {
+                if (SingletonContextSyncMutex)
+                {
+                    ::CloseHandle(SingletonContextSyncMutex);
+                    SingletonContextSyncMutex = NULL;
+                }
+            }
+
+            /////////////////////////////////////////////////////////////////////////
+            /// Acquire Sync Mutex for Singleton Context access
+            /////////////////////////////////////////////////////////////////////////
+            static GMM_STATUS   LockSingletonContextSyncMutex()
+            {
+                if (SingletonContextSyncMutex)
+                {
+                    while (WAIT_OBJECT_0 != ::WaitForSingleObject(SingletonContextSyncMutex, INFINITE));
+                    return GMM_SUCCESS;
+                }
+                else
+                {
+                    return GMM_ERROR;
+                }
+            }
+
+            /////////////////////////////////////////////////////////////////////////
+            /// Release Sync Mutex for Singleton Context access
+            /////////////////////////////////////////////////////////////////////////
+            static GMM_STATUS   UnlockSingletonContextSyncMutex()
+            {
+                if (SingletonContextSyncMutex)
+                {
+                    ::ReleaseMutex(SingletonContextSyncMutex);
+                    return GMM_SUCCESS;
+                }
+                else
+                {
+                    return GMM_ERROR;
+                }
+            }
+
+        #else // Non Win OS
+
+            /////////////////////////////////////////////////////////////////////////
+            /// Destroy Sync Mutex created for Singleton Context access
+            /////////////////////////////////////////////////////////////////////////
+            static void   DestroySingletonContextSyncMutex()
+            {
+                pthread_mutex_destroy(&SingletonContextSyncMutex);
+            }
+
+            /////////////////////////////////////////////////////////////////////////
+            /// Acquire Sync Mutex for Singleton Context access
+            /////////////////////////////////////////////////////////////////////////
+            static GMM_STATUS   LockSingletonContextSyncMutex()
+            {
+                pthread_mutex_lock(&SingletonContextSyncMutex);
+                return GMM_SUCCESS;
+            }
+
+            /////////////////////////////////////////////////////////////////////////
+            /// Release Sync Mutex for Singleton Context access
+            /////////////////////////////////////////////////////////////////////////
+            static GMM_STATUS   UnlockSingletonContextSyncMutex()
+            {
+                pthread_mutex_unlock(&SingletonContextSyncMutex);
+                return GMM_SUCCESS;
+            }
+
+        #endif // _WIN32
+
+    #endif // GMM_LIB_DLL
 
         // KMD specific inline functions
     #ifdef __GMM_KMD__

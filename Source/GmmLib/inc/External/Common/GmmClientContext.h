@@ -24,6 +24,30 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "GmmCommonExt.h"
 #include "GmmInfo.h"
 
+//////////////////////////////////////////////////////////////////
+// Memory Allocators and DeAllocators for Gmm Create Objects
+// This is needed for Clients who want to construct using their
+// own memory allocators
+//////////////////////////////////////////////////////////////////
+typedef void* (GMM_STDCALL *PFN_ClientAllocationFunction)(
+    void*                                       pUserData,
+    uint32_t                                    size,
+    uint32_t                                    alignment);
+
+typedef void (GMM_STDCALL *PFN_ClientFreeFunction)(
+    void*                                       pUserData,
+    void*                                       pMemory);
+
+typedef struct _GmmClientAllocationCallbacks_
+{
+    void*                                   pUserData;
+    uint32_t                                size;
+    uint32_t                                alignment;
+    PFN_ClientAllocationFunction            pfnAllocation;
+    PFN_ClientFreeFunction                  pfnFree;
+} GmmClientAllocationCallbacks;
+
+
 #ifdef __cplusplus
 #include "GmmMemAllocator.hpp"
 
@@ -40,7 +64,7 @@ namespace GmmLib
     /// Windows implementation.  This class members will hold data that
     /// are specific to each client.
     /////////////////////////////////////////////////////////////////////////
-    class NON_PAGED_SECTION GmmClientContext : public GmmMemAllocator
+    class GMM_LIB_API NON_PAGED_SECTION GmmClientContext : public GmmMemAllocator
     {
     protected:
         GMM_CLIENT                       ClientType;
@@ -60,37 +84,45 @@ namespace GmmLib
         /// Returns the GMM_CLIENT Type that has created this ClientContext.
         /// @return     GMM_CLIENT
         /////////////////////////////////////////////////////////////////////////////////////
-        GMM_INLINE GMM_CLIENT GMM_STDCALL  GetClientType()
+        GMM_INLINE_VIRTUAL GMM_INLINE GMM_CLIENT GMM_STDCALL  GetClientType()
         {
             return (ClientType);
         }
 
         /* Function prototypes */
         /* CachePolicy Related Exported Functions from GMM Lib */
-        MEMORY_OBJECT_CONTROL_STATE         GMM_STDCALL CachePolicyGetMemoryObject(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage);
-        GMM_PTE_CACHE_CONTROL_BITS          GMM_STDCALL CachePolicyGetPteType(GMM_RESOURCE_USAGE_TYPE Usage);
-        MEMORY_OBJECT_CONTROL_STATE         GMM_STDCALL CachePolicyGetOriginalMemoryObject(GMM_RESOURCE_INFO *pResInfo);
-        uint8_t                             GMM_STDCALL CachePolicyIsUsagePTECached(GMM_RESOURCE_USAGE_TYPE Usage);
-        uint32_t                            GMM_STDCALL CachePolicyGetMaxMocsIndex();
-        uint32_t                            GMM_STDCALL CachePolicyGetMaxL1HdcMocsIndex();
-        uint32_t                            GMM_STDCALL CachePolicyGetMaxSpecialMocsIndex();
-        const GMM_CACHE_POLICY_ELEMENT*     GMM_STDCALL GetCachePolicyUsage();
-        void                                GMM_STDCALL GetCacheSizes(GMM_CACHE_SIZES *pCacheSizes);
-        GMM_CACHE_POLICY_ELEMENT            GMM_STDCALL GetCachePolicyElement(GMM_RESOURCE_USAGE_TYPE Usage);
-        GMM_CACHE_POLICY_TBL_ELEMENT        GMM_STDCALL GetCachePolicyTlbElement(uint32_t  MocsIdx);
-        GMM_PLATFORM_INFO&                  GMM_STDCALL GetPlatformInfo();
+        GMM_VIRTUAL MEMORY_OBJECT_CONTROL_STATE         GMM_STDCALL CachePolicyGetMemoryObject(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage);
+        GMM_VIRTUAL GMM_PTE_CACHE_CONTROL_BITS          GMM_STDCALL CachePolicyGetPteType(GMM_RESOURCE_USAGE_TYPE Usage);
+        GMM_VIRTUAL MEMORY_OBJECT_CONTROL_STATE         GMM_STDCALL CachePolicyGetOriginalMemoryObject(GMM_RESOURCE_INFO *pResInfo);
+        GMM_VIRTUAL uint8_t                             GMM_STDCALL CachePolicyIsUsagePTECached(GMM_RESOURCE_USAGE_TYPE Usage);
+        GMM_VIRTUAL uint32_t                            GMM_STDCALL CachePolicyGetMaxMocsIndex();
+        GMM_VIRTUAL uint32_t                            GMM_STDCALL CachePolicyGetMaxL1HdcMocsIndex();
+        GMM_VIRTUAL uint32_t                            GMM_STDCALL CachePolicyGetMaxSpecialMocsIndex();
+        GMM_VIRTUAL const GMM_CACHE_POLICY_ELEMENT*     GMM_STDCALL GetCachePolicyUsage();
+        GMM_VIRTUAL void                                GMM_STDCALL GetCacheSizes(GMM_CACHE_SIZES *pCacheSizes);
+        GMM_VIRTUAL GMM_CACHE_POLICY_ELEMENT            GMM_STDCALL GetCachePolicyElement(GMM_RESOURCE_USAGE_TYPE Usage);
+        GMM_VIRTUAL GMM_CACHE_POLICY_TBL_ELEMENT        GMM_STDCALL GetCachePolicyTlbElement(uint32_t  MocsIdx);
+        GMM_VIRTUAL GMM_PLATFORM_INFO&                  GMM_STDCALL GetPlatformInfo();
 
-        uint8_t                             GMM_STDCALL IsPlanar(GMM_RESOURCE_FORMAT Format);
-        uint8_t                             GMM_STDCALL IsP0xx(GMM_RESOURCE_FORMAT Format);
-        uint8_t                             GMM_STDCALL IsUVPacked(GMM_RESOURCE_FORMAT Format);
-        uint8_t                             GMM_STDCALL IsCompressed(GMM_RESOURCE_FORMAT Format);
-        uint8_t                             GMM_STDCALL IsYUVPacked(GMM_RESOURCE_FORMAT Format);
+        GMM_VIRTUAL uint8_t                             GMM_STDCALL IsPlanar(GMM_RESOURCE_FORMAT Format);
+        GMM_VIRTUAL uint8_t                             GMM_STDCALL IsP0xx(GMM_RESOURCE_FORMAT Format);
+        GMM_VIRTUAL uint8_t                             GMM_STDCALL IsUVPacked(GMM_RESOURCE_FORMAT Format);
+        GMM_VIRTUAL uint8_t                             GMM_STDCALL IsCompressed(GMM_RESOURCE_FORMAT Format);
+        GMM_VIRTUAL uint8_t                             GMM_STDCALL IsYUVPacked(GMM_RESOURCE_FORMAT Format);
 
         /* ResourceInfo Creation and Destroy API's */
-        GMM_RESOURCE_INFO* GMM_STDCALL       CreateResInfoObject(GMM_RESCREATE_PARAMS *pCreateParams);
-        GMM_RESOURCE_INFO* GMM_STDCALL       CopyResInfoObject(GMM_RESOURCE_INFO *pSrcRes);
-        void GMM_STDCALL                     ResMemcpy(void *pDst, void *pSrc);
-        void  GMM_STDCALL                    DestroyResInfoObject(GMM_RESOURCE_INFO    *pResInfo);
+        GMM_VIRTUAL GMM_RESOURCE_INFO* GMM_STDCALL       CreateResInfoObject(GMM_RESCREATE_PARAMS *pCreateParams);
+        GMM_VIRTUAL GMM_RESOURCE_INFO* GMM_STDCALL       CopyResInfoObject(GMM_RESOURCE_INFO *pSrcRes);
+        GMM_VIRTUAL void GMM_STDCALL                     ResMemcpy(void *pDst, void *pSrc);
+        GMM_VIRTUAL void  GMM_STDCALL                    DestroyResInfoObject(GMM_RESOURCE_INFO    *pResInfo);
+
+#ifdef GMM_LIB_DLL
+        /* ResourceInfo and PageTableMgr Create and Destroy APIs with Client provided Memory Allocators */
+        GMM_VIRTUAL GMM_RESOURCE_INFO* GMM_STDCALL       CreateResInfoObject(GMM_RESCREATE_PARAMS *pCreateParams,
+                                                                             GmmClientAllocationCallbacks *pAllocCbs);
+        GMM_VIRTUAL void  GMM_STDCALL                    DestroyResInfoObject(GMM_RESOURCE_INFO    *pResInfo,
+                                                                              GmmClientAllocationCallbacks *pAllocCbs);
+#endif
     };
 }
 
@@ -111,6 +143,22 @@ extern "C" {
     /* ClientContext will be unique to each client */
     GMM_CLIENT_CONTEXT* GMM_STDCALL GmmCreateClientContext(GMM_CLIENT ClientType);
     void GMM_STDCALL GmmDeleteClientContext(GMM_CLIENT_CONTEXT *pGmmClientContext);
+
+#if GMM_LIB_DLL
+#ifdef _WIN32
+    GMM_STATUS GMM_STDCALL GmmCreateSingletonContext(const PLATFORM Platform,
+                                                    const SKU_FEATURE_TABLE* pSkuTable,
+                                                    const WA_TABLE* pWaTable,
+                                                    const GT_SYSTEM_INFO* pGtSysInfo);
+#else
+    GMM_STATUS GMM_STDCALL GmmCreateSingletonContext(const PLATFORM Platform,
+                                                    const void* pSkuTable,
+                                                    const void* pWaTable,
+                                                    const void* pGtSysInfo);
+#endif
+
+    void GMM_STDCALL GmmDestroySingletonContext(void);
+#endif //GMM_LIB_DLL
 
 #ifdef __cplusplus
 }
