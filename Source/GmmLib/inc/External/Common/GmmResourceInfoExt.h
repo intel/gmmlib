@@ -438,6 +438,7 @@ typedef struct GMM_GET_MAPPING_REC
 uint8_t             GMM_STDCALL GmmIsPlanar(GMM_RESOURCE_FORMAT Format);
 uint8_t             GMM_STDCALL GmmIsP0xx(GMM_RESOURCE_FORMAT Format);
 uint8_t             GMM_STDCALL GmmIsUVPacked(GMM_RESOURCE_FORMAT Format);
+bool                GMM_STDCALL GmmIsYUVFormatLCUAligned(GMM_RESOURCE_FORMAT Format);
 #define                         GmmIsYUVPlanar GmmIsPlanar // TODO(Benign): Support old name until we have a chance to correct in UMD(s) using this. No longer YUV since there are now RGB planar formats.
 uint8_t             GMM_STDCALL GmmIsCompressed(GMM_RESOURCE_FORMAT Format);
 uint8_t             GMM_STDCALL GmmIsYUVPacked(GMM_RESOURCE_FORMAT Format);

@@ -74,6 +74,14 @@ namespace GmmLib
 
             /* Function prototypes */
 
+            virtual GMM_STATUS GMM_STDCALL  FillTex2D(
+                GMM_TEXTURE_INFO   *pTexInfo,
+                __GMM_BUFFER_TYPE  *pRestrictions);
+
+            virtual GMM_STATUS  GMM_STDCALL FillTexPlanar(
+                GMM_TEXTURE_INFO    *pTexInfo,
+                __GMM_BUFFER_TYPE   *pRestrictions);
+
             /* inline functions */
     };
 }

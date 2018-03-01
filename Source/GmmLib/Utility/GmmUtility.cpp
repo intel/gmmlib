@@ -160,6 +160,35 @@ uint8_t GMM_STDCALL GmmIsUVPacked(GMM_RESOURCE_FORMAT Format)
     return Status;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+/// Checks if format can be accessed by LCU
+///
+/// @param[in]  pSurf: ptr to ::GMM_TEXTURE_INFO of main surface
+/// @param[in]  pAuxTexInfo: ptr to ::GMM_TEXTURE_INFO of Aux surface
+///
+/////////////////////////////////////////////////////////////////////////////////////
+bool GMM_STDCALL GmmIsYUVFormatLCUAligned(GMM_RESOURCE_FORMAT Format)
+{
+    bool Status = 0;
+
+    switch(Format)
+    {
+        case GMM_FORMAT_NV12:
+        case GMM_FORMAT_P010:
+        case GMM_FORMAT_P016:
+        case GMM_FORMAT_YUY2:
+        case GMM_FORMAT_Y216:
+        case GMM_FORMAT_Y416:
+        case GMM_FORMAT_AYUV:
+            Status = true;
+            break;
+        default:
+            Status = false;
+            break;
+    }
+    return Status;
+}
+
 //=============================================================================
 // Function:
 //    GmmIsYUVPacked
@@ -329,7 +358,6 @@ void GMM_STDCALL GmmGetCacheSizes(GMM_CACHE_SIZES *pCacheSizes)
 
     GMM_DPF_EXIT;
 }
-
 namespace GmmLib
 {
     namespace Utility
@@ -544,8 +572,10 @@ namespace GmmLib
         Invalid:
             return (GMM_FORMAT_INVALID);
         }
-    }
-}
+
+
+    } // namespace Utility
+} // namespace GmmLib
 
 //=============================================================================
 //

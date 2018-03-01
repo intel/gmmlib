@@ -430,6 +430,12 @@ typedef struct _WA_TABLE
         WA_BUG_TYPE_UNKNOWN,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_UNKNOWN)
 
+        WA_DECLARE(
+        WaAlignYUVResourceToLCU,
+        "source and recon surfaces need to be aligned to the LCU size",
+        WA_BUG_TYPE_CORRUPTION,
+        WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
+
 } WA_TABLE, *PWA_TABLE;
 
 //********************************** SKU/WA Macros *************************************

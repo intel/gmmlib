@@ -51,3 +51,4 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define GMM_HIZ_CLEAR_COLOR_SIZE                       (8)
 #define GMM_MEDIA_COMPRESSION_STATE_SIZE               (64)
 #define GMM_CLEAR_COLOR_FLOAT_SIZE                     (16)
+#define GMM_MAX_LCU_SIZE                                64  // Media Largest coding Unit
