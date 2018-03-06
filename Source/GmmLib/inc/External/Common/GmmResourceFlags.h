@@ -67,8 +67,8 @@ typedef struct GMM_RESOURCE_FLAG_REC
         uint32_t RenderTarget              : 1; // Apply RenderTarget restrictions when padding/aligning this resource (see GmmRestrictions.c)
         uint32_t S3d                       : 1;
         uint32_t S3dDx                     : 1;
-        uint32_t S3dNonPacked              : 1;
-        uint32_t S3dWidi                   : 1;
+        uint32_t __S3dNonPacked            : 1; // For OS unaware S3D only
+        uint32_t __S3dWidi                 : 1; // For OS unaware S3D only
         uint32_t ScratchFlat               : 1; // (Not for heaps!) General State Resource (addressed by *flat* STATE_BASE_ADDRESS:GeneralState--Do NOT use for STATE_BASE_ADDRESS heap resources!!)
         uint32_t SeparateStencil           : 1;
         uint32_t State                     : 1;
