@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #if !__GMM_KMD__ && _WIN32
 #include "..\..\inc\common\gfxEscape.h"
 #include "..\..\..\miniport\LHDM\inc\gmmEscape.h"
+#include "Internal\Windows\GmmResourceInfoWinInt.h"
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -196,42 +197,7 @@ GMM_PLATFORM_INFO &GMM_STDCALL GmmLib::GmmClientContext::GetPlatformInfo()
 /////////////////////////////////////////////////////////////////////////////////////
 uint8_t GMM_STDCALL GmmLib::GmmClientContext::IsPlanar(GMM_RESOURCE_FORMAT Format)
 {
-    uint8_t Status = 0;
-
-    switch(Format)
-    {
-        // YUV Planar Formats
-        case GMM_FORMAT_BGRP:
-        case GMM_FORMAT_IMC1:
-        case GMM_FORMAT_IMC2:
-        case GMM_FORMAT_IMC3:
-        case GMM_FORMAT_IMC4:
-        case GMM_FORMAT_I420: //Same as IYUV.
-        case GMM_FORMAT_IYUV:
-        case GMM_FORMAT_MFX_JPEG_YUV411:
-        case GMM_FORMAT_MFX_JPEG_YUV411R:
-        case GMM_FORMAT_MFX_JPEG_YUV420:
-        case GMM_FORMAT_MFX_JPEG_YUV422H:
-        case GMM_FORMAT_MFX_JPEG_YUV422V:
-        case GMM_FORMAT_MFX_JPEG_YUV444:
-        case GMM_FORMAT_RGBP:
-        case GMM_FORMAT_YV12:
-        case GMM_FORMAT_YVU9:
-        // YUV Hybrid Formats - GMM treats as Planar
-        case GMM_FORMAT_NV11:
-        case GMM_FORMAT_NV12:
-        case GMM_FORMAT_NV21:
-        case GMM_FORMAT_P010:
-        case GMM_FORMAT_P012:
-        case GMM_FORMAT_P016:
-        case GMM_FORMAT_P208:
-            Status = 1;
-            break;
-        default:
-            Status = 0;
-            break;
-    }
-    return Status;
+    return GmmIsPlanar(Format);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -242,21 +208,7 @@ uint8_t GMM_STDCALL GmmLib::GmmClientContext::IsPlanar(GMM_RESOURCE_FORMAT Forma
 /////////////////////////////////////////////////////////////////////////////////////
 uint8_t GMM_STDCALL GmmLib::GmmClientContext::IsP0xx(GMM_RESOURCE_FORMAT Format)
 {
-    uint8_t Status = 0;
-
-    switch(Format)
-    {
-        case GMM_FORMAT_P010:
-        case GMM_FORMAT_P012:
-        case GMM_FORMAT_P016:
-            Status = 1;
-            break;
-        default:
-            Status = 0;
-            break;
-    }
-
-    return Status;
+    return GmmIsP0xx(Format);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -267,24 +219,7 @@ uint8_t GMM_STDCALL GmmLib::GmmClientContext::IsP0xx(GMM_RESOURCE_FORMAT Format)
 /////////////////////////////////////////////////////////////////////////////////////
 uint8_t GMM_STDCALL GmmLib::GmmClientContext::IsUVPacked(GMM_RESOURCE_FORMAT Format)
 {
-    uint8_t Status = 0;
-
-    switch(Format)
-    {
-        case GMM_FORMAT_NV11:
-        case GMM_FORMAT_NV12:
-        case GMM_FORMAT_NV21:
-        case GMM_FORMAT_P010:
-        case GMM_FORMAT_P012:
-        case GMM_FORMAT_P016:
-        case GMM_FORMAT_P208:
-            Status = 1;
-            break;
-        default:
-            Status = 0;
-            break;
-    }
-    return Status;
+    return GmmIsUVPacked(Format);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -308,29 +243,25 @@ uint8_t GMM_STDCALL GmmLib::GmmClientContext::IsCompressed(GMM_RESOURCE_FORMAT F
 /////////////////////////////////////////////////////////////////////////////////////
 uint8_t GMM_STDCALL GmmLib::GmmClientContext::IsYUVPacked(GMM_RESOURCE_FORMAT Format)
 {
-    uint8_t Status = 0;
+    return GmmIsYUVPacked(Format);
+}
 
-    switch(Format)
-    {
-        // YCRCB_xxx Format Supported by the Sampler...
-        case GMM_FORMAT_YUY2:
-        case GMM_FORMAT_YVYU:
-        case GMM_FORMAT_UYVY:
-        case GMM_FORMAT_VYUY:
-        case GMM_FORMAT_YUY2_2x1:
-        case GMM_FORMAT_YVYU_2x1:
-        case GMM_FORMAT_UYVY_2x1:
-        case GMM_FORMAT_VYUY_2x1:
-        case GMM_FORMAT_Y216:
-        case GMM_FORMAT_Y416:
-        case GMM_FORMAT_AYUV:
-            Status = 1;
-            break;
-        default:
-            Status = 0;
-            break;
-    }
-    return Status;
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of ClientContext class for getting the Tile dimensions
+/// for the given Tile mode
+///
+/// @return    GMM_SUCCESS
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_STATUS GMM_STDCALL GmmLib::GmmClientContext::GetLogicalTileShape(uint32_t  TileMode,
+                                                                     uint32_t *pWidthInBytes,
+                                                                     uint32_t *pHeight,
+                                                                     uint32_t *pDepth)
+{
+#ifdef _WIN32
+    return GmmGetLogicalTileShape(TileMode, pWidthInBytes, pHeight, pDepth);
+#else
+    return GMM_SUCCESS;
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

@@ -24,13 +24,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "GmmCommonExt.h"
 #include "GmmInfo.h"
 
-#ifdef GMM_LIB_DLL
-
 #ifdef _X64
 #define GMM_UMD_DLL     "igdgmm64.dll"
 #else
 #define GMM_UMD_DLL     "igdgmm32.dll"
 #endif
+
+#define GMM_ENTRY_NAME "OpenGmm"
 
 // Interfaces exported from  GMM Lib DLL
 typedef struct _GmmExportEntries
@@ -67,4 +67,6 @@ extern "C" {
 }
 #endif
 
+#ifdef _WIN32
+typedef GMM_STATUS (APIENTRY *pfnGmmEntry)(GmmExportEntries *);
 #endif

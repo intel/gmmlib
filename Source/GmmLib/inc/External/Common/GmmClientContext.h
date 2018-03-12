@@ -109,6 +109,10 @@ namespace GmmLib
         GMM_VIRTUAL uint8_t                             GMM_STDCALL IsUVPacked(GMM_RESOURCE_FORMAT Format);
         GMM_VIRTUAL uint8_t                             GMM_STDCALL IsCompressed(GMM_RESOURCE_FORMAT Format);
         GMM_VIRTUAL uint8_t                             GMM_STDCALL IsYUVPacked(GMM_RESOURCE_FORMAT Format);
+        GMM_VIRTUAL GMM_STATUS                          GMM_STDCALL GetLogicalTileShape(uint32_t             TileMode,
+                                                                                        uint32_t             *pWidthInBytes,
+                                                                                        uint32_t             *pHeight,
+                                                                                        uint32_t             *pDepth);
 
         /* ResourceInfo Creation and Destroy API's */
         GMM_VIRTUAL GMM_RESOURCE_INFO* GMM_STDCALL       CreateResInfoObject(GMM_RESCREATE_PARAMS *pCreateParams);
