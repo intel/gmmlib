@@ -301,59 +301,6 @@ uint8_t GMM_STDCALL GmmIsCompressed(GMM_RESOURCE_FORMAT Format)
            pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].Compressed;
 }
 
-//==============================================================================
-//
-// Function:
-//      GmmGetUseGlobalGtt
-//
-// Description:
-//      Determines and returns whether the specified command should use a
-//      global (GTT) or per-process (PPGTT) address, and optionally sets the
-//      appropriate fields in a provided "DriverId" to communicate to KMD:Patch.
-//
-// Returns:
-//      uint8_t indicating whether command should use GTT or PPGTT address space.
-//      (Also appropriately modifies *pDriverId.)
-//
-//-----------------------------------------------------------------------------
-uint8_t GMM_STDCALL GmmGetUseGlobalGtt(GMM_HW_COMMAND_STREAMER cs, GMM_HW_COMMAND Command, D3DDDI_PATCHLOCATIONLIST_DRIVERID *pDriverId)
-{
-    uint8_t                  UseGlobalGtt;
-    const SKU_FEATURE_TABLE &SkuTable = pGmmGlobalContext->GetSkuTable();
-    const WA_TABLE &         WaTable  = pGmmGlobalContext->GetWaTable();
-
-    GMM_DPF_ENTER;
-
-    __GMM_ASSERT(cs && (cs < GMM_HW_COMMAND_STREAMERS));
-    __GMM_ASSERT(Command && (Command < GMM_HW_COMMANDS));
-    __GMM_ASSERT((cs != GMM_VECS) || (SkuTable.FtrVERing));
-    __GMM_ASSERT((cs != GMM_VCS2) || (SkuTable.FtrVcs2));
-    __GMM_ASSERT((Command != GMM_MI_CLFLUSH) || (cs == GMM_CS));
-    __GMM_ASSERT((Command != GMM_MI_CONDITIONAL_BATCH_BUFFER_END) || (cs != GMM_BCS));
-    __GMM_ASSERT((Command != GMM_MI_FLUSH_DW) || (cs != GMM_CS));
-    __GMM_ASSERT((Command != GMM_MI_REPORT_PERF_COUNT) || (cs == GMM_CS));
-    __GMM_ASSERT((Command != GMM_PIPE_CONTROL) || (cs == GMM_CS));
-
-    UseGlobalGtt =
-    WaTable.WaForceGlobalGTT ||
-    ((Command == GMM_MI_BATCH_BUFFER_START) &&
-     (!SkuTable.FtrPPGTT || WaTable.WaPpgttAliasGlobalGttSpace)) ||
-    ((Command == GMM_MI_REPORT_PERF_COUNT) &&
-     (WaTable.WaReportPerfCountForceGlobalGTT)) ||
-    ((Command == GMM_MI_STORE_DATA_IMM) &&
-     ((cs == GMM_CS) && WaTable.WaOaAddressTranslation)) ||
-    ((Command == GMM_PIPE_CONTROL) &&
-     ((cs == GMM_CS) && WaTable.WaOaAddressTranslation));
-
-    if(pDriverId)
-    {
-        pDriverId->UseGlobalGtt = (uint32_t)UseGlobalGtt;
-    }
-
-    GMM_DPF_EXIT;
-    return (UseGlobalGtt);
-} // GmmGetUseGlobalGtt
-
 //=============================================================================
 // Function:
 //     GmmGetCacheSizes

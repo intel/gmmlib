@@ -460,8 +460,7 @@ endforeach()
         )
     endif()
 
-    # FIXME switch to new lib name when all components are ready
-	#bs_set_extra_target_properties(igfx_gmmumd_ocl
+    #bs_set_extra_target_properties(igfx_gmmumd_ocl
 	#	GMM_OCL
     #)
 

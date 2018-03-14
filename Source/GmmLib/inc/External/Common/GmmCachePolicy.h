@@ -64,8 +64,7 @@ typedef struct GMM_CACHE_POLICY_ELEMENT_REC
     uint32_t                       			  Override;
 }GMM_CACHE_POLICY_ELEMENT;
 
-// One entry in the SKL/CNL cache lookup table,
-// for details see the CNL BSpec entry on MEMORY_OBJECT_CONTROL_STATE.
+// One entry in the SKL/CNL cache lookup table
 typedef struct GMM_CACHE_POLICY_TBL_ELEMENT_REC {
     union {
         struct

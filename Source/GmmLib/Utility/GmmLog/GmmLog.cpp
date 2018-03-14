@@ -33,11 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fstream>
-#if __QNX__
-#include <limits.h>
-#else
 #include <linux/limits.h>
-#endif
 #endif
 
 /// Logger instance shared by all of GmmLib within a process

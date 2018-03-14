@@ -34,9 +34,6 @@ OTHER DEALINGS IN THE SOFTWARE.
     #if defined __x86_64__
         #define __stdcall       // deprecated for x86-64
         #define __cdecl         // deprecated for x86-64
-    #elif defined(__APPLE__) && defined(__MACH__)
-        #define __stdcall
-        #define __cdecl
     #else
         #define __cdecl         __attribute__((__cdecl__))
         #define __stdcall       __attribute__((__stdcall__))
@@ -68,18 +65,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #ifndef C_ASSERT
     #define __UNIQUENAME( a1, a2 )  __CONCAT( a1, a2 )
-  #if defined __APPLE__ && defined __MACH__
-    // __COUNTER__ is not used by Apple's GCC
-    #define UNIQUENAME( __text )    __UNIQUENAME( __text, __LINE__ )
-  #else
-    #define UNIQUENAME( __text )    __UNIQUENAME( __text, __COUNTER__ )
-  #endif
 
-  #ifndef __ghs__
-    #define C_ASSERT(e) typedef char UNIQUENAME(STATIC_ASSERT_)[(e)?1:-1]
-  #else
-    #define C_ASSERT(e) //TODO ghs instr compilation fix
-  #endif
+    #define UNIQUENAME( __text )    __UNIQUENAME( __text, __COUNTER__ )
+
+  #define C_ASSERT(e) typedef char UNIQUENAME(STATIC_ASSERT_)[(e)?1:-1]
 #endif
 
 

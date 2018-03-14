@@ -314,9 +314,6 @@ extern void CpuSwizzleBlt(CPU_SWIZZLE_BLT_SURFACE *pDest, CPU_SWIZZLE_BLT_SURFAC
 #elif((defined __clang__) ||(__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 5)))
     #include <cpuid.h>
     #include <x86intrin.h>
-#elif defined __ghs__
-    #include <86_ghs.h>
-    #include <86_sse.h>
 #else
     #error "Unexpected compiler!"
 #endif

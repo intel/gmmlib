@@ -2420,7 +2420,7 @@ TEST_F(CTestResource, TestSeparateStencil)
         if(gmmParams.ArraySize > 1 || gmmParams.Type == RESOURCE_CUBE)
         {
             uint32_t ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign); //Interleaved rows for TielW-arrangement. No Qpitch for 3d, only for 2d-array and cube on Gen8
-            //Bspec wants it to be in VALign multiple, for Stencil buffer needs it as multiple of 8
+            //it needs to be in VALign multiple, for Stencil buffer needs it as multiple of 8
             VerifyResourceQPitch<true>(ResourceInfo, ExpectedQPitch); // Each face should be VAlign rows apart within a tile
         }
 
@@ -2453,7 +2453,7 @@ TEST_F(CTestResource, TestSeparateStencil)
         {
             ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign); //Interleaved rows for TileW-arrangement - but Qpitch calculated w/o interleaving in mind. No Qpitch for 3d, only for 2d-array and cube on Gen8
             //GMM_ULT_ALIGN(GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign)/2, VAlign); //Doesn't HW expect distance in rows between 2 cube-faces (array slices) : It does so, but in logical view not physical view, so not interleaved rows.
-            //Bspec wants it to be in VALign multiple, for Stencil buffer needs it as multiple of 8
+            //it needs to be in VALign multiple, for Stencil buffer needs it as multiple of 8
             VerifyResourceQPitch<true>(ResourceInfo, ExpectedQPitch); // Each face should be VAlign rows apart within a tile
         }
 
@@ -2508,7 +2508,7 @@ TEST_F(CTestResource, TestSeparateStencil)
         {
             TwoDQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign); //Interleaved rows for TileW-arrangement - but Qpitch calculated w/o interleaving in mind. No Qpitch for 3d, only for 2d-array and cube on Gen8
             //GMM_ULT_ALIGN(GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign)/2, VAlign); //Doesn't HW expect distance in rows between 2 cube-faces (array slices) : It does so, but in logical view not physical view, so not interleaved rows.
-            //Bspec wants it to be in VALign multiple, for Stencil buffer needs it as multiple of 8
+            //it needs to be in VALign multiple, for Stencil buffer needs it as multiple of 8
 
             //VerifyResourceQPitch<false>(ResourceInfo, TwoDQPitch);       //Gen8 doesn't support QPitch for RES_3D
 
@@ -2561,7 +2561,7 @@ TEST_F(CTestResource, TestHiZ)
 
             if(gmmParams.ArraySize > 1 || gmmParams.Type == RESOURCE_CUBE)
             {
-                uint32_t ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign); //Apply formula on Bspec
+                uint32_t ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
                 ExpectedQPitch          = GMM_ULT_ALIGN(ExpectedQPitch / 2, VAlign);
 
                 VerifyResourceQPitch<false>(ResourceInfo, ExpectedQPitch); // Each face should be VAlign rows apart within a tile, Turn on verification after clarity
@@ -2709,7 +2709,7 @@ TEST_F(CTestResource, TestMSAA)
 
         //Discard un-supported Tiling/Res_type/bpp for this test
         if(ResType != TEST_RESOURCE_2D || Tiling > TEST_TILEY           //No 1D/3D/Cube. Supported 2D mip-maps/array
-           || (!IsRT && (Tiling == TEST_TILEX ||                        //Bspec doesn't support TileX for Depth
+           || (!IsRT && (Tiling == TEST_TILEX ||
                          !(Bpp == TEST_BPP_16 || Bpp == TEST_BPP_32)))) //depth supported on 16bit, 32bit formats only
             continue;
 
@@ -2776,7 +2776,7 @@ TEST_F(CTestResource, TestMSAA)
                     uint32_t ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight * HeightMultiplier, VAlign);
                     if(gmmParams.ArraySize > 1)
                     {
-                        //Bspec wants it to be in VALign multiple
+                        // it needs to be in VALign multiple
                         VerifyResourceQPitch<true>(MSSResourceInfo, ExpectedQPitch);
                     }
                     uint32_t ExpectedHeight = GMM_ULT_ALIGN(ExpectedQPitch * gmmParams.ArraySize, TileDimY);            //Align Height = ExpectedQPitch*ArraySize, to Tile-Height

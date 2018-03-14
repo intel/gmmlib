@@ -112,12 +112,12 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen7TextureCalc::FillTex2D(GMM_TEXTURE_INFO * 
         {
             Height1 = __GMM_EXPAND_HEIGHT(this, Height >> 1, VAlign, pTexInfo);
 
-            // QPitch = (h0 + h1 + 12j) * pitch (B-Spec: GPU Overview)
+            // QPitch = (h0 + h1 + 12j) * pitch
             BlockHeight = Height0 + Height1 + 12 * VAlign;
         }
         else // SURFACE_STATE: Surface Array Spacing: ARYSPC_LOD0
         {
-            // QPitch = h0 * pitch (B-Spec: GPU Overview)
+            // QPitch = h0 * pitch
             BlockHeight                               = Height0;
             pTexInfo->Alignment.ArraySpacingSingleLod = true;
         }
@@ -464,12 +464,12 @@ void GmmLib::GmmGen7TextureCalc::Fill2DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
 
         if(!pTexInfo->Alignment.ArraySpacingSingleLod)
         {
-            // QPitch = (h0 + h1 + 12j) * pitch (B-Spec: GPU Overview)
+            // QPitch = (h0 + h1 + 12j) * pitch
             ArrayQPitch = Height0 + Height1 + 12 * VAlign;
         }
         else // SURFACE_STATE: Surface Array Spacing: ARYSPC_LOD0
         {
-            // QPitch = h0 * pitch (B-Spec: GPU Overview)
+            // QPitch = h0 * pitch
             ArrayQPitch = Height0;
         }
 

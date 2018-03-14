@@ -156,21 +156,6 @@ void GMM_STDCALL GmmLib::GmmClientContext::GetCacheSizes(GMM_CACHE_SIZES *pCache
     return GmmGetCacheSizes(pCacheSizes);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-/// Member function of ClientContext class for Determining and returning whether
-/// the specified command should use a global (GTT) or per-process (PPGTT) address,
-/// and optionally sets the appropriate fields in a provided "DriverId" to
-/// communicate to KMD:Patch.
-///
-/// @return     Boolean indicating whether command should use GTT or PPGTT address
-///             space Global GTT aliasing; 0 otherwise.
-/////////////////////////////////////////////////////////////////////////////////////
-uint8_t GMM_STDCALL GmmLib::GmmClientContext::GetUseGlobalGtt(GMM_HW_COMMAND_STREAMER            cs,
-                                                              GMM_HW_COMMAND                     Command,
-                                                              D3DDDI_PATCHLOCATIONLIST_DRIVERID *pDriverId)
-{
-    return GmmGetUseGlobalGtt(cs, Command, pDriverId);
-}
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// Member function of ClientContext class for returning GMM_CACHE_POLICY_ELEMENT

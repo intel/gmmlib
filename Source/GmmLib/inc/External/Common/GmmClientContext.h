@@ -76,9 +76,6 @@ namespace GmmLib
         uint32_t                            GMM_STDCALL CachePolicyGetMaxSpecialMocsIndex();
         const GMM_CACHE_POLICY_ELEMENT*     GMM_STDCALL GetCachePolicyUsage();
         void                                GMM_STDCALL GetCacheSizes(GMM_CACHE_SIZES *pCacheSizes);
-        uint8_t                             GMM_STDCALL GetUseGlobalGtt(GMM_HW_COMMAND_STREAMER cs,
-                                                                        GMM_HW_COMMAND Command,
-                                                                        D3DDDI_PATCHLOCATIONLIST_DRIVERID *pDriverId);
         GMM_CACHE_POLICY_ELEMENT            GMM_STDCALL GetCachePolicyElement(GMM_RESOURCE_USAGE_TYPE Usage);
         GMM_CACHE_POLICY_TBL_ELEMENT        GMM_STDCALL GetCachePolicyTlbElement(uint32_t  MocsIdx);
         GMM_PLATFORM_INFO&                  GMM_STDCALL GetPlatformInfo();

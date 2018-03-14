@@ -243,8 +243,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
                  (pTexInfo->BitsPerPixel == 64) ||
                  (pTexInfo->BitsPerPixel == 128))))
             {
-                // For non-MSAA CCS usage, the Bspec has four tables of
-                // requirements:
+                // Requirements for non-MSAA CCS usage:
                 // (1) RT Alignment (GMM Don't Care: Occurs Naturally)
                 // (2) ClearRect Alignment
                 // (3) ClearRect Scaling (GMM Don't Care: GHAL3D Matter)
@@ -255,7 +254,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
                 // deal with alignment later at per mip level. Here, we set
                 // tiling type only. TileX is not supported on Gen9+.
                 // Pre-Gen8:
-                // (!) For all the above, the bspec has separate entries for
+                // (!) For all the above, there are separate entries for
                 // 32/64/128bpp--and then deals with PIXEL widths--Here,
                 // though, we will unify by considering 8bpp table entries
                 // (unlisted--i.e. do the math)--and deal with BYTE widths.

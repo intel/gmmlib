@@ -694,7 +694,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexPitchAndSize(GMM_TEXTURE_INFO * pTexIn
             {
                 // For color buffer (meaning not depth or stencil buffer)
                 // The width/height for TileYf/Ys MSAA surfaces are not expanded (using GmmExpandWidth/Height functions)
-                // because the bspec defines the pitch for these surfaces in their non-expanded dimensions. So, the pitch
+                // because pitch for these surfaces is in their non-expanded dimensions. So, the pitch
                 // is also non-expanded units.  That's why, we multiply by the sample size here to get the correct size.
                 Size *= pTexInfo->MSAA.NumSamples;
             }

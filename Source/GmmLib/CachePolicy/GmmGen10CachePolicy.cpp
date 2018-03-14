@@ -71,10 +71,6 @@ GMM_STATUS GmmLib::GmmGen10CachePolicy::InitCachePolicy()
         uint32_t                      CurrentMaxHDCL1Index   = GMM_GEN10_HDCL1_MOCS_INDEX_START - 1; // define constant
         GMM_CACHE_POLICY_TBL_ELEMENT *pCachePolicyTlbElement = pGmmGlobalContext->GetCachePolicyTlbElement();
 
-#if(_WIN32 && (_DEBUG || _RELEASE_INTERNAL))
-        OverrideCachePolicy();
-#endif
-
         // index 0 is uncached.
         {
             GMM_CACHE_POLICY_TBL_ELEMENT *Entry0 = &(pCachePolicyTlbElement[0]);

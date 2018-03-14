@@ -96,18 +96,4 @@ OTHER DEALINGS IN THE SOFTWARE.
         (GmmGetGttContext(pGmmGlobalContext)->GfxAddrRange.PP.Base +                             \
          GmmGetGttContext(pGmmGlobalContext)->GfxAddrRange.PP.Size)))
 
-/*
- * This definition of GMM_INLINE is for compatibility purposes between different compilers.
- */
-
-#if defined(__ghs__)
-
-/*
- * Green Hills Software compiler does not accept __inline keyword, so we must define
- * GMM_INLINE as inline.
- */
-
-#define GMM_INLINE inline
-#else
 #define GMM_INLINE __inline
-#endif

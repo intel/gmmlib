@@ -182,16 +182,6 @@ endmacro()
 # Can be extended to cover more OS targets without the need to update
 # individual component lists.
 macro(bs_set_defines)
-    if (${PLATFORM} STREQUAL "ghs")
-        # LANGUAGE "CXX" alone is not enough for GHS compiler
-        # as both CC and CXX execs point to the same binary
-        add_definitions(-dotciscxx)
-    endif (${PLATFORM} STREQUAL "ghs")
-
-    if(NOT ${PLATFORM} STREQUAL "qnx")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-    endif()
-
     if (${PLATFORM} STREQUAL linux)
         add_definitions(-D__STDC_LIMIT_MACROS)
         add_definitions(-D__STDC_CONSTANT_MACROS)

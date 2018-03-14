@@ -492,39 +492,6 @@ typedef enum GMM_HW_COMMAND_STREAMER_ENUM
     GMM_HW_COMMAND_STREAMERS // <-- This stays last.
 } GMM_HW_COMMAND_STREAMER;
 
-//===========================================================================
-// typedef:
-//     GMM_HW_COMMAND
-//
-// Description: Enumeration to allow callers to specify a HW command.
-//              (Currently only used with GmmGetUseGlobalGtt--with the
-//              commands that have a PPGTT/GTT space select field.)
-//
-//---------------------------------------------------------------------------
-
-typedef enum GMM_HW_COMMAND_ENUM
-{
-    GMM_HW_COMMAND_NULL = 0, // <-- This stays zero.
-    GMM_MI_ATOMIC,
-    GMM_MI_BATCH_BUFFER_START,
-    GMM_MI_CLFLUSH,
-    GMM_MI_CONDITIONAL_BATCH_BUFFER_END,
-    GMM_MI_COPY_MEM_MEM,
-    GMM_MI_FLUSH_DW,
-    GMM_MI_LOAD_REGISTER_MEM,
-    GMM_MI_REPORT_PERF_COUNT,
-    GMM_MI_SEMAPHORE_MBOX,
-    GMM_MI_SEMAPHORE_SIGNAL,
-    GMM_MI_SEMAPHORE_WAIT,
-    GMM_MI_STORE_DATA_IMM,
-    GMM_MI_STORE_DATA_INDEX,
-    GMM_MI_STORE_REGISTER_MEM,
-    GMM_MI_UPDATE_GTT,
-    GMM_PIPE_CONTROL,
-    GMM_HW_COMMANDS // <-- This stays last.
-} GMM_HW_COMMAND;
-
-
 // Reset packing alignment to project default
 #pragma pack(pop)
 

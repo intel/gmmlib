@@ -57,10 +57,6 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::InitCachePolicy()
         // Define index of cache element
         uint32_t Usage = 0;
 
-#if(_WIN32 && (_DEBUG || _RELEASE_INTERNAL))
-        OverrideCachePolicy();
-#endif
-
         // Process Cache Policy and fill in look up table
         for(; Usage < GMM_RESOURCE_USAGE_MAX; Usage++)
         {
@@ -80,7 +76,7 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::InitCachePolicy()
 
             if(pCachePolicy[Usage].WT)
                 pCachePolicy[Usage].MemoryObjectOverride.Gen8.CacheControl = MO_WT;
-            // L3 is not included because WT vs UC vs WB only effects uncore (see bspec for more details)
+            // L3 is not included because WT vs UC vs WB only effects uncore
             else if(!(pCachePolicy[Usage].LLC || pCachePolicy[Usage].ELLC))
                 pCachePolicy[Usage].MemoryObjectOverride.Gen8.CacheControl = MO_UC;
 

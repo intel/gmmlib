@@ -72,11 +72,7 @@ namespace GmmLib
     class NON_PAGED_SECTION Context : public GmmMemAllocator
     {
     private:
-    #if defined( __ghs__)
-        static std::atomic<int>          RefCount;
-    #else
-        static int32_t                      RefCount;
-    #endif
+        static int32_t                   RefCount;
         GMM_CLIENT                       ClientType;
         GMM_PLATFORM_INFO_CLASS*         pPlatformInfo;
 
@@ -97,15 +93,6 @@ namespace GmmLib
         GMM_CACHE_POLICY_TBL_ELEMENT     CachePolicyTbl[GMM_MAX_NUMBER_MOCS_INDEXES];
         GMM_CACHE_POLICY                 *pGmmCachePolicy;
 
-        //GMM Platform Override
-    #if(defined(__GMM_KMD__) && (_DEBUG || _RELEASE_INTERNAL))
-        struct
-        {
-            GMM_PLATFORM_INFO_CLASS      *pPlatformInfo;
-            GMM_TEXTURE_CALC*           pTextureCalc;
-        }                            Override;
-    #endif
-
     #if(defined(__GMM_KMD__))
         uint64_t           IA32ePATTable;
         GMM_PRIVATE_PAT     PrivatePATTable[GMM_NUM_PAT_ENTRIES];
@@ -125,10 +112,8 @@ namespace GmmLib
         {
 #if defined(_WIN32)
             return(InterlockedIncrement((LONG *)&RefCount) - 1);  //InterLockedIncrement() returns incremented value
-#elif defined(__linux__) ||  defined(__QNX__)
+#elif defined(__linux__)
             return(__sync_fetch_and_add(&RefCount, 1));
-#elif defined( __ghs__)
-            return(RefCount.fetch_add(1));
 #endif
         }
 
@@ -149,7 +134,7 @@ namespace GmmLib
                 }
 #if defined(_WIN32)
             } while (!(InterlockedCompareExchange((LONG *)&RefCount, TargetValue, CurrentValue) == CurrentValue));
-#elif defined(__linux__) || defined(__QNX__)
+#elif defined(__linux__)
             } while (!__sync_bool_compare_and_swap(&RefCount, CurrentValue, TargetValue));
 #endif
 
@@ -484,19 +469,8 @@ extern "C" {
 }
 #endif /*__cplusplus*/
 
-#if(defined(__GMM_KMD__) && (_DEBUG || _RELEASE_INTERNAL))
-    #define GMM_OVERRIDE_TEXTURE_CALC(pTexInfo)                                                                \
-                    ((GFX_GET_CURRENT_RENDERCORE((pTexInfo)->Platform) !=                              \
-                        GFX_GET_CURRENT_RENDERCORE(GmmGetPlatformInfo(pGmmGlobalContext)->Platform))?                \
-                        GmmGetOverrideTextureCalc(pGmmGlobalContext) : GmmGetTextureCalc(pGmmGlobalContext))
-    #define GMM_OVERRIDE_PLATFORM_INFO(pTexInfo)                                                               \
-                    ((GFX_GET_CURRENT_RENDERCORE((pTexInfo)->Platform) !=                              \
-                        GFX_GET_CURRENT_RENDERCORE(GmmGetPlatformInfo(pGmmGlobalContext)->Platform))?                \
-                        GmmGetOverridePlatformInfo(pGmmGlobalContext) : GmmGetPlatformInfo(pGmmGlobalContext))
-#else
     #define GMM_OVERRIDE_PLATFORM_INFO(pTexInfo)    (GmmGetPlatformInfo(pGmmGlobalContext))
     #define GMM_OVERRIDE_TEXTURE_CALC(pTexInfo)     (GmmGetTextureCalc(pGmmGlobalContext))
-#endif
 
 // Reset packing alignment to project default
 #pragma pack(pop)

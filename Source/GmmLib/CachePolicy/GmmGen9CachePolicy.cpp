@@ -91,10 +91,6 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::InitCachePolicy()
         uint32_t                      CurrentMaxIndex        = 0;
         GMM_CACHE_POLICY_TBL_ELEMENT *pCachePolicyTlbElement = pGmmGlobalContext->GetCachePolicyTlbElement();
 
-#if(_WIN32 && (_DEBUG || _RELEASE_INTERNAL))
-        OverrideCachePolicy();
-#endif
-
 #ifdef HAVE_MESA_MOCS
         // Index 0 is (traditionally) uncached but here we use the entries of the MESA MOCS table
         {

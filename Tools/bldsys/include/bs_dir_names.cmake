@@ -48,6 +48,4 @@ bs_set_if_undefined(BS_DIR_INSTALL         "${BS_DIR_SOURCE}/install")
 bs_set_if_undefined(BS_DIR_MEDIA           "${BS_DIR_SOURCE}/media")
 bs_set_if_undefined(BS_DIR_OPENCL          "${BS_DIR_SOURCE}/OpenCL")
 
-# INTEL CONFIDENTIAL
-
 endif(NOT DEFINED _bs_include_dir_names)

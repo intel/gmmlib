@@ -407,7 +407,7 @@ GMM_FORMAT( IMC1                         ,   8,  1,  1, 1, R, x,   NA , NC  ,   
 GMM_FORMAT( IMC2                         ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      )
 GMM_FORMAT( IMC3                         ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      )
 GMM_FORMAT( IMC4                         ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      )
-GMM_FORMAT( L4A4                         ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      ) // MSFT's A4L4. No HW support.
+GMM_FORMAT( L4A4                         ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      )
 GMM_FORMAT( MFX_JPEG_YUV411              ,   8,  1,  1, 1, R, x,   NA , 0xF ,     GEN(7)      )
 GMM_FORMAT( MFX_JPEG_YUV411R             ,   8,  1,  1, 1, R, x,   NA , 0xF ,     GEN(7)      )
 GMM_FORMAT( MFX_JPEG_YUV420              ,   8,  1,  1, 1, R, x,   NA , 0xF ,     GEN(7)      ) // Same as IMC3.
@@ -431,7 +431,7 @@ GMM_FORMAT( Y8_UNORM_VA                  ,   8,  1,  1, 1, x, x,   NA , 0xF ,   
 GMM_FORMAT( Y16_SNORM                    ,  16,  1,  1, 1, x, x,   NA , 0x7 ,     GEN(8)      )
 GMM_FORMAT( Y16_UNORM                    ,  16,  1,  1, 1, x, x,   NA , 0x7 ,     GEN(8)      )
 #if (IGFX_GEN >= IGFX_GEN10)
-GMM_FORMAT( Y32_UNORM                    ,  32,  1,  1, 1, x, x,   NA , NC  ,     GEN(10)     ) // Y32 removed from Gen9 but still referenced in BSpec, only available Gen10+
+GMM_FORMAT( Y32_UNORM                    ,  32,  1,  1, 1, x, x,   NA , NC  ,     GEN(10)     )
 #endif
 GMM_FORMAT( Y216                         ,  64,  2,  1, 1, R, x,   NA,  0x5,      ALWAYS      )
 GMM_FORMAT( Y416                         ,  64,  1,  1, 1, R, x,   NA , 0x6 ,     ALWAYS      ) // Packed 444 10/12/16 bit,
@@ -462,7 +462,6 @@ GMM_FORMAT( WGBOX_PLANAR_YUV444          ,  32,  1,  1, 1, x, x,   NA , NC  ,   
   things--various enums, struct/array-initializing code, etc.
 
   Format Names:
-  Text should always match BSpec name where applicable.
   The GMM_RESOURCE_FORMAT and GMM_SURFACESTATE_FORMAT enums are generated from
   this table.
 

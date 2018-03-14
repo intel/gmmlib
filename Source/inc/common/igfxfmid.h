@@ -76,7 +76,7 @@ typedef enum {
     PCH_LPT,            // Lynx Point
     PCH_LPTR,           // Lynx Point Refresh
     PCH_WPT,            // Wildcat point
-    PCH_SPT,            // Sunrise point
+    PCH_SPT,            //
     PCH_KBP,            // Kabylake PCH
     PCH_CNP_LP,         // Cannonlake LP PCH
     PCH_CNP_H,          // Cannonlake Halo PCH
@@ -657,19 +657,17 @@ typedef enum __NATIVEGTTYPE
 //GWL
 #define IGWL_GT1_MOB_DEVICE_F0_ID               0xFF0F      //For Pre-Si, temp
 
-// bxt Fulsim Device ids
-#define IBXT_A_DEVICE_F0_ID                 0x9906   // BXT for Fulsim A 3X6
-#define IBXT_C_DEVICE_F0_ID                 0x9907   // BXT for Fulsim B 2X6
+#define IBXT_A_DEVICE_F0_ID                 0x9906
+#define IBXT_C_DEVICE_F0_ID                 0x9907
 #define IBXT_X_DEVICE_F0_ID                 0x9908
 
-//BXT BIOS programmed Silicon ids. See bspec for details.
+//BXT BIOS programmed Silicon ids
 #define IBXT_GT_3x6_DEVICE_ID                0x0A84
 #define IBXT_PRO_3x6_DEVICE_ID               0x1A84 //18EU
 #define IBXT_PRO_12EU_3x6_DEVICE_ID          0x1A85 //12 EU
 #define IBXT_P_3x6_DEVICE_ID                 0x5A84 //18EU APL
 #define IBXT_P_12EU_3x6_DEVICE_ID            0x5A85 //12EU APL
 
-// CNL fulsim device ids
 #define ICNL_3x8_DESK_DEVICE_F0_ID              0x0A01
 #define ICNL_5x8_DESK_DEVICE_F0_ID              0x0A02
 #define ICNL_9x8_DESK_DEVICE_F0_ID              0x0A05
@@ -681,14 +679,14 @@ typedef enum __NATIVEGTTYPE
 #define ICNL_4x8_ULT_DEVICE_F0_ID               0x5A5A      //GT1.5
 #define ICNL_3x8_ULT_DEVICE_F0_ID               0x5A42      //GT1
 #define ICNL_2x8_ULT_DEVICE_F0_ID               0x5A4A      //GT0.5
-#define ICNL_9x8_ULT_DEVICE_F0_ID               0x5A62      //GTType information not available in B-Spec
-#define ICNL_9x8_SUPERSKU_DEVICE_F0_ID          0x5A60      //GTType information not available in B-Spec
+#define ICNL_9x8_ULT_DEVICE_F0_ID               0x5A62
+#define ICNL_9x8_SUPERSKU_DEVICE_F0_ID          0x5A60
 #define ICNL_5x8_SUPERSKU_DEVICE_F0_ID          0x5A50      //GT2
 #define ICNL_1x6_5x8_SUPERSKU_DEVICE_F0_ID      0x5A40      //GTx
 #define ICNL_5x8_HALO_DEVICE_F0_ID              0x5A54      //GT2
 #define ICNL_3x8_HALO_DEVICE_F0_ID              0x5A44      //GT1
-#define ICNL_5x8_DESKTOP_DEVICE_F0_ID           0x5A55      //GTType information not available in B-Spec
-#define ICNL_3x8_DESKTOP_DEVICE_F0_ID           0x5A45      //GTType information not available in B-Spec
+#define ICNL_5x8_DESKTOP_DEVICE_F0_ID           0x5A55
+#define ICNL_3x8_DESKTOP_DEVICE_F0_ID           0x5A45
 #define ICNL_4x8_ULX_DEVICE_F0_ID               0x5A59      //GT1.5
 #define ICNL_3x8_ULX_DEVICE_F0_ID               0x5A41      //GT1
 #define ICNL_2x8_ULX_DEVICE_F0_ID               0x5A49      //GT0.5
@@ -876,7 +874,7 @@ typedef enum __NATIVEGTTYPE
 #define PCH_LPT_LP_DEV_VALUE_ID                             0x9C47
 
 //define WPT device ids
-#define PCH_WPT_DEV_SIM_ID                                  0x99FF // for BDW Fulsim
+#define PCH_WPT_DEV_SIM_ID                                  0x99FF
 #define PCH_WPT_LPC_DEV_UNFUSED_ID                          0x9CC0 // for BDW P0, D31:F0 - LPC Controller (Unfused part)
 #define PCH_WPT_LPC_DEV_SUPER_HSW_ID                        0x9CC1 // for BDW P0, D31:F0 - LPC Controller (Super SKU) w/ HSW
 #define PCH_WPT_LPC_DEV_SUPER_BDW_U_CPU_ID                  0x9CC2 // for BDW P0, D31:F0 - LPC Controller (Super SKU) w/ BDW U CPU
@@ -888,7 +886,7 @@ typedef enum __NATIVEGTTYPE
 #define PCH_WPT_LPC_DEV_PERFORMANCE_ID                      0x9CCB // for BDW P0, D31:F0 - LPC Controller (Performance SKU)
 
 //define SPT LP device ids
-#define PCH_SPT_DEV_SIM_ID                                  0x99EF // for SKL Fulsim
+#define PCH_SPT_DEV_SIM_ID                                  0x99EF
 #define PCH_SPT_LPC_DEV_UNFUSED_ID                          0x9D40 // (SPT-LP)  Unfused
 #define PCH_SPT_LPC_DEV_SUPER_U_ID                          0x9D41 // (SPT-LP)  Super SKU(Unlocked)
 #define PCH_SPT_LPC_DEV_SUPER_L_ID                          0x9D42 // (SPT-LP)  Super SKU(locked)

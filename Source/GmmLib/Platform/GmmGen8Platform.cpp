@@ -429,5 +429,5 @@ GmmLib::PlatformInfoGen8::PlatformInfoGen8(PLATFORM &Platform)
     //---------------------------------------------
     Data.SurfaceMaxSize                      = GMM_GBYTE(2);
     Data.MaxGpuVirtualAddressBitsPerResource = 31;
-    Data.MaxSLMSize                          = GMM_KBYTE(384); //Bspec : Configurations >> Device Attributes
+    Data.MaxSLMSize                          = GMM_KBYTE(384);
 }

@@ -90,7 +90,6 @@ typedef struct _SKU_FEATURE_TABLE
         unsigned int   FtrWddm2GpuMmu                   : 1;  // WDDMv2 GpuMmu Model (Set in platform SKU files, but disabled by GMM as appropriate for given system.)
         unsigned int   FtrWddm2Svm                      : 1;  // WDDMv2 SVM Model (Set in platform SKU files, but disabled by GMM as appropriate for given system.)
         unsigned int   FtrStandardMipTailFormat         : 1;  // Dx Standard MipTail Format for TileYf/Ys
-        unsigned int   FtrDisplayColorEnhancement       : 1;  // Asus Display color enhancement support
         unsigned int   FtrWddm2_1_64kbPages             : 1;  // WDDMv2.1 64KB page support
         unsigned int   FtrFrameBufferLLC                : 1;  // Displayable Frame buffers cached in LLC
     };

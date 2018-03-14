@@ -121,9 +121,9 @@ typedef struct GMM_RESOURCE_MSAA_INFO_REC
 //---------------------------------------------------------------------------
 typedef struct GMM_RESOURCE_ALIGNMENT_REC
 {
-    uint8_t    ArraySpacingSingleLod;  // Single-LOD/Full Array Spacing (B-Spec [IVB+] ARYSPC_LOD0/FULL)
+    uint8_t    ArraySpacingSingleLod;  // Single-LOD/Full Array Spacing
     uint32_t   BaseAlignment;          // Base Alignment
-    uint32_t   HAlign, VAlign, DAlign; // Alignment Unit Width/Height/ (B-Spec HALIGN/VALIGN/DALIGN--i.e. "i * p, j * q, k * s")
+    uint32_t   HAlign, VAlign, DAlign; // Alignment Unit Width/Height
     uint32_t   MipTailStartLod;        // Mip Tail (SKL+)
     uint32_t   PackedMipStartLod;      // Packed Mip (Pre-Gen9 / Undefined64KBSwizzle)
     uint32_t   PackedMipWidth;         // Packed Mip Width in # of 64KB Tiles (Pre-Gen9 / Undefined64KBSwizzle)
@@ -440,7 +440,6 @@ uint8_t             GMM_STDCALL GmmIsP0xx(GMM_RESOURCE_FORMAT Format);
 uint8_t             GMM_STDCALL GmmIsUVPacked(GMM_RESOURCE_FORMAT Format);
 #define                         GmmIsYUVPlanar GmmIsPlanar // TODO(Benign): Support old name until we have a chance to correct in UMD(s) using this. No longer YUV since there are now RGB planar formats.
 uint8_t             GMM_STDCALL GmmIsCompressed(GMM_RESOURCE_FORMAT Format);
-uint8_t             GMM_STDCALL GmmGetUseGlobalGtt(GMM_HW_COMMAND_STREAMER cs, GMM_HW_COMMAND Command, D3DDDI_PATCHLOCATIONLIST_DRIVERID *pDriverId);
 uint8_t             GMM_STDCALL GmmIsYUVPacked(GMM_RESOURCE_FORMAT Format);
 uint8_t             GMM_STDCALL GmmIsRedecribedPlanes(GMM_RESOURCE_INFO *pGmmResource);
 uint8_t             GMM_STDCALL GmmResApplyExistingSysMem(GMM_RESOURCE_INFO *pGmmResource, void *pExistingSysMem, GMM_GFX_SIZE_T ExistingSysMemSize);

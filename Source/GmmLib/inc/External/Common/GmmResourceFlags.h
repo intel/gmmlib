@@ -81,9 +81,9 @@ typedef struct GMM_RESOURCE_FLAG_REC
         uint32_t UnifiedAuxSurface         : 1; // Flag to indicate unified aux surfaces where a number of buffers are allocated as one resource creation call (e.g. for Android/gralloc when a combined CCS with its partner MSAA). A conveneince over making two GmmResCreate calls. Gen9+.
         uint32_t Vertex                    : 1;
         uint32_t Video                     : 1; // Apply Video restrictions when padding/aligning this resource (see GmmRestrictions.c)
-        uint32_t __NonMsaaTileXCcs         : 1; // Internal GMM flag--Clients don’t set.
-        uint32_t __NonMsaaTileYCcs         : 1; // Internal GMM flag--Clients don’t set.
-        uint32_t __MsaaTileMcs             : 1; // Internal GMM flag--Clients don’t set.
+        uint32_t __NonMsaaTileXCcs         : 1; // Internal GMM flag--Clients don't set.
+        uint32_t __NonMsaaTileYCcs         : 1; // Internal GMM flag--Clients don't set.
+        uint32_t __MsaaTileMcs             : 1; // Internal GMM flag--Clients don't set.
         uint32_t __NonMsaaLinearCCS        : 1; // Internal GMM flag--Clients don't set.
 
         uint32_t __Remaining               : 21;// Defining rather than letting float for the two zero-and-memcmp we do with the .Gpu struct (in case ={0} doesn't zero unnamed fields).
@@ -102,14 +102,14 @@ typedef struct GMM_RESOURCE_FLAG_REC
         uint32_t ForceResidency            : 1; // (SVM Only) Forces CPU/GPU residency of the allocation's backing pages at creation.
         uint32_t Gfdt                      : 1;
         uint32_t GttMapType                : 5;
-        uint32_t HardwareProtected         : 1; // Resource is hw serpent protected against CPU R/W access
+        uint32_t HardwareProtected         : 1;
         uint32_t KernelModeMapped          : 1; // Sets up pGmmBlock->pKernelModeMapping to allow kernel-mode mapping of the backing memory
         uint32_t LayoutBelow               : 1; // Indicates the orientation of MIP data in the buffer. This is the surviving option and may be inferred as the default.
         uint32_t LayoutMono                : 1; // Legacy, deprecated MIP layout. Used for internal debugging.
         uint32_t LayoutRight               : 1; // Legacy, deprecated MIP layout.
         uint32_t Linear                    : 1; // (non-)tiling preference for the allocation. (lowest priority) Y>X>W>L. See GmmLib::GmmTextureCalc::SetTileMode()
         uint32_t MediaCompressed           : 1;
-        uint32_t NoOptimizationPadding     : 1; // don’t swell size for sake of 64KB pages - FtrWddm2_1_64kbPages
+        uint32_t NoOptimizationPadding     : 1; // don't swell size for sake of 64KB pages - FtrWddm2_1_64kbPages
         uint32_t NoPhysMemory              : 1; // KMD Gfx Client Submission. Client miniport drivers may want to map their physical pages to Gfx memory space instead of allocating Gfx physical memory.
         uint32_t NotLockable               : 1; // Resource is GPU-exclusive and shall not be reference by the CPU. Relevant to memory allocation components as an optimisation opportunity for mapping buffers in CPU-side.
         uint32_t StdSwizzle                : 1; // Standard Swizzle (YS) support on SKL+
@@ -129,8 +129,8 @@ typedef struct GMM_RESOURCE_FLAG_REC
         uint32_t WddmProtected             : 1; // Sets the DXGK_ALLOCATIONINFOFLAGS.Protected flag
         uint32_t XAdapter                  : 1; // For WinBlue: to support Hybrid graphics
         uint32_t YUVShaderFriendlyLayout   : 1; // DX11.1+. Client wants non-std YUV memory layout, friendly to DX shader resource views. NV12 only.
-        uint32_t __PreallocatedResInfo     : 1; // Internal GMM flag--Clients don’t set.
-        uint32_t __PreWddm2SVM             : 1; // Internal GMM flag--Clients don’t set.
+        uint32_t __PreallocatedResInfo     : 1; // Internal GMM flag--Clients don't set.
+        uint32_t __PreWddm2SVM             : 1; // Internal GMM flag--Clients don't set.
     } Info;
 
     // Wa: Any Surface specific Work Around will go in here

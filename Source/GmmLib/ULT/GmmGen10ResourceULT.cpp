@@ -115,7 +115,7 @@ TEST_F(CTestGen10Resource, TestMSAA)
 
         //Discard un-supported Tiling/Res_type/bpp for this test
         if(ResType != TEST_RESOURCE_2D ||                            //No 1D/3D/Cube. Supported 2D mip-maps/array
-           (!IsRT && (Tiling == TEST_TILEX ||                        //Bspec doesn't support TileX for Depth
+           (!IsRT && (Tiling == TEST_TILEX ||
                       !(Bpp == TEST_BPP_16 || Bpp == TEST_BPP_32)))) //depth supported on 16bit, 32bit formats only
             continue;
 

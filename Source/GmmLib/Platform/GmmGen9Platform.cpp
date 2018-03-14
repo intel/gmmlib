@@ -459,7 +459,7 @@ GmmLib::PlatformInfoGen9::PlatformInfoGen9(PLATFORM &Platform)
     // ----------------------------------
     // Restrictions for Cross adapter resource
     // ----------------------------------
-    Data.XAdapter.Alignment            = GMM_KBYTE(64); //64KB for DX12/StdSwizzle—-Not worth special-casing.
+    Data.XAdapter.Alignment            = GMM_KBYTE(64); //64KB for DX12/StdSwizzle--Not worth special-casing.
     Data.XAdapter.PitchAlignment       = GMM_BYTES(D3DKMT_CROSS_ADAPTER_RESOURCE_PITCH_ALIGNMENT);
     Data.XAdapter.RenderPitchAlignment = GMM_BYTES(D3DKMT_CROSS_ADAPTER_RESOURCE_PITCH_ALIGNMENT);
     Data.XAdapter.LockPitchAlignment   = GMM_BYTES(D3DKMT_CROSS_ADAPTER_RESOURCE_PITCH_ALIGNMENT);
@@ -483,10 +483,10 @@ GmmLib::PlatformInfoGen9::PlatformInfoGen9(PLATFORM &Platform)
     if(GFX_IS_PRODUCT(Data.Platform, IGFX_KABYLAKE) ||
        GFX_IS_PRODUCT(Data.Platform, IGFX_COFFEELAKE))
     {
-        Data.MaxSLMSize = GMM_KBYTE(960); //Bspec : Configurations >> Device Attributes
+        Data.MaxSLMSize = GMM_KBYTE(960);
     }
     else
     {
-        Data.MaxSLMSize = GMM_KBYTE(576); //Bspec : Configurations >> Device Attributes
+        Data.MaxSLMSize = GMM_KBYTE(576);
     }
 }

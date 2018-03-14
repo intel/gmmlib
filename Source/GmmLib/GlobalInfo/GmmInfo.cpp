@@ -32,11 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 //----------------------------------------------------------------------------
 GMM_GLOBAL_CONTEXT *pGmmGlobalContext = NULL;
 
-#if defined(__ghs__)
-std::atomic<int> GmmLib::Context::RefCount = 0;
-#else
 int32_t GmmLib::Context::RefCount = 0;
-#endif
 
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -142,10 +138,6 @@ GmmLib::Context::Context()
       pKmdHwDev(),
       pUmdAdapter(),
       pGmmCachePolicy()
-#if(defined(__GMM_KMD__) && (_DEBUG || _RELEASE_INTERNAL))
-      ,
-      Override()
-#endif
 #if(defined(__GMM_KMD__))
       ,
       IA32ePATTable()
@@ -158,10 +150,6 @@ GmmLib::Context::Context()
     memset(PrivatePATTableMemoryType, 0, sizeof(PrivatePATTableMemoryType));
 #endif
 
-#if(_WIN32 && (_DEBUG || _RELEASE_INTERNAL))
-    memset(FaultingInfo, 0, sizeof(FaultingInfo));
-#endif
-
     //Default initialize 64KB Page padding percentage.
     AllowedPaddingFor64KbPagesPercentage = 10;
     InternalGpuVaMax                     = 0;
@@ -170,13 +158,6 @@ GmmLib::Context::Context()
     pGmmGlobalClientContext = NULL;
 #endif
 
-#if(_WIN32 && (_DEBUG || _RELEASE_INTERNAL))
-    uint32_t RegKey = 0;
-    if(GMM_REGISTRY_READ("SOFTWARE\\Intel\\GMM", AllowedPaddingFor64KbPagesPercentage, RegKey))
-    {
-        AllowedPaddingFor64KbPagesPercentage = RegKey;
-    }
-#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -220,12 +201,6 @@ GMM_CLIENT               ClientType)
 
     this->pGmmCachePolicy->InitCachePolicy();
 
-#if _WIN32 && (_DEBUG || _RELEASE_INTERNAL)
-#if !__GMM_KMD__
-    __GmmInitSurfaceFaultingInfo();
-#endif
-#endif
-
     this->pTextureCalc = GmmLib::GmmTextureCalc::Create(Platform, false);
     if(this->pTextureCalc == NULL)
     {
@@ -261,14 +236,6 @@ void GMM_STDCALL GmmLib::Context::DestroyContext()
         }
     }
 
-#if(defined(__GMM_KMD__) && (_DEBUG || _RELEASE_INTERNAL))
-    if(this->Override.pTextureCalc)
-    {
-        delete this->Override.pTextureCalc;
-        this->Override.pTextureCalc = NULL;
-    }
-#endif
-
     if(pGmmGlobalContext->pPlatformInfo)
     {
         int32_t PlatformInfoRefCount = GmmLib::PlatformInfo::DecrementRefCount();
@@ -279,13 +246,6 @@ void GMM_STDCALL GmmLib::Context::DestroyContext()
         }
     }
 
-#if(defined(__GMM_KMD__) && (_DEBUG || _RELEASE_INTERNAL))
-    if(pGmmGlobalContext->Override.pPlatformInfo)
-    {
-        delete pGmmGlobalContext->Override.pPlatformInfo;
-        pGmmGlobalContext->Override.pPlatformInfo = NULL;
-    }
-#endif
 }
 
 #ifdef __GMM_KMD__ /*LINK CONTEXT TO GLOBAL*/

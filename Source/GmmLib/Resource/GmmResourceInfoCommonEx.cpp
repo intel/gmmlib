@@ -597,7 +597,7 @@ ERROR_CASE:
 // Function: GetDisplayCompressionSupport
 //
 // Desc: Returns true if display hw supports lossless render/media decompression
-//       else returns false. Restrictions are from bspec
+//       else returns false.
 //       Umds can call it to decide if full resolve is required
 //
 // Parameters:
