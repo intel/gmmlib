@@ -37,10 +37,6 @@ Description:
 #ifndef __SKU_WA_H__
 #define __SKU_WA_H__
 
-#if (_DEBUG || _RELEASE_INTERNAL)
-#define GLOBAL_WAFTR_ENABLED 1
-#endif
-
 // Prevent the following...
 // warning: ISO C++ prohibits anonymous structs [-pedantic]
 // warning: ISO C90 doesn't support unnamed structs/unions [-pedantic]

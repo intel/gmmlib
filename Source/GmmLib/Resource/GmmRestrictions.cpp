@@ -674,7 +674,7 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
             pTexInfo->Flags.Gpu.Texture ||
             pTexInfo->Flags.Gpu.Vertex)); // Can explore if needed what combo's make sense--and how req's should combine.
 
-            // BSpec.3DSTATE_INDEX_BUFFER...
+            // 3DSTATE_INDEX_BUFFER...
             UPDATE_BASE_ALIGNMENT(4); // 32-bit worst-case, since GMM doesn't receive element-size from clients.
             if(pGmmGlobalContext->GetWaTable().WaAlignIndexBuffer)
             {
@@ -693,7 +693,7 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
             pTexInfo->Flags.Gpu.RenderTarget ||
             pTexInfo->Flags.Gpu.Texture)); // Can explore if needed what combo's make sense--and how req's should combine.
 
-            // BSpec.VERTEX_BUFFER_STATE...
+            // VERTEX_BUFFER_STATE...
             UPDATE_BASE_ALIGNMENT(1); // VB's have member alignment requirements--but it's up to UMD to enforce.
             UPDATE_PADDING(1);
         }
@@ -702,11 +702,11 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
         {
             uint32_t ElementSize;
 
-            // BSpec.SURFACE_STATE...
+            // SURFACE_STATE...
             ElementSize = (pTexInfo->BitsPerPixel >> 3) * (GmmIsYUVPacked(pTexInfo->Format) ? 2 : 1);
             __GMM_ASSERT((pTexInfo->Pitch % ElementSize) == 0);
             UPDATE_BASE_ALIGNMENT(ElementSize);
-            UPDATE_PADDING(pTexInfo->Pitch * 2); // BSpec."Surface Padding Requirements --> Render Target and Media Surfaces"
+            UPDATE_PADDING(pTexInfo->Pitch * 2); // "Surface Padding Requirements --> Render Target and Media Surfaces"
         }
 
         if(pTexInfo->Flags.Gpu.Texture) // (i.e. Sampler Surfaces) ///////////////////////////
@@ -729,14 +729,14 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
                         // our interface meaning):
                         uint32_t ElementSize = 16;
 
-                        // BSpec."Surface Padding Requirements --> Sampling Engine Surfaces"
+                        // "Surface Padding Requirements --> Sampling Engine Surfaces"
                         UPDATE_PADDING(ElementSize * ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) == IGFX_GEN8_CORE) ? 512 : 256));
                         UPDATE_ADDITIONAL_BYTES(16);
                     }
                 }
                 else // RESOURCE_1D/2D...
                 {
-                    /* BSpec mentions sampler needs Alignment Unit padding--
+                    /* Sampler needs Alignment Unit padding--
                         but sampler arch confirms that's overly conservative
                         padding--and for trivial (linear, single-subresource)
                         2D's, even-row (quad-row on BDW.A0) plus additional
@@ -747,7 +747,7 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
 
                     if(GmmIsCompressed(pTexInfo->Format))
                     {
-                        // BSpec: "For compressed textures...padding at the bottom of the surface is to an even compressed row."
+                        // "For compressed textures...padding at the bottom of the surface is to an even compressed row."
                         UPDATE_PADDING(pTexInfo->Pitch * 2); // (Sampler arch confirmed that even-row is sufficient on BDW despite BDW's 4x4 sampling, since this req is from L2 instead of L1.)
                     }
                     else
@@ -755,14 +755,14 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
                         UPDATE_PADDING(pTexInfo->Pitch * ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) == IGFX_GEN8_CORE) ? 4 : 2)); // Sampler Fetch Rows: BDW ? 4 : 2
                     }
 
-                    // BSpec "For packed YUV, 96 bpt, 48 bpt, and 24 bpt surface formats, additional padding is required."
+                    // "For packed YUV, 96 bpt, 48 bpt, and 24 bpt surface formats, additional padding is required."
                     if(GmmIsYUVPacked(pTexInfo->Format) || (pTexInfo->BitsPerPixel == 96) || (pTexInfo->BitsPerPixel == 48) || (pTexInfo->BitsPerPixel == 24))
                     {
                         UPDATE_ADDITIONAL_BYTES(16);
                         UPDATE_ADDITIONAL_ROWS(1);
                     }
 
-                    /* BSpec: "For linear surfaces, additional padding of 64
+                    /* "For linear surfaces, additional padding of 64
                         bytes is required at the bottom of the surface."
                         (Sampler arch confirmed the 64 bytes can overlap with
                         the other "additional 16 bytes" mentions in that section.) */
@@ -771,7 +771,7 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
             }
             else
             {
-                /* BSpec: [DevBDW:B0+]: For SURFTYPE_BUFFER, SURFTYPE_1D, and
+                /* For SURFTYPE_BUFFER, SURFTYPE_1D, and
                     SURFTYPE_2D non-array, non-MSAA, non-mip-mapped surfaces in
                     linear memory, the only padding requirement is to the next
                     aligned 64-byte boundary beyond the end of the surface. */

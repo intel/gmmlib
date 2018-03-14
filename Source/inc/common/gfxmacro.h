@@ -282,10 +282,6 @@ __S_INLINE int64_t GFX_POW2_SIZE (int64_t x)
             {
                 HighBit = MSB - __builtin_clzll(x - 1);
             }
-            #elif defined(__ghs__)
-            {
-                HighBit = MSB - __CLZ64(x - 1);
-            }
             #else // Windows
             {
                 #ifdef __CT__

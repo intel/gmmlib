@@ -617,10 +617,6 @@ void CpuSwizzleBlt( // #########################################################
 
                 #define LOW_BIT(x)  __builtin_ctz(x)
                 #define HIGH_BIT(x) ((sizeof(x) * CHAR_BIT - 1) - __builtin_clz(x))
-            #elif defined(__ghs__)
-                // FIXME: We are using ffs() for now, but evetually we would like to use the compiler built-in
-                #define LOW_BIT(x)  ffs(x)
-                #define HIGH_BIT(x) ((sizeof(x) * CHAR_BIT - 1) - __CLZ32(x))
             #else
                 #error "Unexpected compiler!"
             #endif
@@ -690,11 +686,6 @@ void CpuSwizzleBlt( // #########################################################
                     unsigned int eax, ebx, ecx, edx;
                     __cpuid(1, eax, ebx, ecx, edx);
                     StreamingLoadSupported = ((ecx & (1 << 19)) != 0); // ECX[19] = SSE4.1
-                #elif defined(__ghs__)
-                    #define MOVNTDQA_R(Reg, Src) ((Reg) = _mm_stream_load_si128((__m128i *)(Src)))
-                    unsigned int CpuInfo[4];
-                    __CPUID(1, CpuInfo);
-                    StreamingLoadSupported = ((CpuInfo[2] & (1 << 19)) != 0); // ECX[19] = SSE4.1
                 #else
                     #define MOVNTDQA_R(Reg, Src) ((Reg) = (Reg))
                     StreamingLoadSupported = 0;

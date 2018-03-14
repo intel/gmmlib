@@ -569,8 +569,6 @@ uint32_t __GmmLog2(uint32_t Value)
     // Check that Value is pow2
     __GMM_ASSERT(__popcnt(Value) <= 1);
     _BitScanReverse((DWORD *)&FirstSetBit, (DWORD)Value);
-#elif defined(__ghs__)
-    FirstSetBit = ffs(Value);
 #else
     // Check that Value is pow2
     __GMM_ASSERT(__builtin_popcount(Value) <= 1);
