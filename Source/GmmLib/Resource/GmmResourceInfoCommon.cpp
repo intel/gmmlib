@@ -332,6 +332,11 @@ ERROR_CASE:
     //Zero out all the members
     new(this) GmmResourceInfoCommon();
 
+    if(CreateParams.pPreallocatedResInfo)
+    {
+        this->GetResFlags().Info.__PreallocatedResInfo = 1; // Set flag if PreAllocated ResInfo has been set by the Client.
+    }
+
     GMM_DPF_EXIT;
     return Status;
 }
