@@ -37,20 +37,22 @@ void CommonULT::SetUpTestCase()
         GfxPlatform.eRenderCoreFamily = IGFX_GEN8_CORE;
     }
 
-    pGfxAdapterInfo = (ADAPTER_INFO *)malloc(sizeof(ADAPTER_INFO));
-
     if(!pGfxAdapterInfo)
     {
-        ASSERT_TRUE(false);
-        return;
+        pGfxAdapterInfo = (ADAPTER_INFO *)malloc(sizeof(ADAPTER_INFO));
+        if(!pGfxAdapterInfo)
+        {
+            ASSERT_TRUE(false);
+            return;
+        }
+        memset(pGfxAdapterInfo, 0, sizeof(ADAPTER_INFO));
     }
-    memset(pGfxAdapterInfo, 0, sizeof(ADAPTER_INFO));
 
     GMM_STATUS GmmStatus = GmmInitGlobalContext(GfxPlatform,
                                                 &pGfxAdapterInfo->SkuTable,
                                                 &pGfxAdapterInfo->WaTable,
                                                 &pGfxAdapterInfo->SystemInfo,
-                                                GMM_D3D9_VISTA);
+                                                GMM_EXCITE_VISTA);
 
     ASSERT_EQ(GmmStatus, GMM_SUCCESS);
 
