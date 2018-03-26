@@ -263,6 +263,8 @@ typedef struct __GMM_PLATFORM_RESOURCE_REC
     int64_t                SurfaceMaxSize; // int64_t - Surface size is 64 bit for all configurations
     uint32_t                MaxGpuVirtualAddressBitsPerResource;
     uint32_t                MaxSLMSize;
+
+    uint8_t                 HiZPixelsPerByte; //HiZ-Bpp is < 1, keep inverse
 }__GMM_PLATFORM_RESOURCE, GMM_PLATFORM_INFO;
 
 //***************************************************************************

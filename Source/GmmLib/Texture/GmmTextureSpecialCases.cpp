@@ -94,6 +94,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
             {
                 uint32_t h0, h1, hL, i, NumSamples, QPitch, Z_HeightL;
                 uint32_t HZ_HAlign = 16, HZ_VAlign = 8;
+                uint8_t  HZ_DepthRows = pPlatform->HiZPixelsPerByte;
 
                 // HZ operates in pixel space starting from SKL. So, it does not care
                 // whether the depth buffer is in MSAA mode or not.
@@ -135,13 +136,13 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
                         (pTexInfo->MaxLod > 0) ?
                         (h0 + GFX_MAX(h1, Z_HeightL)) :
                         h0;
-                        QPitch /= 2;
+                        QPitch /= HZ_DepthRows;
                         pTexInfo->ArraySize  = Z_Depth;
                         pTexInfo->BaseHeight = QPitch;
                     }
 
                     pTexInfo->Alignment.HAlign = HZ_HAlign;
-                    pTexInfo->Alignment.VAlign = HZ_VAlign / 2;
+                    pTexInfo->Alignment.VAlign = HZ_VAlign / HZ_DepthRows;
                 }
                 else //if (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN7_CORE)
                 {

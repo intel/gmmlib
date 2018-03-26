@@ -507,5 +507,6 @@ GmmLib::PlatformInfoGen10::PlatformInfoGen10(PLATFORM &Platform)
     //---------------------------------------------
     Data.SurfaceMaxSize                      = GMM_GBYTE(256);
     Data.MaxGpuVirtualAddressBitsPerResource = 38;
+    Data.HiZPixelsPerByte                    = 2;
 }
 #endif // #if (IGFX_GEN >= IGFX_GEN10)

@@ -137,7 +137,8 @@ namespace GmmLib
                 pClientContext()
             {
 #if (!defined(__GMM_KMD__) && !defined(GMM_UNIFIED_LIB))
-                if (pGmmGlobalContext)
+                // For clients, who derive classes from GMM class and call their derived class constructors
+                if (pGmmGlobalContext) // Client ULT does new on ResInfo without calling GmmInitGlobalContext.
                 {
                     pClientContext = pGmmGlobalContext->pGmmGlobalClientContext;
                     GET_GMM_CLIENT_TYPE(pClientContext, ClientType);
@@ -383,6 +384,10 @@ namespace GmmLib
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetAuxQPitch()
             {
+                const GMM_PLATFORM_INFO   *pPlatform;
+
+                pPlatform = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
+
                 if (Surf.Flags.Gpu.UnifiedAuxSurface)
                 {
                     if (GmmIsPlanar(Surf.Format))
@@ -391,8 +396,8 @@ namespace GmmLib
                     }
                     else if (AuxSurf.Flags.Gpu.HiZ)
                     {
-                        // HiZ        ==> 2 * HZ_QPitch
-                        return AuxSurf.Alignment.QPitch * 2;
+                        // HiZ        ==> HZ_PxPerByte * HZ_QPitch
+                        return AuxSurf.Alignment.QPitch * pPlatform->HiZPixelsPerByte;
                     }
                     else
                     {

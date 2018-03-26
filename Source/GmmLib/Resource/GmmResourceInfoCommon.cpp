@@ -134,6 +134,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
     pGmmLibContext = reinterpret_cast<uint64_t>(&GmmLibContext);
 
 #if(!defined(__GMM_KMD__) && !defined(GMM_UNIFIED_LIB))
+    // Client ULT does new on ResInfo without calling GmmInitGlobalContext. If they call create later, on the previously created
+    // ResInfo object set the clientContext for them, since clientContext wouldnt have been set
     if(!pClientContext)
     {
         pClientContext = pGmmGlobalContext->pGmmGlobalClientContext;
@@ -763,7 +765,7 @@ uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetQPitch()
     // 2D/CUBE    ==> distance in rows between array slices
     // 3D         ==> distance in rows between R-slices
     // Compressed ==> one row contains a complete compression block vertically
-    // HiZ        ==> 2 * HZ_QPitch
+    // HiZ        ==> HZ_PxPerByte * HZ_QPitch
     // Stencil    ==> logical, i.e. not halved
 
     if((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN9_CORE) &&
@@ -780,7 +782,7 @@ uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetQPitch()
     }
     else if(Surf.Flags.Gpu.HiZ)
     {
-        QPitch = Surf.Alignment.QPitch * 2;
+        QPitch = Surf.Alignment.QPitch * pPlatform->HiZPixelsPerByte;
     }
     else
     {

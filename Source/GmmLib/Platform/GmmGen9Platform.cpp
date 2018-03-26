@@ -489,4 +489,6 @@ GmmLib::PlatformInfoGen9::PlatformInfoGen9(PLATFORM &Platform)
     {
         Data.MaxSLMSize = GMM_KBYTE(576);
     }
+
+    Data.HiZPixelsPerByte = 2;
 }
