@@ -502,8 +502,9 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
     if(Surf.Flags.Gpu.CCS)
     {
         if(!(                                                           //--- Legitimate CCS Case ----------------------------------------
-           ((Surf.Type >= RESOURCE_2D && Surf.Type <= RESOURCE_CUBE) && //Not supported: 1D, Buffer; Supported: 2D, 3D, cube, Arrays, mip-maps, MSAA, Depth/Stencil
-            (GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) >= IGFX_GEN8_CORE &&
+           ((Surf.Type >= RESOURCE_2D && Surf.Type <= RESOURCE_BUFFER) && //Not supported: 1D; Supported: Buffer, 2D, 3D, cube, Arrays, mip-maps, MSAA, Depth/Stencil
+            (Surf.Type <= RESOURCE_CUBE &&
+              GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) >= IGFX_GEN8_CORE &&
               GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) <= IGFX_GEN10_CORE)
              ) ||
            ((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) < IGFX_GEN8_CORE) &&

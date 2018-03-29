@@ -230,12 +230,13 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
         }
         else // Non-MSAA CCS Use (i.e. Render Target Fast Clear)
         {
-            if(!pTexInfo->Flags.Info.Linear &&
-               !pTexInfo->Flags.Info.TiledW &&
+            if(!pTexInfo->Flags.Info.TiledW &&
                ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) < IGFX_GEN9_CORE) ||
                 !pTexInfo->Flags.Info.TiledX) &&
-               ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN10_CORE) ||
-                (pTexInfo->Flags.Info.TiledY || pTexInfo->Flags.Info.TiledYs)) && //!Yf - deprecate Yf
+               ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN10_CORE &&
+                 !pTexInfo->Flags.Info.Linear) ||
+                (pTexInfo->Flags.Info.TiledY || pTexInfo->Flags.Info.TiledYs ||
+                 (pTexInfo->Type == RESOURCE_BUFFER && pTexInfo->Flags.Info.Linear))) && //!Yf - deprecate Yf
                ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE) ||
                 ((pTexInfo->MaxLod == 0) &&
                  (pTexInfo->ArraySize <= 1))) &&
