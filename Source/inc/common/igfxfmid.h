@@ -626,6 +626,7 @@ typedef enum __NATIVEGTTYPE
 #define IKBL_GT1_5_ULT_DEVICE_F0_ID             0x5913
 #define IKBL_GT2_ULT_DEVICE_F0_ID               0x5916
 #define IKBL_GT2F_ULT_DEVICE_F0_ID              0x5921
+#define IKBL_GT2_R_ULX_DEVICE_F0_ID             0x591C
 #define IKBL_GT3_15W_ULT_DEVICE_F0_ID           0x5926
 //#define IKBL_GT3E_ULT_DEVICE_F0_ID              0x5926
 #define IKBL_GT1_ULX_DEVICE_F0_ID               0x590E
