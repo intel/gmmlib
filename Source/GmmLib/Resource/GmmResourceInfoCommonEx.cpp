@@ -635,6 +635,17 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetDisplayCompressionSupport(
             case GMM_FORMAT_B8G8R8X8_UNORM:
             case GMM_FORMAT_R8G8B8X8_UNORM:
             case GMM_FORMAT_R8G8B8A8_UNORM_SRGB:
+            case GMM_FORMAT_B8X8_UNORM_G8R8_SNORM:
+            case GMM_FORMAT_X8B8_UNORM_G8R8_SNORM:
+            case GMM_FORMAT_A8X8_UNORM_G8R8_SNORM:
+            case GMM_FORMAT_B8G8R8A8_UNORM_SRGB:
+            case GMM_FORMAT_B8G8R8X8_UNORM_SRGB:
+            case GMM_FORMAT_R8G8B8A8_SINT:
+            case GMM_FORMAT_R8G8B8A8_SNORM:
+            case GMM_FORMAT_R8G8B8A8_SSCALED:
+            case GMM_FORMAT_R8G8B8A8_UINT:
+            case GMM_FORMAT_R8G8B8A8_USCALED:
+            case GMM_FORMAT_R8G8B8X8_UNORM_SRGB:
                 IsSupportedRGB32_8_8_8_8 = true;
             default:
                 break;
@@ -645,6 +656,21 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetDisplayCompressionSupport(
             case GMM_FORMAT_B10G10R10X2_UNORM:
             case GMM_FORMAT_R10G10B10A2_UNORM:
             case GMM_FORMAT_B10G10R10A2_UNORM:
+            case GMM_FORMAT_B10G10R10A2_SINT:
+            case GMM_FORMAT_B10G10R10A2_SNORM:
+            case GMM_FORMAT_B10G10R10A2_SSCALED:
+            case GMM_FORMAT_B10G10R10A2_UINT:
+            case GMM_FORMAT_B10G10R10A2_UNORM_SRGB:
+            case GMM_FORMAT_B10G10R10A2_USCALED:
+            case GMM_FORMAT_R10G10B10_SNORM_A2_UNORM:
+            case GMM_FORMAT_R10G10B10A2_SINT:
+            case GMM_FORMAT_R10G10B10A2_SNORM:
+            case GMM_FORMAT_R10G10B10A2_SSCALED:
+            case GMM_FORMAT_R10G10B10A2_UINT:
+            case GMM_FORMAT_R10G10B10A2_UNORM_SRGB:
+            case GMM_FORMAT_R10G10B10A2_USCALED:
+            case GMM_FORMAT_R10G10B10X2_USCALED:
+            case GMM_FORMAT_R10G10B10_XR_BIAS_A2_UNORM:
                 IsSupportedRGB32_2_10_10_10 = true;
             default:
                 break;
@@ -667,7 +693,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetDisplayCompressionSupport(
         bool IsMediaCompressed  = false;
 
         if(IsSupportedRGB32_8_8_8_8 || //RGB32 8 : 8 : 8 : 8
-            (GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN10_CORE &&
+            (GFX_GET_CURRENT_DISPLAYCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN10_CORE &&
             IsSupportedRGB32_2_10_10_10)) //RGB32 2 : 10 : 10 : 10))
         {
             IsRenderCompressed = true;
