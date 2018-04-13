@@ -23,14 +23,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Internal/Common/GmmLibInc.h"
 #include "External/Common/GmmCachePolicy.h"
 
-#ifdef HAVE_MESA_MOCS
-#include <intel_mocs_table.h>
-#endif
-
-#if defined(__linux__) && !defined(HAVE_MESA_MOCS)
-#define I915_GEN9_MOCS
-#endif
-
 //=============================================================================
 //
 // Function: __GmmGen9InitCachePolicy
@@ -48,7 +40,7 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::InitCachePolicy()
 
     __GMM_ASSERTPTR(pCachePolicy, GMM_ERROR);
 
-#if !defined(I915_GEN9_MOCS)
+#if defined(GMM_DYNAMIC_MOCS_TABLE)
 #define DEFINE_CACHE_ELEMENT(usage, llc, ellc, l3, age, i915) DEFINE_CP_ELEMENT(usage, llc, ellc, l3, 0, age, 0, 0, 0, 0, 0, 0, 0, 0)
 #else
 // i915 only supports three GEN9 MOCS entires:
@@ -91,40 +83,10 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::InitCachePolicy()
         uint32_t                      CurrentMaxIndex        = 0;
         GMM_CACHE_POLICY_TBL_ELEMENT *pCachePolicyTlbElement = pGmmGlobalContext->GetCachePolicyTlbElement();
 
-#ifdef HAVE_MESA_MOCS
-        // Index 0 is (traditionally) uncached but here we use the entries of the MESA MOCS table
-        {
-            GMM_CACHE_POLICY_TBL_ELEMENT *    Entry    = &(pCachePolicyTlbElement[0]);
-            uint32_t                          i        = 0;
-            uint32_t                          MESASize = 0;
-            const struct drm_i915_mocs_entry *m        = NULL;
-
-            if(pGmmGlobalContext->GetPlatformInfo().Platform.eProductFamily == IGFX_BROXTON ||
-               pGmmGlobalContext->GetPlatformInfo().Platform.eProductFamily == IGFX_GEMINILAKE)
-            {
-                MOCS_DEF_broxton_mocs_table; // Defines MESA_MOCS[]
-                m        = &(MESA_MOCS[0]);
-                MESASize = (sizeof(MESA_MOCS) / sizeof(struct drm_i915_mocs_entry));
-            }
-            else
-            {
-                MOCS_DEF_skylake_mocs_table; // Defines MESA_MOCS[]
-                m        = &(MESA_MOCS[0]);
-                MESASize = (sizeof(MESA_MOCS) / sizeof(struct drm_i915_mocs_entry));
-            }
-            for(i = 0; i < MESASize; i++)
-            {
-                Entry[i].LeCC.DwordValue = m[i].control_value;
-                Entry[i].L3.UshortValue  = m[i].l3cc_value;
-            }
-            // Track the last indexed used
-            CurrentMaxIndex = MESASize - 1;
-        }
-#else // First entries for !MESA_MOCS
         {
             bool LLC = (pGmmGlobalContext->GetGtSysInfo()->LLCCacheSizeInKb > 0); // aka "Core -vs- Atom".
 
-#if !defined(I915_GEN9_MOCS)
+#if defined(_WIN32) || defined(_WIN64)
             {
                 pCachePolicyTlbElement[0].L3.Cacheability   = L3_UNCACHEABLE;
                 pCachePolicyTlbElement[0].LeCC.Cacheability = LeCC_UNCACHEABLE;
@@ -154,7 +116,6 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::InitCachePolicy()
             }
 #endif
         }
-#endif
 
         // Process the cache policy and fill in the look up table
         for(uint32_t Usage = 0; Usage < GMM_RESOURCE_USAGE_MAX; Usage++)
@@ -189,7 +150,7 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::InitCachePolicy()
                 UsageEle.LeCC.LRUM         = 0;
                 UsageEle.LeCC.Cacheability = LeCC_UNCACHEABLE; // To avoid side effects use 01b even though 01b(UC) 11b(WB) are equivalent option
 
-#if !defined(I915_GEN9_MOCS)
+#if defined(GMM_DYNAMIC_MOCS_TABLE)
                 UsageEle.LeCC.TargetCache = TC_LLC; // No LLC for Broxton, but we still set it to LLC since it is needed for IA coherency cases
 #else
                 UsageEle.LeCC.TargetCache = TC_LLC_ELLC; // To match I915_GEN9_MOCS[0]
