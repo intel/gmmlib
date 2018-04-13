@@ -25,6 +25,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "GmmMemAllocator.hpp"
 #include "GmmResourceInfoExt.h"
 
+#if defined(_WIN32)
+    #define GMM_DYNAMIC_MOCS_TABLE
+#endif
+
 /////////////////////////////////////////////////////////////////////////////////////
 /// @file GmmCachePolicyCommon.h
 /// @brief This file contains Gmm Cache Policy functions
