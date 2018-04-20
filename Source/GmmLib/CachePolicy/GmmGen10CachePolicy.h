@@ -21,7 +21,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
 
 
-#if (IGFX_GEN >= IGFX_GEN10)
+#if (IGFX_GEN >= IGFX_GEN10) 
 
 #include "GmmCachePolicyConditionals.h"
 
@@ -76,45 +76,45 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_WA_BATCH_BUFFER                         
 // 3D Usages
 //
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_UMD_BATCH_BUFFER                                      , 0   , 0    , 0  , 0  , 0 ,     0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_BINDING_TABLE_POOL                                    , 0   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_BINDING_TABLE_POOL                                    , 1   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CCS                                                   , 1   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CONSTANT_BUFFER_POOL                                  , 0   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DEPTH_BUFFER                                          , 0   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CONSTANT_BUFFER_POOL                                  , 1   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DEPTH_BUFFER                                          , 1   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DISPLAYABLE_RENDER_TARGET                             , FBLLC, ENCRYPTED_PARTIALS_EDRAM, FBLLC, !FBLLC && ENCRYPTED_PARTIALS_EDRAM, 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_GATHER_POOL                                           , 0   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_SURFACE_STATE                                    , 0   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_SURFACE_STATE                                    , 1   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_DYNAMIC_STATE                                    , 1   , 1    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_GENERAL_STATE                                    , 0   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_GENERAL_STATE                                    , 1   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_GENERAL_STATE_UC                                 , 0   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_STATELESS_DATA_PORT                              , 0   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_INDIRECT_OBJECT                                  , 0   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_STATELESS_DATA_PORT                              , 1   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_INDIRECT_OBJECT                                  , 1   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_INSTRUCTION                                      , 1   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HIZ                                                   , 1   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_INDEX_BUFFER                                          , 0   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HIZ                                                   , 1   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_INDEX_BUFFER                                          , 1   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_MCS                                                   , 1   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_PUSH_CONSTANT_BUFFER                                  , 0   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_PULL_CONSTANT_BUFFER                                  , 1   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    1);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_QUERY                                                 , 1   , 1    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_RENDER_TARGET                                         , 1   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SHADER_RESOURCE                                       , 0   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SHADER_RESOURCE                                       , 1   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_STAGING                                               , 1   , 1    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_STENCIL_BUFFER                                        , 1   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_STENCIL_BUFFER                                        , 1   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_STREAM_OUTPUT_BUFFER                                  , 0   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILE_POOL                                             , 1   , 1    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
 
 // Tiled Resource
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_DEPTH_BUFFER                                    , 0   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_HIZ                                             , 1   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_DEPTH_BUFFER                                    , 1   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_HIZ                                             , 1   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_MCS                                             , 1   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_CCS                                             , 1   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_RENDER_TARGET                                   , 1   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_RENDER_TARGET_AND_SHADER_RESOURCE               , 1   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_SHADER_RESOURCE                                 , 0   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_SHADER_RESOURCE                                 , 1   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_UAV                                             , 1   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_UAV                                                   , 1   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VERTEX_BUFFER                                         , 0   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OGL_WSTN_VERTEX_BUFFER                                , 0   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VERTEX_BUFFER                                         , 1   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OGL_WSTN_VERTEX_BUFFER                                , 1   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_RENDER_TARGET_AND_SHADER_RESOURCE                     , 1   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_WDDM_HISTORY_BUFFER                                   , 0   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CONTEXT_SAVE_RESTORE                                  , 1   , 1    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
