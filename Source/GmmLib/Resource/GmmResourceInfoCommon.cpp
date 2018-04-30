@@ -232,7 +232,6 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
         }
     }
 
-    __GMM_ASSERT(!(Surf.Flags.Info.ExistingSysMem && CreateParams.NoGfxMemory));
     if(Surf.Flags.Info.ExistingSysMem)
     {
         Surf.ExistingSysMem.IsGmmAllocated =
