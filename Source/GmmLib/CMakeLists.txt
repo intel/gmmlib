@@ -545,3 +545,4 @@ if(ARCH EQUAL 32)
 endif()
 
 add_subdirectory(ULT)
+install(TARGETS gmm_umd ARCHIVE DESTINATION lib)
