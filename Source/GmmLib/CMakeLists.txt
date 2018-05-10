@@ -544,4 +544,6 @@ if(ARCH EQUAL 32)
 	endif()
 endif()
 
-add_subdirectory(ULT)
+if(NOT DEFINED RUN_TEST_SUITE OR RUN_TEST_SUITE)
+    add_subdirectory(ULT)
+endif()
