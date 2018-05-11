@@ -154,35 +154,21 @@ MESSAGE("SourceConfiguration:")
 MESSAGE("CommonDir: ${BS_DIR_COMMON}")
 MESSAGE("IncDir: ${BS_DIR_INC}")
 
-# If we use GMM_REQUIRE_MESA_MOCS, and the MESA MOCS are not found, fail the
-# build instead of doing fallback to GMM defined values. It's required to
-# specify LIBDRM_SRC explicitly.
-if (DEFINED GMM_REQUIRE_MESA_MOCS)
-        if (NOT DEFINED GMM_LIBDRM_SRC)
-                message(FATAL_ERROR "Libdrm path not specified")
-        endif()
-
-        if (NOT EXISTS "${GMM_LIBDRM_SRC}/intel/intel_mocs_table.h")
-                message(FATAL_ERROR "MOCS not found in libdrm")
-        endif()
+# If '-DGMM_DYNAMIC_MOCS_TABLE=TRUE' (default is FALSE) passed to cmake
+# configure command gmmlib will generate MOCS table dynamically depending on
+# usage requests (Gen9+). In this case on Linux user responsibility is to
+# make sure that generated MOCS table is programmed on KMD level.
+if (GMM_DYNAMIC_MOCS_TABLE)
+    MESSAGE("MOCS table: dynamic")
+    add_definitions(-DGMM_DYNAMIC_MOCS_TABLE)
+else()
+    MESSAGE("MOCS table: static")
 endif()
 
 if(DEFINED UFO_DRIVER_OPTIMIZATION_LEVEL)
     if(${UFO_DRIVER_OPTIMIZATION_LEVEL} GREATER 0)
         add_definitions(-DGMM_GFX_GEN=${GFXGEN})
     endif()
-endif()
-
-# Includes are searched left-to-right, cmake add_definitions is appending,
-# if both files exist, user specified location (GMM_LIBDRM_SRC) will be used.
-if (EXISTS "${GMM_LIBDRM_SRC}/intel/intel_mocs_table.h")
-   add_definitions(-DHAVE_MESA_MOCS)
-   include_directories(${GMM_LIBDRM_SRC}/intel/)
-endif()
-
-if (EXISTS "/usr/include/libdrm/intel_mocs_table.h")
-        add_definitions(-DHAVE_MESA_MOCS)
-        include_directories(/usr/include/libdrm)
 endif()
 
 set(HEADERS_
