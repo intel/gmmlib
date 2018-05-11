@@ -265,6 +265,17 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmClientContext::GetLogicalTileShape(uint32_t  T
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
+/// Member function of ClientContext class to return InternalGpuVaMax value
+/// stored in pGmmGlobalContext
+///
+/// @return    GMM_SUCCESS
+/////////////////////////////////////////////////////////////////////////////////////
+uint64_t GMM_STDCALL GmmLib::GmmClientContext::GetInternalGpuVaRangeLimit()
+{
+    return pGmmGlobalContext->GetInternalGpuVaRangeLimit();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
 /// Member function of ClientContext class for creation of ResourceInfo Object .
 /// @see        GmmLib::GmmResourceInfoCommon::Create()
 ///

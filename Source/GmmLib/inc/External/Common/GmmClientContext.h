@@ -113,6 +113,7 @@ namespace GmmLib
                                                                                         uint32_t             *pWidthInBytes,
                                                                                         uint32_t             *pHeight,
                                                                                         uint32_t             *pDepth);
+        GMM_VIRTUAL uint64_t                            GMM_STDCALL GetInternalGpuVaRangeLimit();
 
         /* ResourceInfo Creation and Destroy API's */
         GMM_VIRTUAL GMM_RESOURCE_INFO* GMM_STDCALL       CreateResInfoObject(GMM_RESCREATE_PARAMS *pCreateParams);
