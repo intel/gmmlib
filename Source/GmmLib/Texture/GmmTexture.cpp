@@ -54,12 +54,9 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
     __GMM_ASSERTPTR(((pTexInfo->TileMode < GMM_TILE_MODES) && (pTexInfo->TileMode >= TILE_NONE)), VOIDRETURN);
     GMM_DPF_ENTER;
 
-    if(!pTexInfo->Flags.Info.YUVShaderFriendlyLayout)
-    {
-        // GMM_PLANE_Y always at (0, 0)...
-        pTexInfo->OffsetInfo.Plane.X[GMM_PLANE_Y] = 0;
-        pTexInfo->OffsetInfo.Plane.Y[GMM_PLANE_Y] = 0;
-    }
+    // GMM_PLANE_Y always at (0, 0)...
+    pTexInfo->OffsetInfo.Plane.X[GMM_PLANE_Y] = 0;
+    pTexInfo->OffsetInfo.Plane.Y[GMM_PLANE_Y] = 0;
 
     Height = pTexInfo->BaseHeight;
     if(pTexInfo->Flags.Gpu.__NonMsaaTileYCcs)
@@ -249,21 +246,6 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
         }
         case GMM_FORMAT_NV12:
         case GMM_FORMAT_NV21:
-        {
-            // Y0
-            // Y1
-            // [UV0-Packing]
-            // [UV1-Packing]
-            if(pTexInfo->Flags.Info.YUVShaderFriendlyLayout)
-            {
-                // Assigned in calling fnc.
-                __GMM_ASSERT(pTexInfo->OffsetInfo.Plane.Y[GMM_PLANE_3D_Y1] &&
-                             pTexInfo->OffsetInfo.Plane.Y[GMM_PLANE_3D_UV0] &&
-                             pTexInfo->OffsetInfo.Plane.Y[GMM_PLANE_3D_UV1]);
-                break;
-            }
-            // else drop down to NV11, P208.
-        }
         case GMM_FORMAT_NV11:
         case GMM_FORMAT_P010:
         case GMM_FORMAT_P012:

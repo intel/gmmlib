@@ -379,14 +379,6 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
 
     GetRestrictions(Restrictions);
 
-    // Check non standard NV12 array layout requested for non nv12 format.
-    if(Surf.Flags.Info.YUVShaderFriendlyLayout &&
-       (Surf.Format != GMM_FORMAT_NV12))
-    {
-        GMM_ASSERTDPF(0, "Flag not supported w/ formats other than NV12!");
-        goto ERROR_CASE;
-    }
-
     // Check array size to make sure it meets HW limits
     if((Surf.ArraySize > Restrictions.MaxArraySize) &&
        ((RESOURCE_1D == Surf.Type) ||

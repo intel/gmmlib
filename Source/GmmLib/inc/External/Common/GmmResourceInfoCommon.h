@@ -412,7 +412,7 @@ namespace GmmLib
 
             /////////////////////////////////////////////////////////////////////////////////////
             /// Returns the planar resource's QPitch
-            /// @return    planar QPitch
+            /// @return    planar QPitch in rows
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetQPitchPlanar(GMM_YUV_PLANE Plane)
             {
@@ -420,34 +420,12 @@ namespace GmmLib
                 const GMM_PLATFORM_INFO   *pPlatform;
 
                 __GMM_ASSERT(GmmIsPlanar(Surf.Format));
+                GMM_UNREFERENCED_LOCAL_VARIABLE(Plane);
 
                 pPlatform = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
                 __GMM_ASSERT(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE);
 
-                if (Surf.Flags.Info.YUVShaderFriendlyLayout)
-                {
-                    switch (Plane)
-                    {
-                        case GMM_PLANE_Y:
-                            QPitch =
-                                static_cast<uint32_t>(Surf.OffsetInfo.Plane.Y[GMM_PLANE_3D_Y1] - Surf.OffsetInfo.Plane.Y[GMM_PLANE_3D_Y0]);
-                            break;
-
-                        case GMM_PLANE_U:
-                        case GMM_PLANE_V:
-                            QPitch =
-                                static_cast<uint32_t>(Surf.OffsetInfo.Plane.Y[GMM_PLANE_3D_UV1] - Surf.OffsetInfo.Plane.Y[GMM_PLANE_3D_UV0]);
-                            break;
-
-                        default:
-                            __GMM_ASSERT(0);
-                            QPitch = 0;
-                    }
-                }
-                else
-                {
-                    QPitch = static_cast<uint32_t>(Surf.OffsetInfo.Plane.ArrayQPitch);
-                }
+                QPitch = static_cast<uint32_t>(Surf.OffsetInfo.Plane.ArrayQPitch / Surf.Pitch);
 
                 return QPitch;
             }

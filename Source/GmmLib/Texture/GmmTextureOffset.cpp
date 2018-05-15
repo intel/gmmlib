@@ -599,35 +599,19 @@ GMM_GFX_SIZE_T GmmLib::GmmTextureCalc::GetMipMapByteAddress(GMM_TEXTURE_INFO *  
     if(GmmIsPlanar(pTexInfo->Format))
     {
         uint32_t Plane = pReqInfo->Plane;
-        if(pTexInfo->Flags.Info.YUVShaderFriendlyLayout)
+
+        uint32_t OffsetX = 0;
+        uint32_t OffsetY = 0;
+        if(Plane < GMM_MAX_PLANE)
         {
-            uint32_t PlaneT = ((pReqInfo->ArrayIndex == 0) && (Plane == GMM_PLANE_Y)) ?
-                              GMM_PLANE_3D_Y0 :
-                              ((pReqInfo->ArrayIndex == 1) && (Plane == GMM_PLANE_Y)) ?
-                              GMM_PLANE_3D_Y1 :
-                              ((pReqInfo->ArrayIndex == 0) && ((Plane == GMM_PLANE_U) || (Plane == GMM_PLANE_V))) ?
-                              GMM_PLANE_3D_UV0 :
-                              ((pReqInfo->ArrayIndex == 1) && ((Plane == GMM_PLANE_U) || (Plane == GMM_PLANE_V))) ?
-                              GMM_PLANE_3D_UV1 :
-                              GMM_PLANE_3D_Y0;
-
-            MipMapByteAddress = Pitch * pTexInfo->OffsetInfo.Plane.Y[PlaneT];
+            OffsetX = GFX_ULONG_CAST(pTexInfo->OffsetInfo.Plane.X[Plane]);
+            OffsetY = GFX_ULONG_CAST(pTexInfo->OffsetInfo.Plane.Y[Plane]);
         }
-        else
-        {
-            uint32_t OffsetX = 0;
-            uint32_t OffsetY = 0;
-            if(Plane < GMM_MAX_PLANE)
-            {
-                OffsetX = GFX_ULONG_CAST(pTexInfo->OffsetInfo.Plane.X[Plane]);
-                OffsetY = GFX_ULONG_CAST(pTexInfo->OffsetInfo.Plane.Y[Plane]);
-            }
-            MipMapByteAddress = (OffsetY * Pitch) + OffsetX;
+        MipMapByteAddress = (OffsetY * Pitch) + OffsetX;
 
-            __GMM_ASSERT(!pReqInfo->ArrayIndex || (pReqInfo->ArrayIndex < pTexInfo->ArraySize));
+        __GMM_ASSERT(!pReqInfo->ArrayIndex || (pReqInfo->ArrayIndex < pTexInfo->ArraySize));
 
-            MipMapByteAddress += (pTexInfo->OffsetInfo.Plane.ArrayQPitch * pReqInfo->ArrayIndex);
-        }
+        MipMapByteAddress += (pTexInfo->OffsetInfo.Plane.ArrayQPitch * pReqInfo->ArrayIndex);
     }
     else
     {

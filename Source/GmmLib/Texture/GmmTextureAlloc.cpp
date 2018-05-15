@@ -1162,42 +1162,6 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmTextureCalc::FillTexPlanar(GMM_TEXTURE_INFO * 
         }
         case GMM_FORMAT_NV12:
         case GMM_FORMAT_NV21:
-        {
-            // Allocate SW defined layout (Y0)(Y1)(UV0)(UV1)
-            if(pTexInfo->Flags.Info.YUVShaderFriendlyLayout)
-            {
-                uint32_t UnitAlignHeight, BlockHeightY, BlockHeightUV;
-
-                __GMM_ASSERT(pTexInfo->ArraySize == 2);
-
-                pTexInfo->ArraySize = 2;
-
-                UnitAlignHeight = pTexInfo->Alignment.VAlign;
-
-                // Get total height for one Y plane
-                BlockHeightY = GFX_ALIGN(YHeight, UnitAlignHeight);
-
-                if(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) < IGFX_GEN8_CORE)
-                {
-                    pTexInfo->Alignment.ArraySpacingSingleLod = 1;
-                }
-
-                // Get total height for one UV plane
-                BlockHeightUV = GFX_ALIGN(GFX_CEIL_DIV(YHeight, 2), UnitAlignHeight);
-
-                // Save plane offset information
-                pTexInfo->OffsetInfo.Plane.ArrayQPitch         = 0;
-                pTexInfo->OffsetInfo.Plane.Y[GMM_PLANE_3D_Y0]  = 0;
-                pTexInfo->OffsetInfo.Plane.Y[GMM_PLANE_3D_Y1]  = BlockHeightY;
-                pTexInfo->OffsetInfo.Plane.Y[GMM_PLANE_3D_UV0] = BlockHeightY * 2;
-                pTexInfo->OffsetInfo.Plane.Y[GMM_PLANE_3D_UV1] = (BlockHeightY * 2) + BlockHeightUV;
-
-                // Get total height for (Y0)(Y1)(UV0)(UV1)
-                Height = (BlockHeightY * 2) + (BlockHeightUV * 2);
-                break;
-            }
-            // else drop down to NV11, P208.
-        }
         case GMM_FORMAT_NV11:
         case GMM_FORMAT_P010:
         case GMM_FORMAT_P012:
@@ -1401,7 +1365,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmTextureCalc::FillTexPlanar(GMM_TEXTURE_INFO * 
 
     // Planar & hybrid 2D arrays supported in DX11.1+ spec but not HW. Memory layout
     // is defined by SW requirements; Y plane must be 4KB aligned.
-    if((pTexInfo->ArraySize > 1) && !pTexInfo->Flags.Info.YUVShaderFriendlyLayout)
+    if(pTexInfo->ArraySize > 1)
     {
         GMM_GFX_SIZE_T ElementSizeBytes = pTexInfo->Size;
         int64_t        LargeSize;

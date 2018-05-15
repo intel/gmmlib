@@ -213,14 +213,6 @@ void GmmLib::GmmResourceInfoCommon::GetRestrictions(__GMM_BUFFER_TYPE &Restricti
         }
     }
 
-    // Each plane of Y0-Y1-UV0-UV1 layout must be 4KB aligned to meet media
-    // version of SURFACE_STATE req. No X,Y offsets. Align to 2KB since height
-    // is alwasy even, b/c valign >= 2.
-    if(Surf.Flags.Info.YUVShaderFriendlyLayout)
-    {
-        Restrictions.PitchAlignment = GFX_ALIGN(Restrictions.PitchAlignment, GMM_KBYTE(2));
-    }
-
     // SKL TileY Display needs 1MB alignment.
     if(((Surf.Type == RESOURCE_PRIMARY) ||
         Surf.Flags.Gpu.FlipChain) &&

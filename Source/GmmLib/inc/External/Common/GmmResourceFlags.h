@@ -128,7 +128,6 @@ typedef struct GMM_RESOURCE_FLAG_REC
         uint32_t TiledYs                   : 1; // Tiling modifier for the allocation. Affects Linear and Y preferences. Gen9+
         uint32_t WddmProtected             : 1; // Sets the DXGK_ALLOCATIONINFOFLAGS.Protected flag
         uint32_t XAdapter                  : 1; // For WinBlue: to support Hybrid graphics
-        uint32_t YUVShaderFriendlyLayout   : 1; // DX11.1+. Client wants non-std YUV memory layout, friendly to DX shader resource views. NV12 only.
         uint32_t __PreallocatedResInfo     : 1; // Internal GMM flag--Clients don't set.
         uint32_t __PreWddm2SVM             : 1; // Internal GMM flag--Clients don't set.
     } Info;
