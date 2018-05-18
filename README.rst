@@ -43,14 +43,15 @@ GmmLib is build as static library for Intel media driver and Compute runtime for
 
 Supported Platforms
 -------------------
-Intel Atom and Core Processors supporting Gen9/Gen10 graphics devices
+Intel Atom and Core Processors supporting Gen8/Gen9/Gen10 graphics devices
 
 BDW (Broadwell)
 
-SKL (Skylake)
+SKL (Skylake, Kaby Lake, Coffee Lake)
+
+BXT (Broxton) / APL (Apollolake)
 
 CNL (Cannonlake)
-
 
 
 Known Issues and Limitations
