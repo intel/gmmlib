@@ -49,10 +49,24 @@ OTHER DEALINGS IN THE SOFTWARE.
 #endif
 
 //For compile time GFXGEN detection. GMM_GFX_GEN is optional cmd line definition
-#define GMM_ENABLE_GEN8    (!defined(GMM_GFX_GEN) || (GMM_GFX_GEN == 80))
-#define GMM_ENABLE_GEN9    (!defined(GMM_GFX_GEN) || (GMM_GFX_GEN == 90))
+#if (!defined(GMM_GFX_GEN) || (GMM_GFX_GEN == 80))
+    #define GMM_ENABLE_GEN8 1
+#else
+    #define GMM_ENABLE_GEN8 0
+#endif
+
+#if (!defined(GMM_GFX_GEN) || (GMM_GFX_GEN == 90))
+    #define GMM_ENABLE_GEN9 1
+#else
+    #define GMM_ENABLE_GEN9 0
+#endif
+
 #if (IGFX_GEN >= IGFX_GEN10)
-#define GMM_ENABLE_GEN10   (!defined(GMM_GFX_GEN) || (GMM_GFX_GEN == 100))
+    #if (!defined(GMM_GFX_GEN) || (GMM_GFX_GEN == 100))
+        #define GMM_ENABLE_GEN10 1
+    #else
+        #define GMM_ENABLE_GEN10 0
+    #endif
 #endif
 
 #if (IGFX_GEN >= IGFX_GEN10)

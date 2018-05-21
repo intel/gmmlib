@@ -123,13 +123,13 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CONTEXT_SAVE_RESTORE                    
 // CM USAGES
 //
 DEFINE_CACHE_ELEMENT(CM_RESOURCE_USAGE_SurfaceState,                                            1   , 1    , 1  , 0   ,3 ,     0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(CM_RESOURCE_USAGE_NO_L3_SurfaceState,                                      1   , 1    , 0  , 3   ,3,      0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(CM_RESOURCE_USAGE_NO_LLC_ELLC_SurfaceState,                                0   , 0    , 1  , 3   ,3,      0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(CM_RESOURCE_USAGE_NO_LLC_SurfaceState,                                     0   , 1    , 1  , 3   ,3,      0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(CM_RESOURCE_USAGE_NO_ELLC_SurfaceState,                                    1   , 0    , 1  , 3   ,3,      0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(CM_RESOURCE_USAGE_NO_LLC_L3_SurfaceState,                                  0   , 1    , 0  , 3   ,3,      0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(CM_RESOURCE_USAGE_NO_ELLC_L3_SurfaceState,                                 1   , 0    , 0  , 3   ,3,      0,       0,      0,   0,    0);
-DEFINE_CACHE_ELEMENT(CM_RESOURCE_USAGE_NO_CACHE_SurfaceState,                                   0   , 0    , 0  , 3   ,3,      0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(CM_RESOURCE_USAGE_NO_L3_SurfaceState,                                      1   , 1    , 0  , 0   ,3,      0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(CM_RESOURCE_USAGE_NO_LLC_ELLC_SurfaceState,                                0   , 0    , 1  , 0   ,3,      0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(CM_RESOURCE_USAGE_NO_LLC_SurfaceState,                                     0   , 1    , 1  , 0   ,3,      0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(CM_RESOURCE_USAGE_NO_ELLC_SurfaceState,                                    1   , 0    , 1  , 0   ,3,      0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(CM_RESOURCE_USAGE_NO_LLC_L3_SurfaceState,                                  0   , 1    , 0  , 0   ,3,      0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(CM_RESOURCE_USAGE_NO_ELLC_L3_SurfaceState,                                 1   , 0    , 0  , 0   ,3,      0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(CM_RESOURCE_USAGE_NO_CACHE_SurfaceState,                                   0   , 0    , 0  , 0   ,3,      0,       0,      0,   0,    0);
 
 //
 // MP USAGES

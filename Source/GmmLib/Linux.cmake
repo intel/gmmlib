@@ -52,7 +52,6 @@ SET (GMMLIB_COMPILER_FLAGS_COMMON
     -msse4.2
     -mfpmath=sse
     -finline-functions
-    -funswitch-loops
     -fno-short-enums
     -Wa,--noexecstack
     -fno-strict-aliasing
@@ -70,12 +69,19 @@ SET (GMMLIB_COMPILER_FLAGS_COMMON
     -fvisibility=hidden
     -fPIC
     -g
+    # -m32 or -m64
+    -m${GMMLIB_ARCH}
+    )
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+#Gcc only flags
+list (APPEND GMMLIB_COMPILER_FLAGS_COMMON
+    -funswitch-loops
     -Wl,--no-undefined
     -Wl,--no-as-needed
     -Wl,--gc-sections
-    # -m32 or -m64
-    -m${GMMLIB_ARCH}
-)
+    )
+endif()
 
 SET (GMMLIB_COMPILER_CXX_FLAGS_COMMON
     #cpp
@@ -98,11 +104,18 @@ SET (GMMLIB_COMPILER_FLAGS_DEBUG
 
 SET (GMMLIB_COMPILER_FLAGS_RELEASE
     -O2
-    -finline-limit=100
     -fno-omit-frame-pointer
     #-flto
     #-Wl,-flto
     )
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+
+list(APPEND GMMLIB_COMPILER_FLAGS_RELEASE
+    -finline-limit=100
+    )
+
+endif()
 
 #if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
     # For LTO support, use special wrappers around ar and ranlib commands:
