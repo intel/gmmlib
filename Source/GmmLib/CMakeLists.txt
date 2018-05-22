@@ -116,15 +116,16 @@ macro (GMMLIBsetLinkerFlags linkerFlags linkerTarget)
     endforeach()
 endmacro()
 
-set( CMAKE_CONFIGURATION_TYPES
-    "Debug"
-    "Release"
-    "ReleaseInternal")
+if(CMAKE_CONFIGURATION_TYPES)
+  set( CMAKE_CONFIGURATION_TYPES
+      "Debug"
+      "Release"
+      "ReleaseInternal")
 
-set( CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING
-    "Reset the configurations to what we need"
-    FORCE)
-
+  set( CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING
+       "Reset the configurations to what we need"
+       FORCE)
+endif()
 
 set(GMMLIB_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
