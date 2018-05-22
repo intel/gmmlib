@@ -95,8 +95,10 @@ TEST_F(CTestGen10Resource, TestMSAA)
     uint32_t TestArraySize[2] = {1, 5};
     uint32_t MinPitch         = 32;
 
-    uint32_t HAlign, VAlign, TileDimX, TileDimY, MCSHAlign, MCSVAlign, TileSize;
-    uint32_t ExpectedMCSBpp;
+    uint32_t HAlign = 0, VAlign = 0;
+    uint32_t TileDimX = 0, TileDimY = 0;
+    uint32_t MCSHAlign = 0, MCSVAlign = 0, TileSize = 0;
+    uint32_t ExpectedMCSBpp = 0;
     std::vector<tuple<int, int, int, bool, int, int>> List; //TEST_TILE_TYPE, TEST_BPP, TEST_RESOURCE_TYPE, Depth or RT, TestDimension index, ArraySize
     auto Size = BuildInputIterator(List, 4, 2);             // Size of arrays TestDimensions, TestArraySize
 

@@ -22,16 +22,17 @@ https://opensource.org/licenses/MIT
 Building
 ========
 
-1) Get gmmlib repo, make it look like
-	<workspace>
+1) Get gmmlib repo
 
-       |- GmmLib
-       
-2) $ mkdir <workspace>/build
+       |- gmmlib
 
-3) $ cd <workspace>/build
+2) Change it to root directory
 
-4) cmake [-DCMAKE_BUILD_TYPE= Release | Debug | ReleaseInternal] [-DARCH= 64 | 32]  ../GmmLib
+   $ cd gmmlib
+
+3) $ mkdir build && cd build
+
+4) cmake [-DCMAKE_BUILD_TYPE= Release | Debug | ReleaseInternal] [-DARCH= 64 | 32]  ..
 
 5) $ make -j8 ( Also performs compile time ULT)
 
