@@ -27,12 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 //===========================================================================
 #ifdef GMM_LIB_DLL                                      /* To be defined by Clients if GMMlib needs to be in DLL/so */
 
-#ifdef _DEBUG
-    #define GMM_INLINE_VIRTUAL              virtual     // inline functions are made virtual for Debug version of Gmmlib Dll to export them from Dll
-                                                        // For RI and Release, inline functions can be exported from DLL without being made virtual
-#else
-    #define GMM_INLINE_VIRTUAL
-#endif
+#define GMM_INLINE_VIRTUAL              virtual
 
 #define GMM_VIRTUAL                     virtual
 
