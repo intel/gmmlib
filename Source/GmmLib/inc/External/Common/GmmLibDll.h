@@ -26,11 +26,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #ifdef _X64
 #define GMM_UMD_DLL     "igdgmm64.dll"
+#define GMM_ENTRY_NAME  "OpenGmm"
 #else
 #define GMM_UMD_DLL     "igdgmm32.dll"
+#define GMM_ENTRY_NAME  "_OpenGmm@4"
 #endif
-
-#define GMM_ENTRY_NAME "OpenGmm"
 
 // Interfaces exported from  GMM Lib DLL
 typedef struct _GmmExportEntries
