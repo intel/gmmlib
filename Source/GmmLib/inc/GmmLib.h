@@ -59,6 +59,7 @@ extern "C" {
 #include "External/Common/GmmClientContext.h"
 
 #include "External/Common/GmmLibDll.h"
+#include "External/Common/GmmLibDllName.h"
 
 #ifdef __GMM_KMD__
     #include "External/Windows/GmmHeap.h"

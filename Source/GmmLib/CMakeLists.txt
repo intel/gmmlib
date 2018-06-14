@@ -222,6 +222,7 @@ set(UMD_HEADERS
 	${HEADERS_}
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmClientContext.h
         ${BS_DIR_GMMLIB}/inc/External/Common/GmmLibDll.h
+        ${BS_DIR_GMMLIB}/inc/External/Common/GmmLibDllName.h
 	)
 
 
