@@ -33,7 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 /////////////////////////////////////////////////////////////////////////////////////
 namespace GmmLib
 {
-    class NON_PAGED_SECTION GmmResourceInfoLin:
+    class GMM_LIB_API NON_PAGED_SECTION GmmResourceInfoLin:
                                 public GmmResourceInfoCommon
     {
         public:

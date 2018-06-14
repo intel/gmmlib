@@ -33,14 +33,18 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #ifdef _WIN32
 
-#ifdef GMM_LIB_DLL_EXPORTS      /* To be defined for WIN32 only*/
-    #define GMM_LIB_API                     __declspec(dllexport)   /* Macro to define GMM Lib DLL exports */
-#else
-    #define GMM_LIB_API                     __declspec(dllimport)       /* Macro to define GMM Lib DLL imports */
-#endif  /* GMM_LIB_DLL_EXPORTS */
+    #ifdef GMM_LIB_DLL_EXPORTS
+        #define GMM_LIB_API                     __declspec(dllexport)   /* Macro to define GMM Lib DLL exports */
+    #else
+        #define GMM_LIB_API                     __declspec(dllimport)       /* Macro to define GMM Lib DLL imports */
+    #endif  /* GMM_LIB_DLL_EXPORTS */
 
-#else // Linux doesnt need declspec macro
-    #define GMM_LIB_API
+#else // Linux
+    #ifdef GMM_LIB_DLL_EXPORTS
+        #define GMM_LIB_API                     __attribute__ ((visibility ("default")))
+    #else
+        #define GMM_LIB_API
+    #endif
 #endif
 
 #else // !GMM_LIB_DLL

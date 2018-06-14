@@ -47,5 +47,7 @@ bs_set_if_undefined(BS_DIR_INC             "${BS_DIR_SOURCE}/inc")
 bs_set_if_undefined(BS_DIR_INSTALL         "${BS_DIR_SOURCE}/install")
 bs_set_if_undefined(BS_DIR_MEDIA           "${BS_DIR_SOURCE}/media")
 bs_set_if_undefined(BS_DIR_OPENCL          "${BS_DIR_SOURCE}/OpenCL")
+bs_set_if_undefined(BS_DIR_UTIL            "${BS_DIR_SOURCE}/util")
+
 
 endif(NOT DEFINED _bs_include_dir_names)

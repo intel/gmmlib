@@ -409,9 +409,9 @@ endforeach()
 ###################################################################################
 add_library( ${GMM_LIB_DLL_NAME} SHARED igdgmm.rc ${UMD_SOURCES} ${UMD_HEADERS})
 
-set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES OUTPUT_NAME "igdgmm${GMMLIB_ARCH}")
-
 if(MSVC)
+
+set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES OUTPUT_NAME "igdgmm${GMMLIB_ARCH}")
 
 bs_set_wdk(${GMM_LIB_DLL_NAME})
 GmmLibSetTargetConfig( ${GMM_LIB_DLL_NAME} )
@@ -423,6 +423,9 @@ windows_umd_props_universal(${GMM_LIB_DLL_NAME})
 target_link_libraries( ${GMM_LIB_DLL_NAME}
             onecoreuap.lib
         )
+else()
+	set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES OUTPUT_NAME "igdgmm")
+
 endif()
 
 ###################################################################################
@@ -516,6 +519,7 @@ bs_set_extra_target_properties(${GMM_LIB_DLL_NAME}
 	UNUSED_ISTDLIB_MT
 	GMM_UNIFIED_LIB
 	GMM_LIB_DLL
+        GMM_LIB_DLL_EXPORTS
 )
 
 if("${GMMLIB_ARCH}" MATCHES "64")
@@ -533,4 +537,124 @@ endif()
 
 if(NOT DEFINED RUN_TEST_SUITE OR RUN_TEST_SUITE)
     add_subdirectory(ULT)
+endif()
+
+set (GMMLIB_INSTALL_TIME_ROOT_DIR "/usr")
+set (IGDGMM_LIBRARY_NAME "igdgmm")
+
+include(os_release_info.cmake)
+
+get_os_release_info(os_name os_version)
+
+if("${os_name}" STREQUAL "clear-linux-os")
+    # clear-linux-os distribution avoids /etc for distribution defaults.
+    # Set this variable explicitly before including GNUInstallDirs.
+    set(CMAKE_INSTALL_SYSCONFDIR "usr/share/defaults/etc")
+endif()
+
+if(UNIX)
+    if(NOT DEFINED MAJOR_VERSION)
+        set(MAJOR_VERSION 0)
+    endif()
+
+    if(NOT DEFINED MINOR_VERSION)
+        set(MINOR_VERSION 1)
+    endif()
+
+    if(NOT DEFINED PATCH_VERSION)
+        set(PATCH_VERSION 0)
+    endif()
+
+    configure_file(${BS_DIR_GMMLIB}/igdgmm.h.in ${CMAKE_BINARY_DIR}/igdgmm.h)
+    configure_file(${BS_DIR_GMMLIB}/igdgmm.pc.in ${CMAKE_BINARY_DIR}/igdgmm.pc @ONLY)
+
+    install(TARGETS ${GMM_LIB_DLL_NAME} DESTINATION ${GMMLIB_INSTALL_TIME_ROOT_DIR}/lib COMPONENT gmmlib)
+    install(TARGETS gmm_umd DESTINATION ${GMMLIB_INSTALL_TIME_ROOT_DIR}/lib COMPONENT gmmlib)
+
+    install(DIRECTORY ${BS_DIR_GMMLIB} DESTINATION ${GMMLIB_INSTALL_TIME_ROOT_DIR}/include/igdgmm COMPONENT gmmlib-devel
+        FILES_MATCHING PATTERN "*.h"
+        PATTERN "*.hpp"
+        PATTERN "Internal" EXCLUDE
+        PATTERN "ULT" EXCLUDE)
+
+    install (DIRECTORY ${BS_DIR_INC} DESTINATION ${GMMLIB_INSTALL_TIME_ROOT_DIR}/include/igdgmm COMPONENT gmmlib-devel
+        FILES_MATCHING PATTERN "*.h"
+        PATTERN "*.hpp")
+
+    install (DIRECTORY ${BS_DIR_UTIL} DESTINATION ${GMMLIB_INSTALL_TIME_ROOT_DIR}/include/igdgmm COMPONENT gmmlib-devel
+        FILES_MATCHING PATTERN "*.h"
+        PATTERN "*.hpp")
+
+    install (FILES ${BS_DIR_GMMLIB}/Utility/CpuSwizzleBlt/CpuSwizzleBlt.c
+        DESTINATION ${GMMLIB_INSTALL_TIME_ROOT_DIR}/include/igdgmm/GmmLib/Utility/CpuSwizzleBlt/ COMPONENT gmmlib-devel)
+
+    install(FILES ${CMAKE_BINARY_DIR}/igdgmm.pc DESTINATION ${GMMLIB_INSTALL_TIME_ROOT_DIR}/lib/pkgconfig COMPONENT gmmlib-devel)
+    install(FILES ${CMAKE_BINARY_DIR}/igdgmm.h DESTINATION ${GMMLIB_INSTALL_TIME_ROOT_DIR}/include/igdgmm COMPONENT gmmlib-devel)
+
+    if(GMMLIB_CPACK_GENERATOR)
+        set(CPACK_GENERATOR "${GMMLIB_CPACK_GENERATOR}")
+    else()
+        # If generators list was not define build native package for current distro
+        if(EXISTS "/etc/debian_version")
+        set(CPACK_GENERATOR "DEB")
+        elseif(EXISTS "/etc/redhat-release")
+        set(CPACK_GENERATOR "RPM")
+        else()
+        set(CPACK_GENERATOR "TXZ")
+        endif()
+    endif()
+
+    set(CPACK_PACKAGE_NAME "intel-gmm")
+    set(CPACK_PACKAGE_VENDOR "Intel Corporation")
+    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Intel(R) Graphics Memory Management Library Package")
+
+    set(CPACK_PACKAGE_VERSION_MAJOR ${MAJOR_VERSION})
+    set(CPACK_PACKAGE_VERSION_MINOR ${MINOR_VERSION})
+    set(CPACK_PACKAGE_VERSION_PATCH ${PATCH_VERSION})
+    set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+
+    set(CPACK_PACKAGE_INSTALL_DIRECTORY ${GMMLIB_INSTALL_TIME_ROOT_DIR})
+    set(CPACK_COMPONENT_INSTALL ON)
+    set(CPACK_DEB_COMPONENT_INSTALL ON)
+    set(CPACK_RPM_COMPONENT_INSTALL ON)
+    set(CPACK_SET_DESTDIR TRUE)
+    set(CPACK_PACKAGE_RELOCATABLE FALSE)
+
+    set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+    set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Intel")
+    set(CPACK_DEBIAN_COMPRESSION_TYPE "xz")
+
+    set(CPACK_RPM_PACKAGE_ARCHITECTURE "x86_64")
+    set(CPACK_RPM_COMPRESSION_TYPE "xz")
+
+    # Create Distro OS initial based on 1st-2nd letter of string
+    # or label "generic" for unsupported/unknown distros for CPACK_PACKAGE_FILE_NAME
+    if("${os_name}" STREQUAL "ubuntu")
+        set(DISTRO_INFO "u${os_version}")
+    elseif("${os_name}" STREQUAL "fedora")
+        set(DISTRO_INFO "f${os_version}")
+    elseif("${os_name}" STREQUAL "clear-linux-os")
+        set(DISTRO_INFO "cl${os_version}")
+    elseif("${os_name}" STREQUAL "centos")
+        set(DISTRO_INFO "ce${os_version}")
+    else()
+        set(DISTRO_INFO "generic")
+    endif()
+
+    string(TOLOWER "${BUILD_TYPE}.${CPACK_RPM_PACKAGE_ARCHITECTURE}" PACKAGE_TYPE)
+
+    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${DISTRO_INFO}-${PACKAGE_TYPE}")
+
+    set(CPACK_DEBIAN_GMMLIB_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${DISTRO_INFO}-${PACKAGE_TYPE}")
+
+    set(CPACK_DEBIAN_GMMLIB-DEVEL_PACKAGE_DEPENDS "intel-gmm-gmmlib")
+
+    set(CPACK_RPM_GMMLIB_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${DISTRO_INFO}-${PACKAGE_TYPE}.rpm")
+
+    set(CPACK_RPM_GMMLIB-DEVEL_PACKAGE_DEPENDS "intel-gmm-gmmlib")
+
+    SET(CPACK_COMPONENTS_ALL gmmlib gmmlib-devel)
+
+    include (CPack)
+
 endif()

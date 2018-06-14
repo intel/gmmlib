@@ -1,0 +1,11 @@
+prefix=@GMMLIB_INSTALL_TIME_ROOT_DIR@
+exec_prefix=${prefix}
+includedir=${prefix}/include/igdgmm
+libdir=${exec_prefix}/lib
+
+Name: igdgmm
+Description: Intel(R) Graphics Memory Management Library
+Version: @MAJOR_VERSION@.@MINOR_VERSION@.@PATCH_VERSION@
+Cflags: -I${includedir} -I${includedir}/GmmLib -I${includedir}/GmmLib/inc -I${includedir}/inc -I${includedir}/inc/common -I${includedir}/util
+Libs:
+
