@@ -23,9 +23,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Internal/Common/GmmLibInc.h"
 
 #include "Internal/Common/Platform/GmmGen10Platform.h"
+#include "Internal/Common/Platform/GmmGen11Platform.h"
 #include "External/Common/CachePolicy/GmmCachePolicyGen10.h"
+#include "External/Common/CachePolicy/GmmCachePolicyGen11.h"
 #include "Internal/Common/Texture/GmmTextureCalc.h"
 #include "Internal/Common/Texture/GmmGen10TextureCalc.h"
+#include "Internal/Common/Texture/GmmGen11TextureCalc.h"
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// Static function to return a PlatformInfo object based on input platform
@@ -57,7 +60,11 @@ GmmLib::PlatformInfo *GmmLib::PlatformInfo::Create(PLATFORM Platform, bool Overr
     }
 #endif
     GMM_DPF_EXIT;
-    if(GFX_GET_CURRENT_RENDERCORE(Platform) >= IGFX_GEN10_CORE)
+    if(GFX_GET_CURRENT_RENDERCORE(Platform) >= IGFX_GEN11_CORE)
+    {
+        return new GmmLib::PlatformInfoGen11(Platform);
+    }
+    else if(GFX_GET_CURRENT_RENDERCORE(Platform) >= IGFX_GEN10_CORE)
     {
         return new GmmLib::PlatformInfoGen10(Platform);
     }
@@ -88,7 +95,11 @@ GmmLib::GmmCachePolicyCommon *GmmLib::GmmCachePolicyCommon::Create()
         return pGmmGlobalContext->GetCachePolicyObj();
     }
 
-    if(GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN10_CORE)
+    if(GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN11_CORE)
+    {
+        pGmmCachePolicy = new GmmLib::GmmGen11CachePolicy(CachePolicy);
+    }
+    else if(GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN10_CORE)
     {
         pGmmCachePolicy = new GmmLib::GmmGen10CachePolicy(CachePolicy);
     }
@@ -142,8 +153,13 @@ GmmLib::GmmTextureCalc *GmmLib::GmmTextureCalc::Create(PLATFORM Platform, uint8_
             return new GmmGen9TextureCalc();
             break;
         case IGFX_GEN10_CORE:
-        default:
             return new GmmGen10TextureCalc();
+            break;
+        case IGFX_GEN11_CORE:
+            return new GmmGen11TextureCalc();
+            break;
+        default:
+            return new GmmGen11TextureCalc();
             break;
     }
 }

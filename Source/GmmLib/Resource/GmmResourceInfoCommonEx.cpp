@@ -75,7 +75,7 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
         return false;
     }
 
-    if((GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) <= IGFX_GEN10_CORE))
+    if((GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) <= IGFX_GEN11_CORE))
     {
         if(Surf.Flags.Gpu.MCS)
         {
@@ -342,8 +342,8 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
 
     if(Surf.Flags.Gpu.MMC && //For Media Memory Compression --
        ((!(Surf.Flags.Info.TiledY || Surf.Flags.Info.TiledYs) &&
-         (GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) <= IGFX_GEN10_CORE)) ||
-        (GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) <= IGFX_GEN10_CORE &&
+         (GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) <= IGFX_GEN11_CORE)) ||
+        (GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) <= IGFX_GEN11_CORE &&
          Surf.ArraySize > GMM_MAX_MMC_INDEX)))
     {
         GMM_ASSERTDPF(0, "Invalid flag or array size!");
@@ -497,7 +497,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
            ((Surf.Type >= RESOURCE_2D && Surf.Type <= RESOURCE_BUFFER) && //Not supported: 1D; Supported: Buffer, 2D, 3D, cube, Arrays, mip-maps, MSAA, Depth/Stencil
             (Surf.Type <= RESOURCE_CUBE &&
               GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) >= IGFX_GEN8_CORE &&
-              GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) <= IGFX_GEN10_CORE)
+              GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) <= IGFX_GEN11_CORE)
              ) ||
            ((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) < IGFX_GEN8_CORE) &&
             Surf.Type == RESOURCE_2D && Surf.MaxLod == 0)))
@@ -532,6 +532,17 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
        ))
     {
         GMM_ASSERTDPF(0, "Invalid IndirectClearColor usage!");
+        goto ERROR_CASE;
+    }
+
+    // CornerTexelMode Restrictions
+    if(Surf.Flags.Info.CornerTexelMode &&
+       (!( //--- Legitimate CornerTexelMode Case -------------------------------------------
+       (GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) >= IGFX_GEN11_CORE) &&
+       (!GmmIsPlanar(Surf.Format)) &&
+       (!Surf.Flags.Info.StdSwizzle))))
+    {
+        GMM_ASSERTDPF(0, "Flag.Info.CornerTexelMode not supported on this platform.");
         goto ERROR_CASE;
     }
 
@@ -674,7 +685,9 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetDisplayCompressionSupport(
             case GMM_FORMAT_NV12: //YUV420 - NV12
             case GMM_FORMAT_P010: //YUV420 - P0xx
             case GMM_FORMAT_P016:
+            case GMM_FORMAT_Y210: //YUV422 - Y210, Y212, Y216
             case GMM_FORMAT_Y216:
+            case GMM_FORMAT_Y410: //YUV444 - Y410
             case GMM_FORMAT_Y416:
                 IsSupportedMediaFormats = true; //YUV444 - Y412, Y416
             default:
@@ -685,6 +698,8 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetDisplayCompressionSupport(
         bool IsMediaCompressed  = false;
 
         if(IsSupportedRGB32_8_8_8_8 || //RGB32 8 : 8 : 8 : 8
+            (GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_ICELAKE &&
+             IsSupportedRGB64_16_16_16_16) || //RGB64 16:16 : 16 : 16 FP16
             (GFX_GET_CURRENT_DISPLAYCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN10_CORE &&
             IsSupportedRGB32_2_10_10_10)) //RGB32 2 : 10 : 10 : 10))
         {
@@ -695,4 +710,30 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetDisplayCompressionSupport(
     }
 
     return ComprSupported;
+}
+
+//=============================================================================
+//
+// Function: GetDisplayFastClearSupport
+//
+// Desc: Returns 1 if display hw supports fast clear else returns 0.
+//       Umds can call it to decide if FC resolve is required
+//
+// Parameters:
+//      See function arguments.
+//
+// Returns:
+//      uint8_t
+//-----------------------------------------------------------------------------
+uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetDisplayFastClearSupport()
+{
+    uint8_t FCSupported = 0;
+
+    if(GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN11_CORE)
+    {
+        FCSupported = GetDisplayCompressionSupport() && !GmmIsPlanar(Surf.Format);
+        FCSupported &= Surf.Flags.Gpu.IndirectClearColor;
+    }
+
+    return FCSupported;
 }

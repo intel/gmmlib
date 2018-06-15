@@ -433,6 +433,10 @@ GMM_FORMAT( Y16_UNORM                    ,  16,  1,  1, 1, x, x,   NA , 0x7 ,   
 #if (IGFX_GEN >= IGFX_GEN10)
 GMM_FORMAT( Y32_UNORM                    ,  32,  1,  1, 1, x, x,   NA , NC  ,     GEN(10)     )
 #endif
+GMM_FORMAT( Y210                         ,  64,  2,  1, 1, R, x,   NA , 0x5 ,     GEN(11)     ) // Packed 422 10/12/16 bit
+GMM_FORMAT( Y212                         ,  64,  2,  1, 1, R, x,   NA , 0x5 ,     GEN(11)     )
+GMM_FORMAT( Y410                         ,  32,  1,  1, 1, R, x,   NA , 0x4 ,     GEN(11)     )
+GMM_FORMAT( Y412                         ,  64,  1,  1, 1, R, x,   NA , 0x6 ,     GEN(11)     )
 GMM_FORMAT( Y216                         ,  64,  2,  1, 1, R, x,   NA,  0x5,      ALWAYS      )
 GMM_FORMAT( Y416                         ,  64,  1,  1, 1, R, x,   NA , 0x6 ,     ALWAYS      ) // Packed 444 10/12/16 bit,
 GMM_FORMAT( YV12                         ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      )

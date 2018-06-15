@@ -61,15 +61,25 @@ OTHER DEALINGS IN THE SOFTWARE.
     #define GMM_ENABLE_GEN9 0
 #endif
 
-#if (IGFX_GEN >= IGFX_GEN10)
-    #if (!defined(GMM_GFX_GEN) || (GMM_GFX_GEN == 100))
-        #define GMM_ENABLE_GEN10 1
-    #else
-        #define GMM_ENABLE_GEN10 0
-    #endif
+#if (!defined(GMM_GFX_GEN) || (GMM_GFX_GEN == 100))
+    #define GMM_ENABLE_GEN10 1
+#else
+    #define GMM_ENABLE_GEN10 0
 #endif
 
-#if (IGFX_GEN >= IGFX_GEN10)
+#if (!defined(GMM_GFX_GEN) || (GMM_GFX_GEN == 110))
+    #define GMM_ENABLE_GEN11 1
+#else
+    #define GMM_ENABLE_GEN11 0
+#endif
+
+
+#if (IGFX_GEN >= IGFX_GEN11)
+    #if !(GMM_ENABLE_GEN8 || GMM_ENABLE_GEN9 || GMM_ENABLE_GEN10 || \
+        GMM_ENABLE_GEN11)
+    #error "Unrecognized GMM_GFX_GEN !"
+    #endif
+#elif (IGFX_GEN >= IGFX_GEN10)
     #if !(GMM_ENABLE_GEN8 || GMM_ENABLE_GEN9 || GMM_ENABLE_GEN10)
     #error "Unrecognized GMM_GFX_GEN !"
     #endif
@@ -78,3 +88,4 @@ OTHER DEALINGS IN THE SOFTWARE.
     #error "Unrecognized GMM_GFX_GEN !"
     #endif
 #endif
+

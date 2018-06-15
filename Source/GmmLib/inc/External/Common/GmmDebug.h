@@ -126,7 +126,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #define GMMLibDebugMessage(...)
 #define GMM_LIB_ASSERT(expr)
-#define GMM_LIB_ASSERTPTR(expr, ret)
+#define GMM_LIB_ASSERTPTR(expr, ret)                            \
+{                                                               \
+    if (!expr)                                                  \
+    {                                                           \
+        return ret;                                             \
+    }                                                           \
+}                                                               \
 
 #endif // (_DEBUG) //_DEBUG || _RELEASE_INTERNAL
 

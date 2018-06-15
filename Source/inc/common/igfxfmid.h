@@ -60,6 +60,8 @@ typedef enum {
     IGFX_BROXTON,
     IGFX_GEMINILAKE,
     IGFX_CANNONLAKE,
+    IGFX_ICELAKE,
+    IGFX_ICELAKE_LP,
     IGFX_MAX_PRODUCT,
 
 
@@ -80,6 +82,8 @@ typedef enum {
     PCH_KBP,            // Kabylake PCH
     PCH_CNP_LP,         // Cannonlake LP PCH
     PCH_CNP_H,          // Cannonlake Halo PCH
+    PCH_ICP_LP,         // ICL LP PCH
+    PCH_ICP_N,          // ICL N PCH
     PCH_PRODUCT_FAMILY_FORCE_ULONG = 0x7fffffff
 } PCH_PRODUCT_FAMILY;
 
@@ -98,6 +102,9 @@ typedef enum {
     IGFX_GEN8_CORE       = 11,  //Gen8 Family
     IGFX_GEN9_CORE       = 12,  //Gen9 Family
     IGFX_GEN10_CORE      = 13,  //Gen10 Family
+    IGFX_GEN10LP_CORE    = 14,  //Gen10 LP Family
+    IGFX_GEN11_CORE      = 15,  //Gen11 Family
+    IGFX_GEN11LP_CORE    = 16,  //Gen11 LP Family
                                 //Please add new GENs BEFORE THIS !
     IGFX_MAX_CORE,
 
@@ -266,6 +273,7 @@ typedef enum __NATIVEGTTYPE
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN8_CORE )    ||   \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN9_CORE )    ||   \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN10_CORE )   ||   \
+                                         ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN11_CORE )   ||   \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GENNEXT_CORE ) )
 
 #define GFX_IS_GEN_5_OR_LATER(p)       ( ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN5_CORE )    ||   \
@@ -277,6 +285,7 @@ typedef enum __NATIVEGTTYPE
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN8_CORE )    ||   \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN9_CORE )    ||   \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN10_CORE )   ||   \
+                                         ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN11_CORE )   ||   \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GENNEXT_CORE ) )
 
 #define GFX_IS_GEN_5_75_OR_LATER(p)    ( ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN5_75_CORE ) ||   \
@@ -286,6 +295,7 @@ typedef enum __NATIVEGTTYPE
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN8_CORE )    ||   \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN9_CORE )    ||   \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN10_CORE )   ||   \
+                                         ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN11_CORE )   ||   \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GENNEXT_CORE ) )
 
 #define GFX_IS_GEN_6_OR_LATER(p)       ( ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN6_CORE )    ||   \
@@ -294,6 +304,7 @@ typedef enum __NATIVEGTTYPE
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN8_CORE )    ||   \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN9_CORE )    ||   \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN10_CORE )   ||   \
+                                         ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN11_CORE )   ||   \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GENNEXT_CORE ) )
 
 #define GFX_IS_GEN_7_OR_LATER(p)       ( ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN7_CORE )    ||   \
@@ -301,31 +312,39 @@ typedef enum __NATIVEGTTYPE
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN8_CORE )    ||   \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN9_CORE )    ||   \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN10_CORE )   ||   \
+                                         ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN11_CORE )   ||   \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GENNEXT_CORE ) )
 
 #define GFX_IS_GEN_7_5_OR_LATER(p)     ( ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN7_5_CORE )  ||  \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN8_CORE )    ||  \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN9_CORE )    ||  \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN10_CORE )   ||  \
+                                         ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN11_CORE )   ||  \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GENNEXT_CORE ) )
 
 #define GFX_IS_GEN_8_OR_LATER(p)       ( ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN8_CORE )    ||  \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN9_CORE )    ||  \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN10_CORE )   ||  \
+                                         ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN11_CORE )   ||  \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GENNEXT_CORE ) )
 
 #define GFX_IS_GEN_8_CHV_OR_LATER(p)   ( ( GFX_GET_CURRENT_PRODUCT(p) == IGFX_CHERRYVIEW )      ||  \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN9_CORE )    ||  \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN10_CORE )   ||  \
+                                         ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN11_CORE )   ||  \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GENNEXT_CORE ) )
 
 #define GFX_IS_GEN_9_OR_LATER(p)       ( ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN9_CORE )    ||  \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN10_CORE )   ||  \
+                                         ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN11_CORE )   ||  \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GENNEXT_CORE ) )
 
 #define GFX_IS_GEN_10_OR_LATER(p)       (( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN10_CORE )  ||  \
+                                         ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN11_CORE )  ||  \
                                          ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GENNEXT_CORE ) )
 
+#define GFX_IS_GEN_11_OR_LATER(p)       (( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN11_CORE )  ||  \
+                                         ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GENNEXT_CORE ) )
 #define GFX_IS_ATOM_PRODUCT_FAMILY(p)  ( GFX_IS_PRODUCT(p, IGFX_VALLEYVIEW)   ||  \
                                          GFX_IS_PRODUCT(p, IGFX_CHERRYVIEW)   ||  \
                                          GFX_IS_PRODUCT(p, IGFX_BROXTON) )
@@ -710,6 +729,15 @@ typedef enum __NATIVEGTTYPE
 #define ICFL_GT3_ULT_28W_DEVICE_F0_ID           0x3EA8
 #define ICFL_GT3_ULT_DEVICE_F0_ID               0x3EA5
 #define ICFL_HALO_DEVICE_F0_ID                  0x3E95
+#define ICFL_GT2_S8_S2_DT_DEVICE_F0_ID          0x3E98
+#define ICFL_GT1_S6_S4_S2_F1F_DT_DEVICE_F0_ID   0x3E99
+#define ICFL_GT2_S82_S6F2_DT_DEVICE_F0_ID       0x3E9A
+#define ICFL_GT2_U42F_U2F2_ULT_DEVICE_F0_ID     0x3EA0
+#define ICFL_GT1_U41F_U2F1F_ULT_DEVICE_F0_ID    0x3EA1
+#define ICFL_GT3_U43_ULT_DEVICE_F0_ID           0x3EA2
+#define ICFL_GT2_U42F_U2F1F_ULT_DEVICE_F0_ID    0x3EA3
+#define ICFL_GT1_41F_2F1F_ULT_DEVICE_F0_ID      0x3EA4
+#define ICFL_GT2_U42F_U2F2F_ULT_DEVICE_F0_ID    0x3EA9
 
 
 
@@ -1077,6 +1105,51 @@ typedef enum __NATIVEGTTYPE
 #define PCH_CNP_HALO_DEV_P1E_ID                             0xA31D
 #define PCH_CNP_HALO_DEV_P1F_ID                             0xA31E
 #define PCH_CNP_HALO_DEV_P20_ID                             0xA31F
+
+//GEN11LP
+#define IICL_LP_GT1_MOB_DEVICE_F0_ID            0xFF05
+#define IICL_LP_1x8x8_SUPERSKU_DEVICE_F0_ID     0x8A50
+#define IICL_LP_1x8x8_ULX_DEVICE_F0_ID          0x8A51
+#define IICL_LP_1x6x8_ULX_DEVICE_F0_ID          0x8A5C
+#define IICL_LP_1x4x8_ULX_DEVICE_F0_ID          0x8A5D
+#define IICL_LP_1x8x8_ULT_DEVICE_F0_ID          0x8A52
+#define IICL_LP_1x6x8_ULT_DEVICE_F0_ID          0x8A5A
+#define IICL_LP_1x4x8_ULT_DEVICE_F0_ID          0x8A5B
+#define IICL_LP_0x0x0_ULT_DEVICE_A0_ID          0x8A70
+#define IICL_LP_1x1x8_ULT_DEVICE_A0_ID          0x8A71
+//ICL PCH LP Device IDs
+#define ICP_LP_RESERVED_FUSE_ID                 0x3480
+#define ICP_LP_U_SUPER_SKU_ID                   0x3481
+#define ICP_LP_U_PREMIUM_ID                     0x3482
+#define ICP_LP_U_MAINSTREAM_ID                  0x3483
+#define ICL_LP_UNKNOWN_SKU_ID_1                 0x3484
+#define ICL_LP_UNKNOWN_SKU_ID_2                 0x3485
+#define ICP_LP_Y_SUPER_SKU_ID                   0x3486
+#define ICP_LP_Y_PREMIUM_ID                     0x3487
+#define ICL_LP_UNKNOWN_SKU_ID_3                 0x3488
+#define ICL_LP_UNKNOWN_SKU_ID_4                 0x3489
+#define ICL_LP_UNKNOWN_SKU_ID_5                 0x348A
+#define ICL_LP_UNKNOWN_SKU_ID_6                 0x348B
+#define ICL_LP_UNKNOWN_SKU_ID_7                 0x348C
+#define ICL_LP_UNKNOWN_SKU_ID_8                 0x348D
+#define ICL_LP_UNKNOWN_SKU_ID_9                 0x348E
+#define ICL_LP_UNKNOWN_SKU_ID_10                0x348F
+#define ICL_LP_UNKNOWN_SKU_ID_11                0x3490
+#define ICL_LP_UNKNOWN_SKU_ID_12                0x3491
+#define ICL_LP_UNKNOWN_SKU_ID_13                0x3492
+#define ICL_LP_UNKNOWN_SKU_ID_14                0x3493
+#define ICL_LP_UNKNOWN_SKU_ID_15                0x3494
+#define ICL_LP_UNKNOWN_SKU_ID_16                0x3495
+#define ICL_LP_UNKNOWN_SKU_ID_17                0x3496
+#define ICL_LP_UNKNOWN_SKU_ID_18                0x3497
+#define ICL_LP_UNKNOWN_SKU_ID_19                0x3498
+#define ICL_LP_UNKNOWN_SKU_ID_20                0x3499
+#define ICL_LP_UNKNOWN_SKU_ID_21                0x349A
+#define ICL_LP_UNKNOWN_SKU_ID_22                0x349B
+#define ICL_LP_UNKNOWN_SKU_ID_23                0x349C
+#define ICL_LP_UNKNOWN_SKU_ID_24                0x349D
+#define ICL_LP_UNKNOWN_SKU_ID_25                0x349E
+#define ICL_LP_UNKNOWN_SKU_ID_26                0x349F
 
 #define MGM_HAS     0
 

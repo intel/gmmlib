@@ -463,7 +463,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexPitchAndSize(GMM_TEXTURE_INFO * pTexIn
                                      pBufferType->RenderPitchAlignment);
 
         // Media Memory Compression : Allocate one memory tile wider than is required...
-        if(pTexInfo->Flags.Gpu.MMC && !pTexInfo->Flags.Gpu.UnifiedAuxSurface && GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN10_CORE)
+        if(pTexInfo->Flags.Gpu.MMC && !pTexInfo->Flags.Gpu.UnifiedAuxSurface && GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN11_CORE)
         {
             WidthBytesRender += pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileWidth;
             WidthBytesPhysical = WidthBytesLock = WidthBytesRender;

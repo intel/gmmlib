@@ -35,8 +35,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Maximums which bound all supported GT
 #define GT_MAX_SLICE                   (4)
 #define GT_MAX_SUBSLICE_PER_SLICE      (8)
-#define GT_MAX_VDBOX                   (2)
-#define GT_MAX_VEBOX                   (2)
 
 typedef struct GT_SUBSLICE_INFO
 {

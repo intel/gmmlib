@@ -20,9 +20,6 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
 
-
-#if (IGFX_GEN >= IGFX_GEN10) 
-
 #include "GmmCachePolicyConditionals.h"
 
 #define EDRAM (SKU(FtrEDram))
@@ -232,5 +229,3 @@ DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE               
 /**********************************************************************************/
 
 #include "GmmCachePolicyUndefineConditionals.h"
-
-#endif //#if (IGFX_GEN >= IGFX_GEN10)

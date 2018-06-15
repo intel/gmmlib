@@ -110,7 +110,7 @@ typedef union MEMORY_OBJECT_CONTROL_STATE_REC
         uint32_t EncryptedData : 1;
         uint32_t Index         : 6 ;
         uint32_t               : 25;
-    }Gen9, Gen10;
+    }Gen9, Gen10, Gen11;
 
     uint32_t                       DwordValue;
 }MEMORY_OBJECT_CONTROL_STATE;

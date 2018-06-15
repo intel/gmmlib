@@ -177,6 +177,7 @@ bool GMM_STDCALL GmmIsYUVFormatLCUAligned(GMM_RESOURCE_FORMAT Format)
         case GMM_FORMAT_P010:
         case GMM_FORMAT_P016:
         case GMM_FORMAT_YUY2:
+        case GMM_FORMAT_Y410:
         case GMM_FORMAT_Y216:
         case GMM_FORMAT_Y416:
         case GMM_FORMAT_AYUV:
@@ -216,7 +217,11 @@ uint8_t GMM_STDCALL GmmIsYUVPacked(GMM_RESOURCE_FORMAT Format)
         case GMM_FORMAT_YVYU_2x1:
         case GMM_FORMAT_UYVY_2x1:
         case GMM_FORMAT_VYUY_2x1:
+        case GMM_FORMAT_Y210:
+        case GMM_FORMAT_Y212:
         case GMM_FORMAT_Y216:
+        case GMM_FORMAT_Y410:
+        case GMM_FORMAT_Y412:
         case GMM_FORMAT_Y416:
         case GMM_FORMAT_AYUV:
             Status = 1;

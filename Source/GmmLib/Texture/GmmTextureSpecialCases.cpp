@@ -201,7 +201,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
                      (pTexInfo->MSAA.NumSamples == 8) || (pTexInfo->MSAA.NumSamples == 16));
 
         if(pTexInfo->MSAA.NumSamples > 1 &&
-           (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN10_CORE || pTexInfo->Flags.Gpu.MCS)) // CCS for MSAA Compression
+           (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN11_CORE || pTexInfo->Flags.Gpu.MCS)) // CCS for MSAA Compression
         {
             //__GMM_ASSERT(!pTexInfo->Flags.Gpu.UnifiedAuxSurface);
 
@@ -233,7 +233,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
             if(!pTexInfo->Flags.Info.TiledW &&
                ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) < IGFX_GEN9_CORE) ||
                 !pTexInfo->Flags.Info.TiledX) &&
-               ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN10_CORE &&
+               ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN11_CORE &&
                  !pTexInfo->Flags.Info.Linear) ||
                 (pTexInfo->Flags.Info.TiledY || pTexInfo->Flags.Info.TiledYs ||
                  (pTexInfo->Type == RESOURCE_BUFFER && pTexInfo->Flags.Info.Linear))) && //!Yf - deprecate Yf
@@ -241,7 +241,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
                 ((pTexInfo->MaxLod == 0) &&
                  (pTexInfo->ArraySize <= 1))) &&
                ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) > IGFX_GEN10_CORE) ||
-                ((pTexInfo->BitsPerPixel == 32) ||
+               ((pTexInfo->BitsPerPixel == 32) ||
                  (pTexInfo->BitsPerPixel == 64) ||
                  (pTexInfo->BitsPerPixel == 128))))
             {
@@ -355,7 +355,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
                 GMM_ASSERTDPF((pTexInfo->MaxLod == 0), "Stencil Buffer LOD's not supported!");
             }
 
-            // Separate Stencil Tile-W Gen8-Gen10, otherwise Tile-Y
+            // Separate Stencil Tile-W Gen8-Gen11, otherwise Tile-Y
             pTexInfo->Flags.Info.Linear  = 0;
             pTexInfo->Flags.Info.TiledX  = 0;
             pTexInfo->Flags.Info.TiledYf = 0;
@@ -364,7 +364,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
             pTexInfo->Flags.Info.TiledY  = 0;
 
             if(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE &&
-               GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN10_CORE)
+               GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN11_CORE)
             {
                 pTexInfo->Flags.Info.TiledW = 1;
             }

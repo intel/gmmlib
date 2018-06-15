@@ -201,6 +201,34 @@ typedef struct _ADAPTER_INFO
 } ADAPTER_INFO, *PADAPTER_INFO;
 #pragma pack (pop)
 
+#define MAX_ENGINE_INSTANCE_PER_CLASS 4
+
+// GEN11 Media Scalability 2.0: context based scheduling
+typedef struct MEDIA_CONTEXT_REQUIREMENT_REC
+{
+    union
+    {
+        struct
+        {
+            uint32_t    UsingSFC                   :  1; // Use SFC or not
+            uint32_t    HWRestrictedEngine         :  1;
+#if (_DEBUG || _RELEASE_INTERNAL  || __KMDULT)
+            uint32_t    Reserved                   : 29;
+            uint32_t    DebugOverride              :  1; // Debug & validation usage
+#else
+            uint32_t    Reserved                   : 30;
+#endif
+        };
+
+        uint32_t    Flags;
+    };
+
+    uint32_t      LRCACount;
+
+    // Logical engine instances used by this context; valid only if flag DebugOverride is set.
+    uint8_t    EngineInstance[MAX_ENGINE_INSTANCE_PER_CLASS];
+
+} MEDIA_CONTEXT_REQUIREMENT, *PMEDIA_CONTEXT_REQUIREMENT;
 
 // Bit-Struct for Driver's Use of D3DDDI_PATCHLOCATIONLIST.DriverId
 typedef union __D3DDDI_PATCHLOCATIONLIST_DRIVERID

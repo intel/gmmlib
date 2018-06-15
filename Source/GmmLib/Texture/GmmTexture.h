@@ -286,6 +286,14 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
                 {
                     UnitAlignHeight = 16;
                 }
+
+                if((GmmGetWaTable(pGmmGlobalContext)->Wa32bppTileY2DColorNoHAlign4) &&
+                   (pTexInfo->BitsPerPixel == 32 && pTexInfo->Flags.Info.TiledY &&
+                       pTexInfo->MSAA.NumSamples == 1 && pTexInfo->MaxLod > 1) &&
+                   UnitAlignWidth <= 4)
+                {
+                    UnitAlignWidth = 8;
+                }
             }
             else if(pTexInfo->MSAA.NumSamples <= 1)
             {
@@ -357,8 +365,6 @@ typedef struct GMM_MIPTAIL_SLOT_OFFSET_REC
     uint32_t Z;
 }GMM_MIPTAIL_SLOT_OFFSET;
 
-// Gen9
-// 1D https://gfxspecs.intel.com/Predator/Home/Index/18083
 #define GEN9_MIPTAIL_SLOT_OFFSET_1D_SURFACE {                                               \
 /*  |     128 bpe    |     64 bpe    |     32 bpe    |      16 bpe    |      8 bpe     | */ \
     { { 2048, 0, 0 }, { 4096, 0, 0 }, { 8192, 0, 0 }, { 16384, 0, 0 }, { 32768, 0, 0 } },   \
@@ -379,7 +385,6 @@ typedef struct GMM_MIPTAIL_SLOT_OFFSET_REC
     { {    0, 0, 0 }, {    0, 0, 0 }, {    0, 0, 0 }, {     0, 0, 0 }, {     0, 0, 0 } },   \
 }
 
-// 2D https://gfxspecs.intel.com/Predator/Home/Index/18061
 #define GEN9_MIPTAIL_SLOT_OFFSET_2D_SURFACE {                                           \
 /*  |    128 bpe    |    64 bpe   |     32 bpe    |     16 bpe    |      8 bpe      | */\
     { { 32,  0, 0 }, { 64,  0, 0 }, { 64,  0, 0 }, { 128,  0, 0 }, { 128,   0, 0 } },   \
@@ -399,7 +404,6 @@ typedef struct GMM_MIPTAIL_SLOT_OFFSET_REC
     { {  0,  0, 0 }, {  0,  0, 0 }, {  0,  0, 0 }, {   0,  0, 0 }, {   0,   0, 0 } },   \
 }
 
-// 3D https://gfxspecs.intel.com/Predator/Home/Index/18084
 #define GEN9_MIPTAIL_SLOT_OFFSET_3D_SURFACE {                                       \
 /*  |   128 bpe   |    64 bpe   |    32 bpe   |     16 bpe   |      8 bpe      | */ \
     { { 8, 0, 0 }, { 16, 0, 0 }, { 16,  0, 0 }, { 16,  0,  0 }, { 32,  0,  0 } },   \
@@ -420,8 +424,6 @@ typedef struct GMM_MIPTAIL_SLOT_OFFSET_REC
     { { 0, 0, 0 }, {  0, 0, 0 }, {  0,  0, 0 }, {  0,  0,  0 }, {  0,  0,  0 } },   \
 }
 
-// Gen10
-// 1D https://gfxspecs.intel.com/Predator/Home/Index/18083
 #define GEN10_MIPTAIL_SLOT_OFFSET_1D_SURFACE {                                              \
 /*  |     128 bpe    |     64 bpe    |     32 bpe    |      16 bpe    |      8 bpe     | */ \
     { { 2048, 0, 0 }, { 4096, 0, 0 }, { 8192, 0, 0 }, { 16384, 0, 0 }, { 32768, 0, 0 } },   \
@@ -441,7 +443,6 @@ typedef struct GMM_MIPTAIL_SLOT_OFFSET_REC
     { {    0, 0, 0 }, {    0, 0, 0 }, {    0, 0, 0 }, {     0, 0, 0 }, {     0, 0, 0 } },   \
 }
 
-// 2D https://gfxspecs.intel.com/Predator/Home/Index/18061
 #define GEN10_MIPTAIL_SLOT_OFFSET_2D_SURFACE {                                          \
 /*  |    128 bpe    |    64 bpe   |     32 bpe    |     16 bpe    |      8 bpe     | */ \
     { { 32,  0, 0 }, { 64,  0, 0 }, { 64,  0, 0 }, { 128,  0, 0 }, { 128,   0, 0 } },   \
@@ -461,7 +462,6 @@ typedef struct GMM_MIPTAIL_SLOT_OFFSET_REC
     { {  3,  0, 0 }, {  6,  0, 0 }, {  4,  4, 0 }, {   8,  4, 0 }, {   0,  12, 0 } },   \
 }
 
-// 3D https://gfxspecs.intel.com/Predator/Home/Index/18084
 #define GEN10_MIPTAIL_SLOT_OFFSET_3D_SURFACE {                                      \
 /*  |   128 bpe   |    64 bpe   |    32 bpe   |     16 bpe   |      8 bpe      | */ \
     { { 8, 0, 0 }, { 16, 0, 0 }, { 16,  0, 0 }, { 16,  0,  0 }, { 32,  0,  0 } },   \
@@ -479,4 +479,44 @@ typedef struct GMM_MIPTAIL_SLOT_OFFSET_REC
     { { 0, 0, 2 }, {  0, 0, 2 }, {  0,  0, 2 }, {  0,  0,  4 }, {  0,  0,  4 } },   \
     { { 1, 0, 0 }, {  2, 0, 0 }, {  2,  0, 0 }, {  2,  0,  0 }, {  4,  0,  0 } },   \
     { { 0, 0, 0 }, {  0, 0, 0 }, {  0,  0, 0 }, {  0,  0,  0 }, {  0,  0,  0 } },   \
+}
+
+#define GEN11_MIPTAIL_SLOT_OFFSET_1D_SURFACE {                                              \
+/*  |     128 bpe    |     64 bpe    |     32 bpe    |      16 bpe    |      8 bpe     | */ \
+    { { 2048, 0, 0 }, { 4096, 0, 0 }, { 8192, 0, 0 }, { 16384, 0, 0 }, { 32768, 0, 0 } },   \
+    { { 1024, 0, 0 }, { 2048, 0, 0 }, { 4096, 0, 0 }, {  8192, 0, 0 }, { 16384, 0, 0 } },   \
+    { {  512, 0, 0 }, { 1024, 0, 0 }, { 2048, 0, 0 }, {  4096, 0, 0 }, {  8192, 0, 0 } },   \
+    { {  256, 0, 0 }, {  512, 0, 0 }, { 1024, 0, 0 }, {  2048, 0, 0 }, {  4096, 0, 0 } },   \
+    { {  128, 0, 0 }, {  256, 0, 0 }, {  512, 0, 0 }, {  1024, 0, 0 }, {  2048, 0, 0 } },   \
+    { {   96, 0, 0 }, {  192, 0, 0 }, {  384, 0, 0 }, {   768, 0, 0 }, {  1536, 0, 0 } },   \
+    { {   80, 0, 0 }, {  160, 0, 0 }, {  320, 0, 0 }, {   640, 0, 0 }, {  1280, 0, 0 } },   \
+    { {   64, 0, 0 }, {  128, 0, 0 }, {  256, 0, 0 }, {   512, 0, 0 }, {  1024, 0, 0 } },   \
+    { {   48, 0, 0 }, {   96, 0, 0 }, {  192, 0, 0 }, {   384, 0, 0 }, {   768, 0, 0 } },   \
+    { {   32, 0, 0 }, {   64, 0, 0 }, {  128, 0, 0 }, {   256, 0, 0 }, {   512, 0, 0 } },   \
+    { {   16, 0, 0 }, {   32, 0, 0 }, {   64, 0, 0 }, {   128, 0, 0 }, {   256, 0, 0 } },   \
+    { {    0, 0, 0 }, {    0, 0, 0 }, {    0, 0, 0 }, {     0, 0, 0 }, {     0, 0, 0 } },   \
+    { {    4, 0, 0 }, {    8, 0, 0 }, {   16, 0, 0 }, {    32, 0, 0 }, {    64, 0, 0 } },   \
+    { {    8, 0, 0 }, {   16, 0, 0 }, {   32, 0, 0 }, {    64, 0, 0 }, {   128, 0, 0 } },   \
+    { {   12, 0, 0 }, {   24, 0, 0 }, {   48, 0, 0 }, {    96, 0, 0 }, {   192, 0, 0 } },   \
+}
+
+#define GEN11_MIPTAIL_SLOT_OFFSET_2D_SURFACE GEN10_MIPTAIL_SLOT_OFFSET_2D_SURFACE
+
+#define GEN11_MIPTAIL_SLOT_OFFSET_3D_SURFACE {                                      \
+/*  |   128 bpe   |    64 bpe   |    32 bpe   |     16 bpe   |      8 bpe      | */ \
+    { { 8, 0, 0 }, { 16, 0, 0 }, { 16,  0, 0 }, { 16,  0,  0 }, { 32,  0,  0 } },   \
+    { { 0, 8, 0 }, {  0, 8, 0 }, {  0, 16, 0 }, {  0, 16,  0 }, {  0, 16,  0 } },   \
+    { { 0, 0, 8 }, {  0, 0, 8 }, {  0,  0, 8 }, {  0,  0, 16 }, {  0,  0, 16 } },   \
+    { { 4, 0, 0 }, {  8, 0, 0 }, {  8,  0, 0 }, {  8,  0,  0 }, { 16,  0,  0 } },   \
+    { { 0, 4, 0 }, {  0, 4, 0 }, {  0,  8, 0 }, {  0,  8,  0 }, {  0,  8,  0 } },   \
+    { { 2, 0, 4 }, {  4, 0, 4 }, {  4,  0, 4 }, {  0,  4,  8 }, {  0,  4,  8 } },   \
+    { { 1, 0, 4 }, {  2, 0, 4 }, {  0,  4, 4 }, {  0,  0, 12 }, {  0,  0, 12 } },   \
+    { { 0, 0, 4 }, {  0, 0, 4 }, {  0,  0, 4 }, {  0,  0,  8 }, {  0,  0,  8 } },   \
+    { { 3, 0, 0 }, {  6, 0, 0 }, {  4,  4, 0 }, {  0,  4,  4 }, {  0,  4,  4 } },   \
+    { { 2, 0, 0 }, {  4, 0, 0 }, {  4,  0, 0 }, {  0,  4,  0 }, {  0,  4,  0 } },   \
+    { { 1, 0, 0 }, {  2, 0, 0 }, {  0,  4, 0 }, {  0,  0,  4 }, {  0,  0,  4 } },   \
+    { { 0, 0, 0 }, {  0, 0, 0 }, {  0,  0, 0 }, {  0,  0,  0 }, {  0,  0,  0 } },   \
+    { { 0, 0, 1 }, {  0, 0, 1 }, {  0,  0, 1 }, {  0,  0,  1 }, {  0,  0,  1 } },   \
+    { { 0, 0, 2 }, {  0, 0, 2 }, {  0,  0, 2 }, {  0,  0,  2 }, {  0,  0,  2 } },   \
+    { { 0, 0, 3 }, {  0, 0, 3 }, {  0,  0, 3 }, {  0,  0,  3 }, {  0,  0,  3 } },   \
 }
