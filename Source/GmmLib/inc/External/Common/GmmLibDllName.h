@@ -21,7 +21,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
 #pragma once
 
-#ifdef _WIN64
+#ifdef _X64
 #define GMM_UMD_DLL     "igdgmm64.dll"
 #define GMM_ENTRY_NAME  "OpenGmm"
 #else 
