@@ -128,8 +128,7 @@ if(CMAKE_CONFIGURATION_TYPES)
 endif()
 
 set(GMMLIB_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-
-if ("${ARCH}" MATCHES "64")
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set (GMMLIB_ARCH "64")
 else()
     set (GMMLIB_ARCH "32")
@@ -410,7 +409,7 @@ endforeach()
 ###################################################################################
 add_library( ${GMM_LIB_DLL_NAME} SHARED igdgmm.rc ${UMD_SOURCES} ${UMD_HEADERS})
 
-set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES OUTPUT_NAME "igdgmm${ARCH}")
+set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES OUTPUT_NAME "igdgmm${GMMLIB_ARCH}")
 
 if(MSVC)
 
@@ -519,12 +518,12 @@ bs_set_extra_target_properties(${GMM_LIB_DLL_NAME}
 	GMM_LIB_DLL
 )
 
-if("${ARCH}" MATCHES "64")
+if("${GMMLIB_ARCH}" MATCHES "64")
 	bs_set_extra_target_properties(${GMM_LIB_DLL_NAME}
 		_X64)
 endif()
 
-if(ARCH EQUAL 32)
+if("${GMMLIB_ARCH}" MATCHES "32")
 	#bs_set_extra_target_properties(igfx_gmmumd_ocl UNUSED_ISTDLIB_MT)
 
 	if((CMAKE_BUILD_TYPE STREQUAL "Release") OR (CMAKE_BUILD_TYPE STREQUAL "ReleaseInternal"))

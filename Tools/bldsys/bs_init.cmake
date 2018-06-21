@@ -40,7 +40,6 @@ endif()
 
 # Ensure definitions for some variables that should be set by the overall build system.
 bs_set_if_undefined(PLATFORM "linux")
-bs_set_if_undefined(ARCH "64")
 bs_set_if_undefined(GFXGEN "9")
 bs_set_if_undefined(CXXFLAGS "-D_GLIBCXX_USE_CXX11_ABI=0")
 
