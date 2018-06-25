@@ -539,7 +539,13 @@ if(NOT DEFINED RUN_TEST_SUITE OR RUN_TEST_SUITE)
     add_subdirectory(ULT)
 endif()
 
-set (GMMLIB_INSTALL_TIME_ROOT_DIR "/usr")
+
+if(GMMLIB_OPTION_INSTALL_DIR)
+    get_filename_component(GMMLIB_INSTALL_TIME_ROOT_DIR ${GMMLIB_OPTION_INSTALL_DIR} ABSOLUTE)
+else()
+    set(GMMLIB_INSTALL_TIME_ROOT_DIR ${CMAKE_INSTALL_PREFIX})
+endif()
+
 set (IGDGMM_LIBRARY_NAME "igdgmm")
 
 include(os_release_info.cmake)
