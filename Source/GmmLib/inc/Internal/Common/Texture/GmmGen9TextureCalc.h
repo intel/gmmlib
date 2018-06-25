@@ -104,6 +104,23 @@ namespace GmmLib
             virtual GMM_STATUS GMM_STDCALL  FillTexCube(GMM_TEXTURE_INFO   *pTexInfo,
                                                         __GMM_BUFFER_TYPE  *pRestrictions);
 
+            virtual uint32_t GMM_STDCALL ScaleFCRectHeight(GMM_TEXTURE_INFO * pTexInfo, uint32_t Height)
+            {
+                __GMM_ASSERTPTR(pTexInfo, 0);
+                uint32_t ScaledHeight = Height;
+
+                if (pTexInfo->TileMode == LEGACY_TILE_Y)
+                {
+                    const uint16_t FastClearRccTileYAlignHeight = 64; // lines - RCC ( Render Color Cache ) Alignment Sizes
+                    const uint16_t TileYClearHeightScale = 32;        // lines - Clear & Resolve Rect Scaling Sizes
+
+                    ScaledHeight = GFX_ALIGN(ScaledHeight, FastClearRccTileYAlignHeight);
+                    ScaledHeight /= TileYClearHeightScale;
+                }
+                return ScaledHeight;
+
+            }
+
             /* inline functions */
     };
 }

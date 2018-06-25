@@ -208,8 +208,16 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
 
             if(Surf.Flags.Gpu.IndirectClearColor)
             {
-                AuxSurf.CCSize = PAGE_SIZE; // 128bit Float Value + 32bit RT Native Value + Padding.
-                AuxSurf.Size += PAGE_SIZE;
+                if(!Surf.Flags.Gpu.TiledResource)
+                {
+                    AuxSurf.CCSize = PAGE_SIZE; // 128bit Float Value + 32bit RT Native Value + Padding.
+                    AuxSurf.Size += PAGE_SIZE;
+                }
+                else
+                {
+                    AuxSurf.CCSize = GMM_KBYTE(64); // 128bit Float Value + 32bit RT Native Value + Padding.
+                    AuxSurf.Size += GMM_KBYTE(64);
+                }
             }
 
             TotalSize = Surf.Size + AuxSurf.Size; //Not including AuxSecSurf size, multi-Aux surface isn't supported for displayables
@@ -475,6 +483,68 @@ bool GmmLib::GmmResourceInfoCommon::RedescribePlanes()
 ERROR_CASE:
     return (Status == GMM_SUCCESS) ? true : false;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Returns downscaled width for fast clear of given subresource
+/// @param[in]  uint32_t : MipLevel
+/// @return     Width
+/////////////////////////////////////////////////////////////////////////////////////
+uint64_t GmmLib::GmmResourceInfoCommon::GetFastClearWidth(uint32_t MipLevel)
+{
+    uint64_t width      = 0;
+    uint64_t mipWidth   = GetMipWidth(MipLevel);
+    uint32_t numSamples = GetNumSamples();
+
+    GMM_TEXTURE_CALC *pTextureCalc;
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+
+    if(numSamples == 1)
+    {
+        width = pTextureCalc->ScaleFCRectWidth(&Surf, mipWidth);
+    }
+    else if(numSamples == 2 || numSamples == 4)
+    {
+        width = GFX_ALIGN(mipWidth, 8) / 8;
+    }
+    else if(numSamples == 8)
+    {
+        width = GFX_ALIGN(mipWidth, 2) / 2;
+    }
+    else // numSamples == 16
+    {
+        width = mipWidth;
+    }
+
+    return width;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Returns downscaled height for fast clear of given subresource
+/// @param[in]  uint32_t : MipLevel
+/// @return     height
+/////////////////////////////////////////////////////////////////////////////////////
+uint32_t GmmLib::GmmResourceInfoCommon::GetFastClearHeight(uint32_t MipLevel)
+{
+    uint32_t height     = 0;
+    uint32_t mipHeight  = GetMipHeight(MipLevel);
+    uint32_t numSamples = GetNumSamples();
+
+    GMM_TEXTURE_CALC *pTextureCalc;
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+
+    if(numSamples == 1)
+    {
+        height = pTextureCalc->ScaleFCRectHeight(&Surf, mipHeight);
+    }
+    else
+    {
+        height = GFX_ALIGN(mipHeight, 2) / 2;
+    }
+
+    return height;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// This function readjustes Plane properties. Valid for MainSurf not for AuxSurf

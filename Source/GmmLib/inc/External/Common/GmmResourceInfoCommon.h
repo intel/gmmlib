@@ -217,6 +217,8 @@ namespace GmmLib
             GMM_VIRTUAL GMM_GFX_SIZE_T          GMM_STDCALL GetMipWidth(uint32_t MipLevel);
             GMM_VIRTUAL uint32_t                GMM_STDCALL GetMipHeight(uint32_t MipLevel);
             GMM_VIRTUAL uint32_t                GMM_STDCALL GetMipDepth(uint32_t MipLevel);
+            GMM_VIRTUAL uint64_t                GMM_STDCALL GetFastClearWidth(uint32_t MipLevel);
+            GMM_VIRTUAL uint32_t                GMM_STDCALL GetFastClearHeight(uint32_t MipLevel);
 
 
             /* inline functions */
@@ -1352,7 +1354,6 @@ namespace GmmLib
 
                 return TiledResourceMode;
             }
-
 
             //###################################################################################
             // Functions that allows clients to override certain members

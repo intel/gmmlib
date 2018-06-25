@@ -47,6 +47,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define __BIT64(x)                      ((uint64_t)1 << (x))
 #define __GMM_SET_BIT(A, b)             (A |= __BIT(b))
 #define __GMM_CLEAR_BIT(A, b)           (A &= ~__BIT(b))
+#define __GMM_SET_BIT64(A, b)           (A |= __BIT64(b))
+#define __GMM_CLEAR_BIT64(A, b)         (A &= ~__BIT64(b))
 #define __GMM_IS_BIT_SET(A, b)          (A & __BIT(b))
 #define __GMM_IS_BIT_CLEAR(A, b)        ((A & __BIT(b)) == 0)
 

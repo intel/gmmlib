@@ -41,7 +41,7 @@ extern const uint32_t __GmmTileYConversionTable[5][2];
 //
 typedef struct TILE_POOL_INFO_REC
 {
-    uint16_t                          UsedTiles;          // Tiles being used in 1 tile pool
+    uint64_t                          UsedTiles[4];       // Tiles being used in 1 tile pool
     GMM_GFX_ADDRESS                   StartingGfxAddress; // GfxAddress associated with the TilePool
 } TILE_POOL_INFO;
 
@@ -54,10 +54,8 @@ typedef struct GMM_TILED_RESOURCE_INFO_REC
                                                                  // only used for tiled resources
     uint64_t                            pAuxTilePoolResArray;    // list of aux tile pool allocation resource, and handles
 
-    union{
-            uint32_t                       TilePoolArraySize;
-            uint32_t                       AuxTilePoolArraySize;
-    };
+    uint32_t                            TilePoolArraySize;
+    uint32_t                            AuxTilePoolArraySize;
 
     struct
     {

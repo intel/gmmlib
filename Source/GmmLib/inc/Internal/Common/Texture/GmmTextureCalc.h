@@ -270,7 +270,6 @@ namespace GmmLib
                 __GMM_ASSERTPTR(pTexInfo, 0);
                 return(GFX_MAX(1, pTexInfo->BaseWidth >> MipLevel));
             }
-
             virtual uint32_t GmmTexGetMipHeight(GMM_TEXTURE_INFO *pTexInfo, uint32_t MipLevel)
             {
                 __GMM_ASSERTPTR(pTexInfo, 0);
@@ -283,6 +282,54 @@ namespace GmmLib
                 return(GFX_MAX(1, pTexInfo->Depth >> MipLevel));
             }
 
+            virtual uint32_t GMM_STDCALL ScaleFCRectHeight(GMM_TEXTURE_INFO * pTexInfo, uint32_t Height)
+            {
+                __GMM_ASSERTPTR(pTexInfo, 0);
+                uint32_t ScaledHeight = Height;
+
+                if (pTexInfo->TileMode == LEGACY_TILE_X)
+                {
+                    const uint16_t FastClearRccTileXAlignHeight = 64; // lines - RCC ( Render Color Cache ) Alignment Sizes
+                    const uint16_t TileXClearHeightScale = 32;         // lines - Clear & Resolve Rect Scaling Sizes
+
+                    ScaledHeight = GFX_ALIGN(ScaledHeight, FastClearRccTileXAlignHeight);
+                    ScaledHeight /= TileXClearHeightScale;
+                }
+                else if (pTexInfo->TileMode == LEGACY_TILE_Y)
+                {
+                    const uint16_t FastClearRccTileYAlignHeight = 128; // bits
+                    const uint16_t TileYClearHeightScale = 64;        // bits
+
+                    ScaledHeight = GFX_ALIGN(ScaledHeight, FastClearRccTileYAlignHeight);
+                    ScaledHeight /= TileYClearHeightScale;
+                }
+                return ScaledHeight;
+
+            }
+
+            virtual uint64_t GMM_STDCALL ScaleFCRectWidth(GMM_TEXTURE_INFO * pTexInfo, uint64_t Width)
+            {
+                __GMM_ASSERTPTR(pTexInfo, 0);
+                uint64_t ScaledWidth = Width;
+
+                if (pTexInfo->TileMode == LEGACY_TILE_X)
+                {
+                    const uint32_t FastClearRccTileXAlignWidth = 8192; // bits - RCC ( Render Color Cache ) Alignment Sizes
+                    const uint32_t TileXClearWidthScale = 4096;        // bits - Clear & Resolve Rect Scaling Sizes
+
+                    ScaledWidth = GFX_ALIGN(ScaledWidth, FastClearRccTileXAlignWidth / pTexInfo->BitsPerPixel);
+                    ScaledWidth /= TileXClearWidthScale;
+                }
+                else if (pTexInfo->TileMode == LEGACY_TILE_Y)
+                {
+                    const uint32_t FastClearRccTileYAlignWidth = 4096; // bits
+                    const uint32_t TileYClearWidthScale = 2048;        // bits
+
+                    ScaledWidth = GFX_ALIGN(ScaledWidth, FastClearRccTileYAlignWidth / pTexInfo->BitsPerPixel);
+                    ScaledWidth /= TileYClearWidthScale;
+                }
+                return ScaledWidth;
+            }
 
             /* inline functions */
     };
