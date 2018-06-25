@@ -98,7 +98,7 @@ namespace GmmLib
         GMM_VIRTUAL uint32_t                            GMM_STDCALL CachePolicyGetMaxMocsIndex();
         GMM_VIRTUAL uint32_t                            GMM_STDCALL CachePolicyGetMaxL1HdcMocsIndex();
         GMM_VIRTUAL uint32_t                            GMM_STDCALL CachePolicyGetMaxSpecialMocsIndex();
-        GMM_VIRTUAL const GMM_CACHE_POLICY_ELEMENT*     GMM_STDCALL GetCachePolicyUsage();
+        GMM_VIRTUAL GMM_CACHE_POLICY_ELEMENT*           GMM_STDCALL GetCachePolicyUsage();
         GMM_VIRTUAL void                                GMM_STDCALL GetCacheSizes(GMM_CACHE_SIZES *pCacheSizes);
         GMM_VIRTUAL GMM_CACHE_POLICY_ELEMENT            GMM_STDCALL GetCachePolicyElement(GMM_RESOURCE_USAGE_TYPE Usage);
         GMM_VIRTUAL GMM_CACHE_POLICY_TBL_ELEMENT        GMM_STDCALL GetCachePolicyTlbElement(uint32_t  MocsIdx);
@@ -109,10 +109,7 @@ namespace GmmLib
         GMM_VIRTUAL uint8_t                             GMM_STDCALL IsUVPacked(GMM_RESOURCE_FORMAT Format);
         GMM_VIRTUAL uint8_t                             GMM_STDCALL IsCompressed(GMM_RESOURCE_FORMAT Format);
         GMM_VIRTUAL uint8_t                             GMM_STDCALL IsYUVPacked(GMM_RESOURCE_FORMAT Format);
-        GMM_VIRTUAL GMM_STATUS                          GMM_STDCALL GetLogicalTileShape(uint32_t             TileMode,
-                                                                                        uint32_t             *pWidthInBytes,
-                                                                                        uint32_t             *pHeight,
-                                                                                        uint32_t             *pDepth);
+        GMM_VIRTUAL GMM_SURFACESTATE_FORMAT             GMM_STDCALL GetSurfaceStateFormat(GMM_RESOURCE_FORMAT Format);
         GMM_VIRTUAL uint64_t                            GMM_STDCALL GetInternalGpuVaRangeLimit();
 
         /* ResourceInfo Creation and Destroy API's */

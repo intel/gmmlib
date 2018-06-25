@@ -140,7 +140,7 @@ uint32_t GMM_STDCALL GmmLib::GmmClientContext::CachePolicyGetMaxSpecialMocsIndex
 ///
 /// @return     Const GMM_CACHE_POLICY_ELEMENT Table
 /////////////////////////////////////////////////////////////////////////////////////
-const GMM_CACHE_POLICY_ELEMENT *GMM_STDCALL GmmLib::GmmClientContext::GetCachePolicyUsage()
+GMM_CACHE_POLICY_ELEMENT *GMM_STDCALL GmmLib::GmmClientContext::GetCachePolicyUsage()
 {
     return (pGmmGlobalContext->GetCachePolicyUsage());
 }
@@ -247,21 +247,18 @@ uint8_t GMM_STDCALL GmmLib::GmmClientContext::IsYUVPacked(GMM_RESOURCE_FORMAT Fo
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// Member function of ClientContext class for getting the Tile dimensions
-/// for the given Tile mode
+/// Member function of ClientContext class for returning its GMM_SURFACESTATE_FORMAT
+/// for the given equivalent GMM_RESOURCE_FORMAT type
 ///
-/// @return    GMM_SUCCESS
+/// @return     GMM_SURFACESTATE_FORMAT for the given format type
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_STATUS GMM_STDCALL GmmLib::GmmClientContext::GetLogicalTileShape(uint32_t  TileMode,
-                                                                     uint32_t *pWidthInBytes,
-                                                                     uint32_t *pHeight,
-                                                                     uint32_t *pDepth)
+GMM_SURFACESTATE_FORMAT GMM_STDCALL GmmLib::GmmClientContext::GetSurfaceStateFormat(GMM_RESOURCE_FORMAT Format)
 {
-#ifdef _WIN32
-    return GmmGetLogicalTileShape(TileMode, pWidthInBytes, pHeight, pDepth);
-#else
-    return GMM_SUCCESS;
-#endif
+    // ToDo: Remove the definition of GmmGetSurfaceStateFormat(Format)
+    return ((Format > GMM_FORMAT_INVALID) &&
+            (Format < GMM_RESOURCE_FORMATS)) ?
+           pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].SurfaceStateFormat :
+           GMM_SURFACESTATE_FORMAT_INVALID;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
