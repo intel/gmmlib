@@ -1,7 +1,7 @@
-prefix=@GMMLIB_INSTALL_TIME_ROOT_DIR@
-exec_prefix=${prefix}
-includedir=${prefix}/include/igdgmm
-libdir=${exec_prefix}/lib
+prefix=@CMAKE_INSTALL_PREFIX@
+execprefix=${prefix}
+includedir=@CMAKE_INSTALL_FULL_INCLUDEDIR@/igdgmm
+libdir=@CMAKE_INSTALL_FULL_LIBDIR@
 
 Name: igdgmm
 Description: Intel(R) Graphics Memory Management Library

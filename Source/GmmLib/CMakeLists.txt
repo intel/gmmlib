@@ -539,7 +539,6 @@ if(NOT DEFINED RUN_TEST_SUITE OR RUN_TEST_SUITE)
     add_subdirectory(ULT)
 endif()
 
-set (GMMLIB_INSTALL_TIME_ROOT_DIR "/usr")
 set (IGDGMM_LIBRARY_NAME "igdgmm")
 
 include(os_release_info.cmake)
@@ -553,6 +552,8 @@ if("${os_name}" STREQUAL "clear-linux-os")
 endif()
 
 if(UNIX)
+    include(GNUInstallDirs)
+
     if(NOT DEFINED MAJOR_VERSION)
         set(MAJOR_VERSION 0)
     endif()
@@ -568,28 +569,28 @@ if(UNIX)
     configure_file(${BS_DIR_GMMLIB}/igdgmm.h.in ${CMAKE_BINARY_DIR}/igdgmm.h)
     configure_file(${BS_DIR_GMMLIB}/igdgmm.pc.in ${CMAKE_BINARY_DIR}/igdgmm.pc @ONLY)
 
-    install(TARGETS ${GMM_LIB_DLL_NAME} DESTINATION ${GMMLIB_INSTALL_TIME_ROOT_DIR}/lib COMPONENT gmmlib)
-    install(TARGETS gmm_umd DESTINATION ${GMMLIB_INSTALL_TIME_ROOT_DIR}/lib COMPONENT gmmlib)
+    install(TARGETS ${GMM_LIB_DLL_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT gmmlib)
+    install(TARGETS gmm_umd DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT gmmlib)
 
-    install(DIRECTORY ${BS_DIR_GMMLIB} DESTINATION ${GMMLIB_INSTALL_TIME_ROOT_DIR}/include/igdgmm COMPONENT gmmlib-devel
+    install(DIRECTORY ${BS_DIR_GMMLIB} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/igdgmm COMPONENT gmmlib-devel
         FILES_MATCHING PATTERN "*.h"
         PATTERN "*.hpp"
         PATTERN "Internal" EXCLUDE
         PATTERN "ULT" EXCLUDE)
 
-    install (DIRECTORY ${BS_DIR_INC} DESTINATION ${GMMLIB_INSTALL_TIME_ROOT_DIR}/include/igdgmm COMPONENT gmmlib-devel
+    install (DIRECTORY ${BS_DIR_INC} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/igdgmm COMPONENT gmmlib-devel
         FILES_MATCHING PATTERN "*.h"
         PATTERN "*.hpp")
 
-    install (DIRECTORY ${BS_DIR_UTIL} DESTINATION ${GMMLIB_INSTALL_TIME_ROOT_DIR}/include/igdgmm COMPONENT gmmlib-devel
+    install (DIRECTORY ${BS_DIR_UTIL} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/igdgmm COMPONENT gmmlib-devel
         FILES_MATCHING PATTERN "*.h"
         PATTERN "*.hpp")
 
     install (FILES ${BS_DIR_GMMLIB}/Utility/CpuSwizzleBlt/CpuSwizzleBlt.c
-        DESTINATION ${GMMLIB_INSTALL_TIME_ROOT_DIR}/include/igdgmm/GmmLib/Utility/CpuSwizzleBlt/ COMPONENT gmmlib-devel)
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/igdgmm/GmmLib/Utility/CpuSwizzleBlt/ COMPONENT gmmlib-devel)
 
-    install(FILES ${CMAKE_BINARY_DIR}/igdgmm.pc DESTINATION ${GMMLIB_INSTALL_TIME_ROOT_DIR}/lib/pkgconfig COMPONENT gmmlib-devel)
-    install(FILES ${CMAKE_BINARY_DIR}/igdgmm.h DESTINATION ${GMMLIB_INSTALL_TIME_ROOT_DIR}/include/igdgmm COMPONENT gmmlib-devel)
+    install(FILES ${CMAKE_BINARY_DIR}/igdgmm.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig COMPONENT gmmlib-devel)
+    install(FILES ${CMAKE_BINARY_DIR}/igdgmm.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/igdgmm COMPONENT gmmlib-devel)
 
     if(GMMLIB_CPACK_GENERATOR)
         set(CPACK_GENERATOR "${GMMLIB_CPACK_GENERATOR}")
