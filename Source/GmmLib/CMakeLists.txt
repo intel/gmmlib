@@ -551,7 +551,7 @@ if(NOT DEFINED RUN_TEST_SUITE OR RUN_TEST_SUITE)
     add_subdirectory(ULT)
 endif()
 
-set (IGDGMM_LIBRARY_NAME "igdgmm")
+set (GMM_UMD_DLL "igdgmm")
 
 include(os_release_info.cmake)
 
