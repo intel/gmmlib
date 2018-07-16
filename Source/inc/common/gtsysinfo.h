@@ -92,7 +92,8 @@ typedef struct GT_VDBOX_INFO
         {
             uint32_t    VDBox0Enabled : 1;      // To determine if VDBox0 is enabled
             uint32_t    VDBox1Enabled : 1;      // To determine if VDBox1 is enabled
-            uint32_t    Reserved      : 30;     // Reserved bits
+            uint32_t    VDBox2Enabled : 1;      // To determine if VDBox2 is enabled
+            uint32_t    Reserved      : 29;     // Reserved bits
         } Bits;
 
         uint32_t VDBoxEnableMask;               // Union for all VDBox instances. It can be used to know if any of the VDBOX is enabled.
@@ -105,7 +106,8 @@ typedef struct GT_VDBOX_INFO
         {
             uint32_t    VDBox0   : 1;      // Set if VDBox0 supports SFC
             uint32_t    VDBox1   : 1;      // Set if VDBox1 supports SFC
-            uint32_t    Reserved : 30;     // Reserved bits
+            uint32_t    VDBox2   : 1;      // Set if VDBox2 supports SFC
+            uint32_t    Reserved : 29;     // Reserved bits
         }SfcSupportedBits;
 
         uint32_t Value;
