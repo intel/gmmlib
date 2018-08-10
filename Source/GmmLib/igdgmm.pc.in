@@ -6,5 +6,5 @@ libdir=@CMAKE_INSTALL_FULL_LIBDIR@
 Name: igdgmm
 Description: Intel(R) Graphics Memory Management Library
 Version: @MAJOR_VERSION@.@MINOR_VERSION@.@PATCH_VERSION@
-Cflags: -I${includedir} -I${includedir}/GmmLib -I${includedir}/GmmLib/inc -I${includedir}/inc -I${includedir}/inc/common -I${includedir}/util
+Cflags: -DGMM_LIB_DLL -I${includedir} -I${includedir}/GmmLib -I${includedir}/GmmLib/inc -I${includedir}/inc -I${includedir}/inc/common -I${includedir}/util
 Libs: -L${libdir} -ligdgmm
