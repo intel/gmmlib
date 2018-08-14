@@ -228,7 +228,7 @@ namespace GmmLib
             /// Returns GmmClientContext associated with this resource
             /// @return ::GmmClientContext
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GmmClientContext* GetGmmClientContext()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GmmClientContext* GetGmmClientContext()
             {
                 return pClientContext;
             }
@@ -237,7 +237,7 @@ namespace GmmLib
             /// Sets GmmClientContext to be associated with this resource
             /// @return ::void
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void SetGmmClientContext(GmmClientContext* pGmmClientContext)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void SetGmmClientContext(GmmClientContext* pGmmClientContext)
             {
                 pClientContext = pGmmClientContext;
                 GET_GMM_CLIENT_TYPE(pGmmClientContext, ClientType);
@@ -248,7 +248,7 @@ namespace GmmLib
             /// Returns GMM_CLIENT Type that has created this resource
             /// @return ::GMM_CLIENT
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_CLIENT GetClientType()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_CLIENT GetClientType()
             {
                 return ClientType;
             }
@@ -260,7 +260,7 @@ namespace GmmLib
             /// @param[in]      IsD3DDdiAllocation: Specifies where allocation was made by a D3D client
             /// @return         Pointer to system memory. NULL if not available.
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void* GMM_STDCALL GetSystemMemPointer(uint8_t IsD3DDdiAllocation)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void* GMM_STDCALL GetSystemMemPointer(uint8_t IsD3DDdiAllocation)
             {
                 if (IsD3DDdiAllocation)
                 {
@@ -276,7 +276,7 @@ namespace GmmLib
             /// Returns the system memory size.
             /// @return     Size of memory.
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_GFX_SIZE_T GMM_STDCALL GetSystemMemSize()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T GMM_STDCALL GetSystemMemSize()
             {
                 return ExistingSysMem.Size;
             }
@@ -285,7 +285,7 @@ namespace GmmLib
             /// Returns a reference to the surface flags.
             /// @return     Reference to ::GMM_RESOURCE_FLAGS
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_RESOURCE_FLAG& GMM_STDCALL GetResFlags()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_RESOURCE_FLAG& GMM_STDCALL GetResFlags()
             {
                 return Surf.Flags;
             }
@@ -294,7 +294,7 @@ namespace GmmLib
             /// Returns the resource type
             /// @return     ::GMM_RESOURCE_TYPE
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_RESOURCE_TYPE GMM_STDCALL GetResourceType()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_RESOURCE_TYPE GMM_STDCALL GetResourceType()
             {
                 return Surf.Type;
             }
@@ -303,7 +303,7 @@ namespace GmmLib
             /// Returns the resource format
             /// @return     ::GMM_RESOURCE_FORMAT
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_RESOURCE_FORMAT GMM_STDCALL GetResourceFormat()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_RESOURCE_FORMAT GMM_STDCALL GetResourceFormat()
             {
                 return Surf.Format;
             }
@@ -312,7 +312,7 @@ namespace GmmLib
             /// Returns the resource width
             /// @return     width
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_GFX_SIZE_T GMM_STDCALL GetBaseWidth()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T GMM_STDCALL GetBaseWidth()
             {
                 return Surf.BaseWidth;
             }
@@ -321,7 +321,7 @@ namespace GmmLib
             /// Returns the resource height
             /// @return     height
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetBaseHeight()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetBaseHeight()
             {
                 return Surf.BaseHeight;
             }
@@ -330,7 +330,7 @@ namespace GmmLib
             /// Returns the resource depth
             /// @return     depth
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetBaseDepth()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetBaseDepth()
             {
                 return Surf.Depth;
             }
@@ -339,7 +339,7 @@ namespace GmmLib
             /// Returns the resource's base alignment
             /// @return     Base Alignment
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetBaseAlignment()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetBaseAlignment()
             {
                 return Surf.Alignment.BaseAlignment;
             }
@@ -348,7 +348,7 @@ namespace GmmLib
             /// Returns the resource's max lod
             /// @return     Max Lod
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetMaxLod()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetMaxLod()
             {
                 return Surf.MaxLod;
             }
@@ -357,7 +357,7 @@ namespace GmmLib
             /// Returns the resource's max array size
             /// @return     Max Array Size
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetArraySize()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetArraySize()
             {
                 return Surf.ArraySize;
             }
@@ -366,7 +366,7 @@ namespace GmmLib
             /// Returns the resource's rotation info
             /// @return    rotation info
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetRotateInfo()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetRotateInfo()
             {
                 return RotateInfo;
             }
@@ -384,7 +384,7 @@ namespace GmmLib
             /// Returns the auxiliary resource's QPitch
             /// @return    Aux QPitch
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetAuxQPitch()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetAuxQPitch()
             {
                 const GMM_PLATFORM_INFO   *pPlatform;
 
@@ -416,7 +416,7 @@ namespace GmmLib
             /// Returns the planar resource's QPitch
             /// @return    planar QPitch in rows
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetQPitchPlanar(GMM_YUV_PLANE Plane)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetQPitchPlanar(GMM_YUV_PLANE Plane)
             {
                 uint32_t               QPitch;
                 const GMM_PLATFORM_INFO   *pPlatform;
@@ -437,7 +437,7 @@ namespace GmmLib
             /// cube faces, MSFMT_MSS sample planes).
             /// @return    QPitch
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_GFX_SIZE_T GMM_STDCALL GetQPitchInBytes()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T GMM_STDCALL GetQPitchInBytes()
             {
                 return Surf.OffsetInfo.Texture2DOffsetInfo.ArrayQPitchRender;
             }
@@ -446,7 +446,7 @@ namespace GmmLib
             /// Returns resource's pitch
             /// @return    Pitch
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_GFX_SIZE_T GMM_STDCALL GetRenderPitch()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T GMM_STDCALL GetRenderPitch()
             {
                 return Surf.Pitch;
             }
@@ -455,7 +455,7 @@ namespace GmmLib
             /// Returns resource's pitch in tiles
             /// @return    Pitch in tiles
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetRenderPitchTiles()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetRenderPitchTiles()
             {
                 uint32_t               PitchInTiles;
                 const GMM_PLATFORM_INFO   *pPlatform;
@@ -508,7 +508,7 @@ namespace GmmLib
             /// Returns unified auxiliary resource's pitch in tiles
             /// @return    Aux Pitch in bytes
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_GFX_SIZE_T GMM_STDCALL GetUnifiedAuxPitch()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T GMM_STDCALL GetUnifiedAuxPitch()
             {
                 return AuxSurf.Pitch;
             }
@@ -517,7 +517,7 @@ namespace GmmLib
             /// Returns auxiliary resource's pitch in tiles
             /// @return    Aux Pitch in tiles
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetRenderAuxPitchTiles()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetRenderAuxPitchTiles()
             {
                 uint32_t               PitchInTiles = 0;
                 const GMM_PLATFORM_INFO   *pPlatform;
@@ -548,7 +548,7 @@ namespace GmmLib
             /// Returns resource's bits per pixel
             /// @return    bpp
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetBitsPerPixel()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetBitsPerPixel()
             {
                 return Surf.BitsPerPixel;
             }
@@ -557,7 +557,7 @@ namespace GmmLib
             /// Returns unified aux resource's bits per pixel
             /// @return    aux bpp
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetUnifiedAuxBitsPerPixel()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetUnifiedAuxBitsPerPixel()
             {
                 __GMM_ASSERT(Surf.Flags.Gpu.UnifiedAuxSurface);
                 return AuxSurf.BitsPerPixel;
@@ -567,7 +567,7 @@ namespace GmmLib
             /// Returns layout of the mips: right or below.
             /// @return    ::GMM_TEXTURE_LAYOUT
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_TEXTURE_LAYOUT GMM_STDCALL GetTextureLayout()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_TEXTURE_LAYOUT GMM_STDCALL GetTextureLayout()
             {
                 return Surf.Flags.Info.LayoutRight? GMM_2D_LAYOUT_RIGHT : GMM_2D_LAYOUT_BELOW;
             }
@@ -576,7 +576,7 @@ namespace GmmLib
             /// Returns resource's tile type
             /// @return    ::GMM_TILE_TYPE
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_TILE_TYPE GMM_STDCALL GetTileType()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_TILE_TYPE GMM_STDCALL GetTileType()
             {
                 if (Surf.Flags.Info.TiledW)
                 {
@@ -600,7 +600,7 @@ namespace GmmLib
             /// Returns resource's tile mode
             /// @return    ::GMM_TILE_MODE
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_TILE_MODE GMM_STDCALL GmmGetTileMode()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_TILE_MODE GMM_STDCALL GmmGetTileMode()
             {
                 return Surf.TileMode;
             }
@@ -609,7 +609,7 @@ namespace GmmLib
             /// Returns CPU cacheability information
             /// @return    ::GMM_CPU_CACHE_TYPE
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_CPU_CACHE_TYPE GMM_STDCALL GetCpuCacheType()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_CPU_CACHE_TYPE GMM_STDCALL GetCpuCacheType()
             {
                 if (Surf.Flags.Info.Cacheable)
                 {
@@ -624,7 +624,7 @@ namespace GmmLib
             /// @param[in] ArrayIndex ArrayIndex for which this info is needed
             /// @return    Media Memory Compression Mode (Disabled, Horizontal, Vertical)
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_RESOURCE_MMC_INFO GMM_STDCALL GetMmcMode(uint32_t ArrayIndex)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_RESOURCE_MMC_INFO GMM_STDCALL GetMmcMode(uint32_t ArrayIndex)
             {
                 __GMM_ASSERT(ArrayIndex < GMM_MAX_MMC_INDEX);
 
@@ -639,7 +639,7 @@ namespace GmmLib
             /// @param[in] Mode Media Memory Compression Mode (Disabled, Horizontal, Vertical)
             /// @param[in] ArrayIndex ArrayIndex for which this info needs to be set
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL SetMmcMode(GMM_RESOURCE_MMC_INFO Mode, uint32_t ArrayIndex)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL SetMmcMode(GMM_RESOURCE_MMC_INFO Mode, uint32_t ArrayIndex)
             {
                 __GMM_ASSERT((Mode == GMM_MMC_DISABLED) || (Mode == GMM_MMC_HORIZONTAL) || (Mode == GMM_MMC_VERTICAL));
                 __GMM_ASSERT(ArrayIndex < GMM_MAX_MMC_INDEX);
@@ -655,7 +655,7 @@ namespace GmmLib
             /// @param[in]  ArrayIndex ArrayIndex for which this info is needed
             /// @return     1 (enabled), 0 (disabled)
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint8_t GMM_STDCALL IsMediaMemoryCompressed(uint32_t ArrayIndex)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint8_t GMM_STDCALL IsMediaMemoryCompressed(uint32_t ArrayIndex)
             {
                 __GMM_ASSERT(ArrayIndex < GMM_MAX_MMC_INDEX);
 
@@ -670,7 +670,7 @@ namespace GmmLib
             /// @param[in]  ArrayIndex ArrayIndex for which this info is needed
             /// @return     1/0
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_RESOURCE_MMC_HINT GMM_STDCALL GetMmcHint(uint32_t ArrayIndex)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_RESOURCE_MMC_HINT GMM_STDCALL GetMmcHint(uint32_t ArrayIndex)
             {
                 __GMM_ASSERT(ArrayIndex < GMM_MAX_MMC_INDEX);
                 return Surf.MmcHint[ArrayIndex] ? GMM_MMC_HINT_OFF : GMM_MMC_HINT_ON;
@@ -682,7 +682,7 @@ namespace GmmLib
             /// @param[in]  ArrayIndex ArrayIndex for which this info is needed
             /// @return
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL SetMmcHint(GMM_RESOURCE_MMC_HINT Hint, uint32_t ArrayIndex)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL SetMmcHint(GMM_RESOURCE_MMC_HINT Hint, uint32_t ArrayIndex)
             {
                 __GMM_ASSERT(ArrayIndex < GMM_MAX_MMC_INDEX);
                 __GMM_ASSERT(GMM_MMC_HINT_ON == 0);
@@ -695,7 +695,7 @@ namespace GmmLib
             /// Returns the MSAA Sample Counter
             /// @return     Sample count
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetNumSamples()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetNumSamples()
             {
                 return Surf.MSAA.NumSamples;
             }
@@ -704,7 +704,7 @@ namespace GmmLib
             /// Returns the MSAA Sample Pattern
             /// @return     Sample pattern
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_MSAA_SAMPLE_PATTERN GMM_STDCALL GetSamplePattern()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_MSAA_SAMPLE_PATTERN GMM_STDCALL GetSamplePattern()
             {
                 return Surf.MSAA.SamplePattern;
             }
@@ -714,7 +714,7 @@ namespace GmmLib
             /// @param[in]  Plane: Plane for which the offset is needed
             /// @return     X offset
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_GFX_SIZE_T GMM_STDCALL GetPlanarXOffset(GMM_YUV_PLANE Plane)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T GMM_STDCALL GetPlanarXOffset(GMM_YUV_PLANE Plane)
             {
                 __GMM_ASSERT(Plane < GMM_MAX_PLANE);
                 return Surf.OffsetInfo.Plane.X[Plane];
@@ -725,7 +725,7 @@ namespace GmmLib
             /// @param[in]  Plane: Plane for which the offset is needed
             /// @return     Y offset
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_GFX_SIZE_T GMM_STDCALL GetPlanarYOffset(GMM_YUV_PLANE Plane)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T GMM_STDCALL GetPlanarYOffset(GMM_YUV_PLANE Plane)
             {
                 __GMM_ASSERT(Plane < GMM_MAX_PLANE);
                 return Surf.OffsetInfo.Plane.Y[Plane];
@@ -737,7 +737,7 @@ namespace GmmLib
             /// @param[in]  GmmAuxType: Aux Plane for which the offset is needed
             /// @return     Y_CCS offset/ UV_CCS offset/ Media compression state
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_GFX_SIZE_T GMM_STDCALL GetPlanarAuxOffset(uint32_t ArrayIndex, GMM_UNIFIED_AUX_TYPE GmmAuxType)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T GMM_STDCALL GetPlanarAuxOffset(uint32_t ArrayIndex, GMM_UNIFIED_AUX_TYPE GmmAuxType)
             {
                 GMM_GFX_SIZE_T Offset = 0;
 
@@ -782,7 +782,7 @@ namespace GmmLib
             /// Returns the resource Horizontal alignment
             /// @return     HAlign
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetHAlign()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetHAlign()
             {
                 const __GMM_PLATFORM_RESOURCE   *pPlatformResource;
                 uint32_t HAlign;
@@ -805,7 +805,7 @@ namespace GmmLib
             /// Returns the resource Vertical alignment
             /// @return     VAlign
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetVAlign()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetVAlign()
             {
                 const __GMM_PLATFORM_RESOURCE   *pPlatformResource;
                 uint32_t VAlign;
@@ -828,7 +828,7 @@ namespace GmmLib
             /// Returns the auxiliary resource Horizontal alignment
             /// @return     HAlign
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetAuxHAlign()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetAuxHAlign()
             {
                 if (Surf.Flags.Gpu.UnifiedAuxSurface)
                 {
@@ -844,7 +844,7 @@ namespace GmmLib
             /// Returns the auxiliary resource Vertical alignment
             /// @return     HAlign
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetAuxVAlign()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetAuxVAlign()
             {
                 if (Surf.Flags.Gpu.UnifiedAuxSurface)
                 {
@@ -861,7 +861,7 @@ namespace GmmLib
             /// Surface Storage Format.
             /// @return     1/0
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint8_t GMM_STDCALL IsMsaaFormatDepthStencil()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint8_t GMM_STDCALL IsMsaaFormatDepthStencil()
             {
                 // Gen7 MSAA (non-Depth/Stencil) render targets use (MSFMT_DEPTH_MSS) array
                 // expansion instead of (MSFMT_DEPTH_STENCIL) Width/Height expansion.
@@ -874,7 +874,7 @@ namespace GmmLib
             /// Returns indication of whether resource is SVM or not
             /// @return     1/0
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint8_t GMM_STDCALL IsSvm()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint8_t GMM_STDCALL IsSvm()
             {
                 return static_cast<uint8_t>(Surf.Flags.Info.SVM);
             }
@@ -883,7 +883,7 @@ namespace GmmLib
             /// Allows clients to attach a private data to the resource
             /// @param[in]  pNewPrivateData: pointer to opaque private data from clients
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL SetPrivateData(void *pNewPrivateData)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL SetPrivateData(void *pNewPrivateData)
             {
                 this->pPrivateData = reinterpret_cast<uint64_t>(pNewPrivateData);
             }
@@ -892,7 +892,7 @@ namespace GmmLib
             /// Returns private data attached to the resource
             /// @return     Pointer to opaque private data
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void* GMM_STDCALL GetPrivateData()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void* GMM_STDCALL GetPrivateData()
             {
                 return reinterpret_cast<void*>(pPrivateData);
             }
@@ -901,7 +901,7 @@ namespace GmmLib
             /// Returns the resource GFX address
             /// @return     Gfx Address
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_GFX_ADDRESS GMM_STDCALL GetGfxAddress()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_ADDRESS GMM_STDCALL GetGfxAddress()
             {
                 // Support for Sparse/Tiled resources will be unified in later
                 if (SvmAddress)
@@ -919,7 +919,7 @@ namespace GmmLib
             /// resources, it returns base height.
             /// @return     Surface height
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetTallBufferHeight()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetTallBufferHeight()
             {
                 if (Surf.Flags.Gpu.S3d)
                 {
@@ -936,7 +936,7 @@ namespace GmmLib
             /// Returns size of the main surface only. Aux surface size not included.
             /// @return     Size of main surface
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_GFX_SIZE_T  GMM_STDCALL GetSizeMainSurface() const
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T  GMM_STDCALL GetSizeMainSurface() const
             {
                 return Surf.Size;
             }
@@ -948,7 +948,7 @@ namespace GmmLib
             /// padding depts/array-size and so on also for part of the list of factors.
             /// @return     Surface Size
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_GFX_SIZE_T  GMM_STDCALL GetSizeSurface()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T  GMM_STDCALL GetSizeSurface()
             {
                     return (Surf.Size + AuxSurf.Size + AuxSecSurf.Size);
             }
@@ -957,7 +957,7 @@ namespace GmmLib
             /// Returns surface size(GetSizeSurface) plus additional padding due to 64kb pages
             /// @return     Allocation Size
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_GFX_SIZE_T  GMM_STDCALL GetSizeAllocation()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T  GMM_STDCALL GetSizeAllocation()
             {
                 #define ALIGN_SIZE(x, a)  (((x) + ((a) - 1)) - (((x) + ((a) - 1)) & ((a) - 1)))
                 if (Is64KBPageSuitable())
@@ -974,7 +974,7 @@ namespace GmmLib
             /// Returns max no of GpuVa bits supported per resource on a given platform
             /// @return     Max # of GpuVA bits per resource
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t  GMM_STDCALL GetMaxGpuVirtualAddressBits()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t  GMM_STDCALL GetMaxGpuVirtualAddressBits()
             {
                 const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
                 __GMM_ASSERTPTR(pPlatform, 0);
@@ -987,7 +987,7 @@ namespace GmmLib
             /// @param[in]  GmmAuxType: the type of aux the offset is needed for
             /// @return     Surface Offset in bytes
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_GFX_SIZE_T GMM_STDCALL GetUnifiedAuxSurfaceOffset(GMM_UNIFIED_AUX_TYPE GmmAuxType)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T GMM_STDCALL GetUnifiedAuxSurfaceOffset(GMM_UNIFIED_AUX_TYPE GmmAuxType)
             {
                 GMM_GFX_SIZE_T Offset = 0;
                 const GMM_PLATFORM_INFO *pPlatform;
@@ -1053,7 +1053,7 @@ namespace GmmLib
             /// @param[in]  GmmAuxType: the type of aux the size is needed for
             /// @return     Surface Size in bytes
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_GFX_SIZE_T GMM_STDCALL GetSizeAuxSurface(GMM_UNIFIED_AUX_TYPE GmmAuxType)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T GMM_STDCALL GetSizeAuxSurface(GMM_UNIFIED_AUX_TYPE GmmAuxType)
             {
                 if (GmmAuxType == GMM_AUX_SURF)
                 {
@@ -1111,7 +1111,7 @@ namespace GmmLib
             /// @param[in]  SetIsEncrypted: Write encryption status
             /// @return     Whether surface is encrypted or not
             /////////////////////////////////////////////////////////////////////////
-            virtual GMM_INLINE uint8_t GMM_STDCALL GetSetHardwareProtection(uint8_t GetIsEncrypted, uint8_t SetIsEncrypted)
+            virtual GMM_INLINE_EXPORTED uint8_t GMM_STDCALL GetSetHardwareProtection(uint8_t GetIsEncrypted, uint8_t SetIsEncrypted)
             {
                 uint8_t IsEncrypted = 0;
 
@@ -1131,7 +1131,7 @@ namespace GmmLib
             /// Returns the size of the surface in StdLayout format
             /// @return  Size in bytes of Standard Layout version of surface.
             /////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_GFX_SIZE_T GMM_STDCALL GetStdLayoutSize()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T GMM_STDCALL GetStdLayoutSize()
             {
                 GMM_REQ_OFFSET_INFO GetOffset = {};
 
@@ -1146,7 +1146,7 @@ namespace GmmLib
             /// Returns whether resource is color separated target
             /// @return  1 if the resource is color separated target, 0 otherwise
             /////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint8_t GMM_STDCALL IsColorSeparation()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint8_t GMM_STDCALL IsColorSeparation()
             {
                 return Surf.Flags.Gpu.ColorSeparation || Surf.Flags.Gpu.ColorSeparationRGBX;
             }
@@ -1156,7 +1156,7 @@ namespace GmmLib
             /// @param[in]  x: X coordinate
             /// @return   Translated color separation target x coordinate
             /////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL TranslateColorSeparationX(uint32_t x)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL TranslateColorSeparationX(uint32_t x)
             {
                 uint32_t ret = x;
 
@@ -1176,7 +1176,7 @@ namespace GmmLib
             /// Returns the array size of a color separated target resource.
             /// @return   Array size of a color separated target resource
             /////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetColorSeparationArraySize()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetColorSeparationArraySize()
             {
                 if (Surf.Flags.Gpu.ColorSeparation ||
                     Surf.Flags.Gpu.ColorSeparationRGBX)
@@ -1193,7 +1193,7 @@ namespace GmmLib
             /// Returns the physical width of a color separated target resource
             /// @return   physical width of a color separated target resource
             /////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetColorSeparationPhysicalWidth()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetColorSeparationPhysicalWidth()
             {
                 if (Surf.Flags.Gpu.ColorSeparation)
                 {
@@ -1213,7 +1213,7 @@ namespace GmmLib
             /// Returns whether surface can be faulted on
             /// @return   1 is surface can be faulted on
             /////////////////////////////////////////////////////////////////////////
-            virtual GMM_INLINE uint8_t GMM_STDCALL IsSurfaceFaultable()
+            virtual GMM_INLINE_EXPORTED uint8_t GMM_STDCALL IsSurfaceFaultable()
             {
                 return 0;
             }
@@ -1222,7 +1222,7 @@ namespace GmmLib
             /// Returns the cache policy usage associated with this surface.
             /// @return     Cache Policy Usage
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE GMM_RESOURCE_USAGE_TYPE GMM_STDCALL GetCachePolicyUsage()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_RESOURCE_USAGE_TYPE GMM_STDCALL GetCachePolicyUsage()
             {
                 return Surf.CachePolicy.Usage;
             }
@@ -1234,7 +1234,7 @@ namespace GmmLib
             /// Returns the surface state value for Mip Tail Start LOD
             /// @return     Mip Tail Start
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetMipTailStartLodSurfaceState()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetMipTailStartLodSurfaceState()
             {
                 return Surf.Alignment.MipTailStartLod;
             }
@@ -1244,7 +1244,7 @@ namespace GmmLib
             /// applicable only for 3D surface
             /// @return     Tile Address Mapping Mode
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetTileAddressMappingModeSurfaceState()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetTileAddressMappingModeSurfaceState()
             {
                 return 0;
             }
@@ -1253,7 +1253,7 @@ namespace GmmLib
             /// Returns the horizontal alignment for SURFACE_STATE programming.
             /// @return     HAlign
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetHAlignSurfaceState()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetHAlignSurfaceState()
             {
                 uint32_t               HAlign;
                 const GMM_PLATFORM_INFO   *pPlatform;
@@ -1294,7 +1294,7 @@ namespace GmmLib
             /// Returns the vertical alignment for SURFACE_STATE programming.
             /// @return     HAlign
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetVAlignSurfaceState()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetVAlignSurfaceState()
             {
                 uint32_t               VAlign;
                 const GMM_PLATFORM_INFO   *pPlatform;
@@ -1335,7 +1335,7 @@ namespace GmmLib
             /// Returns tiled resource mode for SURFACE_STATE programming.
             /// @return     Tiled Resource Mode
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetTiledResourceModeSurfaceState()
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetTiledResourceModeSurfaceState()
             {
                 uint32_t   TiledResourceMode;
 
@@ -1364,7 +1364,7 @@ namespace GmmLib
             /// Overrides the main surface size
             /// @param[in]  Size: new size of the resource
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL OverrideSize(GMM_GFX_SIZE_T Size)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverrideSize(GMM_GFX_SIZE_T Size)
             {
                 Surf.Size = Size;
             }
@@ -1373,7 +1373,7 @@ namespace GmmLib
             /// Overrides the surface pitch
             /// @param[in]  Pitch: new pitch of the resource
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL OverridePitch(GMM_GFX_SIZE_T Pitch)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverridePitch(GMM_GFX_SIZE_T Pitch)
             {
                 Surf.Pitch = Pitch;
             }
@@ -1382,7 +1382,7 @@ namespace GmmLib
             /// Overrides the aux surface pitch
             /// @param[in]  Pitch: new pitch of the aux surface
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL OverrideUnifiedAuxPitch(GMM_GFX_SIZE_T Pitch)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverrideUnifiedAuxPitch(GMM_GFX_SIZE_T Pitch)
             {
                 __GMM_ASSERT(Surf.Flags.Gpu.UnifiedAuxSurface);
                 AuxSurf.Pitch = Pitch;
@@ -1392,7 +1392,7 @@ namespace GmmLib
             /// Overrides the allocation flags
             /// @param[in]  Flags: new set of flags for the resource
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL OverrideAllocationFlags(GMM_RESOURCE_FLAG& Flags)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverrideAllocationFlags(GMM_RESOURCE_FLAG& Flags)
             {
                 Surf.Flags = Flags;
             }
@@ -1401,7 +1401,7 @@ namespace GmmLib
             /// Overrides the resource HAlign
             /// @param[in]  HAlign: new HAlign for the resource
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL OverrideHAlign(uint32_t HAlign)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverrideHAlign(uint32_t HAlign)
             {
                 Surf.Alignment.HAlign = HAlign;
             }
@@ -1410,7 +1410,7 @@ namespace GmmLib
             /// Overrides the resource BaseAlignment
             /// @param[in]  Alignment: new BaseAlignment for the resource
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL OverrideBaseAlignment(uint32_t Alignment)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverrideBaseAlignment(uint32_t Alignment)
             {
                 Surf.Alignment.BaseAlignment = Alignment;
             }
@@ -1419,7 +1419,7 @@ namespace GmmLib
             /// Overrides the resource BaseWidth
             /// @param[in]  BaseWidth: new BaseWidth for the resource
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL OverrideBaseWidth(GMM_GFX_SIZE_T BaseWidth)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverrideBaseWidth(GMM_GFX_SIZE_T BaseWidth)
             {
                 Surf.BaseWidth = BaseWidth;
             }
@@ -1428,7 +1428,7 @@ namespace GmmLib
             /// Overrides the resource BaseHeight
             /// @param[in]  BaseHeight: new BaseHeight for the resource
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL OverrideBaseHeight(uint32_t BaseHeight)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverrideBaseHeight(uint32_t BaseHeight)
             {
                 Surf.BaseHeight = BaseHeight;
             }
@@ -1437,7 +1437,7 @@ namespace GmmLib
             /// Overrides the resource Depth
             /// @param[in]  Depth: new Depth for the resource
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL OverrideDepth(uint32_t Depth)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverrideDepth(uint32_t Depth)
             {
                 Surf.Depth = Depth;
             }
@@ -1446,7 +1446,7 @@ namespace GmmLib
             /// Overrides the resource tile mode
             /// @param[in]  TileMode: new tile mode for the resource
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL OverrideTileMode(GMM_TILE_MODE TileMode)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverrideTileMode(GMM_TILE_MODE TileMode)
             {
                 Surf.TileMode = TileMode;
             }
@@ -1455,7 +1455,7 @@ namespace GmmLib
             /// Overrides the resource tile mode
             /// @param[in]  TileMode: new tile mode for the resource
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL OverrideUnifiedAuxTileMode(GMM_TILE_MODE TileMode)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverrideUnifiedAuxTileMode(GMM_TILE_MODE TileMode)
             {
                 __GMM_ASSERT(Surf.Flags.Gpu.UnifiedAuxSurface);
                 AuxSurf.TileMode = TileMode;
@@ -1465,7 +1465,7 @@ namespace GmmLib
             /// Overrides the surface format
             /// @param[in]  Format: new format for the resource
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL OverrideSurfaceFormat(GMM_RESOURCE_FORMAT Format)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverrideSurfaceFormat(GMM_RESOURCE_FORMAT Format)
             {
                 Surf.Format = Format;
             }
@@ -1474,7 +1474,7 @@ namespace GmmLib
             /// Overrides the surface type
             /// @param[in]  Type: new surface type for the resource
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL OverrideSurfaceType(GMM_RESOURCE_TYPE Type)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverrideSurfaceType(GMM_RESOURCE_TYPE Type)
             {
                 Surf.Type = Type;
             }
@@ -1483,7 +1483,7 @@ namespace GmmLib
             /// Overrides the svm gfx address
             /// @param[in]  SvmGfxAddress: new svm gfx address for the resource
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL OverrideSvmGfxAddress(GMM_GFX_ADDRESS SvmGfxAddress)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverrideSvmGfxAddress(GMM_GFX_ADDRESS SvmGfxAddress)
             {
                 this->SvmAddress = SvmGfxAddress;
             }
@@ -1492,7 +1492,7 @@ namespace GmmLib
             /// Overrides the resource array size
             /// @param[in]  ArraySize: new array size for the resource
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL OverrideArraySize(uint32_t ArraySize)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverrideArraySize(uint32_t ArraySize)
             {
                 Surf.ArraySize = ArraySize;
             }
@@ -1501,7 +1501,7 @@ namespace GmmLib
             /// Overrides the resource max LOD
             /// @param[in]  MaxLod: new max LOD for the resource
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL OverrideMaxLod(uint32_t MaxLod)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverrideMaxLod(uint32_t MaxLod)
             {
                 Surf.MaxLod = MaxLod;
             }
@@ -1510,7 +1510,7 @@ namespace GmmLib
             /// Overrides the resource cache policy usage
             /// @param[in]  Usage: new usage for the resource
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL OverrideCachePolicyUsage(GMM_RESOURCE_USAGE_TYPE Usage)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverrideCachePolicyUsage(GMM_RESOURCE_USAGE_TYPE Usage)
             {
                 Surf.CachePolicy.Usage = Usage;
             }
@@ -1521,7 +1521,7 @@ namespace GmmLib
             /// @note Function only available for Debug/Release-Internal builds.
             /////////////////////////////////////////////////////////////////////////////////////
             #if(_DEBUG || _RELEASE_INTERNAL)
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL OverridePlatform(PLATFORM Platform)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverridePlatform(PLATFORM Platform)
                 {
                     Surf.Platform = Platform;
                 }
@@ -1531,7 +1531,7 @@ namespace GmmLib
             /// Overrides the GmmLibContext associated with this resource
             /// @param[in]  pNewGmmLibContext: new GmmLibContext for the resource
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL OverrideGmmLibContext(Context *pNewGmmLibContext)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverrideGmmLibContext(Context *pNewGmmLibContext)
             {
                 this->pGmmLibContext = reinterpret_cast<uint64_t>(pNewGmmLibContext);
             }
@@ -1541,7 +1541,7 @@ namespace GmmLib
             /// @param[in]  Plane: Plane for which the offset needs to be overriden
             /// @param[in]  XOffset: X offset
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL OverridePlanarXOffset(GMM_YUV_PLANE Plane, GMM_GFX_SIZE_T XOffset)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverridePlanarXOffset(GMM_YUV_PLANE Plane, GMM_GFX_SIZE_T XOffset)
             {
                 __GMM_ASSERT(Plane < GMM_MAX_PLANE);
                 Surf.OffsetInfo.Plane.X[Plane] = XOffset;
@@ -1552,7 +1552,7 @@ namespace GmmLib
             /// @param[in]  Plane: Plane for which the offset needs to be overriden
             /// @param[in]  YOffset: Y offset
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE_VIRTUAL GMM_INLINE void GMM_STDCALL OverridePlanarYOffset(GMM_YUV_PLANE Plane, GMM_GFX_SIZE_T YOffset)
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverridePlanarYOffset(GMM_YUV_PLANE Plane, GMM_GFX_SIZE_T YOffset)
             {
                 __GMM_ASSERT(Plane < GMM_MAX_PLANE);
                 Surf.OffsetInfo.Plane.Y[Plane] = YOffset;

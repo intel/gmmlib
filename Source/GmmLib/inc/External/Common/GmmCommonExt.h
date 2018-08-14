@@ -31,6 +31,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #define GMM_VIRTUAL                     virtual
 
+#define GMM_INLINE_EXPORTED                                            /* Macro To avoid inlining of exported member functions in Clients code in DLL mode*/
+
 #ifdef _WIN32
 
     #ifdef GMM_LIB_DLL_EXPORTS
@@ -52,6 +54,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define GMM_INLINE_VIRTUAL
 #define GMM_VIRTUAL
 #define GMM_LIB_API
+#define GMM_INLINE_EXPORTED __inline
 
 #endif  /* GMM_LIB_DLL */
 

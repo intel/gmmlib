@@ -84,7 +84,7 @@ namespace GmmLib
         /// Returns the GMM_CLIENT Type that has created this ClientContext.
         /// @return     GMM_CLIENT
         /////////////////////////////////////////////////////////////////////////////////////
-        GMM_INLINE_VIRTUAL GMM_INLINE GMM_CLIENT GMM_STDCALL  GetClientType()
+        GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_CLIENT GMM_STDCALL  GetClientType()
         {
             return (ClientType);
         }
