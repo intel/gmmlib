@@ -593,7 +593,13 @@ extern "C" {
     #define GMM_OVERRIDE_PLATFORM_INFO(pTexInfo)    (GmmGetPlatformInfo(pGmmGlobalContext))
     #define GMM_OVERRIDE_TEXTURE_CALC(pTexInfo)     (GmmGetTextureCalc(pGmmGlobalContext))
 
+#ifdef __GMM_KMD__
+    #define GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(pTexInfo)    GMM_OVERRIDE_PLATFORM_INFO(pTexInfo)
+    #define GMM_IS_PLANAR(Format)                            GmmIsPlanar(Format)
+#else
+    #define GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(pTexInfo)    (&pClientContext->GetPlatformInfo())
+    #define GMM_IS_PLANAR(Format)                            (pClientContext->IsPlanar(Format))
+#endif
+
 // Reset packing alignment to project default
 #pragma pack(pop)
-
-
