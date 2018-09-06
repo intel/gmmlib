@@ -38,7 +38,7 @@ namespace GmmLib
             GmmGen10CachePolicy(GMM_CACHE_POLICY_ELEMENT *pCachePolicy) :GmmGen9CachePolicy(pCachePolicy)
             {
             }
-            ~GmmGen10CachePolicy()
+            virtual ~GmmGen10CachePolicy()
             {
             }
 

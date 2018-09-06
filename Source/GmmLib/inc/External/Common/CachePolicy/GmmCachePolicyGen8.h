@@ -57,7 +57,7 @@ namespace GmmLib
                 #endif
             }
 
-            ~GmmGen8CachePolicy()
+            virtual ~GmmGen8CachePolicy()
             {
             }
 
