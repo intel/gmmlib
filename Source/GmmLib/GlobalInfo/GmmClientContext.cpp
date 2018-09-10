@@ -333,10 +333,17 @@ ERROR_CASE:
 GMM_RESOURCE_INFO *GMM_STDCALL GmmLib::GmmClientContext::CopyResInfoObject(GMM_RESOURCE_INFO *pSrcRes)
 {
     GMM_RESOURCE_INFO *pResCopy = NULL;
+    GmmClientContext * pClientContextIn = NULL;
+
+#if(!defined(GMM_UNIFIED_LIB))
+    pClientContextIn = pGmmGlobalContext->pGmmGlobalClientContext;
+#else
+    pClientContextIn = this;
+#endif
 
     __GMM_ASSERTPTR(pSrcRes, NULL);
 
-    pResCopy = new GMM_RESOURCE_INFO;
+    pResCopy = new GMM_RESOURCE_INFO(pClientContextIn);
     if(!pResCopy)
     {
         GMM_ASSERTDPF(0, "Allocation failed.");
@@ -361,9 +368,17 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmLib::GmmClientContext::CopyResInfoObject(GMM_R
 /////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmLib::GmmClientContext::ResMemcpy(void *pDst, void *pSrc)
 {
+     GmmClientContext *pClientContextIn = NULL;
+
+#if(!defined(GMM_UNIFIED_LIB))
+    pClientContextIn = pGmmGlobalContext->pGmmGlobalClientContext;
+#else
+    pClientContextIn = this;
+#endif
+
     GMM_RESOURCE_INFO *pResSrc = reinterpret_cast<GMM_RESOURCE_INFO *>(pSrc);
     // Init memory correctly, in case the pointer is a raw memory pointer
-    GMM_RESOURCE_INFO *pResDst = new(pDst) GMM_RESOURCE_INFO();
+    GMM_RESOURCE_INFO *pResDst = new(pDst) GMM_RESOURCE_INFO(pClientContextIn);
 
     *pResDst = *pResSrc;
 }

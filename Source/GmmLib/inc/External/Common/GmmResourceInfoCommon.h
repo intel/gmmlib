@@ -174,7 +174,6 @@ namespace GmmLib
                 SvmAddress          = rhs.SvmAddress;
                 pPrivateData        = rhs.pPrivateData;
                 pGmmLibContext      = rhs.pGmmLibContext;
-                pClientContext      = rhs.pClientContext;
 
                 return *this;
             }
