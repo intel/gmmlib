@@ -98,24 +98,6 @@ macro(GmmLibSetTargetConfig libTarget)
 
 endmacro()
 
-set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /W1 /WX-")
-set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /W1 /WX-")
-
-# GMMLIBsetLinkerFlags: apply linker flags for given configuration
-# linkerFlags: linker specific options
-# linkerTarget: optional parameter - apply linker flags for specfied target
-macro (GMMLIBsetLinkerFlags linkerFlags linkerTarget)
-    foreach (opt ${linkerFlags})
-        if ("${linkerTarget}" STREQUAL "")
-            set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${opt}")
-            set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${opt}")
-        else()
-            set (CMAKE_SHARED_LINKER_FLAGS_${linkerTarget} "${CMAKE_SHARED_LINKER_FLAGS_${linkerTarget}} ${opt}")
-            set (CMAKE_EXE_LINKER_FLAGS_${linkerTarget} "${CMAKE_SHARED_LINKER_FLAGS_${linkerTarget}} ${opt}")
-        endif()
-    endforeach()
-endmacro()
-
 if(CMAKE_CONFIGURATION_TYPES)
   set( CMAKE_CONFIGURATION_TYPES
       "Debug"
@@ -378,27 +360,6 @@ set(headers
   set(SOURCES
     ${SOURCES_}
   )
-
-#clear all default-cmake settings
-SET (CMAKE_SHARED_LINKER_FLAGS_RELEASEINTERNAL "")
-SET (CMAKE_SHARED_LINKER_FLAGS_RELEASE "")
-SET (CMAKE_SHARED_LINKER_FLAGS_DEBUG "")
-SET (CMAKE_SHARED_LINKER_FLAGS "")
-
-SET (CMAKE_EXE_LINKER_FLAGS "")
-SET (CMAKE_EXE_LINKER_FLAGS_DEBUG "")
-SET (CMAKE_EXE_LINKER_FLAGS_RELEASEINTERNAL "")
-SET (CMAKE_EXE_LINKER_FLAGS_RELEASE "")
-
-SET (CMAKE_STATIC_LINKER_FLAGS "")
-SET (CMAKE_LOCAL_LINKER_FLAGS "")
-
-SET (CMAKE_CXX_STANDARD_LIBRARIES "")
-SET (CMAKE_C_STANDARD_LIBRARIES "")
-
-SET (CMAKE_CXX_FLAGS_RELEASEINTERNAL "")
-SET (CMAKE_CXX_FLAGS_DEBUG  "")
-SET (CMAKE_CXX_FLAGS_RELEASE "")
 
 # set compiler options
 if(MSVC)
