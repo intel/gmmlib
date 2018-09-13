@@ -66,6 +66,7 @@ typedef struct _SKU_FEATURE_TABLE
         unsigned int   FtrVERing    : 1;  // Separate Ring for VideoEnhancement commands
         unsigned int   FtrVcs2      : 1;  // Second VCS engine supported on Gen8 to Gen10 (in some configurations);
         unsigned int   FtrLCIA      : 1;  // Indicates Atom (Low Cost Intel Architecture)
+        unsigned int   FtrTileY     : 1;  // Identifies Legacy tiles TileY/Yf/Ys on the platform
     };
 
 
