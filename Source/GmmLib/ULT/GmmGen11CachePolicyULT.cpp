@@ -34,6 +34,12 @@ void CTestGen11CachePolicy::SetUpTestCase()
 {
     GfxPlatform.eProductFamily    = IGFX_ICELAKE;
     GfxPlatform.eRenderCoreFamily = IGFX_GEN11_CORE;
+    AllocateAdapterInfo();
+
+    pGfxAdapterInfo->SystemInfo.L3CacheSizeInKb                         = 3072;
+    pGfxAdapterInfo->SystemInfo.LLCCacheSizeInKb                        = 2 * 1024;   //2 MB
+    pGfxAdapterInfo->SystemInfo.EdramSizeInKb                           = 128 * 1024; //128 MB
+    const_cast<SKU_FEATURE_TABLE &>(pGfxAdapterInfo->SkuTable).FtrEDram = 1;
 
     CommonULT::SetUpTestCase();
 
@@ -54,23 +60,15 @@ void CTestGen11CachePolicy::TearDownTestCase()
 
 void CTestGen11CachePolicy::CheckL3CachePolicy()
 {
-    ASSERT_TRUE(pGmmGlobalContext);
-
     const uint32_t L3_WB_CACHEABLE = 0x3;
     const uint32_t L3_UNCACHEABLE  = 0x1;
-
-    // Setup SKU/WA flags
-    pGmmGlobalContext->GetGtSysInfo()->L3CacheSizeInKb = 3072; //768 KB
-
-    // Re-init cache policy based on above info
-    pGmmGlobalContext->GetCachePolicyObj()->InitCachePolicy();
 
     // Check Usage MOCS index against MOCS settings
     for(uint32_t Usage = GMM_RESOURCE_USAGE_UNKNOWN; Usage < GMM_RESOURCE_USAGE_MAX; Usage++)
     {
-        GMM_CACHE_POLICY_ELEMENT     ClientRequest   = pGmmGlobalContext->GetCachePolicyElement((GMM_RESOURCE_USAGE_TYPE)Usage);
-        uint32_t                        AssignedMocsIdx = ClientRequest.MemoryObjectOverride.Gen11.Index;
-        GMM_CACHE_POLICY_TBL_ELEMENT Mocs            = pGmmGlobalContext->GetCachePolicyTlbElement()[AssignedMocsIdx];
+        GMM_CACHE_POLICY_ELEMENT     ClientRequest   = pGmmULTClientContext->GetCachePolicyElement((GMM_RESOURCE_USAGE_TYPE)Usage);
+        uint32_t                     AssignedMocsIdx = ClientRequest.MemoryObjectOverride.Gen11.Index;
+        GMM_CACHE_POLICY_TBL_ELEMENT Mocs            = pGmmULTClientContext->GetCachePolicyTlbElement(AssignedMocsIdx);
 
         EXPECT_EQ(0, Mocs.L3.ESC) << "Usage# " << Usage << ": ESC is non-zero";
         EXPECT_EQ(0, Mocs.L3.SCC) << "Usage# " << Usage << ": SCC is non-zero";
@@ -109,8 +107,6 @@ TEST_F(CTestGen11CachePolicy, TestL3CachePolicy)
 
 void CTestGen11CachePolicy::CheckLlcEdramCachePolicy()
 {
-    ASSERT_TRUE(pGmmGlobalContext);
-
     const uint32_t TargetCache_ELLC     = 0;
     const uint32_t TargetCache_LLC      = 1;
     const uint32_t TargetCache_LLC_ELLC = 2;
@@ -119,17 +115,12 @@ void CTestGen11CachePolicy::CheckLlcEdramCachePolicy()
     const uint32_t LeCC_WB_CACHEABLE = 0x3;
     const uint32_t LeCC_WT_CACHEABLE = 0x2;
 
-    const_cast<SKU_FEATURE_TABLE &>(pGmmGlobalContext->GetSkuTable()).FtrEDram = 0;
-
-    // Re-init cache policy with above info
-    pGmmGlobalContext->GetCachePolicyObj()->InitCachePolicy();
-
     // Check Usage MOCS index against MOCS settings
     for(uint32_t Usage = GMM_RESOURCE_USAGE_UNKNOWN; Usage < GMM_RESOURCE_USAGE_MAX; Usage++)
     {
-        GMM_CACHE_POLICY_ELEMENT     ClientRequest   = pGmmGlobalContext->GetCachePolicyElement((GMM_RESOURCE_USAGE_TYPE)Usage);
-        uint32_t                        AssignedMocsIdx = ClientRequest.MemoryObjectOverride.Gen11.Index;
-        GMM_CACHE_POLICY_TBL_ELEMENT Mocs            = pGmmGlobalContext->GetCachePolicyTlbElement()[AssignedMocsIdx];
+        GMM_CACHE_POLICY_ELEMENT     ClientRequest   = pGmmULTClientContext->GetCachePolicyElement((GMM_RESOURCE_USAGE_TYPE)Usage);
+        uint32_t                     AssignedMocsIdx = ClientRequest.MemoryObjectOverride.Gen11.Index;
+        GMM_CACHE_POLICY_TBL_ELEMENT Mocs            = pGmmULTClientContext->GetCachePolicyTlbElement(AssignedMocsIdx);
 
         // Check for unused fields
         EXPECT_EQ(0, Mocs.LeCC.AOM) << "Usage# " << Usage << ": AOM is non-zero";

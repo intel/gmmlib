@@ -24,20 +24,41 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "stdafx.h"
 
-extern GMM_GLOBAL_CONTEXT *pGmmGlobalContext;
+typedef GMM_CLIENT_CONTEXT *(GMM_STDCALL * PFNGMMINIT)
+#ifdef _WIN32
+    (const PLATFORM,
+    const SKU_FEATURE_TABLE *,
+    const WA_TABLE *,
+    const GT_SYSTEM_INFO *,
+    GMM_CLIENT);
+#else
+    (const PLATFORM Platform,
+    const void *   pSkuTable,
+    const void *   pWaTable,
+    const void *   pGtSysInfo,
+    GMM_CLIENT ClientType);
+#endif
+typedef void(GMM_STDCALL *PFNGMMDESTROY)(GMM_CLIENT_CONTEXT *);
 
 class CommonULT : public testing::Test
 {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
+    static void AllocateAdapterInfo();
 
 protected:
     static ADAPTER_INFO *pGfxAdapterInfo;
     static PLATFORM GfxPlatform;
-    //static GMM_GLOBAL_CONTEXT *pGmmGlobalContext;   // TODO: when GlobalContext class initialization is in place we will replace global vairable and
-                                                      // extern for pGmmGlobalContext with local class instance initialized by ULT.
 
-    static GMM_CLIENT_CONTEXT              *pGmmULTClientContext; ///< GMM ClientContext need for GMM ULT
+    static GMM_CLIENT_CONTEXT              *pGmmULTClientContext;
+    static PFNGMMINIT                       pfnGmmInit;
+    static PFNGMMDESTROY                    pfnGmmDestroy;
+
+    #ifdef _WIN32
+        static HINSTANCE                     hGmmLib;
+    #else
+        static void                         *hGmmLib;
+    #endif
 
 };

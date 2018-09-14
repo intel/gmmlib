@@ -21,10 +21,34 @@ OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
 
 #include "GmmCommonULT.h"
+#ifndef _WIN32
+#include <dlfcn.h>
+#endif
 
 ADAPTER_INFO *      CommonULT::pGfxAdapterInfo      = NULL;
 PLATFORM            CommonULT::GfxPlatform          = {};
 GMM_CLIENT_CONTEXT *CommonULT::pGmmULTClientContext = NULL;
+PFNGMMINIT          CommonULT::pfnGmmInit           = {0};
+PFNGMMDESTROY       CommonULT::pfnGmmDestroy        = {0};
+#ifdef _WIN32
+    HINSTANCE       CommonULT::hGmmLib              = NULL;
+#else
+    void           *CommonULT::hGmmLib              = NULL;
+#endif
+
+void CommonULT::AllocateAdapterInfo()
+{
+    if(!pGfxAdapterInfo)
+    {
+        pGfxAdapterInfo = (ADAPTER_INFO *)malloc(sizeof(ADAPTER_INFO));
+        if(!pGfxAdapterInfo)
+        {
+            ASSERT_TRUE(false);
+            return;
+        }
+        memset(pGfxAdapterInfo, 0, sizeof(ADAPTER_INFO));
+    }
+}
 
 void CommonULT::SetUpTestCase()
 {
@@ -37,16 +61,24 @@ void CommonULT::SetUpTestCase()
         GfxPlatform.eRenderCoreFamily = IGFX_GEN8_CORE;
     }
 
-    if(!pGfxAdapterInfo)
-    {
-        pGfxAdapterInfo = (ADAPTER_INFO *)malloc(sizeof(ADAPTER_INFO));
-        if(!pGfxAdapterInfo)
-        {
-            ASSERT_TRUE(false);
-            return;
-        }
-        memset(pGfxAdapterInfo, 0, sizeof(ADAPTER_INFO));
-    }
+    AllocateAdapterInfo();
+
+#ifdef GMM_LIB_DLL
+    hGmmLib = dlopen(GMM_UMD_DLL, RTLD_LAZY);
+    ASSERT_TRUE(hGmmLib);
+
+    *(void **)(&pfnGmmInit)    = dlsym(hGmmLib, "GmmInit");
+    *(void **)(&pfnGmmDestroy) = dlsym(hGmmLib, "GmmDestroy");
+
+    ASSERT_TRUE(pfnGmmInit);
+    ASSERT_TRUE(pfnGmmDestroy);
+
+    pGmmULTClientContext = pfnGmmInit(GfxPlatform,
+                                      &pGfxAdapterInfo->SkuTable,
+                                      &pGfxAdapterInfo->WaTable,
+                                      &pGfxAdapterInfo->SystemInfo,
+                                      GMM_EXCITE_VISTA);
+#else
 
     GMM_STATUS GmmStatus = GmmInitGlobalContext(GfxPlatform,
                                                 &pGfxAdapterInfo->SkuTable,
@@ -57,14 +89,29 @@ void CommonULT::SetUpTestCase()
     ASSERT_EQ(GmmStatus, GMM_SUCCESS);
 
     pGmmULTClientContext = GmmCreateClientContext(GMM_EXCITE_VISTA);
+#endif // GMM_LIB_DLL
+
     ASSERT_TRUE(pGmmULTClientContext);
 }
 
 void CommonULT::TearDownTestCase()
 {
     printf("%s\n", __FUNCTION__);
+
+#ifdef GMM_LIB_DLL
+    pfnGmmDestroy(static_cast<GMM_CLIENT_CONTEXT *>(pGmmULTClientContext));
+
+    if(hGmmLib)
+    {
+        dlclose(hGmmLib);
+    }
+#else
     GmmDeleteClientContext(pGmmULTClientContext);
     GmmDestroyGlobalContext();
+#endif
+
+    hGmmLib              = NULL;
+    pGmmULTClientContext = NULL;
     free(pGfxAdapterInfo);
     pGfxAdapterInfo = NULL;
     GfxPlatform     = {};

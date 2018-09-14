@@ -21,17 +21,17 @@
 set (EXE_NAME GMMULT)
 
 set(GMMULT_HEADERS
-    GmmCachePolicyULT.h
-    GmmCommonULT.h
-    GmmGen10CachePolicyULT.h
-    GmmGen10ResourceULT.h
-    GmmGen11CachePolicyULT.h
-    GmmGen9CachePolicyULT.h
-    GmmGen9ResourceULT.h
-    GmmResourceULT.h
-    stdafx.h
-    targetver.h
-)
+     GmmCachePolicyULT.h
+     GmmCommonULT.h
+     GmmGen10CachePolicyULT.h
+     GmmGen10ResourceULT.h
+     GmmGen11CachePolicyULT.h
+     GmmGen9CachePolicyULT.h
+     GmmGen9ResourceULT.h
+     GmmResourceULT.h
+     stdafx.h
+     targetver.h
+     )
 
 set(GMMULT_SOURCES
     GmmCachePolicyULT.cpp
@@ -48,36 +48,36 @@ set(GMMULT_SOURCES
 )
 
 source_group("Source Files\\Cache Policy" FILES
-    GmmCachePolicyULT.cpp
-    GmmGen9CachePolicyULT.cpp
-    GmmGen10CachePolicyULT.cpp
-    GmmGen11CachePolicyULT.cpp
-)
+            GmmCachePolicyULT.cpp
+            GmmGen9CachePolicyULT.cpp
+            GmmGen10CachePolicyULT.cpp
+            GmmGen11CachePolicyULT.cpp
+            )
 
 source_group("Source Files\\Resource" FILES
-    GmmGen10ResourceULT.cpp
-    GmmGen9ResourceULT.cpp
-    GmmResourceCpuBltULT.cpp
-    GmmResourceULT.cpp
-)
+            GmmGen10ResourceULT.cpp
+            GmmGen9ResourceULT.cpp
+            GmmResourceCpuBltULT.cpp
+            GmmResourceULT.cpp
+            )
 
 source_group("Header Files\\Cache Policy" FILES
-    GmmCachePolicyULT.h
-    GmmGen10CachePolicyULT.h
-    GmmGen11CachePolicyULT.h
-    GmmGen9CachePolicyULT.h
-)
+             GmmCachePolicyULT.h
+             GmmGen10CachePolicyULT.h
+             GmmGen11CachePolicyULT.h
+             GmmGen9CachePolicyULT.h
+            )
 
 source_group("Header Files\\Resource" FILES
-    GmmGen10ResourceULT.h
-    GmmGen9ResourceULT.h
-    GmmResourceULT.h
-)
+             GmmGen10ResourceULT.h
+             GmmGen9ResourceULT.h
+             GmmResourceULT.h
+            )
 
 source_group("gtest" FILES
-    googletest/gtest/gtest.h
-    googletest/src/gtest-all.cc
-)
+            googletest/gtest/gtest.h
+            googletest/src/gtest-all.cc
+            )
 
 include_directories(BEFORE ./)
 
@@ -90,37 +90,62 @@ include_directories(
     ${BS_DIR_INC}
     ${BS_DIR_GMMLIB}/inc
     ${BS_DIR_INC}/common
-)
+    )
 
 if(MSVC)
+
     include_directories(
-      ${BS_DIR_D3D11}/Imola
+        ${BS_DIR_D3D11}/Imola
     )
 endif()
 
+macro(GmmLibULTSetTargetConfig ultTarget)
+	if (TARGET ${ultTarget})
+			set_property(TARGET ${ultTarget} APPEND PROPERTY COMPILE_DEFINITIONS
+				$<$<CONFIG:Release>: _RELEASE>
+				$<$<CONFIG:ReleaseInternal>: _RELEASE_INTERNAL>
+				$<$<CONFIG:Debug>: _DEBUG>
+			)
+		endif()
+
+endmacro()
+
 add_executable(${EXE_NAME} ${GMMULT_HEADERS} ${GMMULT_SOURCES})
+
+GmmLibULTSetTargetConfig(${EXE_NAME})
+
 
 if(MSVC)
     bs_set_wdk(${EXE_NAME})
-endif()
 
-set_property(TARGET ${EXE_NAME} APPEND PROPERTY COMPILE_DEFINITIONS __GMM GMM_EXCITE)
+    set_property(TARGET ${EXE_NAME} APPEND PROPERTY COMPILE_DEFINITIONS __GMM GMM_LIB_DLL GMM_ULT __UMD)
 
-target_link_libraries(${EXE_NAME}
-    igfx_gmmumd_excite
+    add_dependencies(${EXE_NAME}
+					 igfx_gmmumd_dll
 )
 
-if(MSVC)
     target_link_libraries( ${EXE_NAME}
-    advapi32.lib
-    dxgi.lib
-    gdi32.lib
-    opengl32.lib
-    user32.lib
-)
+        advapi32.lib
+        dxgi.lib
+        gdi32.lib
+        opengl32.lib
+        user32.lib
+    )
 else()
+    set_property(TARGET ${EXE_NAME} APPEND PROPERTY COMPILE_DEFINITIONS __GMM GMM_EXCITE __UMD)
+
     target_link_libraries(${EXE_NAME}
-      pthread
+        igfx_gmmumd_excite
+    )
+
+#	if(NOT TARGET igfx_gmmumd_dll)
+#		add_subdirectory("${BS_DIR_GMMLIB}" "${CMAKE_BINARY_DIR}/gmmlib/ult")
+#	endif()
+#	target_link_libraries(${EXE_NAME} igfx_gmmumd_dll)
+
+    target_link_libraries(${EXE_NAME}
+        pthread
+		dl
     )
  endif()
 
@@ -132,6 +157,4 @@ add_custom_command(
     COMMAND echo running ULTs
     COMMAND ${EXE_NAME}  --gtest_filter=CTest*
 )
-
-
 

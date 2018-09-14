@@ -190,6 +190,18 @@ GMM_PLATFORM_INFO &GMM_STDCALL GmmLib::GmmClientContext::GetPlatformInfo()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
+/// Member function of ClientContext class for getting Alignment info
+///
+/// @return     void
+//////////////////////////////////////////////////////////////////////////////////
+void GMM_STDCALL GmmLib::GmmClientContext::GetExtendedTextureAlign(uint32_t Mode, ALIGNMENT &UnitAlign)
+{
+    ALIGNMENT AlignInfo;
+    pGmmGlobalContext->GetPlatformInfoObj()->ApplyExtendedTexAlign(Mode, AlignInfo);
+    UnitAlign = AlignInfo;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
 /// Member function of ClientContext class for returning whether the given Resource
 /// format is Planar
 ///
