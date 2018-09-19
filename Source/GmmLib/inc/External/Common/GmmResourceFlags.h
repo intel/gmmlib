@@ -44,6 +44,7 @@ typedef struct GMM_RESOURCE_FLAG_REC
     {
         uint32_t CameraCapture             : 1; // Camera Capture Buffer flag to be registered with DXGK for Camera Child VRAM buffer sharing
         uint32_t CCS                       : 1; // Color Control Surface (Gen9+ for MSAA Compression or Non-MSAA Fast Color Clear) + Apply CCS restrictions when padding/aligning this resource (see GmmRestrictions.c)
+        uint32_t ColorDiscard              : 1; // Tile-pass color discard
         uint32_t ColorSeparation           : 1; // Color Separated surface (Sakura display), surface scanned out as 16bpp
         uint32_t ColorSeparationRGBX       : 1; // Color Separated surface (Sakura display), surface scanned out as 24bpp (stored as 32bpp)
         uint32_t Constant                  : 1;
@@ -86,7 +87,7 @@ typedef struct GMM_RESOURCE_FLAG_REC
         uint32_t __MsaaTileMcs             : 1; // Internal GMM flag--Clients don't set.
         uint32_t __NonMsaaLinearCCS        : 1; // Internal GMM flag--Clients don't set.
 
-        uint32_t __Remaining               : 21;// Defining rather than letting float for the two zero-and-memcmp we do with the .Gpu struct (in case ={0} doesn't zero unnamed fields).
+        uint32_t __Remaining               : 20;// Defining rather than letting float for the two zero-and-memcmp we do with the .Gpu struct (in case ={0} doesn't zero unnamed fields).
     } Gpu;
 
     // Info: Used to specify preferences at surface creation time
@@ -102,7 +103,7 @@ typedef struct GMM_RESOURCE_FLAG_REC
         uint32_t ForceResidency            : 1; // (SVM Only) Forces CPU/GPU residency of the allocation's backing pages at creation.
         uint32_t Gfdt                      : 1;
         uint32_t GttMapType                : 5;
-        uint32_t HardwareProtected         : 1;
+        uint32_t HardwareProtected         : 1; 
         uint32_t KernelModeMapped          : 1; // Sets up pGmmBlock->pKernelModeMapping to allow kernel-mode mapping of the backing memory
         uint32_t LayoutBelow               : 1; // Indicates the orientation of MIP data in the buffer. This is the surviving option and may be inferred as the default.
         uint32_t LayoutMono                : 1; // Legacy, deprecated MIP layout. Used for internal debugging.

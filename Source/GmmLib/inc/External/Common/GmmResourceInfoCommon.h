@@ -387,7 +387,7 @@ namespace GmmLib
             {
                 const GMM_PLATFORM_INFO   *pPlatform;
 
-                 pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf);
+                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf);
 
                 if (Surf.Flags.Gpu.UnifiedAuxSurface)
                 {
@@ -465,7 +465,7 @@ namespace GmmLib
                 TileMode = Surf.TileMode;
                 __GMM_ASSERT(TileMode < GMM_TILE_MODES);
 
-                 pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf);
+                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf);
                 if (pPlatform->TileInfo[TileMode].LogicalTileWidth != 0)
                 {
                     // In case of Depth/Stencil buffer MSAA TileYs surface, the LogicalTileWidth/Height is smaller than non-MSAA ones
@@ -523,7 +523,7 @@ namespace GmmLib
 
                 __GMM_ASSERT(!AuxSurf.Flags.Info.Linear);
 
-                 pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&AuxSurf);
+                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&AuxSurf);
 
                 if (Surf.Flags.Gpu.UnifiedAuxSurface)
                 {
@@ -975,7 +975,7 @@ namespace GmmLib
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t  GMM_STDCALL GetMaxGpuVirtualAddressBits()
             {
-                 const GMM_PLATFORM_INFO *pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf);
+                const GMM_PLATFORM_INFO *pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf);
                 __GMM_ASSERTPTR(pPlatform, 0);
 
                 return pPlatform->MaxGpuVirtualAddressBitsPerResource;
@@ -1017,7 +1017,7 @@ namespace GmmLib
                             Offset = Surf.Size + AuxSurf.OffsetInfo.Plane.X[GMM_PLANE_Y];
                         }
                     }
-                    else if ((GmmAuxType == GMM_AUX_CC) && Surf.Flags.Gpu.IndirectClearColor)
+                    else if ((GmmAuxType == GMM_AUX_CC) && (Surf.Flags.Gpu.IndirectClearColor || Surf.Flags.Gpu.ColorDiscard))
                     {
                         Offset = Surf.Size + AuxSurf.UnpaddedSize;
                     }
@@ -1038,6 +1038,12 @@ namespace GmmLib
                         Surf.Flags.Gpu.HiZ)
                 {
                     Offset = Surf.Size - GMM_HIZ_CLEAR_COLOR_SIZE;
+                }
+                else if (GmmAuxType == GMM_AUX_CC &&
+                    Surf.Flags.Gpu.ColorDiscard &&
+                    !Surf.Flags.Gpu.CCS)
+                {
+                    Offset = Surf.Size;
                 }
                 else
                 {
@@ -1298,7 +1304,7 @@ namespace GmmLib
                 uint32_t               VAlign;
                 const GMM_PLATFORM_INFO   *pPlatform;
 
-                 pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf);
+                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf);
 
                 if (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE)
                 {

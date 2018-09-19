@@ -206,7 +206,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
 
             AuxSurf.UnpaddedSize = AuxSurf.Size;
 
-            if(Surf.Flags.Gpu.IndirectClearColor)
+            if(Surf.Flags.Gpu.IndirectClearColor ||
+               Surf.Flags.Gpu.ColorDiscard)
             {
                 if(!Surf.Flags.Gpu.TiledResource)
                 {
