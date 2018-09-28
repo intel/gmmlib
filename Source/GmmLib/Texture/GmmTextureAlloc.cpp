@@ -37,112 +37,94 @@ void GmmLib::GmmTextureCalc::SetTileMode(GMM_TEXTURE_INFO *pTexInfo)
 
     pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
 
-    if(pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs)
+    if(pTexInfo->Flags.Info.TiledYf || GMM_IS_64KB_TILE(pTexInfo->Flags))
     {
 // clang-format off
-        #define SET_TILE_MODE(Submode)                                      \
-            pTexInfo->TileMode =                                            \
-                (pTexInfo->BitsPerPixel == 128) ? TILE_##Submode##_128bpe : \
-                (pTexInfo->BitsPerPixel ==  64) ? TILE_##Submode##_64bpe  : \
-                (pTexInfo->BitsPerPixel ==  32) ? TILE_##Submode##_32bpe  : \
-                (pTexInfo->BitsPerPixel ==  16) ? TILE_##Submode##_16bpe  : \
-                                                  TILE_##Submode##_8bpe; \
-        // clang-format on
+        #define SET_TILE_MODE(Tile, Submode)                                                \
+        {                                                                                   \
+                pTexInfo->TileMode =                                                        \
+                    (pTexInfo->BitsPerPixel == 128) ? TILE_##Tile##_##Submode##_128bpe :    \
+                    (pTexInfo->BitsPerPixel ==  64) ? TILE_##Tile##_##Submode##_64bpe  :    \
+                    (pTexInfo->BitsPerPixel ==  32) ? TILE_##Tile##_##Submode##_32bpe  :    \
+                    (pTexInfo->BitsPerPixel ==  16) ? TILE_##Tile##_##Submode##_16bpe  :    \
+                                                      TILE_##Tile##_##Submode##_8bpe;       \
+        }                                                                                   \
 
+        #define GENERATE_TILE_MODE(T, M1d, M2d, M2d_2x, M2d_4x, M2d_8x, M2d_16x, M3d)            \
+        {\
+            switch (pTexInfo->Type)\
+            {\
+                case RESOURCE_1D:\
+                    SET_TILE_MODE(T, M1d);\
+                    break;\
+                case RESOURCE_2D:\
+                case RESOURCE_CUBE:\
+                    switch (pTexInfo->MSAA.NumSamples)\
+                    {\
+                    case 1:\
+                        SET_TILE_MODE(T, M2d);\
+                        break;\
+                    case 2:\
+                        SET_TILE_MODE(T, M2d_2x);\
+                        break;\
+                    case 4:\
+                        SET_TILE_MODE(T, M2d_4x);\
+                        break;\
+                    case 8:\
+                        SET_TILE_MODE(T, M2d_8x);\
+                        break;\
+                    case 16:\
+                        SET_TILE_MODE(T, M2d_16x);\
+                        break;\
+                    default:\
+                        __GMM_ASSERT(0);\
+                    }\
+                    break;\
+                case RESOURCE_3D:\
+                    SET_TILE_MODE(T, M3d);\
+                    break;\
+                default:\
+                    __GMM_ASSERT(0);\
+            }\
+        }
+
+
+        // clang-format on
         if(pTexInfo->Flags.Info.TiledYf)
         {
-            switch(pTexInfo->Type)
-            {
-                case RESOURCE_1D:
-                    SET_TILE_MODE(YF_1D);
-                    break;
-                case RESOURCE_2D:
-                case RESOURCE_CUBE:
-                    switch(pTexInfo->MSAA.NumSamples)
-                    {
-                        case 1:
-                            SET_TILE_MODE(YF_2D);
-                            break;
-                        case 2:
-                            SET_TILE_MODE(YF_2D_2X);
-                            break;
-                        case 4:
-                            SET_TILE_MODE(YF_2D_4X);
-                            break;
-                        case 8:
-                            SET_TILE_MODE(YF_2D_8X);
-                            break;
-                        case 16:
-                            SET_TILE_MODE(YF_2D_16X);
-                            break;
-                        default:
-                            __GMM_ASSERT(0);
-                    }
-                    break;
-                case RESOURCE_3D:
-                    SET_TILE_MODE(YF_3D);
-                    break;
-                default:
-                    __GMM_ASSERT(0);
-            }
+            GENERATE_TILE_MODE(YF, 1D, 2D, 2D_2X, 2D_4X, 2D_8X, 2D_16X, 3D);
+
             pTexInfo->Flags.Info.TiledYf = 1;
             pTexInfo->Flags.Info.TiledYs = 0;
         }
         else
         {
-            switch(pTexInfo->Type)
+            if(pGmmGlobalContext->GetSkuTable().FtrTileY)
             {
-                case RESOURCE_1D:
-                    SET_TILE_MODE(YS_1D);
-                    break;
-                case RESOURCE_2D:
-                case RESOURCE_CUBE:
-                    switch(pTexInfo->MSAA.NumSamples)
-                    {
-                        case 1:
-                            SET_TILE_MODE(YS_2D);
-                            break;
-                        case 2:
-                            SET_TILE_MODE(YS_2D_2X);
-                            break;
-                        case 4:
-                            SET_TILE_MODE(YS_2D_4X);
-                            break;
-                        case 8:
-                            SET_TILE_MODE(YS_2D_8X);
-                            break;
-                        case 16:
-                            SET_TILE_MODE(YS_2D_16X);
-                            break;
-                        default:
-                            __GMM_ASSERT(0);
-                    }
-                    break;
-                case RESOURCE_3D:
-                    SET_TILE_MODE(YS_3D);
-                    break;
-                default:
-                    __GMM_ASSERT(0);
+                GENERATE_TILE_MODE(YS, 1D, 2D, 2D_2X, 2D_4X, 2D_8X, 2D_16X, 3D);
             }
+
             pTexInfo->Flags.Info.TiledYf = 0;
-            pTexInfo->Flags.Info.TiledYs = 1;
+            GMM_SET_64KB_TILE(pTexInfo->Flags, 1);
         }
 
-        pTexInfo->Flags.Info.TiledY = 1;
+
+        GMM_SET_4KB_TILE(pTexInfo->Flags, pGmmGlobalContext->GetSkuTable().FtrTileY ? 1 : 0);
+
         pTexInfo->Flags.Info.TiledX = 0;
         pTexInfo->Flags.Info.TiledW = 0;
         pTexInfo->Flags.Info.Linear = 0;
 #undef SET_TILE_MODE
     }
-    else if(pTexInfo->Flags.Info.TiledY)
+    else if(GMM_IS_4KB_TILE(pTexInfo->Flags))
     {
-        pTexInfo->Flags.Info.TiledY  = 1;
+        GMM_SET_4KB_TILE(pTexInfo->Flags, 1);
         pTexInfo->Flags.Info.TiledYf = 0;
         pTexInfo->Flags.Info.TiledYs = 0;
         pTexInfo->Flags.Info.TiledX  = 0;
         pTexInfo->Flags.Info.TiledW  = 0;
         pTexInfo->Flags.Info.Linear  = 0;
-        pTexInfo->TileMode           = LEGACY_TILE_Y;
+        GMM_SET_4KB_TILE_MODE(pTexInfo->TileMode);
     }
     else if(pTexInfo->Flags.Info.TiledX)
     {
@@ -440,7 +422,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexPitchAndSize(GMM_TEXTURE_INFO * pTexIn
 
         if(pTexInfo->Flags.Info.RenderCompressed || pTexInfo->Flags.Info.MediaCompressed)
         {
-            if(!pTexInfo->Flags.Info.TiledYs) //Ys is naturally aligned to required 4 YF pages
+            if(!GMM_IS_64KB_TILE(pTexInfo->Flags)) //Ys is naturally aligned to required 4 YF pages
             {
                 // Align Pitch to 4-tile boundary
                 WidthBytesPhysical = GFX_ALIGN(WidthBytesPhysical,
@@ -688,7 +670,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexPitchAndSize(GMM_TEXTURE_INFO * pTexIn
                 Size *= pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileDepth;
             }
 
-            if((pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) &&
+            if((pTexInfo->Flags.Info.TiledYf || GMM_IS_64KB_TILE(pTexInfo->Flags)) &&
                (pTexInfo->MSAA.NumSamples > 1) &&
                (pTexInfo->Flags.Gpu.Depth == 0 && pTexInfo->Flags.Gpu.SeparateStencil == 0))
             {
@@ -696,7 +678,10 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexPitchAndSize(GMM_TEXTURE_INFO * pTexIn
                 // The width/height for TileYf/Ys MSAA surfaces are not expanded (using GmmExpandWidth/Height functions)
                 // because pitch for these surfaces is in their non-expanded dimensions. So, the pitch
                 // is also non-expanded units.  That's why, we multiply by the sample size here to get the correct size.
-                Size *= pTexInfo->MSAA.NumSamples;
+                if(pGmmGlobalContext->GetSkuTable().FtrTileY)
+                {
+                    Size *= pTexInfo->MSAA.NumSamples;
+                }
             }
 
             if((pTexInfo->Flags.Info.TiledY && pTexInfo->Flags.Gpu.TiledResource))

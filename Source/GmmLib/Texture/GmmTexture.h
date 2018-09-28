@@ -85,7 +85,7 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
 
         /// SKL TiledYf/Ys Surfaces //////////////////////////////////////////
         if( ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN9_CORE) &&
-             (pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs)))
+             (pTexInfo->Flags.Info.TiledYf || GMM_IS_64KB_TILE(pTexInfo->Flags))))
         {
             #define SET_ALIGN_INFO(Xxx, A1, A2, A3, A4, A5)     \
                UnitAlign##Xxx =                                 \

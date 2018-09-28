@@ -124,7 +124,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
     if(CreateParams.Flags.Info.ExistingSysMem &&
        (CreateParams.Flags.Info.TiledW ||
         CreateParams.Flags.Info.TiledX ||
-        CreateParams.Flags.Info.TiledY))
+        GMM_IS_4KB_TILE(CreateParams.Flags) ||
+        GMM_IS_64KB_TILE(CreateParams.Flags)))
     {
         GMM_ASSERTDPF(0, "Tiled System Accelerated Memory not supported.");
         Status = GMM_INVALIDPARAM;
@@ -1240,7 +1241,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::CpuBlt(GMM_RES_COPY_BLT *pBlt
                 }
                 case RESOURCE_3D:
                 {
-                    GetOffset.Slice = (pTexInfo->Flags.Info.TiledYs || pTexInfo->Flags.Info.TiledYf) ?
+                    GetOffset.Slice = (GMM_IS_64KB_TILE(pTexInfo->Flags) || pTexInfo->Flags.Info.TiledYf) ?
                                       (pBlt->Gpu.Slice / pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileDepth) :
                                       pBlt->Gpu.Slice;
                     break;
@@ -1308,7 +1309,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::CpuBlt(GMM_RES_COPY_BLT *pBlt
             __GMM_ASSERT(GetOffset.Render.Offset64 < pTexInfo->Size);
 
             ZOffset = (pTexInfo->Type == RESOURCE_3D &&
-                       (pTexInfo->Flags.Info.TiledYs || pTexInfo->Flags.Info.TiledYf)) ?
+                       (GMM_IS_64KB_TILE(pTexInfo->Flags) || pTexInfo->Flags.Info.TiledYf)) ?
                       (pBlt->Gpu.Slice % pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileDepth) :
                       0;
 
@@ -1373,9 +1374,9 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::CpuBlt(GMM_RES_COPY_BLT *pBlt
                 SwizzledSurface.OffsetX = GetOffset.Render.XOffset / 2 + __OffsetXBytes;
                 SwizzledSurface.OffsetY = GetOffset.Render.YOffset * 2 + __OffsetY;
             }
-            else if(pTexInfo->Flags.Info.TiledY &&
-                    !(pTexInfo->Flags.Info.TiledYs ||
-                      pTexInfo->Flags.Info.TiledYf))
+            else if(GMM_IS_4KB_TILE(pTexInfo->Flags) &&
+                    !(pTexInfo->Flags.Info.TiledYf ||
+                      GMM_IS_64KB_TILE(pTexInfo->Flags)))
             {
                 SwizzledSurface.pSwizzle = &INTEL_TILE_Y;
             }
@@ -1385,66 +1386,97 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::CpuBlt(GMM_RES_COPY_BLT *pBlt
             }
             else // Yf/s...
             {
-#define NA
+// clang-format off
+                #define NA
 
-#define CASE(xD, msaa, kb, bpe)                                        \
-    case bpe:                                                          \
-        SwizzledSurface.pSwizzle = &ST_##xD##_##msaa##kb##_##bpe##bpp; \
-        break
+                #define CASE(Layout, Tile, msaa, xD, bpe)                               \
+                    case bpe:                                                           \
+                        SwizzledSurface.pSwizzle = &Layout##_##Tile##_##msaa##xD##bpe;  \
+                        break
 
-#define SWITCH_BPP(xD, msaa, kb)   \
-    switch(pTexInfo->BitsPerPixel) \
-    {                              \
-        CASE(xD, msaa, kb, 8);     \
-        CASE(xD, msaa, kb, 16);    \
-        CASE(xD, msaa, kb, 32);    \
-        CASE(xD, msaa, kb, 64);    \
-        CASE(xD, msaa, kb, 128);   \
-    }
+                #define SWITCH_BPP(Layout, Tile, msaa, xD)    \
+                    switch(pTexInfo->BitsPerPixel)            \
+                    {                                         \
+                        CASE(Layout, Tile, msaa, xD, 8);      \
+                        CASE(Layout, Tile, msaa, xD, 16);     \
+                        CASE(Layout, Tile, msaa, xD, 32);     \
+                        CASE(Layout, Tile, msaa, xD, 64);     \
+                        CASE(Layout, Tile, msaa, xD, 128);    \
+                    }
 
-#define SWITCH_MSAA(xD, kb)              \
-    switch(pTexInfo->MSAA.NumSamples)    \
-    {                                    \
-        case 0:                          \
-            SWITCH_BPP(xD, , kb);        \
-            break;                       \
-        case 1:                          \
-            SWITCH_BPP(xD, , kb);        \
-            break;                       \
-        case 2:                          \
-            SWITCH_BPP(xD, MSAA2_, kb);  \
-            break;                       \
-        case 4:                          \
-            SWITCH_BPP(xD, MSAA4_, kb);  \
-            break;                       \
-        case 8:                          \
-            SWITCH_BPP(xD, MSAA8_, kb);  \
-            break;                       \
-        case 16:                         \
-            SWITCH_BPP(xD, MSAA16_, kb); \
-            break;                       \
-    }
+                #define SWITCH_MSAA_INTEL(Layout, Tile, xD)     \
+                {\
+                    switch(pTexInfo->MSAA.NumSamples)           \
+                    {                                           \
+                        case 0:                                 \
+                            SWITCH_BPP(Layout, Tile,  , xD);    \
+                            break;                              \
+                        case 1:                                 \
+                            SWITCH_BPP(Layout, Tile,  , xD);    \
+                            break;                              \
+                        case 2:                                 \
+                            SWITCH_BPP(Layout, Tile, MSAA2_, xD);  \
+                            break;                              \
+                        case 4:                                 \
+                        case 8:                                 \
+                        case 16:                                \
+                            SWITCH_BPP(Layout, Tile, MSAA4_, xD);  \
+                            break;                              \
+                    }\
+                }
+
+                #define SWITCH_MSAA(Layout, Tile, xD)           \
+                {\
+                    switch(pTexInfo->MSAA.NumSamples)           \
+                    {                                           \
+                        case 0:                                 \
+                            SWITCH_BPP(Layout, Tile, , xD);     \
+                            break;                              \
+                        case 1:                                 \
+                            SWITCH_BPP(Layout, Tile, , xD);     \
+                            break;                              \
+                        case 2:                                 \
+                            SWITCH_BPP(Layout, Tile, MSAA2_, xD);  \
+                            break;                              \
+                        case 4:                                 \
+                            SWITCH_BPP(Layout, Tile, MSAA4_, xD);  \
+                            break;                              \
+                        case 8:                                 \
+                            SWITCH_BPP(Layout, Tile, MSAA8_, xD);     \
+                            break;                              \
+                        case 16:                                \
+                            SWITCH_BPP(Layout, Tile, MSAA16_, xD);    \
+                            break;                              \
+                    }\
+                }
+                // clang-format on
 
                 if(pTexInfo->Type == RESOURCE_3D)
                 {
                     if(pTexInfo->Flags.Info.TiledYf)
                     {
-                        SWITCH_BPP(3D, , 4KB);
+                        SWITCH_BPP(INTEL, TILEYF, , 3D_);
                     }
-                    else if(pTexInfo->Flags.Info.TiledYs)
+                    else if(GMM_IS_64KB_TILE(pTexInfo->Flags))
                     {
-                        SWITCH_BPP(3D, , 64KB);
+                        if(pGmmGlobalContext->GetSkuTable().FtrTileY)
+                        {
+                            SWITCH_BPP(INTEL, TILEYS, , 3D_);
+                        }
                     }
                 }
                 else // 2D/Cube...
                 {
                     if(pTexInfo->Flags.Info.TiledYf)
                     {
-                        SWITCH_MSAA(2D, 4KB);
+                        SWITCH_MSAA(INTEL, TILEYF, );
                     }
-                    else if(pTexInfo->Flags.Info.TiledYs)
+                    else if(GMM_IS_64KB_TILE(pTexInfo->Flags))
                     {
-                        SWITCH_MSAA(2D, 64KB);
+                        if(pGmmGlobalContext->GetSkuTable().FtrTileY)
+                        {
+                            SWITCH_MSAA(INTEL, TILEYS, );
+                        }
                     }
                 }
             }
@@ -1783,8 +1815,8 @@ void GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetTiledResourceMipPacking(uint3
         return;
     }
 
-    if(GetResFlags().Info.TiledYs ||
-       GetResFlags().Info.TiledYf)
+    if(GetResFlags().Info.TiledYf ||
+       GMM_IS_64KB_TILE(GetResFlags()))
     {
         if(Surf.Alignment.MipTailStartLod == GMM_TILED_RESOURCE_NO_MIP_TAIL)
         {

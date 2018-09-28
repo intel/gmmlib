@@ -180,9 +180,10 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
             pTexInfo->Flags.Info.Linear  = 0;
             pTexInfo->Flags.Info.TiledW  = 0;
             pTexInfo->Flags.Info.TiledX  = 0;
-            pTexInfo->Flags.Info.TiledY  = 1;
             pTexInfo->Flags.Info.TiledYf = 0;
             pTexInfo->Flags.Info.TiledYs = 0;
+
+            GMM_SET_4KB_TILE(pTexInfo->Flags, 1);
         }
         else
         {
@@ -303,8 +304,8 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
                     pTexInfo->BitsPerPixel = 8;
                     pTexInfo->Format       = GMM_FORMAT_R8_UINT;
 
-                    if(pTexInfo->Flags.Info.TiledY) //-------- Fast Clear Granularity
-                    {                               //                       /--- RT:CCS Sizing Downscale
+                    if(GMM_IS_4KB_TILE(pTexInfo->Flags)) //-------- Fast Clear Granularity
+                    {                                    //                       /--- RT:CCS Sizing Downscale
                         pTexInfo->BaseWidth  = GFX_ALIGN(pTexInfo->BaseWidth, 512 * AlignmentFactor) / 32;
                         pTexInfo->BaseHeight = GFX_ALIGN(pTexInfo->BaseHeight, 128) / 32;
                     }
@@ -328,9 +329,10 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
             pTexInfo->Flags.Info.Linear  = 0;
             pTexInfo->Flags.Info.TiledW  = 0;
             pTexInfo->Flags.Info.TiledX  = 0;
-            pTexInfo->Flags.Info.TiledY  = 1;
             pTexInfo->Flags.Info.TiledYf = 0;
             pTexInfo->Flags.Info.TiledYs = 0;
+
+            GMM_SET_4KB_TILE(pTexInfo->Flags, 1);
 
             //Clear compression request in CCS
             pTexInfo->Flags.Info.RenderCompressed = 0;
@@ -370,7 +372,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
             }
             else
             {
-                pTexInfo->Flags.Info.TiledY = 1;
+                GMM_SET_4KB_TILE(pTexInfo->Flags, 1);
             }
         }
         else

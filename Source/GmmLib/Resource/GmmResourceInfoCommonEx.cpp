@@ -31,6 +31,46 @@ OTHER DEALINGS IN THE SOFTWARE.
 /////////////////////////////////////////////////////////////////////////////////////
 bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &CreateParams)
 {
+
+    {
+        // Promote tiling options if caller does not provide any.
+        // X/Y/W/L are tiling formats, and Yf/Ys are modifiers to the internal
+        // ordering for Y and L macro-formats.
+        if((CreateParams.Flags.Info.Linear +
+            CreateParams.Flags.Info.TiledW +
+            CreateParams.Flags.Info.TiledX +
+            CreateParams.Flags.Info.TiledY) == 0)
+        {
+            if(CreateParams.Type == RESOURCE_1D ||
+               CreateParams.Type == RESOURCE_BUFFER ||
+               CreateParams.Type == RESOURCE_SCRATCH ||
+               CreateParams.Flags.Info.ExistingSysMem)
+            {
+                CreateParams.Flags.Info.Linear = true;
+            }
+
+            if(pGmmGlobalContext->GetSkuTable().FtrTileY)
+            {
+
+                CreateParams.Flags.Info.TiledYs |= CreateParams.Flags.Info.StdSwizzle || CreateParams.Flags.Gpu.TiledResource;
+
+                // Propose L+Y by default.
+                CreateParams.Flags.Info.Linear = true;
+                CreateParams.Flags.Info.TiledY = true;
+
+                // Pre-Gen11 Planar
+                if(GmmIsPlanar(CreateParams.Format))
+                {
+                    CreateParams.Flags.Info.TiledX = true;
+                }
+            }
+        }
+
+        //ExistingSysMem allocations must be Linear
+        __GMM_ASSERT(!CreateParams.Flags.Info.ExistingSysMem ||
+                     CreateParams.Flags.Info.Linear);
+    }
+
     Surf.Type                      = CreateParams.Type;
     Surf.Format                    = CreateParams.Format;
     Surf.BaseWidth                 = CreateParams.BaseWidth64;
@@ -101,26 +141,6 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
                 //return false;
             }
         }
-    }
-
-    // Promote tiling options if caller does not provide any.
-    // X/Y/W/L are tiling formats, and Yf/Ys are modifiers to the internal
-    // ordering for Y and L macro-formats.
-    if(!(Surf.Flags.Info.TiledY || Surf.Flags.Info.TiledX ||
-         Surf.Flags.Info.TiledW || Surf.Flags.Info.Linear))
-    {
-        // Propose Y unless this conflicts with .FtrDisplayYTiling and .FlipChain/.Overlay
-        if(Surf.Flags.Gpu.Overlay || Surf.Flags.Gpu.FlipChain)
-        {
-            Surf.Flags.Info.TiledY = pGmmGlobalContext->GetSkuTable().FtrDisplayYTiling;
-        }
-        else
-        {
-            Surf.Flags.Info.TiledY = 1;
-        }
-        // Propose L+X by default.
-        Surf.Flags.Info.TiledX = 1;
-        Surf.Flags.Info.Linear = 1;
     }
 
     // Convert Any Pseudo Creation Params to Actual...
@@ -273,11 +293,10 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
     // Yf/Ys checked explicitly here, require one of Y or Linear depending on resource type (e.g 1D-->Linear)
     // that TODO: could be automatically promoted.
     if((Surf.Flags.Info.Linear == 0) &&
-       (Surf.Flags.Info.TiledW == 0) &&
        (Surf.Flags.Info.TiledX == 0) &&
-       (Surf.Flags.Info.TiledY == 0) &&
+       (Surf.Flags.Info.TiledW == 0) &&
        (Surf.Flags.Info.TiledYf == 0) &&
-       (Surf.Flags.Info.TiledYs == 0))
+       !GMM_IS_4KB_TILE(Surf.Flags) && !GMM_IS_64KB_TILE(Surf.Flags))
     {
         GMM_ASSERTDPF(0, "No Tile or Linear preference specified!");
         goto ERROR_CASE;
@@ -341,7 +360,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
     }
 
     if(Surf.Flags.Gpu.MMC && //For Media Memory Compression --
-       ((!(Surf.Flags.Info.TiledY || Surf.Flags.Info.TiledYs) &&
+       ((!(GMM_IS_4KB_TILE(Surf.Flags) ||  GMM_IS_64KB_TILE(Surf.Flags)) &&
          (GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) <= IGFX_GEN11_CORE)) ||
         (GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) <= IGFX_GEN11_CORE &&
          Surf.ArraySize > GMM_MAX_MMC_INDEX)))
@@ -426,7 +445,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
     // MIPs are not supported for tiled Yf/Ys planar surfaces
     if((Surf.MaxLod) &&
        GmmIsPlanar(Surf.Format) &&
-       (Surf.Flags.Info.TiledYf || Surf.Flags.Info.TiledYs))
+       (Surf.Flags.Info.TiledYf || GMM_IS_64KB_TILE(Surf.Flags)))
     {
         GMM_ASSERTDPF(0, "Invalid mip map chain specified!");
         goto ERROR_CASE;

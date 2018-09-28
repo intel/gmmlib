@@ -23,7 +23,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(igfx_gmmumd)
 if(NOT DEFINED MAJOR_VERSION)
-	set(MAJOR_VERSION 1)
+	set(MAJOR_VERSION 2)
 endif()
 
 if(NOT DEFINED MINOR_VERSION)

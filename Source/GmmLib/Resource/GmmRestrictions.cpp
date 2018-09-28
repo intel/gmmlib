@@ -115,7 +115,7 @@ void GmmLib::GmmResourceInfoCommon::GetRestrictions(__GMM_BUFFER_TYPE &Restricti
         case RESOURCE_TAG_PAGE:
             if(Surf.Flags.Info.TiledW ||
                Surf.Flags.Info.TiledX ||
-               Surf.Flags.Info.TiledY)
+               GMM_IS_4KB_TILE(Surf.Flags))
             {
                 GMM_ASSERTDPF(0, "Tiled Pref specified for RESOURCE_LINEAR!");
                 return;
@@ -216,7 +216,7 @@ void GmmLib::GmmResourceInfoCommon::GetRestrictions(__GMM_BUFFER_TYPE &Restricti
     // SKL TileY Display needs 1MB alignment.
     if(((Surf.Type == RESOURCE_PRIMARY) ||
         Surf.Flags.Gpu.FlipChain) &&
-       (Surf.Flags.Info.TiledY ||
+       (GMM_IS_4KB_TILE(Surf.Flags) ||
         Surf.Flags.Info.TiledYf))
     {
         Restrictions.Alignment = GMM_MBYTE(1);

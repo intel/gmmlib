@@ -473,7 +473,7 @@ namespace GmmLib
                     uint32_t MSAASpecialFactorForDepthAndStencil = 1;
 
                     if ((Surf.Flags.Gpu.Depth || Surf.Flags.Gpu.SeparateStencil) &&
-                         (Surf.MSAA.NumSamples > 1 && (Surf.Flags.Info.TiledYs || Surf.Flags.Info.TiledYf)))
+                         (Surf.MSAA.NumSamples > 1 && (GMM_IS_64KB_TILE(Surf.Flags) || Surf.Flags.Info.TiledYf)))
                     {
                         switch (Surf.MSAA.NumSamples)
                         {
@@ -788,7 +788,7 @@ namespace GmmLib
                 pPlatformResource = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf);
 
                 if ((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) >= IGFX_GEN9_CORE) &&
-                    !(Surf.Flags.Info.TiledYf || Surf.Flags.Info.TiledYs))
+                    !(Surf.Flags.Info.TiledYf || GMM_IS_64KB_TILE(Surf.Flags)))
                 {
                     HAlign = Surf.Alignment.HAlign / GetCompressionBlockWidth();
                 }
@@ -811,7 +811,7 @@ namespace GmmLib
                 pPlatformResource = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf);
 
                 if ((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) >= IGFX_GEN9_CORE) &&
-                    !(GetResFlags().Info.TiledYf || GetResFlags().Info.TiledYs))
+                    !(GetResFlags().Info.TiledYf || GMM_IS_64KB_TILE(GetResFlags())))
                 {
                     VAlign = Surf.Alignment.VAlign / GetCompressionBlockHeight();
                 }
@@ -1267,18 +1267,21 @@ namespace GmmLib
 
                 if (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE)
                 {
-                    if (GetResFlags().Info.TiledYf || GetResFlags().Info.TiledYs)
+                    if (GetResFlags().Info.TiledYf || GMM_IS_64KB_TILE(GetResFlags()))
                     {
                         HAlign = 0;
                     }
                     else
                     {
-                        switch (GetHAlign())
+                        if(GMM_IS_TILEY)
                         {
-                            case 4:  HAlign = 1; break;
-                            case 8:  HAlign = 2; break;
-                            case 16: HAlign = 3; break;
-                            default: HAlign = 0; __GMM_ASSERT(0);
+                            switch (GetHAlign())
+                            {
+                                case 4:  HAlign = 1; break;
+                                case 8:  HAlign = 2; break;
+                                case 16: HAlign = 3; break;
+                                default: HAlign = 0; __GMM_ASSERT(0);
+                            }
                         }
                     }
                 }
@@ -1308,7 +1311,7 @@ namespace GmmLib
 
                 if (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE)
                 {
-                    if (GetResFlags().Info.TiledYf || GetResFlags().Info.TiledYs)
+                    if (GetResFlags().Info.TiledYf || GMM_IS_64KB_TILE(GetResFlags()))
                     {
                         VAlign = 0;
                     }
@@ -1336,25 +1339,54 @@ namespace GmmLib
                 return VAlign;
             }
 
+
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Returns tile mode for SURFACE_STATE programming.
+            /// @return     Tiled Mode
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetTileModeSurfaceState()
+            {
+                uint32_t   TiledMode = 0;
+
+                if(GMM_IS_TILEY)
+                {
+                    TiledMode =
+                        Surf.Flags.Info.Linear ? 0 :
+                            Surf.Flags.Info.TiledX ? 2 :
+                            /* Y/YF/YS */       3;
+
+                    __GMM_ASSERT((TiledMode != 3) || (Surf.Flags.Info.TiledY || Surf.Flags.Info.TiledYf || Surf.Flags.Info.TiledYs));
+                }
+
+                return TiledMode;
+            }
+
             /////////////////////////////////////////////////////////////////////////////////////
             /// Returns tiled resource mode for SURFACE_STATE programming.
             /// @return     Tiled Resource Mode
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetTiledResourceModeSurfaceState()
             {
-                uint32_t   TiledResourceMode;
+                uint32_t   TiledResourceMode = 0;
 
-                if (Surf.Flags.Info.TiledYf)
+                if(GMM_IS_TILEY)
                 {
-                    TiledResourceMode = 1;
-                }
-                else if (Surf.Flags.Info.TiledYs)
-                {
-                    TiledResourceMode = 2;
+                    if (Surf.Flags.Info.TiledYf)
+                    {
+                        TiledResourceMode = 1;
+                    }
+                    else if (Surf.Flags.Info.TiledYs)
+                    {
+                        TiledResourceMode = 2;
+                    }
+                    else
+                    {
+                        TiledResourceMode = 0;
+                    }
                 }
                 else
                 {
-                    TiledResourceMode = 0;
+                    __GMM_ASSERT(0);
                 }
 
                 return TiledResourceMode;

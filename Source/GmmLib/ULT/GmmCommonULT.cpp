@@ -47,6 +47,8 @@ void CommonULT::AllocateAdapterInfo()
             return;
         }
         memset(pGfxAdapterInfo, 0, sizeof(ADAPTER_INFO));
+
+        pGfxAdapterInfo->SkuTable.FtrTileY = 1;
     }
 }
 

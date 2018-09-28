@@ -470,7 +470,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexRenderOffset(GMM_TEXTURE_INFO *   pTexI
         // pixels, this function will return the X Offset in bytes. Y Offset is
         // in pixel rows.)
 
-        if((pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) &&
+        if((pTexInfo->Flags.Info.TiledYf || GMM_IS_64KB_TILE(pTexInfo->Flags)) &&
            (pReqInfo->MipLevel >= pTexInfo->Alignment.MipTailStartLod))
         {
             MipTailByteOffset = GetMipTailByteOffset(pTexInfo, pReqInfo->MipLevel);
@@ -511,7 +511,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexRenderOffset(GMM_TEXTURE_INFO *   pTexI
             //      - OffsetY and OffsetZ are their pixel distance from "Miptail start Lod" to "current Lod" in geometric Y, Z directions
             // Note: only Tile Yf and TileYs have Miptails and their Mips are always "tile aligned"
 
-            if((pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) &&
+            if((pTexInfo->Flags.Info.TiledYf || GMM_IS_64KB_TILE(pTexInfo->Flags)) &&
                (pReqInfo->MipLevel >= pTexInfo->Alignment.MipTailStartLod) &&
                // Planar surfaces do not support MIPs
                !GmmIsPlanar(pTexInfo->Format))
@@ -590,7 +590,7 @@ GMM_GFX_SIZE_T GmmLib::GmmTextureCalc::GetMipMapByteAddress(GMM_TEXTURE_INFO *  
        ((pTexInfo->MSAA.NumSamples > 1) &&
         !(pTexInfo->Flags.Gpu.Depth ||
           pTexInfo->Flags.Gpu.SeparateStencil ||
-          pTexInfo->Flags.Info.TiledYs ||
+          GMM_IS_64KB_TILE(pTexInfo->Flags) ||
           pTexInfo->Flags.Info.TiledYf)))
     {
         ArrayQPitch *= pTexInfo->MSAA.NumSamples;

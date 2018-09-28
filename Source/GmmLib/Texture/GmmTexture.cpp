@@ -370,7 +370,7 @@ void GmmLib::GmmTextureCalc::FindMipTailStartLod(GMM_TEXTURE_INFO *pTexInfo)
 {
     GMM_DPF_ENTER;
 
-    if(!(pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) ||
+    if(!(pTexInfo->Flags.Info.TiledYf || GMM_IS_64KB_TILE(pTexInfo->Flags)) ||
        (pTexInfo->MaxLod == 0) ||
        (pTexInfo->Flags.Wa.DisablePackedMipTail))
     {
@@ -508,7 +508,7 @@ bool GmmLib::GmmTextureCalc::GmmGetD3DToHwTileConversion(GMM_TEXTURE_INFO *pTexI
         *pColFactor = 1;
         *pRowFactor = 1;
     }
-    else if(pTexInfo->Flags.Info.TiledY)
+    else if(GMM_IS_4KB_TILE(pTexInfo->Flags))
     {
         // Logic for non-MSAA
         {

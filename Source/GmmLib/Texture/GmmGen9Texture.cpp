@@ -45,7 +45,7 @@ GMM_GFX_SIZE_T GmmLib::GmmGen9TextureCalc::Get1DTexOffsetAddressPerMip(GMM_TEXTU
     MipWidth = GFX_ULONG_CAST(pTexInfo->BaseWidth);
 
     __MipLevel =
-    (pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) ?
+    (pTexInfo->Flags.Info.TiledYf || GMM_IS_64KB_TILE(pTexInfo->Flags)) ?
     GFX_MIN(MipLevel, pTexInfo->Alignment.MipTailStartLod) :
     MipLevel;
 
@@ -68,7 +68,7 @@ GMM_GFX_SIZE_T GmmLib::GmmGen9TextureCalc::Get1DTexOffsetAddressPerMip(GMM_TEXTU
 
     MipOffset *= (pTexInfo->BitsPerPixel >> 3);
 
-    if((pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) &&
+    if((pTexInfo->Flags.Info.TiledYf || GMM_IS_64KB_TILE(pTexInfo->Flags)) &&
        (MipLevel >= pTexInfo->Alignment.MipTailStartLod))
     {
         MipOffset += GetMipTailByteOffset(pTexInfo, MipLevel);
@@ -129,12 +129,12 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex1D(GMM_TEXTURE_INFO * 
     __GMM_ASSERTPTR(pRestrictions, GMM_ERROR);
     __GMM_ASSERT(pTexInfo->Flags.Info.Linear ||
                  pTexInfo->Flags.Info.TiledYf ||
-                 pTexInfo->Flags.Info.TiledYs);
+                 GMM_IS_64KB_TILE(pTexInfo->Flags));
 
     pTexInfo->Flags.Info.Linear = 1;
     pTexInfo->Flags.Info.TiledW = 0;
     pTexInfo->Flags.Info.TiledX = 0;
-    pTexInfo->Flags.Info.TiledY = 0;
+    GMM_SET_4KB_TILE(pTexInfo->Flags, 0);
 
     const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
 
@@ -145,7 +145,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex1D(GMM_TEXTURE_INFO * 
     Compressed = GmmIsCompressed(pTexInfo->Format);
     GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
-    if(pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs)
+    if(pTexInfo->Flags.Info.TiledYf || GMM_IS_64KB_TILE(pTexInfo->Flags))
     {
         FindMipTailStartLod(pTexInfo);
     }
@@ -157,7 +157,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex1D(GMM_TEXTURE_INFO * 
     Width    = __GMM_EXPAND_WIDTH(this, GFX_ULONG_CAST(pTexInfo->BaseWidth), HAlign, pTexInfo);
     MipWidth = Width;
 
-    if((pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) &&
+    if((pTexInfo->Flags.Info.TiledYf || GMM_IS_64KB_TILE(pTexInfo->Flags)) &&
        ((pTexInfo->Alignment.MipTailStartLod == 0) || (pTexInfo->MaxLod == 0)))
     {
         // Do nothing. Width is already aligned.
@@ -168,7 +168,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex1D(GMM_TEXTURE_INFO * 
         {
             uint32_t AlignedMipWidth;
 
-            if((pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) &&
+            if((pTexInfo->Flags.Info.TiledYf || GMM_IS_64KB_TILE(pTexInfo->Flags)) &&
                (i == pTexInfo->Alignment.MipTailStartLod))
             {
                 Width += pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileWidth;
@@ -387,7 +387,7 @@ uint32_t GmmLib::GmmGen9TextureCalc::Get2DMipMapTotalHeight(GMM_TEXTURE_INFO *pT
     VAlign    = pTexInfo->Alignment.VAlign;
 
     MipLevel =
-    (pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) ?
+    (pTexInfo->Flags.Info.TiledYf || GMM_IS_64KB_TILE(pTexInfo->Flags)) ?
     GFX_MIN(MipLevel, pTexInfo->Alignment.MipTailStartLod) :
     MipLevel;
 
@@ -462,7 +462,7 @@ GMM_GFX_SIZE_T GmmLib::GmmGen9TextureCalc::Get2DTexOffsetAddressPerMip(GMM_TEXTU
     GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
     __MipLevel =
-    (pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) ?
+    (pTexInfo->Flags.Info.TiledYf || GMM_IS_64KB_TILE(pTexInfo->Flags)) ?
     GFX_MIN(MipLevel, pTexInfo->Alignment.MipTailStartLod) :
     MipLevel;
 
@@ -533,7 +533,7 @@ GMM_GFX_SIZE_T GmmLib::GmmGen9TextureCalc::Get2DTexOffsetAddressPerMip(GMM_TEXTU
 
     MipOffset += OffsetHeight * GFX_ULONG_CAST(pTexInfo->Pitch);
 
-    if((pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) &&
+    if((pTexInfo->Flags.Info.TiledYf || GMM_IS_64KB_TILE(pTexInfo->Flags)) &&
        (MipLevel >= pTexInfo->Alignment.MipTailStartLod))
     {
         MipOffset += GetMipTailByteOffset(pTexInfo, MipLevel);

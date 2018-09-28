@@ -103,6 +103,7 @@ namespace GmmLib
         GMM_VIRTUAL GMM_CACHE_POLICY_ELEMENT            GMM_STDCALL GetCachePolicyElement(GMM_RESOURCE_USAGE_TYPE Usage);
         GMM_VIRTUAL GMM_CACHE_POLICY_TBL_ELEMENT        GMM_STDCALL GetCachePolicyTlbElement(uint32_t  MocsIdx);
         GMM_VIRTUAL GMM_PLATFORM_INFO&                  GMM_STDCALL GetPlatformInfo();
+        GMM_VIRTUAL const SKU_FEATURE_TABLE&            GMM_STDCALL GetSkuTable();
         GMM_VIRTUAL void                                GMM_STDCALL GetExtendedTextureAlign(uint32_t Mode, ALIGNMENT &UnitAlign);
 
         GMM_VIRTUAL uint8_t                             GMM_STDCALL IsPlanar(GMM_RESOURCE_FORMAT Format);

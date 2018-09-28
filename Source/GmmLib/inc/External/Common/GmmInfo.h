@@ -540,6 +540,8 @@ namespace GmmLib
 
 
     #endif
+    private: 
+        void GMM_STDCALL OverrideSkuWa();
     };
 } //namespace
 

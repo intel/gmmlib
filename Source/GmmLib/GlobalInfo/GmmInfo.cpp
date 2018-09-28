@@ -432,6 +432,8 @@ GMM_CLIENT               ClientType)
     this->WaTable   = *pWaTable;
     this->GtSysInfo = *pGtSysInfo;
 
+    OverrideSkuWa();
+
     pGmmGlobalContext->pPlatformInfo = GmmLib::PlatformInfo::Create(Platform, false);
 
     this->pGmmCachePolicy = GmmLib::GmmCachePolicyCommon::Create();
@@ -486,7 +488,11 @@ void GMM_STDCALL GmmLib::Context::DestroyContext()
             pGmmGlobalContext->pPlatformInfo = NULL;
         }
     }
+}
 
+void GMM_STDCALL GmmLib::Context::OverrideSkuWa()
+{
+    SkuTable.FtrTileY = true;
 }
 
 #ifdef __GMM_KMD__ /*LINK CONTEXT TO GLOBAL*/

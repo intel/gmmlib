@@ -202,6 +202,16 @@ void GMM_STDCALL GmmLib::GmmClientContext::GetExtendedTextureAlign(uint32_t Mode
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
+/// Member function of ClientContext class for returning SKU_FEATURE_TABLE data
+///
+/// @return     SKU_FEATURE_TABLE&
+/////////////////////////////////////////////////////////////////////////////////////
+const SKU_FEATURE_TABLE &GMM_STDCALL GmmLib::GmmClientContext::GetSkuTable()
+{
+    return pGmmGlobalContext->GetSkuTable();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
 /// Member function of ClientContext class for returning whether the given Resource
 /// format is Planar
 ///
@@ -344,7 +354,7 @@ ERROR_CASE:
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_RESOURCE_INFO *GMM_STDCALL GmmLib::GmmClientContext::CopyResInfoObject(GMM_RESOURCE_INFO *pSrcRes)
 {
-    GMM_RESOURCE_INFO *pResCopy = NULL;
+    GMM_RESOURCE_INFO *pResCopy         = NULL;
     GmmClientContext * pClientContextIn = NULL;
 
 #if(!defined(GMM_UNIFIED_LIB))
@@ -380,7 +390,7 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmLib::GmmClientContext::CopyResInfoObject(GMM_R
 /////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmLib::GmmClientContext::ResMemcpy(void *pDst, void *pSrc)
 {
-     GmmClientContext *pClientContextIn = NULL;
+    GmmClientContext *pClientContextIn = NULL;
 
 #if(!defined(GMM_UNIFIED_LIB))
     pClientContextIn = pGmmGlobalContext->pGmmGlobalClientContext;
