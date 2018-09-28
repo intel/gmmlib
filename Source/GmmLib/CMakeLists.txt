@@ -22,6 +22,18 @@
 
 cmake_minimum_required(VERSION 3.5)
 project(igfx_gmmumd)
+if(NOT DEFINED MAJOR_VERSION)
+	set(MAJOR_VERSION 1)
+endif()
+
+if(NOT DEFINED MINOR_VERSION)
+	set(MINOR_VERSION 0)
+endif()
+
+if(NOT DEFINED PATCH_VERSION)
+	set(PATCH_VERSION 0)
+endif()
+
 if(NOT DEFINED BS_USE_OSDM_BUILD_SYSTEM)
     if(DEFINED ENV{BS_USE_OSDM_BUILD_SYSTEM})
         set(BS_USE_OSDM_BUILD_SYSTEM "$ENV{BS_USE_OSDM_BUILD_SYSTEM}")
@@ -397,6 +409,8 @@ target_link_libraries( ${GMM_LIB_DLL_NAME}
         )
 else()
 	set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES OUTPUT_NAME "igdgmm")
+	set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES VERSION ${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION})
+	set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES SOVERSION ${MAJOR_VERSION})
 
 endif()
 
@@ -526,18 +540,6 @@ endif()
 
 if(UNIX)
     include(GNUInstallDirs)
-
-    if(NOT DEFINED MAJOR_VERSION)
-        set(MAJOR_VERSION 0)
-    endif()
-
-    if(NOT DEFINED MINOR_VERSION)
-        set(MINOR_VERSION 1)
-    endif()
-
-    if(NOT DEFINED PATCH_VERSION)
-        set(PATCH_VERSION 0)
-    endif()
 
     configure_file(${BS_DIR_GMMLIB}/igdgmm.h.in ${CMAKE_BINARY_DIR}/igdgmm.h)
     configure_file(${BS_DIR_GMMLIB}/igdgmm.pc.in ${CMAKE_BINARY_DIR}/igdgmm.pc @ONLY)
