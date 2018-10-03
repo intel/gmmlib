@@ -94,7 +94,7 @@ typedef struct GMM_RESOURCE_FLAG_REC
     struct
     {
         uint32_t AllowVirtualPadding       : 1;
-        uint32_t ApertureOnly              : 1;
+        uint32_t ApertureOnly              : 1; // Renaming ApertureOnly to NonLocalOnly, Will remove once all clients are moved to NonLocalOnly.
         uint32_t BigPage                   : 1;
         uint32_t Cacheable                 : 1;
         uint32_t ContigPhysMemoryForiDART  : 1; // iDART clients only; resource allocation must be physically contiguous.
@@ -103,7 +103,7 @@ typedef struct GMM_RESOURCE_FLAG_REC
         uint32_t ForceResidency            : 1; // (SVM Only) Forces CPU/GPU residency of the allocation's backing pages at creation.
         uint32_t Gfdt                      : 1;
         uint32_t GttMapType                : 5;
-        uint32_t HardwareProtected         : 1; 
+        uint32_t HardwareProtected         : 1;
         uint32_t KernelModeMapped          : 1; // Sets up pGmmBlock->pKernelModeMapping to allow kernel-mode mapping of the backing memory
         uint32_t LayoutBelow               : 1; // Indicates the orientation of MIP data in the buffer. This is the surviving option and may be inferred as the default.
         uint32_t LayoutMono                : 1; // Legacy, deprecated MIP layout. Used for internal debugging.
@@ -114,6 +114,7 @@ typedef struct GMM_RESOURCE_FLAG_REC
         uint32_t NoOptimizationPadding     : 1; // don't swell size for sake of 64KB pages - FtrWddm2_1_64kbPages
         uint32_t NoPhysMemory              : 1; // KMD Gfx Client Submission. Client miniport drivers may want to map their physical pages to Gfx memory space instead of allocating Gfx physical memory.
         uint32_t NotLockable               : 1; // Resource is GPU-exclusive and shall not be reference by the CPU. Relevant to memory allocation components as an optimisation opportunity for mapping buffers in CPU-side.
+        uint32_t NonLocalOnly              : 1;
         uint32_t StdSwizzle                : 1; // Standard Swizzle (YS) support on SKL+
         uint32_t PseudoStdSwizzle          : 1; // Only applicable to D3D12+ UMD's, for special-case of limited Standard Swizzle (YS) support on HSW/BDW/CHV.
         uint32_t Undefined64KBSwizzle      : 1; // Only applicable if system doesn't support StdSwizzle (i.e. Pre-Gen9). If set, surface is using one of the INTEL_64KB_UNDEFINED_* swizzles.
