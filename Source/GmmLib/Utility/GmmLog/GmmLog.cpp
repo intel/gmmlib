@@ -24,6 +24,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #if GMM_LOG_AVAILABLE
 #include "Internal/Common/GmmLibInc.h"
+#include "Internal/Common/GmmLogger.h"
 
 #if _WIN32
 #include <process.h>

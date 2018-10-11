@@ -213,6 +213,7 @@ set(HEADERS_
 	${BS_DIR_GMMLIB}/inc/Internal/Common/GmmLibInc.h
 	${BS_DIR_GMMLIB}/inc/Internal/Common/GmmTextureCalc.h
 	${BS_DIR_GMMLIB}/inc/GmmLib.h
+	${BS_DIR_GMMLIB}/inc/Internal/Common/GmmLogger.h
 )
 
 set(UMD_HEADERS
@@ -552,7 +553,8 @@ if(UNIX)
         FILES_MATCHING PATTERN "*.h"
         PATTERN "*.hpp"
         PATTERN "Internal" EXCLUDE
-        PATTERN "ULT" EXCLUDE)
+        PATTERN "ULT" EXCLUDE
+	PATTERN "spdlog" EXCLUDE)
 
     install (DIRECTORY ${BS_DIR_INC} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/igdgmm COMPONENT gmmlib-devel
         FILES_MATCHING PATTERN "*.h"

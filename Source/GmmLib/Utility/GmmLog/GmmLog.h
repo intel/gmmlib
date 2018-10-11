@@ -93,7 +93,6 @@ typedef enum GmmLogLevel
 #ifdef __cplusplus
 
 #include <iostream>
-#include "spdlog/spdlog.h"
 
 #define GMM_LOG_FILE_SIZE         1024 * 1024 * 5   // Once log reaches this size, it will start in new file
 #define GMM_ROTATE_FILE_NUMBER    3                 // Once log is full, it'll save old log with .1/.2/.3 in name, and then start with .1
@@ -109,54 +108,6 @@ typedef enum GmmLogLevel
     #define GMM_LOG_TO_FILE           "LogToFile"
     #define GMM_LOG_LEVEL_REGKEY      "LogLevel" // GmmLogLevel
 #endif //#if _WIN32
-/////////////////////////////////////////////////////////////////////////////////////
-/// @file Logger.h
-/// @brief This file contains the functions that are useful for logging in GmmLib
-/////////////////////////////////////////////////////////////////////////////////////
-namespace GmmLib
-{
-    class Logger
-    {
-        private:
-            /// This enum determines where the log goes
-            enum GmmLogMethod
-            {
-                ToOSLog,                                        ///< Log is sent to OS logging infrastructure (Debugger on Windows)
-                ToFile,                                         ///< Log is written to file
-            } LogMethod;                                        ///< Indicates which Logging method is preferred
-
-            spdlog::level::level_enum       LogLevel;           ///< Indicates the max log level to print
-
-        private:
-            Logger();
-            ~Logger();
-
-            bool            GmmLogInit();
-
-        public:
-            std::shared_ptr<spdlog::logger> SpdLogger;          ///< spdlog instance
-
-            /////////////////////////////////////////////////////////////////////////////////////
-            /// Creates a Logger singlton per process
-            ///
-            /// @remark
-            ///     If there are multiple modules loaded in one process, this singleton will be
-            ///     per module. For example: D3D10 and D3D12 are all used in process A. Both D3D10
-            ///     and D3D12 are built with GmmLib.lib. They are considered to be two modules and
-            ///     each has a Logger instance (singleton).
-            ///
-            /// @return Logger instance
-            /////////////////////////////////////////////////////////////////////////////////////
-            static Logger& CreateGmmLogSingleton()
-            {
-                static Logger GmmLoggerPerProc;
-                return GmmLoggerPerProc;
-            }
-    };
-} // namespace GmmLib
-
-// Macros
-extern GmmLib::Logger& GmmLoggerPerProc;
 
 extern "C" void GmmLibLogging(GmmLogLevel Level, const char* str, ...);
 
