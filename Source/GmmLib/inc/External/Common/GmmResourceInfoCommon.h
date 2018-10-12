@@ -1260,7 +1260,7 @@ namespace GmmLib
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetHAlignSurfaceState()
             {
-                uint32_t               HAlign;
+                uint32_t               HAlign = 0;
                 const GMM_PLATFORM_INFO   *pPlatform;
 
                 pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf);
@@ -1273,15 +1273,12 @@ namespace GmmLib
                     }
                     else
                     {
-                        if(GMM_IS_TILEY)
+                        switch (GetHAlign())
                         {
-                            switch (GetHAlign())
-                            {
-                                case 4:  HAlign = 1; break;
-                                case 8:  HAlign = 2; break;
-                                case 16: HAlign = 3; break;
-                                default: HAlign = 0; __GMM_ASSERT(0);
-                            }
+                            case 4:  HAlign = 1; break;
+                            case 8:  HAlign = 2; break;
+                            case 16: HAlign = 3; break;
+                            default: HAlign = 0; __GMM_ASSERT(0);
                         }
                     }
                 }
@@ -1348,15 +1345,12 @@ namespace GmmLib
             {
                 uint32_t   TiledMode = 0;
 
-                if(GMM_IS_TILEY)
-                {
-                    TiledMode =
-                        Surf.Flags.Info.Linear ? 0 :
-                            Surf.Flags.Info.TiledX ? 2 :
-                            /* Y/YF/YS */       3;
+                TiledMode =
+                    Surf.Flags.Info.Linear ? 0 :
+                        Surf.Flags.Info.TiledX ? 2 :
+                        /* Y/YF/YS */       3;
 
-                    __GMM_ASSERT((TiledMode != 3) || (Surf.Flags.Info.TiledY || Surf.Flags.Info.TiledYf || Surf.Flags.Info.TiledYs));
-                }
+                __GMM_ASSERT((TiledMode != 3) || (Surf.Flags.Info.TiledY || Surf.Flags.Info.TiledYf || Surf.Flags.Info.TiledYs));
 
                 return TiledMode;
             }
