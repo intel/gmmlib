@@ -22,6 +22,11 @@
 
 cmake_minimum_required(VERSION 3.5)
 project(igfx_gmmumd)
+
+# GmmLib Api Version used for so naming
+set(GMMLIB_API_MAJOR_VERSION 2)
+set(GMMLIB_API_MINOR_VERSION 0)
+
 if(NOT DEFINED MAJOR_VERSION)
 	set(MAJOR_VERSION 2)
 endif()
@@ -410,8 +415,8 @@ target_link_libraries( ${GMM_LIB_DLL_NAME}
         )
 else()
 	set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES OUTPUT_NAME "igdgmm")
-	set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES VERSION ${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION})
-	set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES SOVERSION ${MAJOR_VERSION})
+	set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES VERSION ${GMMLIB_API_MAJOR_VERSION}.${GMMLIB_API_MINOR_VERSION}.${PATCH_VERSION})
+	set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES SOVERSION ${GMMLIB_API_MAJOR_VERSION})
 
 endif()
 
