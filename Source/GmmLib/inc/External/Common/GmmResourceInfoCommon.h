@@ -1133,6 +1133,22 @@ namespace GmmLib
             }
 
             /////////////////////////////////////////////////////////////////////////
+            /// This function returns or sets the value of the Cp surface tag
+            /// associated with the given GMM resource within same process.
+            /// @param[in]  IsSet: true for updating tag in gmm
+            /// @param[in]  CpTag: Cp surface tag value
+            /// @return     current cp surface tag in gmm
+            /////////////////////////////////////////////////////////////////////////
+            GMM_INLINE_VIRTUAL GMM_INLINE uint32_t GMM_STDCALL GetSetCpSurfTag(uint8_t IsSet, uint32_t CpTag)
+            {
+                if (IsSet)
+                {
+                    Surf.CpTag = CpTag;
+                }
+                return Surf.CpTag;
+            }
+
+            /////////////////////////////////////////////////////////////////////////
             /// Returns the size of the surface in StdLayout format
             /// @return  Size in bytes of Standard Layout version of surface.
             /////////////////////////////////////////////////////////////////////////

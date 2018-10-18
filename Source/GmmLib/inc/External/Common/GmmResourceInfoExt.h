@@ -235,6 +235,7 @@ typedef struct GMM_RESCREATE_PARAMS_REC
     GMM_RESOURCE_MSAA_INFO              MSAA;    // How to sample this resource for anti-alisaing.
 
     GMM_RESOURCE_USAGE_TYPE             Usage;   // Intended use for this resource. See enumerated type.
+    uint32_t                            CpTag;
 
     union
     {

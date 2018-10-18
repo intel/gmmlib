@@ -85,6 +85,7 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
     Surf.MSAA.NumSamples           = GFX_MAX(Surf.MSAA.NumSamples, 1);
     Surf.MaximumRenamingListLength = CreateParams.MaximumRenamingListLength;
     Surf.OverridePitch             = CreateParams.OverridePitch;
+    Surf.CpTag                     = CreateParams.CpTag;
 
     Surf.Flags.Info.__PreWddm2SVM =
     Surf.Flags.Info.SVM &&

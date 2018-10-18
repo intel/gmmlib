@@ -24,11 +24,11 @@ cmake_minimum_required(VERSION 3.5)
 project(igfx_gmmumd)
 
 # GmmLib Api Version used for so naming
-set(GMMLIB_API_MAJOR_VERSION 2)
+set(GMMLIB_API_MAJOR_VERSION 3)
 set(GMMLIB_API_MINOR_VERSION 0)
 
 if(NOT DEFINED MAJOR_VERSION)
-	set(MAJOR_VERSION 2)
+	set(MAJOR_VERSION 3)
 endif()
 
 if(NOT DEFINED MINOR_VERSION)

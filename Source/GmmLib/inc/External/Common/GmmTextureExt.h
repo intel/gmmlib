@@ -136,6 +136,7 @@ typedef struct GMM_TEXTURE_INFO_REC
     uint32_t                Depth;
     uint32_t                MaxLod;
     uint32_t                ArraySize;
+    uint32_t                CpTag;
 
     struct{
         GMM_RESOURCE_USAGE_TYPE Usage;
