@@ -121,11 +121,7 @@ target_link_libraries(${EXE_NAME}
     dl
 )
 
-add_custom_target(Run_ULT ALL DEPENDS GMMULT)
-
-add_custom_command(
-    TARGET Run_ULT
-    POST_BUILD
-    COMMAND echo running ULTs
-    COMMAND "${CMAKE_COMMAND}" -E env "LD_LIBRARY_PATH=$<TARGET_FILE_DIR:igfx_gmmumd_dll>" ${CMAKE_CFG_INTDIR}/${EXE_NAME} --gtest_filter=CTest*
+add_test(
+    NAME ULT
+    COMMAND env "LD_LIBRARY_PATH=$<TARGET_FILE_DIR:igfx_gmmumd_dll>" $<TARGET_FILE:${EXE_NAME}> --gtest_filter=CTest*
 )
