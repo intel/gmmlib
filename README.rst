@@ -34,7 +34,9 @@ Building
 
 4) cmake [-DCMAKE_BUILD_TYPE= Release | Debug | ReleaseInternal] [-DARCH= 64 | 32]  ..
 
-5) $ make -j8 ( Also performs compile time ULT)
+5) $ make -j8
+
+6) $ make test (Performs ULT)
 
  
 Install
