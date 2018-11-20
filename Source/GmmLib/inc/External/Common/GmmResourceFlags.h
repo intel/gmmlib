@@ -108,6 +108,7 @@ typedef struct GMM_RESOURCE_FLAG_REC
         uint32_t LayoutBelow               : 1; // Indicates the orientation of MIP data in the buffer. This is the surviving option and may be inferred as the default.
         uint32_t LayoutMono                : 1; // Legacy, deprecated MIP layout. Used for internal debugging.
         uint32_t LayoutRight               : 1; // Legacy, deprecated MIP layout.
+        uint32_t LocalOnly                 : 1;
         uint32_t Linear                    : 1; // (non-)tiling preference for the allocation. (lowest priority) Y>X>W>L. See GmmLib::GmmTextureCalc::SetTileMode()
         uint32_t MediaCompressed           : 1;
         uint32_t NoOptimizationPadding     : 1; // don't swell size for sake of 64KB pages - FtrWddm2_1_64kbPages
