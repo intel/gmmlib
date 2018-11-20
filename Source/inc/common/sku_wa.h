@@ -90,6 +90,7 @@ typedef struct _SKU_FEATURE_TABLE
         unsigned int   FtrWddm2_1_64kbPages             : 1;  // WDDMv2.1 64KB page support
         unsigned int   FtrFrameBufferLLC                : 1;  // Displayable Frame buffers cached in LLC
         unsigned int   FtrDriverFLR                     : 1;  // Enable Function Level Reset (Gen11+)
+        unsigned int   FtrLocalMemory                   : 1;
     };
 
 
