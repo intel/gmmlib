@@ -38,3 +38,77 @@ GmmLib::PlatformInfoGen11::PlatformInfoGen11(PLATFORM &Platform)
     }
 
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Validates the MMC parameters passed in by clients to make sure they do not
+/// conflict or ask for unsupporting combinations/features.
+///
+/// @param[in]  GMM_TEXTURE_INFO which specify what sort of resource to create
+/// @return     1 is validation passed. 0 otherwise.
+/////////////////////////////////////////////////////////////////////////////////////
+uint8_t GmmLib::PlatformInfoGen11::ValidateMMC(GMM_TEXTURE_INFO &Surf)
+{
+
+    if(Surf.Flags.Gpu.MMC && //For Media Memory Compression --
+       ((!(GMM_IS_4KB_TILE(Surf.Flags) || GMM_IS_64KB_TILE(Surf.Flags))) ||
+        Surf.ArraySize > GMM_MAX_MMC_INDEX))
+    {
+        return 0;
+    }
+
+    return 1;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Validates the UnifiedAuxSurface parameters passed in by clients to make sure they do not
+/// conflict or ask for unsupporting combinations/features.
+///
+/// @param[in]  GMM_TEXTURE_INFO which specify what sort of resource to create
+/// @return     1 is validation passed. 0 otherwise.
+/////////////////////////////////////////////////////////////////////////////////////
+uint8_t GmmLib::PlatformInfoGen11::ValidateUnifiedAuxSurface(GMM_TEXTURE_INFO &Surf)
+{
+    if((Surf.Flags.Gpu.UnifiedAuxSurface) &&
+       !( //--- Legitimate UnifiedAuxSurface Case ------------------------------------------
+       Surf.Flags.Gpu.CCS &&
+       ((Surf.MSAA.NumSamples <= 1 && (Surf.Flags.Gpu.RenderTarget || Surf.Flags.Gpu.Texture)))))
+    {
+        GMM_ASSERTDPF(0, "Invalid UnifiedAuxSurface usage!");
+        return 0;
+    }
+    return 1;
+}
+
+//=============================================================================
+//
+// Function: CheckFmtDisplayDecompressible
+//
+// Desc: Returns true if display hw supports lossless render/media decompression
+//       else returns false.
+//       Umds can call it to decide if full resolve is required
+//
+// Parameters:
+//      See function arguments.
+//
+// Returns:
+//      uint8_t
+//-----------------------------------------------------------------------------
+uint8_t GmmLib::PlatformInfoGen11::CheckFmtDisplayDecompressible(GMM_TEXTURE_INFO &Surf,
+                                                                 bool              IsSupportedRGB64_16_16_16_16,
+                                                                 bool              IsSupportedRGB32_8_8_8_8,
+                                                                 bool              IsSupportedRGB32_2_10_10_10,
+                                                                 bool              IsSupportedMediaFormats)
+{
+    bool IsRenderCompressed = false;
+    bool IsMediaCompressed  = false;
+    GMM_UNREFERENCED_PARAMETER(IsSupportedMediaFormats);
+
+   if(IsSupportedRGB32_8_8_8_8 || //RGB32 8 : 8 : 8 : 8
+      (GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_ICELAKE &&
+       IsSupportedRGB64_16_16_16_16)) //RGB64 16:16 : 16 : 16 FP16
+   {
+       IsRenderCompressed = true;
+   }
+
+    return IsRenderCompressed || IsMediaCompressed;
+}

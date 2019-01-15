@@ -103,6 +103,7 @@ namespace GmmLib
 
             virtual GMM_STATUS GMM_STDCALL  FillTexCube(GMM_TEXTURE_INFO   *pTexInfo,
                                                         __GMM_BUFFER_TYPE  *pRestrictions);
+            virtual GMM_STATUS GMM_STDCALL MSAACCSUsage(GMM_TEXTURE_INFO *pTexInfo);
 
             virtual uint32_t GMM_STDCALL ScaleFCRectHeight(GMM_TEXTURE_INFO * pTexInfo, uint32_t Height)
             {
@@ -118,7 +119,6 @@ namespace GmmLib
                     ScaledHeight /= TileYClearHeightScale;
                 }
                 return ScaledHeight;
-
             }
 
             /* inline functions */

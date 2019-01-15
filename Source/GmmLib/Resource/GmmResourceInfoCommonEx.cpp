@@ -116,14 +116,7 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
         return false;
     }
 
-    if((GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) <= IGFX_GEN11_CORE))
-    {
-        if(Surf.Flags.Gpu.MCS)
-        {
-            Surf.Flags.Gpu.CCS = Surf.Flags.Gpu.MCS;
-        }
-        Surf.Flags.Info.RenderCompressed = Surf.Flags.Info.MediaCompressed = 0;
-    }
+    pGmmGlobalContext->GetPlatformInfoObj()->SetCCSFlag(this->GetResFlags());
 
     // Moderate down displayable flags if input parameters are not conducive.
     // Reject non displayable tiling modes
@@ -223,6 +216,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
     const __GMM_PLATFORM_RESOURCE *pPlatformResource        = NULL;
     bool                           AllowMaxWidthViolations  = false;
     bool                           AllowMaxHeightViolations = false;
+    uint8_t                        Status                   = 0;
 
     GMM_DPF_ENTER;
 
@@ -360,11 +354,8 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
         goto ERROR_CASE;
     }
 
-    if(Surf.Flags.Gpu.MMC && //For Media Memory Compression --
-       ((!(GMM_IS_4KB_TILE(Surf.Flags) ||  GMM_IS_64KB_TILE(Surf.Flags)) &&
-         (GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) <= IGFX_GEN11_CORE)) ||
-        (GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) <= IGFX_GEN11_CORE &&
-         Surf.ArraySize > GMM_MAX_MMC_INDEX)))
+    //For Media Memory Compression --
+    if((Status = pGmmGlobalContext->GetPlatformInfoObj()->ValidateMMC(Surf)) == 0)
     {
         GMM_ASSERTDPF(0, "Invalid flag or array size!");
         goto ERROR_CASE;
@@ -513,14 +504,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
     // CCS Restrictions
     if(Surf.Flags.Gpu.CCS)
     {
-        if(!(                                                           //--- Legitimate CCS Case ----------------------------------------
-           ((Surf.Type >= RESOURCE_2D && Surf.Type <= RESOURCE_BUFFER) && //Not supported: 1D; Supported: Buffer, 2D, 3D, cube, Arrays, mip-maps, MSAA, Depth/Stencil
-            (Surf.Type <= RESOURCE_CUBE &&
-              GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) >= IGFX_GEN8_CORE &&
-              GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) <= IGFX_GEN11_CORE)
-             ) ||
-           ((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) < IGFX_GEN8_CORE) &&
-            Surf.Type == RESOURCE_2D && Surf.MaxLod == 0)))
+        if((Status = pGmmGlobalContext->GetPlatformInfoObj()->ValidateCCS(Surf)) == 0)
         {
             GMM_ASSERTDPF(0, "Invalid CCS usage!");
             goto ERROR_CASE;
@@ -534,11 +518,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
     }
 
     // UnifiedAuxSurface Restrictions
-    if((Surf.Flags.Gpu.UnifiedAuxSurface) &&
-       !( //--- Legitimate UnifiedAuxSurface Case ------------------------------------------
-       Surf.Flags.Gpu.CCS &&
-       (Surf.MSAA.NumSamples <= 1 && (Surf.Flags.Gpu.RenderTarget || Surf.Flags.Gpu.Texture))
-       ))
+    if((Status = pGmmGlobalContext->GetPlatformInfoObj()->ValidateUnifiedAuxSurface(Surf)) == 0)
     {
         GMM_ASSERTDPF(0, "Invalid UnifiedAuxSurface usage!");
         goto ERROR_CASE;
@@ -714,19 +694,10 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetDisplayCompressionSupport(
                 break;
         }
 
-        bool IsRenderCompressed = false;
-        bool IsMediaCompressed  = false;
-
-        if(IsSupportedRGB32_8_8_8_8 || //RGB32 8 : 8 : 8 : 8
-            (GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_ICELAKE &&
-             IsSupportedRGB64_16_16_16_16) || //RGB64 16:16 : 16 : 16 FP16
-            (GFX_GET_CURRENT_DISPLAYCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN10_CORE &&
-            IsSupportedRGB32_2_10_10_10)) //RGB32 2 : 10 : 10 : 10))
-        {
-            IsRenderCompressed = true;
-        }
-
-        ComprSupported = IsRenderCompressed || IsMediaCompressed;
+        //Check fmt is display decompressible
+        ComprSupported = pGmmGlobalContext->GetPlatformInfoObj()->CheckFmtDisplayDecompressible(Surf, IsSupportedRGB64_16_16_16_16,
+                                                                                                IsSupportedRGB32_8_8_8_8, IsSupportedRGB32_2_10_10_10,
+                                                                                                IsSupportedMediaFormats);
     }
 
     return ComprSupported;

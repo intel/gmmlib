@@ -67,6 +67,7 @@ namespace GmmLib
 
             virtual GMM_STATUS GMM_STDCALL  FillTexCube(GMM_TEXTURE_INFO   *pTexInfo,
                                                         __GMM_BUFFER_TYPE  *pRestrictions);
+            virtual GMM_STATUS GMM_STDCALL MSAACCSUsage(GMM_TEXTURE_INFO *pTexInfo);
 
             /* inline functions */
     };

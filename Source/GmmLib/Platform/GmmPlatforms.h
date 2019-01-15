@@ -24,6 +24,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #ifdef __cplusplus
 #include "../inc/External/Common/GmmMemAllocator.hpp"
+#include "../inc/External/Common/GmmTextureExt.h"
 
 namespace GmmLib {
     class NON_PAGED_SECTION PlatformInfo : public GmmMemAllocator
@@ -64,6 +65,15 @@ namespace GmmLib {
         {
             Data.NumberFenceRegisters = Number;
         }
+        virtual void SetCCSFlag(GMM_RESOURCE_FLAG &Flags);
+        virtual uint8_t ValidateMMC(GMM_TEXTURE_INFO &Surf);
+        virtual uint8_t ValidateCCS(GMM_TEXTURE_INFO &Surf);
+        virtual uint8_t ValidateUnifiedAuxSurface(GMM_TEXTURE_INFO &Surf);
+        virtual uint8_t CheckFmtDisplayDecompressible(GMM_TEXTURE_INFO &Surf,
+                                                      bool IsSupportedRGB64_16_16_16_16,
+                                                      bool IsSupportedRGB32_8_8_8_8,
+                                                      bool IsSupportedRGB32_2_10_10_10,
+                                                      bool IsSupportedMediaFormats);
 
         static void IncrementRefCount()
         {

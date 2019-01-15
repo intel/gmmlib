@@ -30,6 +30,13 @@ namespace GmmLib
     public:
         PlatformInfoGen11(PLATFORM &Platform);
         ~PlatformInfoGen11() {};
+        virtual uint8_t ValidateMMC(GMM_TEXTURE_INFO &Surf);
+        virtual uint8_t ValidateUnifiedAuxSurface(GMM_TEXTURE_INFO &Surf);
+        virtual uint8_t CheckFmtDisplayDecompressible(GMM_TEXTURE_INFO &Surf,
+                                                      bool IsSupportedRGB64_16_16_16_16,
+                                                      bool IsSupportedRGB32_8_8_8_8,
+                                                      bool IsSupportedRGB32_2_10_10_10,
+                                                      bool IsSupportedMediaFormats);
     };
 }
 

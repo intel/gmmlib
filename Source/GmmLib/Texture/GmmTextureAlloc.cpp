@@ -445,11 +445,8 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexPitchAndSize(GMM_TEXTURE_INFO * pTexIn
                                      pBufferType->RenderPitchAlignment);
 
         // Media Memory Compression : Allocate one memory tile wider than is required...
-        if(pTexInfo->Flags.Gpu.MMC && !pTexInfo->Flags.Gpu.UnifiedAuxSurface && GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN11_CORE)
-        {
-            WidthBytesRender += pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileWidth;
-            WidthBytesPhysical = WidthBytesLock = WidthBytesRender;
-        }
+        pGmmGlobalContext->GetTextureCalc()->AllocateOneTileThanRequied(pTexInfo, WidthBytesRender,
+                                                                        WidthBytesPhysical, WidthBytesLock);
 
         // check if locking a particular suface need to be power 2 or not
         if(pBufferType->NeedPow2LockAlignment)
@@ -1441,4 +1438,164 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexBlockMem(GMM_TEXTURE_INFO * pTexInfo,
 
     GMM_DPF_EXIT;
     return (Status);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// This function does any special-case conversion from client-provided pseudo creation
+/// parameters to actual parameters for CCS.
+///
+/// @param[in]  pTexInfo: Reference to ::GMM_TEXTURE_INFO
+///
+///  @return     ::GMM_STATUS
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_STATUS GMM_STDCALL GmmLib::GmmTextureCalc::MSAACCSUsage(GMM_TEXTURE_INFO *pTexInfo)
+{
+    GMM_STATUS Status = GMM_SUCCESS;
+    //const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+
+    if(pTexInfo->MSAA.NumSamples > 1) // CCS for MSAA Compression
+    {
+        Status = MSAACompression(pTexInfo);
+    }
+    else // Non-MSAA CCS Use (i.e. Render Target Fast Clear)
+    {
+        if(!pTexInfo->Flags.Info.TiledW &&
+           ((!pTexInfo->Flags.Info.Linear) ||
+            (GMM_IS_4KB_TILE(pTexInfo->Flags) || GMM_IS_64KB_TILE(pTexInfo->Flags) ||
+             (pTexInfo->Type == RESOURCE_BUFFER && pTexInfo->Flags.Info.Linear))) && //!Yf - deprecate Yf
+           ((pTexInfo->MaxLod == 0) &&
+            (pTexInfo->ArraySize <= 1)) &&
+           (((pTexInfo->BitsPerPixel == 32) ||
+             (pTexInfo->BitsPerPixel == 64) ||
+             (pTexInfo->BitsPerPixel == 128))))
+        {
+            // For non-MSAA CCS usage, the four tables of
+            // requirements:
+            // (1) RT Alignment (GMM Don't Care: Occurs Naturally)
+            // (2) ClearRect Alignment
+            // (3) ClearRect Scaling (GMM Don't Care: GHAL3D Matter)
+            // (4) Non-MSAA CCS Sizing
+
+            // Gen8+:
+            // Since mip-mapped and arrayed surfaces are supported, we
+            // deal with alignment later at per mip level. Here, we set
+            // tiling type only. TileX is not supported on Gen9+.
+            // Pre-Gen8:
+            // (!) For all the above, there are separate entries for
+            // 32/64/128bpp--and then deals with PIXEL widths--Here,
+            // though, we will unify by considering 8bpp table entries
+            // (unlisted--i.e. do the math)--and deal with BYTE widths.
+
+            // (1) RT Alignment -- The surface width and height don't
+            // need to be padded to RT CL granularity. On HSW, all tiled
+            // RT's will have appropriate alignment (given 4KB surface
+            // base and no mip-map support) and appropriate padding
+            // (due to tile padding). On BDW+, GMM uses H/VALIGN that
+            // will guarantee the MCS RT alignment for all subresources.
+
+            // (2) ClearRect Alignment -- I.e. FastClears must be done
+            // with certain granularity:
+            //  TileY:  512 Bytes x 128 Lines
+            //  TileX: 1024 Bytes x  64 Lines
+            // So a CCS must be sized to match that granularity (though
+            // the RT itself need not be fully padded to that
+            // granularity to use FastClear).
+
+            // (4) Non-MSAA CCS Sizing -- CCS sizing is based on the
+            // size of the FastClear (with granularity padding) for the
+            // paired RT. CCS's (byte widths and heights) are scaled
+            // down from their RT's by:
+            //  TileY: 32 x 32
+            //  TileX: 64 x 16
+
+            // ### Example #############################################
+            // RT:         800x600, 32bpp, TileY
+            // 8bpp:      3200x600
+            // FastClear: 3584x640 (for TileY FastClear Granularity of 512x128)
+            // CCS:       112x20 (for TileY RT:CCS Sizing Downscale of 32x32)
+
+            uint32_t AlignmentFactor = pGmmGlobalContext->GetWaTable().WaDoubleFastClearWidthAlignment ? 2 : 1;
+
+            pTexInfo->BaseWidth    = pTexInfo->BaseWidth * pTexInfo->BitsPerPixel / 8;
+            pTexInfo->BitsPerPixel = 8;
+            pTexInfo->Format       = GMM_FORMAT_R8_UINT;
+
+            if(GMM_IS_4KB_TILE(pTexInfo->Flags)) //-------- Fast Clear Granularity
+            {                                    //                       /--- RT:CCS Sizing Downscale
+                pTexInfo->BaseWidth  = GFX_ALIGN(pTexInfo->BaseWidth, 512 * AlignmentFactor) / 32;
+                pTexInfo->BaseHeight = GFX_ALIGN(pTexInfo->BaseHeight, 128) / 32;
+            }
+            else //if(pTexInfo->Flags.Info.TiledX)
+            {
+                pTexInfo->BaseWidth  = GFX_ALIGN(pTexInfo->BaseWidth, 1024 * AlignmentFactor) / 64;
+                pTexInfo->BaseHeight = GFX_ALIGN(pTexInfo->BaseHeight, 64) / 16;
+            }
+        }
+        else
+        {
+            GMM_ASSERTDPF(0, "Illegal CCS creation parameters!");
+            Status = GMM_ERROR;
+        }
+    }
+    return Status;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// This function does any special-case conversion from client-provided pseudo creation
+/// parameters to actual parameters for CCS for MSAA Compression.
+///
+/// @param[in]  pTexInfo: Reference to ::GMM_TEXTURE_INFO
+///
+///  @return     ::GMM_STATUS
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_STATUS GmmLib::GmmTextureCalc::MSAACompression(GMM_TEXTURE_INFO *pTexInfo)
+{
+    GMM_STATUS Status = GMM_SUCCESS;
+
+    if((pTexInfo->MSAA.NumSamples == 2) || (pTexInfo->MSAA.NumSamples == 4))
+    {
+        pTexInfo->BitsPerPixel = 8;
+        pTexInfo->Format       = GMM_FORMAT_R8_UINT;
+    }
+    else if(pTexInfo->MSAA.NumSamples == 8)
+    {
+        pTexInfo->BitsPerPixel = 32;
+        pTexInfo->Format       = GMM_FORMAT_R32_UINT;
+    }
+    else //if(pTexInfo->MSAA.NumSamples == 16)
+    {
+        pTexInfo->BitsPerPixel = 64;
+        pTexInfo->Format       = GMM_FORMAT_GENERIC_64BIT;
+    }
+
+    if((Status = __GmmTexFillHAlignVAlign(pTexInfo)) != GMM_SUCCESS) // Need to get our alignment (matching RT) before overwriting our RT's MSAA setting.
+    {
+        return Status;
+    }
+    pTexInfo->MSAA.NumSamples         = 1; // CCS itself isn't MSAA'ed.
+    pTexInfo->Flags.Gpu.__MsaaTileMcs = 1;
+
+    return Status;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+///Allocate one memory tile wider than is required for Media Memory Compression
+///
+/// @param[in]  See function definition.
+///
+/// @return     ::
+/////////////////////////////////////////////////////////////////////////////////////
+void GMM_STDCALL GmmLib::GmmTextureCalc::AllocateOneTileThanRequied(GMM_TEXTURE_INFO *pTexInfo,
+                                                                    GMM_GFX_SIZE_T &  WidthBytesRender,
+                                                                    GMM_GFX_SIZE_T &  WidthBytesPhysical,
+                                                                    GMM_GFX_SIZE_T &  WidthBytesLock)
+{
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+
+    if(pTexInfo->Flags.Gpu.MMC && !pTexInfo->Flags.Gpu.UnifiedAuxSurface)
+    {
+        WidthBytesRender += pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileWidth;
+        WidthBytesPhysical = WidthBytesLock = WidthBytesRender;
+    }
 }

@@ -61,6 +61,119 @@ GmmLib::PlatformInfo::PlatformInfo(PLATFORM &Platform)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
+/// Copies parameters or sets flags based on info sent by the client.
+///
+/// @param[in]  CreateParams: Flags which specify what sort of resource to create
+/////////////////////////////////////////////////////////////////////////////////////
+void GmmLib::PlatformInfo::SetCCSFlag(GMM_RESOURCE_FLAG &Flags)
+{
+    if(Flags.Gpu.MCS)
+    {
+        Flags.Gpu.CCS = Flags.Gpu.MCS;
+    }
+    Flags.Info.RenderCompressed = Flags.Info.MediaCompressed = 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Validates the MMC parameters passed in by clients to make sure they do not
+/// conflict or ask for unsupporting combinations/features.
+///
+/// @param[in]  GMM_TEXTURE_INFO which specify what sort of resource to create
+/// @return     1 is validation passed. 0 otherwise.
+/////////////////////////////////////////////////////////////////////////////////////
+uint8_t GmmLib::PlatformInfo::ValidateMMC(GMM_TEXTURE_INFO &Surf)
+{
+    if(Surf.Flags.Gpu.MMC && //For Media Memory Compression --
+       ((!(GMM_IS_4KB_TILE(Surf.Flags) || GMM_IS_64KB_TILE(Surf.Flags))) ||
+        Surf.ArraySize > GMM_MAX_MMC_INDEX))
+    {
+        return 0;
+    }
+    return 1;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Validates the parameters passed in by clients to make sure they do not
+/// conflict or ask for unsupporting combinations/features.
+///
+/// @param[in]  GMM_TEXTURE_INFO which specify what sort of resource to create
+/// @return     1 is validation passed. 0 otherwise.
+/////////////////////////////////////////////////////////////////////////////////////
+uint8_t GmmLib::PlatformInfo::ValidateCCS(GMM_TEXTURE_INFO &Surf)
+{
+    if(!(                                                             //--- Legitimate CCS Case ----------------------------------------
+       ((Surf.Type >= RESOURCE_2D && Surf.Type <= RESOURCE_BUFFER) && //Not supported: 1D; Supported: Buffer, 2D, 3D, cube, Arrays, mip-maps, MSAA, Depth/Stencil
+        (Surf.Type <= RESOURCE_CUBE)) ||
+       (Surf.Type == RESOURCE_2D && Surf.MaxLod == 0)))
+    {
+        GMM_ASSERTDPF(0, "Invalid CCS usage!");
+        return 0;
+    }
+
+    if(Surf.Flags.Info.RenderCompressed && Surf.Flags.Info.MediaCompressed)
+    {
+        GMM_ASSERTDPF(0, "Invalid CCS usage - can't be both RC and MC!");
+        return 0;
+    }
+
+    return 1;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Validates the UnifiedAuxSurface parameters passed in by clients to make sure they do not
+/// conflict or ask for unsupporting combinations/features.
+///
+/// @param[in]  GMM_TEXTURE_INFO which specify what sort of resource to create
+/// @return     1 is validation passed. 0 otherwise.
+/////////////////////////////////////////////////////////////////////////////////////
+uint8_t GmmLib::PlatformInfo::ValidateUnifiedAuxSurface(GMM_TEXTURE_INFO &Surf)
+{
+    if((Surf.Flags.Gpu.UnifiedAuxSurface) &&
+       !( //--- Legitimate UnifiedAuxSurface Case ------------------------------------------
+       Surf.Flags.Gpu.CCS &&
+       (Surf.MSAA.NumSamples <= 1 && (Surf.Flags.Gpu.RenderTarget || Surf.Flags.Gpu.Texture))))
+    {
+        GMM_ASSERTDPF(0, "Invalid UnifiedAuxSurface usage!");
+        return 0;
+    }
+    return 1;
+}
+
+//=============================================================================
+//
+// Function: CheckFmtDisplayDecompressible
+//
+// Desc: Returns true if display hw supports lossless render/media decompression
+//       else returns false.
+//       Umds can call it to decide if full resolve is required
+//
+// Parameters:
+//      See function arguments.
+//
+// Returns:
+//      uint8_t
+//-----------------------------------------------------------------------------
+uint8_t GmmLib::PlatformInfo::CheckFmtDisplayDecompressible(GMM_TEXTURE_INFO &Surf,
+                                                            bool              IsSupportedRGB64_16_16_16_16,
+                                                            bool              IsSupportedRGB32_8_8_8_8,
+                                                            bool              IsSupportedRGB32_2_10_10_10,
+                                                            bool              IsSupportedMediaFormats)
+{
+    bool IsRenderCompressed = false;
+    GMM_UNREFERENCED_PARAMETER(IsSupportedMediaFormats);
+    GMM_UNREFERENCED_PARAMETER(IsSupportedRGB64_16_16_16_16);
+    GMM_UNREFERENCED_PARAMETER(Surf);
+
+    if(IsSupportedRGB32_8_8_8_8 || //RGB32 8 : 8 : 8 : 8
+       (GFX_GET_CURRENT_DISPLAYCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN10_CORE &&
+        IsSupportedRGB32_2_10_10_10)) //RGB32 2 : 10 : 10 : 10))
+    {
+        IsRenderCompressed = true;
+    }
+    return IsRenderCompressed;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
 /// C wrapper to get platform info data pointer (non-override platform info)
 ///
 /// @return Pointer to platform info data

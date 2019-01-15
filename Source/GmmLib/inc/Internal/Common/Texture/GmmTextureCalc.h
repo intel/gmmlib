@@ -331,6 +331,13 @@ namespace GmmLib
                 return ScaledWidth;
             }
 
+            virtual GMM_STATUS GMM_STDCALL MSAACCSUsage(GMM_TEXTURE_INFO *pTexInfo);
+            virtual void GMM_STDCALL AllocateOneTileThanRequied(GMM_TEXTURE_INFO *pTexInfo,
+                                                                GMM_GFX_SIZE_T &WidthBytesRender,
+                                                                GMM_GFX_SIZE_T &WidthBytesPhysical,
+                                                                GMM_GFX_SIZE_T &WidthBytesLock);
+            GMM_STATUS MSAACompression(GMM_TEXTURE_INFO *pTexInfo);
+
             /* inline functions */
     };
 
