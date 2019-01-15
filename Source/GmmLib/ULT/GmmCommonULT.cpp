@@ -65,7 +65,6 @@ void CommonULT::SetUpTestCase()
 
     AllocateAdapterInfo();
 
-#ifdef GMM_LIB_DLL
     hGmmLib = dlopen(GMM_UMD_DLL, RTLD_LAZY);
     ASSERT_TRUE(hGmmLib);
 
@@ -80,18 +79,6 @@ void CommonULT::SetUpTestCase()
                                       &pGfxAdapterInfo->WaTable,
                                       &pGfxAdapterInfo->SystemInfo,
                                       GMM_EXCITE_VISTA);
-#else
-
-    GMM_STATUS GmmStatus = GmmInitGlobalContext(GfxPlatform,
-                                                &pGfxAdapterInfo->SkuTable,
-                                                &pGfxAdapterInfo->WaTable,
-                                                &pGfxAdapterInfo->SystemInfo,
-                                                GMM_EXCITE_VISTA);
-
-    ASSERT_EQ(GmmStatus, GMM_SUCCESS);
-
-    pGmmULTClientContext = GmmCreateClientContext(GMM_EXCITE_VISTA);
-#endif // GMM_LIB_DLL
 
     ASSERT_TRUE(pGmmULTClientContext);
 }
@@ -100,17 +87,12 @@ void CommonULT::TearDownTestCase()
 {
     printf("%s\n", __FUNCTION__);
 
-#ifdef GMM_LIB_DLL
     pfnGmmDestroy(static_cast<GMM_CLIENT_CONTEXT *>(pGmmULTClientContext));
 
     if(hGmmLib)
     {
         dlclose(hGmmLib);
     }
-#else
-    GmmDeleteClientContext(pGmmULTClientContext);
-    GmmDestroyGlobalContext();
-#endif
 
     hGmmLib              = NULL;
     pGmmULTClientContext = NULL;

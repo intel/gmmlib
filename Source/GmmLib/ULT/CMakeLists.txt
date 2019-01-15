@@ -92,13 +92,6 @@ include_directories(
     ${BS_DIR_INC}/common
     )
 
-if(MSVC)
-
-    include_directories(
-        ${BS_DIR_D3D11}/Imola
-    )
-endif()
-
 macro(GmmLibULTSetTargetConfig ultTarget)
 	if (TARGET ${ultTarget})
 			set_property(TARGET ${ultTarget} APPEND PROPERTY COMPILE_DEFINITIONS
@@ -114,40 +107,17 @@ add_executable(${EXE_NAME} ${GMMULT_HEADERS} ${GMMULT_SOURCES})
 
 GmmLibULTSetTargetConfig(${EXE_NAME})
 
+set_property(TARGET ${EXE_NAME} APPEND PROPERTY COMPILE_DEFINITIONS __GMM GMM_LIB_DLL __UMD)
 
-if(MSVC)
-    bs_set_wdk(${EXE_NAME})
+if(NOT TARGET igfx_gmmumd_dll)
+    add_subdirectory("${BS_DIR_GMMLIB}" "${CMAKE_BINARY_DIR}/gmmlib/ult")
+endif()
+target_link_libraries(${EXE_NAME} igfx_gmmumd_dll)
 
-    set_property(TARGET ${EXE_NAME} APPEND PROPERTY COMPILE_DEFINITIONS __GMM GMM_LIB_DLL GMM_ULT __UMD)
-
-    add_dependencies(${EXE_NAME}
-					 igfx_gmmumd_dll
+target_link_libraries(${EXE_NAME}
+    pthread
+    dl
 )
-
-    target_link_libraries( ${EXE_NAME}
-        advapi32.lib
-        dxgi.lib
-        gdi32.lib
-        opengl32.lib
-        user32.lib
-    )
-else()
-    set_property(TARGET ${EXE_NAME} APPEND PROPERTY COMPILE_DEFINITIONS __GMM GMM_EXCITE __UMD)
-
-    target_link_libraries(${EXE_NAME}
-        igfx_gmmumd_excite
-    )
-
-#	if(NOT TARGET igfx_gmmumd_dll)
-#		add_subdirectory("${BS_DIR_GMMLIB}" "${CMAKE_BINARY_DIR}/gmmlib/ult")
-#	endif()
-#	target_link_libraries(${EXE_NAME} igfx_gmmumd_dll)
-
-    target_link_libraries(${EXE_NAME}
-        pthread
-		dl
-    )
- endif()
 
 add_custom_target(Run_ULT ALL DEPENDS GMMULT)
 
@@ -157,4 +127,3 @@ add_custom_command(
     COMMAND echo running ULTs
     COMMAND ${EXE_NAME}  --gtest_filter=CTest*
 )
-

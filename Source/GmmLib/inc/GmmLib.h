@@ -61,15 +61,6 @@ extern "C" {
 #include "External/Common/GmmLibDll.h"
 #include "External/Common/GmmLibDllName.h"
 
-#ifdef __GMM_KMD__
-    #include "External/Windows/GmmHeap.h"
-    #include "External/Windows/node.h"
-    #include "External/Common/GmmGttExt.h"
-    #include "External/Common/GmmProto.h"
-    #include "../Utility/GmmUtility.h"
-    #include "../Utility/Windows/GmmUtilityWin.h"
-#endif
-
 #ifdef __cplusplus
 }
 #endif /*__cplusplus*/

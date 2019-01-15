@@ -92,13 +92,6 @@ include(${BUILD_SYS_INC}/bs_dir_names.cmake)
 set(CMAKE_DISABLE_SOURCE_CHANGES ON)
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 
-set (TARGET_LIST
-        igfxgmmumd
-	gmm_umd
-	igfx_gmmumd_excite
-	#igfx_gmmumd_ocl
-	)
-
 ################################################################################
 # Define GMM_DLL Target
 ################################################################################
@@ -189,7 +182,6 @@ set(HEADERS_
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmConst.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmDebug.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmFormatTable.h
-	${BS_DIR_GMMLIB}/inc/External/Common/GmmGttExt.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmInfo.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmInfoExt.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmInternal.h
@@ -296,7 +288,6 @@ source_group("Header Files\\External\\Common" FILES
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmConst.h
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmDebug.h
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmFormatTable.h
-			${BS_DIR_GMMLIB}/inc/External/Common/GmmGttExt.h
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmInfo.h
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmInfoExt.h
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmInternal.h
@@ -380,19 +371,7 @@ set(headers
   )
 
 # set compiler options
-if(MSVC)
-	include(Windows.cmake)
-else()
-	include(Linux.cmake)
-endif()
-
-foreach(lib_target ${TARGET_LIST})
-  add_library( ${lib_target} STATIC ${UMD_HEADERS} ${UMD_SOURCES})
-endforeach()
-
-foreach(lib_target ${TARGET_LIST})
-	GmmLibSetTargetConfig(${lib_target})
-endforeach()
+include(Linux.cmake)
 
 ###################################################################################
 # create dll library
@@ -429,38 +408,8 @@ endif()
 ###################################################################################
 
 bs_set_defines()
-
-if(MSVC)
-	foreach(lib_target ${TARGET_LIST})
-		bs_set_wdk(${lib_target})
-	endforeach()
-endif()
-
 bs_set_force_exceptions()
-
 bs_set_post_target()
-
-foreach(lib_target ${TARGET_LIST})
-  bs_set_extra_target_properties(${lib_target}
-      _ATL_NO_WIN_SUPPORT
-      SMALL_POOL_ALLOC
-      __GMM
-      __GFX_MACRO_C__
-      UNUSED_ISTDLIB_MT
-      __UMD
-      GMM_UNIFY_DAF_API
-	  )
-
-	if(CMAKE_BUILD_TYPE STREQUAL "ReleaseInternal")
-		bs_set_extra_target_properties(${lib_target} _RELEASE_INTERNAL)
-	endif()
-
-    target_include_directories(${lib_target} INTERFACE
-        ${BS_DIR_GMMLIB}/inc
-        ${BS_DIR_INC}
-        ${BS_DIR_INC}/common)
-
-endforeach()
 
 ###################################################################################
 # Set common macros for DLL
@@ -488,28 +437,6 @@ target_include_directories(${GMM_LIB_DLL_NAME} INTERFACE
 # End of Set macros DLL
 ###################################################################################
 
-if ("${GMM_CLIENT_TYPE}" STREQUAL "OCL")
-	bs_set_extra_target_properties(gmm_umd
-	    GMM_OCL
-            UNUSED_ISTDLIB_MT
-        )
-else()
-    	bs_set_extra_target_properties(gmm_umd
-	    GMM_OGL
-	    UNUSED_ISTDLIB_MT
-        )
-endif()
-
-#bs_set_extra_target_properties(igfx_gmmumd_ocl
-#	GMM_OCL
-#)
-
-bs_set_extra_target_properties(igfxgmmumd
-	ISTDLIB_UMD
-	UNUSED_ISTDLIB_MT
-	GMM_UNIFIED_LIB
-)
-
 bs_set_extra_target_properties(${GMM_LIB_DLL_NAME}
 	ISTDLIB_UMD
 	UNUSED_ISTDLIB_MT
@@ -521,14 +448,6 @@ bs_set_extra_target_properties(${GMM_LIB_DLL_NAME}
 if("${GMMLIB_ARCH}" MATCHES "64")
 	bs_set_extra_target_properties(${GMM_LIB_DLL_NAME}
 		_X64)
-endif()
-
-if("${GMMLIB_ARCH}" MATCHES "32")
-	#bs_set_extra_target_properties(igfx_gmmumd_ocl UNUSED_ISTDLIB_MT)
-
-	if((CMAKE_BUILD_TYPE STREQUAL "Release") OR (CMAKE_BUILD_TYPE STREQUAL "ReleaseInternal"))
-		bs_set_extra_target_properties(gmm_umd ISTDLIB_UMD)
-	endif()
 endif()
 
 if(NOT DEFINED RUN_TEST_SUITE OR RUN_TEST_SUITE)
@@ -555,7 +474,6 @@ if(UNIX)
 
     install(TARGETS ${GMM_LIB_DLL_NAME} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT gmmlib NAMELINK_SKIP)
     install(TARGETS ${GMM_LIB_DLL_NAME} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT gmmlib-devel NAMELINK_ONLY)
-    install(TARGETS gmm_umd DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT gmmlib)
 
     install(DIRECTORY ${BS_DIR_GMMLIB} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/igdgmm COMPONENT gmmlib-devel
         FILES_MATCHING PATTERN "*.h"

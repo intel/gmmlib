@@ -34,7 +34,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "External/Common/GmmPlatformExt.h"
 #include "External/Common/GmmCachePolicy.h"
 #include "External/Common/GmmResourceInfoExt.h"
-#include "External/Common/GmmGttExt.h"
 #include "../Platform/GmmPlatforms.h"
 #include "Platform/GmmGen8Platform.h"
 #include "Platform/GmmGen9Platform.h"
