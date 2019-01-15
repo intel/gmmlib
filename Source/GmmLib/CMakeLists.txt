@@ -417,6 +417,9 @@ else()
 	set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES OUTPUT_NAME "igdgmm")
 	set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES VERSION ${GMMLIB_API_MAJOR_VERSION}.${GMMLIB_API_MINOR_VERSION}.${PATCH_VERSION})
 	set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES SOVERSION ${GMMLIB_API_MAJOR_VERSION})
+        set(THREADS_PREFER_PTHREAD_FLAG ON)
+        find_package(Threads REQUIRED)
+        target_link_libraries(${GMM_LIB_DLL_NAME} Threads::Threads)
 
 endif()
 

@@ -95,6 +95,7 @@ SET (GMMLIB_COMPILER_CXX_FLAGS_COMMON
     -fexceptions
     -fcheck-new
     -std=c++11
+    -pthread
     )
 
 SET (GMMLIB_COMPILER_FLAGS_DEBUG
