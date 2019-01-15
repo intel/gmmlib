@@ -141,9 +141,13 @@ extern "C" GMM_STATUS GMM_STDCALL GmmCreateSingletonContext(const PLATFORM Platf
 extern "C" void GMM_STDCALL GmmDestroySingletonContext(void)
 {
     __GMM_ASSERTPTR(pGmmGlobalContext, VOIDRETURN);
-    // Dont delete/destruct singletonContext. This is needed so that SingletonContext is not
-    // deleted even after UMDs are unloaded and process is still active.
-    // Free of SingletonContext shall be handled as part of process clean up
+    int32_t ContextRefCount = GmmLib::Context::DecrementRefCount();
+    if(!ContextRefCount && pGmmGlobalContext)
+    {
+        pGmmGlobalContext->DestroyContext();
+        delete pGmmGlobalContext;
+        pGmmGlobalContext = NULL;
+    }
 }
 
 #ifdef _WIN32
@@ -403,9 +407,6 @@ GmmLib::Context::Context()
 /////////////////////////////////////////////////////////////////////////////////////
 GmmLib::Context::~Context()
 {
-#ifdef GMM_LIB_DLL
-    DestroySingletonContextSyncMutex();
-#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
