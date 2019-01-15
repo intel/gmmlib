@@ -30,6 +30,8 @@ namespace GmmLib
         public GmmGen10CachePolicy
     {
         public:
+        uint32_t CurrentMaxSpecialMocsIndex;
+
             /* Constructors */
             GmmGen11CachePolicy(GMM_CACHE_POLICY_ELEMENT *pCachePolicy) :GmmGen10CachePolicy(pCachePolicy)
             {
@@ -38,8 +40,16 @@ namespace GmmLib
             {
             }
 
+            virtual uint32_t GetMaxSpecialMocsIndex()
+            {
+                return CurrentMaxSpecialMocsIndex;
+            }
+
+            int32_t IsSpecialMOCSUsage(GMM_RESOURCE_USAGE_TYPE Usage, bool &UpdateMOCS);
+
             /* Function prototypes */
             GMM_STATUS InitCachePolicy();
+            void SetUpMOCSTable();
     };
 }
 #endif // #ifdef __cplusplus

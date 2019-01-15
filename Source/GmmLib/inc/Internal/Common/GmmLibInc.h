@@ -48,7 +48,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "External/Common/GmmInfo.h"
 #include "../Utility/GmmUtility.h"
 
-#include "External/Common/GmmProto.h"                   // TBD: Move internal GmmLib protos
 #include "External/Common/GmmDebug.h"                   // Unified Definitions of GMM_ASSERT and GMM_DEBUG Macros
 
 #ifndef DXGKDDI_INTERFACE_VERSION_WDDM1_3

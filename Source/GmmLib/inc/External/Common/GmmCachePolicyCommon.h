@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "GmmResourceInfoExt.h"
 
 #if defined(_WIN32)
+    // Applicable upto Gen9, Gen11+ gmmlib provides Cross-OS Fixed MOCS table as default support.
     #define GMM_DYNAMIC_MOCS_TABLE
 #endif
 
@@ -79,7 +80,7 @@ namespace GmmLib
             #endif
             GMM_GFX_MEMORY_TYPE GetWantedMemoryType(GMM_CACHE_POLICY_ELEMENT CachePolicy);
 
-            #define DEFINE_CP_ELEMENT(Usage, llc, ellc, l3, wt, age, aom, lecc_scc, l3_scc, scf, sso, cos, hdcl1, l3evict)   \
+            #define DEFINE_CP_ELEMENT(Usage, llc, ellc, l3, wt, age, aom, lecc_scc, l3_scc, scf, sso, cos, hdcl1, l3evict, segov, glbgo, uclookup)   \
             do {                                                                                                             \
                     pCachePolicy[Usage].LLC         = (llc);                                                                 \
                     pCachePolicy[Usage].ELLC        = (ellc);                                                                \
@@ -94,6 +95,9 @@ namespace GmmLib
                     pCachePolicy[Usage].CoS         = (cos);                                                                 \
                     pCachePolicy[Usage].HDCL1       = (hdcl1);                                                               \
                     pCachePolicy[Usage].L3Eviction  = (l3evict);                                                             \
+                    pCachePolicy[Usage].SegOv       = (segov);                                                               \
+                    pCachePolicy[Usage].GlbGo       = (glbgo);                                                               \
+                    pCachePolicy[Usage].UcLookup    = (uclookup);                                                            \
                     pCachePolicy[Usage].Initialized = 1;                                                                     \
             } while(0)
 

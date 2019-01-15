@@ -53,7 +53,10 @@ typedef struct GMM_CACHE_POLICY_ELEMENT_REC
             uint32_t                   HDCL1       : 1; // HDC L1 caching enable/disable
             uint32_t                   L3Eviction  : 2; // Specify L3-eviction type (NA, ReadOnly, Standard, Special)
             uint32_t                   Initialized : 1;
-            uint32_t                   Reserved    :10;
+            uint32_t                   SegOv       : 3; // Override seg-pref (none, local-only, sys-only, etc)
+            uint32_t                   GlbGo       : 1; // Global GO point - L3 or Memory
+            uint32_t                   UcLookup    : 1; // Snoop L3 for uncached 
+            uint32_t                   Reserved    : 5;
         };
         uint32_t Value;
     };
@@ -61,7 +64,8 @@ typedef struct GMM_CACHE_POLICY_ELEMENT_REC
     MEMORY_OBJECT_CONTROL_STATE               MemoryObjectOverride;
     MEMORY_OBJECT_CONTROL_STATE               MemoryObjectNoOverride;
     GMM_PTE_CACHE_CONTROL_BITS                PTE;
-    uint32_t                       			  Override;
+    uint32_t                                  Override;
+    uint32_t                                  IsOverridenByRegkey; // Flag to indicate If usage settings are overridden by regkey
 }GMM_CACHE_POLICY_ELEMENT;
 
 // One entry in the SKL/CNL cache lookup table
@@ -253,6 +257,9 @@ typedef union GMM_PRIVATE_PAT_REC {
         if (L3Eviction != -1)                                                   \
         {                                                                       \
             pCachePolicy[Usage].L3Eviction = L3Eviction;                        \
+        }                                                                       \
+        {                                                                       \
+            pCachePolicy[Usage].IsOverridenByRegkey = 1;                        \
         }
 
 #ifdef __GMM_KMD__

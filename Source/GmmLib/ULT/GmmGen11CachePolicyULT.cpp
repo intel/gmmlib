@@ -75,7 +75,7 @@ void CTestGen11CachePolicy::CheckL3CachePolicy()
         EXPECT_EQ(0, Mocs.L3.Reserved) << "Usage# " << Usage << ": Reserved field is non-zero";
 
         // Check if Mocs Index is not greater than GMM_GEN9_MAX_NUMBER_MOCS_INDEXES
-        EXPECT_GT(GMM_GEN9_MAX_NUMBER_MOCS_INDEXES, AssignedMocsIdx) << "Usage# " << Usage << ": MOCS Index greater than MAX allowed (62)";
+        EXPECT_GT(GMM_MAX_NUMBER_MOCS_INDEXES, AssignedMocsIdx) << "Usage# " << Usage << ": MOCS Index greater than MAX allowed (62)";
 
         // Check of assigned Index setting is appropriate for HDCL1 setting
         if(ClientRequest.HDCL1)
@@ -84,7 +84,18 @@ void CTestGen11CachePolicy::CheckL3CachePolicy()
         }
         else
         {
-            EXPECT_LT(AssignedMocsIdx, GMM_GEN10_HDCL1_MOCS_INDEX_START) << "Usage# " << Usage << ": Incorrect Index for HDCL1 setting";
+            if(Usage == GMM_RESOURCE_USAGE_MOCS_62)
+            {
+                EXPECT_EQ(AssignedMocsIdx, 62) << "Usage# " << Usage << ": Incorrect Index for MOCS62 usage";
+            }
+            else if(Usage == GMM_RESOURCE_USAGE_L3_EVICTION)
+            {
+                EXPECT_EQ(AssignedMocsIdx, 63) << "Usage# " << Usage << ": Incorrect Index for MOCS63 usage";
+            }
+            else
+            {
+                EXPECT_LT(AssignedMocsIdx, GMM_GEN10_HDCL1_MOCS_INDEX_START) << "Usage# " << Usage << ": Incorrect Index for HDCL1 setting";
+            }
         }
 
         if(ClientRequest.L3)
@@ -107,9 +118,7 @@ TEST_F(CTestGen11CachePolicy, TestL3CachePolicy)
 
 void CTestGen11CachePolicy::CheckLlcEdramCachePolicy()
 {
-    const uint32_t TargetCache_ELLC     = 0;
-    const uint32_t TargetCache_LLC      = 1;
-    const uint32_t TargetCache_LLC_ELLC = 2;
+    const uint32_t TargetCache_LLC = 1;
 
     const uint32_t LeCC_UNCACHEABLE  = 0x1;
     const uint32_t LeCC_WB_CACHEABLE = 0x3;
@@ -138,7 +147,7 @@ void CTestGen11CachePolicy::CheckLlcEdramCachePolicy()
         EXPECT_EQ(ClientRequest.SSO, Mocs.LeCC.SelfSnoop) << "Usage# " << Usage << ": Self Snoop is non-zero";
 
         // Check if Mocs Index is not greater than GMM_GEN9_MAX_NUMBER_MOCS_INDEXES
-        EXPECT_GT(GMM_GEN9_MAX_NUMBER_MOCS_INDEXES, AssignedMocsIdx) << "Usage# " << Usage << ": MOCS Index greater than MAX allowed (62)";
+        EXPECT_GT(GMM_MAX_NUMBER_MOCS_INDEXES, AssignedMocsIdx) << "Usage# " << Usage << ": MOCS Index greater than MAX allowed (62)";
 
         // Check of assigned Index setting is appropriate for HDCL1 setting
         if(ClientRequest.HDCL1)
@@ -147,42 +156,29 @@ void CTestGen11CachePolicy::CheckLlcEdramCachePolicy()
         }
         else
         {
-            EXPECT_LT(AssignedMocsIdx, GMM_GEN10_HDCL1_MOCS_INDEX_START) << "Usage# " << Usage << ": Incorrect Index for HDCL1 setting";
+            if(Usage == GMM_RESOURCE_USAGE_MOCS_62)
+            {
+                EXPECT_EQ(AssignedMocsIdx, 62) << "Usage# " << Usage << ": Incorrect Index for MOCS62 usage";
+            }
+            else if(Usage == GMM_RESOURCE_USAGE_L3_EVICTION)
+            {
+                EXPECT_EQ(AssignedMocsIdx, 63) << "Usage# " << Usage << ": Incorrect Index for MOCS63 usage";
+            }
+            else
+            {
+                EXPECT_LT(AssignedMocsIdx, GMM_GEN10_HDCL1_MOCS_INDEX_START) << "Usage# " << Usage << ": Incorrect Index for HDCL1 setting";
+            }
         }
 
-        if(!ClientRequest.LLC && !ClientRequest.ELLC) // Uncached
+        if(ClientRequest.LLC) // LLC only
         {
-            EXPECT_EQ(LeCC_UNCACHEABLE, Mocs.LeCC.Cacheability) << "Usage# " << Usage << ": Incorrect LLC/eDRAM cachebility setting";
+            EXPECT_EQ(TargetCache_LLC, Mocs.LeCC.TargetCache) << "Usage# " << Usage << ": Incorrect target cache setting";
+
+            EXPECT_EQ(LeCC_WB_CACHEABLE, Mocs.LeCC.Cacheability) << "Usage# " << Usage << ": Incorrect LLC/eDRAM cachebility setting";
         }
         else
         {
-
-
-            if(ClientRequest.LLC && !ClientRequest.ELLC) // LLC only
-            {
-                EXPECT_EQ(TargetCache_LLC, Mocs.LeCC.TargetCache) << "Usage# " << Usage << ": Incorrect target cache setting";
-
-                EXPECT_EQ(LeCC_WB_CACHEABLE, Mocs.LeCC.Cacheability) << "Usage# " << Usage << ": Incorrect LLC/eDRAM cachebility setting";
-            }
-            else if(!ClientRequest.LLC && ClientRequest.ELLC) // eLLC only
-            {
-                EXPECT_EQ(TargetCache_ELLC, Mocs.LeCC.TargetCache) << "Usage# " << Usage << ": Incorrect target cache setting";
-
-                if(ClientRequest.WT)
-                {
-                    EXPECT_EQ(LeCC_WT_CACHEABLE, Mocs.LeCC.Cacheability) << "Usage# " << Usage << ": Incorrect LLC/eDRAM cachebility setting";
-                }
-                else
-                {
-                    EXPECT_EQ(LeCC_WB_CACHEABLE, Mocs.LeCC.Cacheability) << "Usage# " << Usage << ": Incorrect LLC/eDRAM cachebility setting";
-                }
-            }
-            else // LLC & eLLC set
-            {
-                EXPECT_EQ(TargetCache_LLC_ELLC, Mocs.LeCC.TargetCache) << "Usage# " << Usage << ": Incorrect target cache setting";
-
-                EXPECT_EQ(LeCC_WB_CACHEABLE, Mocs.LeCC.Cacheability) << "Usage# " << Usage << ": Incorrect LLC/eDRAM cachebility setting";
-            }
+            EXPECT_EQ(LeCC_UNCACHEABLE, Mocs.LeCC.Cacheability) << "Usage# " << Usage << ": Incorrect LLC cachebility setting";
         }
     }
 }
