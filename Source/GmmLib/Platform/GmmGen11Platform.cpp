@@ -37,6 +37,11 @@ GmmLib::PlatformInfoGen11::PlatformInfoGen11(PLATFORM &Platform)
         Data.TexAlign.CCS.MaxPitchinTiles = 1024;
     }
 
+    if(GFX_GET_CURRENT_PRODUCT(Data.Platform) == IGFX_LAKEFIELD)
+    {
+        Data.SurfaceMaxSize                      = GMM_GBYTE(64);
+        Data.MaxGpuVirtualAddressBitsPerResource = 36;
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -56,6 +61,17 @@ uint8_t GmmLib::PlatformInfoGen11::ValidateMMC(GMM_TEXTURE_INFO &Surf)
         return 0;
     }
 
+    if(GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_LAKEFIELD)
+    {
+        if(Surf.Flags.Gpu.MMC &&
+           Surf.Flags.Gpu.UnifiedAuxSurface &&
+           !(Surf.Flags.Info.TiledY &&
+             (Surf.Format == GMM_FORMAT_NV12 || GmmIsP0xx(Surf.Format))))
+        {
+            GMM_ASSERTDPF(0, "Invalid MMC usage for LKF!");
+            return 0;
+        }
+    }
     return 1;
 }
 
@@ -71,7 +87,9 @@ uint8_t GmmLib::PlatformInfoGen11::ValidateUnifiedAuxSurface(GMM_TEXTURE_INFO &S
     if((Surf.Flags.Gpu.UnifiedAuxSurface) &&
        !( //--- Legitimate UnifiedAuxSurface Case ------------------------------------------
        Surf.Flags.Gpu.CCS &&
-       ((Surf.MSAA.NumSamples <= 1 && (Surf.Flags.Gpu.RenderTarget || Surf.Flags.Gpu.Texture)))))
+       ((Surf.MSAA.NumSamples <= 1 && (Surf.Flags.Gpu.RenderTarget || Surf.Flags.Gpu.Texture))) ||
+       ((GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_LAKEFIELD) && Surf.Flags.Gpu.MMC &&
+        (Surf.MSAA.NumSamples <= 1))))
     {
         GMM_ASSERTDPF(0, "Invalid UnifiedAuxSurface usage!");
         return 0;
@@ -103,12 +121,32 @@ uint8_t GmmLib::PlatformInfoGen11::CheckFmtDisplayDecompressible(GMM_TEXTURE_INF
     bool IsMediaCompressed  = false;
     GMM_UNREFERENCED_PARAMETER(IsSupportedMediaFormats);
 
-   if(IsSupportedRGB32_8_8_8_8 || //RGB32 8 : 8 : 8 : 8
-      (GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_ICELAKE &&
-       IsSupportedRGB64_16_16_16_16)) //RGB64 16:16 : 16 : 16 FP16
-   {
-       IsRenderCompressed = true;
-   }
+    if(GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_LAKEFIELD)
+    {
+        if(Surf.Flags.Gpu.MMC &&
+           Surf.Flags.Info.TiledY &&
+           (Surf.Format == GMM_FORMAT_NV12 ||
+            Surf.Format == GMM_FORMAT_P010))
+        {
+            IsMediaCompressed = true;
+        }
 
+        if(IsSupportedRGB64_16_16_16_16 || //RGB64 16:16 : 16 : 16 FP16
+           IsSupportedRGB32_8_8_8_8 ||     //RGB32 8 : 8 : 8 : 8
+           IsSupportedRGB32_2_10_10_10)    //RGB32 2 : 10 : 10 : 10
+        {
+            IsRenderCompressed = true;
+        }
+    }
+    else
+    {
+        // Pre-LKF1
+        if(IsSupportedRGB32_8_8_8_8 || //RGB32 8 : 8 : 8 : 8
+           (GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_ICELAKE &&
+            IsSupportedRGB64_16_16_16_16)) //RGB64 16:16 : 16 : 16 FP16
+        {
+            IsRenderCompressed = true;
+        }
+    }
     return IsRenderCompressed || IsMediaCompressed;
 }

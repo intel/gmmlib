@@ -320,7 +320,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
             Surf.ExistingSysMem.IsPageAligned = 1;
 
             // Adjust memory size to compensate for Gfx alignment.
-            GetRestrictions(Restrictions);
+            pTextureCalc->GetResRestrictions(&Surf, Restrictions);
             ExistingSysMem.Size = Restrictions.Alignment + Surf.Size;
 
             ExistingSysMem.pVirtAddress = (uint64_t)GMM_MALLOC(GFX_ULONG_CAST(ExistingSysMem.Size));
@@ -1863,6 +1863,27 @@ uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetPackedMipTailStartLod()
            pPlatform->MaxLod :
            GetMaxLod() - NumPackedMips + 1; //GetMaxLod srarts at index 0, while NumPackedMips is just
                                             //the number of mips. So + 1 to bring them to same units.
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Verifies if all mips are RCC-aligned
+/// @return    true/false
+/////////////////////////////////////////////////////////////////////////////////////
+bool GMM_STDCALL GmmLib::GmmResourceInfoCommon::IsMipRCCAligned(uint8_t &MisAlignedLod)
+{
+    const uint8_t RCCCachelineWidth  = 32;
+    const uint8_t RCCCachelineHeight = 4;
+
+    for(uint8_t lod = 0; lod <= GetMaxLod(); lod++)
+    {
+        if(!(GFX_IS_ALIGNED(GetMipWidth(lod), RCCCachelineWidth) &&
+             GFX_IS_ALIGNED(GetMipHeight(lod), RCCCachelineHeight)))
+        {
+            MisAlignedLod = lod;
+            return false;
+        }
+    }
+    return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

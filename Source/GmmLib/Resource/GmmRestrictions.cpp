@@ -72,161 +72,13 @@ bool GmmLib::GmmResourceInfoCommon::IsPresentableformat()
 /////////////////////////////////////////////////////////////////////////////////////
 void GmmLib::GmmResourceInfoCommon::GetRestrictions(__GMM_BUFFER_TYPE &Restrictions)
 {
-    const GMM_PLATFORM_INFO *pPlatform = NULL;
-    GMM_RESOURCE_FLAG        ZeroGpuFlags;
+    GMM_DPF_ENTER;
 
-    __GMM_ASSERTPTR(pGmmGlobalContext, VOIDRETURN);
+    GMM_TEXTURE_CALC *pTextureCalc = NULL;
+    pTextureCalc                   = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pTextureCalc->GetResRestrictions(&Surf, Restrictions);
 
-    pPlatform = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
-
-    // Check that at least one usage flag is set for allocations other than
-    // Primary/Shadow/Staging.
-    memset(&ZeroGpuFlags.Gpu, 0, sizeof(ZeroGpuFlags.Gpu));
-    if((Surf.Type <= RESOURCE_KMD_CHECK_START ||
-        Surf.Type >= RESOURCE_KMD_CHECK_END) &&
-       !memcmp(&Surf.Flags.Gpu, &ZeroGpuFlags.Gpu, sizeof(ZeroGpuFlags.Gpu)))
-    {
-        GMM_ASSERTDPF(0, "No GPU Usage specified!");
-        return;
-    }
-
-    __GmmPlatformResetRestrictions(&Restrictions); //Set to Default
-
-    // Get worst case restrictions that match GPU flags set in resource
-    switch(Surf.Type)
-    {
-        case RESOURCE_1D:
-        case RESOURCE_2D:
-        case RESOURCE_3D:
-        case RESOURCE_CUBE:
-        case RESOURCE_BUFFER:
-        case RESOURCE_SCRATCH:
-        case RESOURCE_GDI:
-#if _WIN32
-        case RESOURCE_WGBOX_ENCODE_STATE:
-        case RESOURCE_WGBOX_ENCODE_DISPLAY:
-        case RESOURCE_WGBOX_ENCODE_REFERENCE:
-        case RESOURCE_WGBOX_ENCODE_TFD:
-#endif
-            GetGenericRestrictions(&Restrictions);
-            break;
-
-        case RESOURCE_HW_CONTEXT:
-        case RESOURCE_TAG_PAGE:
-            if(Surf.Flags.Info.TiledW ||
-               Surf.Flags.Info.TiledX ||
-               GMM_IS_4KB_TILE(Surf.Flags))
-            {
-                GMM_ASSERTDPF(0, "Tiled Pref specified for RESOURCE_LINEAR!");
-                return;
-            }
-            GetLinearRestrictions(&Restrictions);
-            break;
-
-        case RESOURCE_PRIMARY:
-        case RESOURCE_SHADOW:
-        case RESOURCE_STAGING:
-            GetPrimaryRestrictions(&Restrictions);
-            break;
-
-        case RESOURCE_NNDI:
-            Restrictions = pPlatform->Nndi;
-            break;
-
-        case RESOURCE_HARDWARE_MBM:
-        case RESOURCE_IFFS_MAPTOGTT:
-            //Hardware MBM resource request can come for overlay allocation or normal
-            //displayable allocation. So get the restrictions accordingly
-            if(Surf.Flags.Gpu.Overlay)
-            {
-                Restrictions = pPlatform->Overlay;
-            }
-            else
-            {
-                Restrictions = pPlatform->HardwareMBM;
-            }
-            break;
-
-        case RESOURCE_CURSOR:
-        case RESOURCE_PWR_CONTEXT:
-        case RESOURCE_KMD_BUFFER:
-        case RESOURCE_NULL_CONTEXT_INDIRECT_STATE:
-        case RESOURCE_PERF_DATA_QUEUE:
-        case RESOURCE_GLOBAL_BUFFER:
-        case RESOURCE_FBC:
-        case RESOURCE_GFX_CLIENT_BUFFER:
-            Restrictions = pPlatform->Cursor;
-            break;
-
-        case RESOURCE_OVERLAY_DMA:
-            Restrictions = pPlatform->NoRestriction;
-            break;
-
-        case RESOURCE_GTT_TRANSFER_REGION:
-            GetGenericRestrictions(&Restrictions);
-            break;
-
-        case RESOURCE_OVERLAY_INTERMEDIATE_SURFACE:
-            Restrictions = pPlatform->Overlay;
-            break;
-
-        default:
-            GetGenericRestrictions(&Restrictions);
-            GMM_ASSERTDPF(0, "Unkown Resource type");
-    }
-
-    // Apply any specific WA
-
-    if(((Surf.Flags.Wa.ILKNeedAvcMprRowStore32KAlign)) ||
-       ((Surf.Flags.Wa.ILKNeedAvcDmvBuffer32KAlign)))
-    {
-        Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, GMM_KBYTE(32));
-    }
-
-    if(pGmmGlobalContext->GetWaTable().WaAlignContextImage && (Surf.Type == RESOURCE_HW_CONTEXT))
-    {
-        Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, GMM_KBYTE(64));
-    }
-
-    if(Surf.Flags.Gpu.S3d &&
-       Surf.Flags.Info.Linear &&
-       !pGmmGlobalContext->GetSkuTable().FtrDisplayEngineS3d)
-    {
-        Restrictions.Alignment      = PAGE_SIZE;
-        Restrictions.PitchAlignment = PAGE_SIZE;
-    }
-
-    if(Surf.Flags.Gpu.TiledResource)
-    {
-        // Need at least 64KB alignment to track tile mappings (h/w or s/w tracking).
-        Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, GMM_KBYTE(64));
-
-        // Buffer tiled resources are trivially divided into 64KB tiles => Pitch must divide into 64KB tiles
-        if(Surf.Type == RESOURCE_BUFFER)
-        {
-            Restrictions.PitchAlignment = GFX_ALIGN(Restrictions.PitchAlignment, GMM_KBYTE(64));
-        }
-
-        if(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN9_CORE)
-        {
-            pGmmGlobalContext->GetPlatformInfo().SurfaceMaxSize = GMM_TBYTE(1);
-        }
-    }
-
-    // SKL TileY Display needs 1MB alignment.
-    if(((Surf.Type == RESOURCE_PRIMARY) ||
-        Surf.Flags.Gpu.FlipChain) &&
-       (GMM_IS_4KB_TILE(Surf.Flags) ||
-        Surf.Flags.Info.TiledYf))
-    {
-        Restrictions.Alignment = GMM_MBYTE(1);
-    }
-
-    if(Surf.Flags.Info.RenderCompressed ||
-       Surf.Flags.Info.MediaCompressed)
-    {
-        Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, GMM_KBYTE(16));
-    }
+    GMM_DPF_EXIT;
 }
 
 
@@ -260,8 +112,8 @@ void GMM_STDCALL GmmResGetRestrictions(GMM_RESOURCE_INFO *pResourceInfo,
 ///
 /// @return     Best Restrictions based on the two parameters passed
 /////////////////////////////////////////////////////////////////////////////////////
-__GMM_BUFFER_TYPE *GmmLib::GmmResourceInfoCommon::GetBestRestrictions(__GMM_BUFFER_TYPE *      pFirstBuffer,
-                                                                      const __GMM_BUFFER_TYPE *pSecondBuffer)
+__GMM_BUFFER_TYPE *GmmLib::GmmTextureCalc::GetBestRestrictions(__GMM_BUFFER_TYPE *      pFirstBuffer,
+                                                               const __GMM_BUFFER_TYPE *pSecondBuffer)
 {
     GMM_DPF_ENTER;
 
@@ -320,161 +172,161 @@ __GMM_BUFFER_TYPE *GmmLib::GmmResourceInfoCommon::GetBestRestrictions(__GMM_BUFF
 ///
 /// @param[out]  pBuff: Restrictions filled in this struct
 /////////////////////////////////////////////////////////////////////////////////////
-void GmmLib::GmmResourceInfoCommon::GetGenericRestrictions(__GMM_BUFFER_TYPE *pBuff)
+void GmmLib::GmmTextureCalc::GetGenericRestrictions(GMM_TEXTURE_INFO *pTexInfo, __GMM_BUFFER_TYPE *pBuff)
 {
     GMM_DPF_ENTER;
-    const GMM_PLATFORM_INFO *pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
+    const GMM_PLATFORM_INFO *pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
 
-    if(Surf.Flags.Gpu.NoRestriction)
+    if(pTexInfo->Flags.Gpu.NoRestriction)
     {
         // Impose zero restrictions. Ignore any other GPU usage flags
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->NoRestriction);
         return;
     }
 
-    if(Surf.Flags.Gpu.Texture)
+    if(pTexInfo->Flags.Gpu.Texture)
     {
-        if(Surf.Type == RESOURCE_BUFFER)
+        if(pTexInfo->Type == RESOURCE_BUFFER)
         {
             *pBuff = pPlatformResource->BufferType;
         }
-        else if(Surf.Type == RESOURCE_CUBE)
+        else if(pTexInfo->Type == RESOURCE_CUBE)
         {
             *pBuff = pPlatformResource->CubeSurface;
         }
-        else if(Surf.Type == RESOURCE_3D)
+        else if(pTexInfo->Type == RESOURCE_3D)
         {
             *pBuff = pPlatformResource->Texture3DSurface;
         }
         else
         {
             *pBuff = pPlatformResource->Texture2DSurface;
-            if(Surf.Flags.Info.Linear)
+            if(pTexInfo->Flags.Info.Linear)
             {
                 *pBuff = pPlatformResource->Texture2DLinearSurface;
             }
         }
     }
-    if(Surf.Flags.Gpu.RenderTarget ||
-       Surf.Flags.Gpu.CCS ||
-       Surf.Flags.Gpu.MCS)
+    if(pTexInfo->Flags.Gpu.RenderTarget ||
+       pTexInfo->Flags.Gpu.CCS ||
+       pTexInfo->Flags.Gpu.MCS)
     {
         // Gen7 onwards, bound by SURFACE_STATE constraints.
-        if(Surf.Type == RESOURCE_BUFFER)
+        if(pTexInfo->Type == RESOURCE_BUFFER)
         {
             *pBuff = pPlatformResource->BufferType;
         }
-        else if(Surf.Type == RESOURCE_CUBE)
+        else if(pTexInfo->Type == RESOURCE_CUBE)
         {
             *pBuff = pPlatformResource->CubeSurface;
         }
-        else if(Surf.Type == RESOURCE_3D)
+        else if(pTexInfo->Type == RESOURCE_3D)
         {
             *pBuff = pPlatformResource->Texture3DSurface;
         }
         else
         {
             *pBuff = pPlatformResource->Texture2DSurface;
-            if(Surf.Flags.Info.Linear)
+            if(pTexInfo->Flags.Info.Linear)
             {
                 *pBuff = pPlatformResource->Texture2DLinearSurface;
             }
         }
     }
-    if(Surf.Flags.Gpu.Depth)
+    if(pTexInfo->Flags.Gpu.Depth)
     {
         // Z
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->Depth);
     }
-    if(Surf.Flags.Gpu.Vertex)
+    if(pTexInfo->Flags.Gpu.Vertex)
     {
         // VertexData
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->Vertex);
     }
-    if(Surf.Flags.Gpu.Index)
+    if(pTexInfo->Flags.Gpu.Index)
     {
         // Index buffer
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->Index);
     }
-    if(Surf.Flags.Gpu.FlipChain)
+    if(pTexInfo->Flags.Gpu.FlipChain)
     {
         // Async Flip
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->ASyncFlipSurface);
     }
-    if(Surf.Flags.Gpu.MotionComp)
+    if(pTexInfo->Flags.Gpu.MotionComp)
     {
         // Media buffer
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->MotionComp);
     }
-    if(Surf.Flags.Gpu.State ||
-       Surf.Flags.Gpu.InstructionFlat ||
-       Surf.Flags.Gpu.ScratchFlat)
+    if(pTexInfo->Flags.Gpu.State ||
+       pTexInfo->Flags.Gpu.InstructionFlat ||
+       pTexInfo->Flags.Gpu.ScratchFlat)
     {
         // indirect state
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->Vertex);
     }
-    if(Surf.Flags.Gpu.Query ||
-       Surf.Flags.Gpu.HistoryBuffer)
+    if(pTexInfo->Flags.Gpu.Query ||
+       pTexInfo->Flags.Gpu.HistoryBuffer)
     {
         // Query
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->NoRestriction);
     }
-    if(Surf.Flags.Gpu.Constant)
+    if(pTexInfo->Flags.Gpu.Constant)
     {
         //
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->Constant);
     }
-    if(Surf.Flags.Gpu.Stream)
+    if(pTexInfo->Flags.Gpu.Stream)
     {
         //
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->Stream);
     }
-    if(Surf.Flags.Gpu.InterlacedScan)
+    if(pTexInfo->Flags.Gpu.InterlacedScan)
     {
         //
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->InterlacedScan);
     }
-    if(Surf.Flags.Gpu.TextApi)
+    if(pTexInfo->Flags.Gpu.TextApi)
     {
         //
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->TextApi);
     }
-    if(Surf.Flags.Gpu.SeparateStencil)
+    if(pTexInfo->Flags.Gpu.SeparateStencil)
     {
         //
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->Stencil);
     }
-    if(Surf.Flags.Gpu.HiZ)
+    if(pTexInfo->Flags.Gpu.HiZ)
     {
         //
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->HiZ);
     }
-    if(Surf.Flags.Gpu.Video)
+    if(pTexInfo->Flags.Gpu.Video)
     {
         //
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->Video);
     }
-    if(Surf.Flags.Gpu.StateDx9ConstantBuffer)
+    if(pTexInfo->Flags.Gpu.StateDx9ConstantBuffer)
     {
         //
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->StateDx9ConstantBuffer);
     }
-    if(Surf.Flags.Gpu.Overlay)
+    if(pTexInfo->Flags.Gpu.Overlay)
     {
         // Overlay buffer use Async Flip values
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->Overlay);
 
-        if((Surf.Format == GMM_FORMAT_YUY2) && (Surf.BaseWidth == 640))
+        if((pTexInfo->Format == GMM_FORMAT_YUY2) && (pTexInfo->BaseWidth == 640))
         {
             // override the pitch alignment
             pBuff->PitchAlignment = 64;
         }
     }
-    if(Surf.Flags.Info.XAdapter)
+    if(pTexInfo->Flags.Info.XAdapter)
     {
         //Add Cross Adapter resource restriction for hybrid graphics.
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->XAdapter);
-        if(Surf.Type == RESOURCE_BUFFER)
+        if(pTexInfo->Type == RESOURCE_BUFFER)
         {
             pBuff->MaxWidth  = pPlatformResource->SurfaceMaxSize;
             pBuff->MaxPitch  = pPlatformResource->BufferType.MaxPitch;
@@ -483,15 +335,15 @@ void GmmLib::GmmResourceInfoCommon::GetGenericRestrictions(__GMM_BUFFER_TYPE *pB
     }
 
     //Non Aligned ExistingSysMem  Special cases.
-    if((Surf.Flags.Info.ExistingSysMem &&
-        (!Surf.ExistingSysMem.IsGmmAllocated) &&
-        (!Surf.ExistingSysMem.IsPageAligned)))
+    if((pTexInfo->Flags.Info.ExistingSysMem &&
+        (!pTexInfo->ExistingSysMem.IsGmmAllocated) &&
+        (!pTexInfo->ExistingSysMem.IsPageAligned)))
     {
 
-        if(Surf.Flags.Info.Linear ||
-           Surf.Flags.Info.SVM)
+        if(pTexInfo->Flags.Info.Linear ||
+           pTexInfo->Flags.Info.SVM)
         {
-            if(Surf.Type == RESOURCE_BUFFER)
+            if(pTexInfo->Type == RESOURCE_BUFFER)
             {
                 //Use combination of BufferType, NoRestriction to support large buffer with minimal pitch alignment
                 *pBuff                      = pPlatformResource->BufferType;
@@ -547,20 +399,171 @@ void __GmmPlatformResetRestrictions(__GMM_BUFFER_TYPE *pRestriction)
 void GmmLib::GmmTextureCalc::GetTexRestrictions(GMM_TEXTURE_INFO * pTexInfo,
                                                 __GMM_BUFFER_TYPE *pRestrictions)
 {
-    GMM_RESOURCE_INFO ResourceInfo;
     GMM_DPF_ENTER;
 
-    GMM_RESOURCE_FLAG &Flags = ResourceInfo.GetResFlags();
-    Flags                    = pTexInfo->Flags;
-    ResourceInfo.OverrideSurfaceFormat(pTexInfo->Format);
-    ResourceInfo.OverrideSurfaceType(pTexInfo->Type);
-    ResourceInfo.OverrideGmmLibContext(pGmmGlobalContext);
+    GetResRestrictions(pTexInfo, *pRestrictions);
 
-#if(_DEBUG || _RELEASE_INTERNAL)
-    ResourceInfo.OverridePlatform(pTexInfo->Platform);
-#endif
+    GMM_DPF_EXIT;
+}
 
-    GmmResGetRestrictions(&ResourceInfo, pRestrictions);
+/////////////////////////////////////////////////////////////////////////////////////
+/// Returns the restrictions that a particular resource must follow on a particular
+/// OS or hardware.
+///
+/// @param[out]  Restrictions: restrictions that this resource must adhere to
+/////////////////////////////////////////////////////////////////////////////////////
+void GmmLib::GmmTextureCalc::GetResRestrictions(GMM_TEXTURE_INFO * pTexinfo,
+                                                __GMM_BUFFER_TYPE &Restrictions)
+{
+    GMM_DPF_ENTER;
+    const GMM_PLATFORM_INFO *pPlatform = NULL;
+    GMM_RESOURCE_FLAG        ZeroGpuFlags;
+
+    __GMM_ASSERTPTR(pGmmGlobalContext, VOIDRETURN);
+
+    pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexinfo);
+
+    // Check that at least one usage flag is set for allocations other than
+    // Primary/Shadow/Staging.
+    memset(&ZeroGpuFlags.Gpu, 0, sizeof(ZeroGpuFlags.Gpu));
+    if((pTexinfo->Type <= RESOURCE_KMD_CHECK_START ||
+        pTexinfo->Type >= RESOURCE_KMD_CHECK_END) &&
+       !memcmp(&pTexinfo->Flags.Gpu, &ZeroGpuFlags.Gpu, sizeof(ZeroGpuFlags.Gpu)))
+    {
+        GMM_ASSERTDPF(0, "No GPU Usage specified!");
+        return;
+    }
+
+    __GmmPlatformResetRestrictions(&Restrictions); //Set to Default
+
+    // Get worst case restrictions that match GPU flags set in resource
+    switch(pTexinfo->Type)
+    {
+        case RESOURCE_1D:
+        case RESOURCE_2D:
+        case RESOURCE_3D:
+        case RESOURCE_CUBE:
+        case RESOURCE_BUFFER:
+        case RESOURCE_SCRATCH:
+        case RESOURCE_GDI:
+            GetGenericRestrictions(pTexinfo, &Restrictions);
+            break;
+
+        case RESOURCE_HW_CONTEXT:
+        case RESOURCE_TAG_PAGE:
+            if(pTexinfo->Flags.Info.TiledW ||
+               pTexinfo->Flags.Info.TiledX ||
+               GMM_IS_4KB_TILE(pTexinfo->Flags))
+            {
+                GMM_ASSERTDPF(0, "Tiled Pref specified for RESOURCE_LINEAR!");
+                return;
+            }
+            GetLinearRestrictions(pTexinfo, &Restrictions);
+            break;
+
+        case RESOURCE_PRIMARY:
+        case RESOURCE_SHADOW:
+        case RESOURCE_STAGING:
+            GetPrimaryRestrictions(pTexinfo, &Restrictions);
+            break;
+
+        case RESOURCE_NNDI:
+            Restrictions = pPlatform->Nndi;
+            break;
+
+        case RESOURCE_HARDWARE_MBM:
+        case RESOURCE_IFFS_MAPTOGTT:
+            //Hardware MBM resource request can come for overlay allocation or normal
+            //displayable allocation. So get the restrictions accordingly
+            if(pTexinfo->Flags.Gpu.Overlay)
+            {
+                Restrictions = pPlatform->Overlay;
+            }
+            else
+            {
+                Restrictions = pPlatform->HardwareMBM;
+            }
+            break;
+
+        case RESOURCE_CURSOR:
+        case RESOURCE_PWR_CONTEXT:
+        case RESOURCE_KMD_BUFFER:
+        case RESOURCE_NULL_CONTEXT_INDIRECT_STATE:
+        case RESOURCE_PERF_DATA_QUEUE:
+        case RESOURCE_GLOBAL_BUFFER:
+        case RESOURCE_FBC:
+        case RESOURCE_GFX_CLIENT_BUFFER:
+            Restrictions = pPlatform->Cursor;
+            break;
+
+        case RESOURCE_OVERLAY_DMA:
+            Restrictions = pPlatform->NoRestriction;
+            break;
+
+        case RESOURCE_GTT_TRANSFER_REGION:
+            GetGenericRestrictions(pTexinfo, &Restrictions);
+            break;
+
+        case RESOURCE_OVERLAY_INTERMEDIATE_SURFACE:
+            Restrictions = pPlatform->Overlay;
+            break;
+
+        default:
+            GetGenericRestrictions(pTexinfo, &Restrictions);
+            GMM_ASSERTDPF(0, "Unkown Resource type");
+    }
+    // Apply any specific WA
+
+    if(((pTexinfo->Flags.Wa.ILKNeedAvcMprRowStore32KAlign)) ||
+       ((pTexinfo->Flags.Wa.ILKNeedAvcDmvBuffer32KAlign)))
+    {
+        Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, GMM_KBYTE(32));
+    }
+
+    if(pGmmGlobalContext->GetWaTable().WaAlignContextImage && (pTexinfo->Type == RESOURCE_HW_CONTEXT))
+    {
+        Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, GMM_KBYTE(64));
+    }
+
+    if(pTexinfo->Flags.Gpu.S3d &&
+       pTexinfo->Flags.Info.Linear &&
+       !pGmmGlobalContext->GetSkuTable().FtrDisplayEngineS3d)
+    {
+        Restrictions.Alignment      = PAGE_SIZE;
+        Restrictions.PitchAlignment = PAGE_SIZE;
+    }
+
+    if(pTexinfo->Flags.Gpu.TiledResource)
+    {
+        // Need at least 64KB alignment to track tile mappings (h/w or s/w tracking).
+        Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, GMM_KBYTE(64));
+
+        // Buffer tiled resources are trivially divided into 64KB tiles => Pitch must divide into 64KB tiles
+        if(pTexinfo->Type == RESOURCE_BUFFER)
+        {
+            Restrictions.PitchAlignment = GFX_ALIGN(Restrictions.PitchAlignment, GMM_KBYTE(64));
+        }
+
+        if(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN9_CORE)
+        {
+            pGmmGlobalContext->GetPlatformInfo().SurfaceMaxSize = GMM_TBYTE(1);
+        }
+    }
+
+    // SKL TileY Display needs 1MB alignment.
+    if(((pTexinfo->Type == RESOURCE_PRIMARY) ||
+        pTexinfo->Flags.Gpu.FlipChain) &&
+       (GMM_IS_4KB_TILE(pTexinfo->Flags) ||
+        pTexinfo->Flags.Info.TiledYf))
+    {
+        Restrictions.Alignment = GMM_MBYTE(1);
+    }
+
+    if(pTexinfo->Flags.Info.RenderCompressed ||
+       pTexinfo->Flags.Info.MediaCompressed)
+    {
+        Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, GMM_KBYTE(16));
+    }
 
     GMM_DPF_EXIT;
 }

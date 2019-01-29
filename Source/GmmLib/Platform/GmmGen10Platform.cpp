@@ -21,7 +21,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
 
 
-#if(IGFX_GEN >= IGFX_GEN10)
 
 #include "Internal/Common/GmmLibInc.h"
 #include "Internal/Common/Platform/GmmGen10Platform.h"
@@ -509,4 +508,3 @@ GmmLib::PlatformInfoGen10::PlatformInfoGen10(PLATFORM &Platform)
     Data.MaxGpuVirtualAddressBitsPerResource = 38;
     Data.HiZPixelsPerByte                    = 2;
 }
-#endif // #if (IGFX_GEN >= IGFX_GEN10)

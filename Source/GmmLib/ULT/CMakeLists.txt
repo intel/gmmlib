@@ -26,6 +26,7 @@ set(GMMULT_HEADERS
      GmmGen10CachePolicyULT.h
      GmmGen10ResourceULT.h
      GmmGen11CachePolicyULT.h
+     GmmGen11ResourceULT.h
      GmmGen9CachePolicyULT.h
      GmmGen9ResourceULT.h
      GmmResourceULT.h
@@ -39,6 +40,7 @@ set(GMMULT_SOURCES
     GmmGen10CachePolicyULT.cpp
     GmmGen10ResourceULT.cpp
     GmmGen11CachePolicyULT.cpp
+    GmmGen11ResourceULT.cpp
     GmmGen9CachePolicyULT.cpp
     GmmGen9ResourceULT.cpp
     GmmResourceCpuBltULT.cpp
@@ -125,5 +127,5 @@ add_custom_command(
     TARGET Run_ULT
     POST_BUILD
     COMMAND echo running ULTs
-    COMMAND ${EXE_NAME}  --gtest_filter=CTest*
+    COMMAND "${CMAKE_COMMAND}" -E env "LD_LIBRARY_PATH=$<TARGET_FILE_DIR:igfx_gmmumd_dll>" ${CMAKE_CFG_INTDIR}/${EXE_NAME} --gtest_filter=CTest*
 )

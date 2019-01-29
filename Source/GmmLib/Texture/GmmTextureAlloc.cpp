@@ -1326,6 +1326,18 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmTextureCalc::FillTexPlanar(GMM_TEXTURE_INFO * 
         pTexInfo->Flags.Info.RedecribedPlanes = 1;
     }
 
+    //Special case LKF MMC compressed surfaces
+    if(pTexInfo->Flags.Gpu.MMC &&
+       pTexInfo->Flags.Gpu.UnifiedAuxSurface &&
+       pTexInfo->Flags.Info.TiledY)
+    {
+        uint32_t TileHeight = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
+        uint32_t TileWidth  = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileWidth;
+
+        Height = GFX_ALIGN(YHeight, TileHeight) + GFX_ALIGN(VHeight, TileHeight);
+    }
+
+    // Vary wide planar tiled planar formats do not support MMC pre gen11. All formats do not support
     // MMC above 16k bytes wide, while Yf NV12 does not support above 8k - 128 bytes.
     if((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN10_CORE) &&
        (pTexInfo->Flags.Info.TiledY || pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs))

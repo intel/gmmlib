@@ -62,6 +62,7 @@ typedef enum {
     IGFX_CANNONLAKE,
     IGFX_ICELAKE,
     IGFX_ICELAKE_LP,
+    IGFX_LAKEFIELD,
     IGFX_MAX_PRODUCT,
 
 
@@ -84,6 +85,7 @@ typedef enum {
     PCH_CNP_H,          // Cannonlake Halo PCH
     PCH_ICP_LP,         // ICL LP PCH
     PCH_ICP_N,          // ICL N PCH
+	PCH_LKF,            // LKF PCH
     PCH_PRODUCT_FAMILY_FORCE_ULONG = 0x7fffffff
 } PCH_PRODUCT_FAMILY;
 
@@ -1117,6 +1119,11 @@ typedef enum __NATIVEGTTYPE
 #define IICL_LP_1x4x8_ULT_DEVICE_F0_ID          0x8A5B
 #define IICL_LP_0x0x0_ULT_DEVICE_A0_ID          0x8A70
 #define IICL_LP_1x1x8_ULT_DEVICE_A0_ID          0x8A71
+//LKF
+#define ILKF_1x8x8_DESK_DEVICE_F0_ID            0x9840
+#define ILKF_GT0_DESK_DEVICE_A0_ID              0x9850
+#define ILKF_1x6x8_DESK_DEVICE_F0_ID            0x9841
+#define ILKF_1x4x8_DESK_DEVICE_F0_ID            0x9842
 //ICL PCH LP Device IDs
 #define ICP_LP_RESERVED_FUSE_ID                 0x3480
 #define ICP_LP_U_SUPER_SKU_ID                   0x3481
@@ -1151,6 +1158,9 @@ typedef enum __NATIVEGTTYPE
 #define ICL_LP_UNKNOWN_SKU_ID_25                0x349E
 #define ICL_LP_UNKNOWN_SKU_ID_26                0x349F
 
+// LKF-PCH Device IDs
+#define PCH_LKF_UNFUSED_SKU_ID                  0x9880
+#define PCH_LKF_SUPER_SKU_ID                    0x9881
 #define MGM_HAS     0
 
 //#define SDG_HAS      1              //Reserve place for Springdale-G HAS

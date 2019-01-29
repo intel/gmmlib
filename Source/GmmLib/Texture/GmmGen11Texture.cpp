@@ -338,6 +338,21 @@ void GmmLib::GmmGen11TextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTex
             *pVOffsetY = *pUOffsetY;
         }
     }
+
+    //Special case LKF MMC compressed surfaces
+    if(pTexInfo->Flags.Gpu.MMC &&
+       pTexInfo->Flags.Gpu.UnifiedAuxSurface &&
+       pTexInfo->Flags.Info.TiledY)
+    {
+        GMM_GFX_SIZE_T TileHeight = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
+        GMM_GFX_SIZE_T TileWidth  = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileWidth;
+
+        *pUOffsetX = GFX_ALIGN(*pUOffsetX, TileWidth);
+        *pUOffsetY = GFX_ALIGN(*pUOffsetY, TileHeight);
+        *pVOffsetX = GFX_ALIGN(*pVOffsetX, TileWidth);
+        *pVOffsetY = GFX_ALIGN(*pVOffsetY, TileHeight);
+    }
+
     GMM_DPF_EXIT;
 
 #undef SWAP_UV
@@ -534,6 +549,86 @@ void GmmLib::GmmGen11TextureCalc::GetMipTailGeometryOffset(GMM_TEXTURE_INFO *pTe
 
     GMM_DPF_EXIT;
     return;
+}
+
+GMM_STATUS GmmLib::GmmGen11TextureCalc::FillLinearCCS(GMM_TEXTURE_INFO * pTexInfo,
+                                                      __GMM_BUFFER_TYPE *pRestrictions)
+{
+    GMM_GFX_SIZE_T           PaddedSize;
+    uint32_t                 TileHeight;
+    GMM_GFX_SIZE_T           YCcsSize    = 0;
+    GMM_GFX_SIZE_T           UVCcsSize   = 0;
+    GMM_GFX_SIZE_T           TotalHeight = 0;
+    const GMM_PLATFORM_INFO *pPlatform   = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    GMM_DPF_ENTER;
+
+
+    __GMM_ASSERT(pTexInfo->Flags.Gpu.MMC &&
+                 pTexInfo->Flags.Gpu.UnifiedAuxSurface &&
+                 pTexInfo->Flags.Gpu.__NonMsaaLinearCCS);
+
+    __GMM_ASSERT(pTexInfo->OffsetInfo.Plane.Y[GMM_PLANE_U] > 0);
+    TileHeight = pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileHeight;
+
+    // Vinante : CCS or Tile status buffer is computed by giving 2bit for every 256bytes of origional pixel data.
+    // For YUV Planar surfaces, UV Plane follow immediately after Y plane. Y and UV surfaces have their own
+    // control surfaces. So AuxSurf will be linear buffer with CCS for Y plane followed by CCS for UV plane.
+    // Y and UV control surface must be 4kb base aligned and they store the control data for full tiles covering Y and UV
+    // planes respectively.
+    // GMM will also allocate cacheline aligned 64-byte to hold the LKF's software controlled media compression state.
+    // GMM will calculate YAuxOffset, UVAuxOffset and MediaCompression State offset on the fly. Refer GmmResGetAuxSurfaceOffset().
+
+    YCcsSize = pTexInfo->OffsetInfo.Plane.Y[GMM_PLANE_U] * pTexInfo->Pitch / 1024;
+    YCcsSize = GFX_ALIGN(YCcsSize, PAGE_SIZE);
+
+    if(pTexInfo->ArraySize > 1)
+    {
+        TotalHeight = pTexInfo->OffsetInfo.Plane.ArrayQPitch / pTexInfo->Pitch;
+    }
+    else
+    {
+        TotalHeight = pTexInfo->Size / pTexInfo->Pitch;
+    }
+
+    UVCcsSize = (TotalHeight - pTexInfo->OffsetInfo.Plane.Y[GMM_PLANE_U]) * pTexInfo->Pitch / 1024;
+    UVCcsSize = GFX_ALIGN(UVCcsSize, PAGE_SIZE);
+
+    pTexInfo->Size  = GFX_ALIGN(YCcsSize + UVCcsSize + GMM_MEDIA_COMPRESSION_STATE_SIZE, pRestrictions->MinAllocationSize);
+    pTexInfo->Pitch = 0;
+
+    //Store the dimension of linear surface in OffsetInfo.Plane.X.
+    pTexInfo->OffsetInfo.Plane.X[GMM_PLANE_Y] = YCcsSize;
+    pTexInfo->OffsetInfo.Plane.X[GMM_PLANE_U] =
+    pTexInfo->OffsetInfo.Plane.X[GMM_PLANE_V] = UVCcsSize;
+
+    pTexInfo->OffsetInfo.Plane.Y[GMM_PLANE_Y] =
+    pTexInfo->OffsetInfo.Plane.Y[GMM_PLANE_U] =
+    pTexInfo->OffsetInfo.Plane.Y[GMM_PLANE_V] = 0;
+
+    // Planar & hybrid 2D arrays supported in DX11.1+ spec but not HW. Memory layout
+    // is defined by SW requirements; Y plane must be 4KB aligned.
+    if(pTexInfo->ArraySize > 1)
+    {
+        GMM_GFX_SIZE_T ElementSizeBytes = pTexInfo->Size;
+        int64_t        LargeSize;
+
+        // Size should always be page aligned.
+        __GMM_ASSERT((pTexInfo->Size % PAGE_SIZE) == 0);
+
+        if((LargeSize = (int64_t)ElementSizeBytes * pTexInfo->ArraySize) <= pPlatform->SurfaceMaxSize)
+        {
+            pTexInfo->OffsetInfo.Plane.ArrayQPitch = ElementSizeBytes;
+            pTexInfo->Size                         = LargeSize;
+        }
+        else
+        {
+            GMM_ASSERTDPF(0, "Surface too large!");
+            return GMM_ERROR;
+        }
+    }
+
+    return GMM_SUCCESS;
+    GMM_DPF_EXIT;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -914,6 +1009,18 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen11TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
         }
     }
 
+    // Vary wide planar tiled planar formats do not support MMC pre gen11. All formats do not support
+    //Special case LKF MMC compressed surfaces
+    if(pTexInfo->Flags.Gpu.MMC &&
+       pTexInfo->Flags.Gpu.UnifiedAuxSurface &&
+       pTexInfo->Flags.Info.TiledY)
+    {
+        uint32_t TileHeight = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
+
+        Height = GFX_ALIGN(YHeight, TileHeight) + GFX_ALIGN(AdjustedVHeight, TileHeight);
+    }
+
+    // Vary wide planar tiled planar formats do not support MMC pre gen11. All formats do not support
     // Very wide planar tiled planar formats do not support MMC pre gen11. All formats do not support
     // MMC above 16k bytes wide, while Yf NV12 does not support above 8k - 128 bytes.
     if((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN10_CORE) &&
@@ -953,6 +1060,26 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen11TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
         {
             GMM_ASSERTDPF(0, "Surface too large!");
             Status = GMM_ERROR;
+        }
+    }
+
+    //LKF specific Restrictions
+    if(GFX_GET_CURRENT_PRODUCT(pPlatform->Platform) == IGFX_LAKEFIELD)
+    {
+        // If GMM fall backs TileY to Linear then reset the UnifiedAuxSurface flag.
+        if(!pTexInfo->Flags.Gpu.MMC &&
+           pTexInfo->Flags.Gpu.UnifiedAuxSurface &&
+           !pTexInfo->Flags.Gpu.__NonMsaaLinearCCS)
+        {
+            GMM_ASSERTDPF(0, "MMC TileY is fallback to Linear surface!");
+            pTexInfo->Flags.Gpu.UnifiedAuxSurface = 0;
+        }
+
+        if(pTexInfo->Flags.Gpu.MMC &&
+           pTexInfo->Flags.Gpu.UnifiedAuxSurface &&
+           pTexInfo->Flags.Gpu.__NonMsaaLinearCCS)
+        {
+            FillLinearCCS(pTexInfo, pRestrictions);
         }
     }
 

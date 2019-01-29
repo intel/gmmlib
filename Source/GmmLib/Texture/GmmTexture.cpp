@@ -289,6 +289,20 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
         }
     }
 
+    //Special case LKF MMC compressed surfaces
+    if(pTexInfo->Flags.Gpu.MMC &&
+       pTexInfo->Flags.Gpu.UnifiedAuxSurface &&
+       GMM_IS_4KB_TILE(pTexInfo->Flags))
+    {
+        GMM_GFX_SIZE_T TileHeight = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
+        GMM_GFX_SIZE_T TileWidth  = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileWidth;
+
+        *pUOffsetX = GFX_ALIGN(*pUOffsetX, TileWidth);
+        *pUOffsetY = GFX_ALIGN(*pUOffsetY, TileHeight);
+        *pVOffsetX = GFX_ALIGN(*pVOffsetX, TileWidth);
+        *pVOffsetY = GFX_ALIGN(*pVOffsetY, TileHeight);
+    }
+
     GMM_DPF_EXIT;
 
 #undef SWAP_UV

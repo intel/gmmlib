@@ -38,8 +38,8 @@ GmmLib::PlatformInfo::PlatformInfo(PLATFORM &Platform)
 #define GMM_FORMAT_SKU(FtrXxx) (pGmmGlobalContext->GetSkuTable().FtrXxx != 0)
 #define GMM_FORMAT_WA(WaXxx) (pGmmGlobalContext->GetWaTable().WaXxx != 0)
 #define GMM_FORMAT(Name, bpe, _Width, _Height, _Depth, IsRT, IsASTC, RcsSurfaceFormat, AuxL1Format, Availability) \
-    \
-{                                                                                                          \
+                                                                                                                  \
+    {                                                                                                             \
         GmmFormat                                      = GMM_FORMAT_##Name;                                       \
         Data.FormatTable[GmmFormat].ASTC               = (IsASTC);                                                \
         Data.FormatTable[GmmFormat].Element.BitsPer    = (bpe);                                                   \
@@ -54,8 +54,7 @@ GmmLib::PlatformInfo::PlatformInfo(PLATFORM &Platform)
         {                                                                                                         \
             Data.FormatTable[GmmFormat].Compressed = 1;                                                           \
         }                                                                                                         \
-    \
-}
+    }
 
 #include "External/Common/GmmFormatTable.h"
 }

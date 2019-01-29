@@ -214,6 +214,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
 {
     __GMM_BUFFER_TYPE              Restrictions             = {0};
     const __GMM_PLATFORM_RESOURCE *pPlatformResource        = NULL;
+    GMM_TEXTURE_CALC *             pTextureCalc             = NULL;
     bool                           AllowMaxWidthViolations  = false;
     bool                           AllowMaxHeightViolations = false;
     uint8_t                        Status                   = 0;
@@ -264,6 +265,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
 #endif
 
     pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
+    pTextureCalc      = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
 
     __GMM_ASSERT(!(
     Surf.Flags.Gpu.Query &&

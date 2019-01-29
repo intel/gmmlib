@@ -350,6 +350,34 @@ typedef enum
 } GMM_UNIFIED_AUX_TYPE;
 
 //===========================================================================
+// enum :
+//        GMM_SIZE_PARAM
+//
+// Description:
+//     This enumarates various surface size parameters available for GetSize query.
+//     Refer GmmResourceInfoCommon.h  GetSize() api
+//
+//     Note:
+//     Below legacy API to query surface size are deprecated and will be removed in
+//     later gmm releases.
+//     - GmmResGetSizeSurface()/ pResInfo->GetSizeSurface()
+//     - GmmResGetSizeMainSurface()/  pResInfo->GetSizeAllocation()
+//     - GmmResGetSizeAllocation()/ pResInfo->GetSizeMainSurface()
+//---------------------------------------------------------------------------
+// Usage :
+//     UMD client use this enum to request the surface size.
+//===========================================================================
+typedef enum
+{
+    GMM_INVALID_PARAM,       // Leave 0 as invalid to force client to explictly set
+    GMM_MAIN_SURF,           // Main surface size(w/o aux data)
+    GMM_MAIN_PLUS_AUX_SURF,  // Main surface plus auxilary data, includes ccs, cc, zcs, mcs metadata. Renderable portion of the surface.
+    GMM_TOTAL_SURF,          // Main+Aux with additional padding based on hardware PageSize.
+    GMM_MAPGPUVA_SIZE = GMM_TOTAL_SURF,// To be used for mapping gpu virtual address space.
+} GMM_SIZE_PARAM;
+
+
+//===========================================================================
 // typedef:
 //        GMM_RES_COPY_BLT
 //

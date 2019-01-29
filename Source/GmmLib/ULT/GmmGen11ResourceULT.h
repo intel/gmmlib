@@ -1,5 +1,5 @@
 /*==============================================================================
-Copyright(c) 2017 Intel Corporation
+Copyright(c) 2016 Intel Corporation
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files(the "Software"),
@@ -19,20 +19,13 @@ OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
+#pragma once
 
-#define PRODUCT(X)  (GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_##X)
+#include "GmmGen10ResourceULT.h"
 
-#define FROMPRODUCT(X)  (GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_##X)
-
-#define SKU(FtrXxx) (pGmmGlobalContext->GetSkuTable().FtrXxx != 0)
-
-#define WA(WaXxx)   (pGmmGlobalContext->GetWaTable().WaXxx != 0)
-
-// Underscored to prevent name collision with the GMM_CACHE_POLICY_ELEMENT fields named L3 and LLC
-#define _L3           (pGmmGlobalContext->GetGtSysInfo()->L3CacheSizeInKb)
-#define _LLC          (pGmmGlobalContext->GetGtSysInfo()->LLCCacheSizeInKb)
-#define _ELLC         (pGmmGlobalContext->GetGtSysInfo()->EdramSizeInKb)
-
-// Units are already in KB in the system information, so these helper macros need to account for that
-#define KB(N)         (N)
-#define MB(N)         (1024 * KB(N))
+class CTestGen11Resource : public CTestGen10Resource
+{
+public:
+    static void SetUpTestCase();
+    static void TearDownTestCase();
+};

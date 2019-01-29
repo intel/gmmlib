@@ -57,6 +57,10 @@ namespace GmmLib
                                     GMM_TEXTURE_INFO    *pTexInfo,
                                     __GMM_BUFFER_TYPE   *pRestrictions);
 
+            GMM_STATUS   FillLinearCCS(
+                                    GMM_TEXTURE_INFO    *pTexInfo,
+                                    __GMM_BUFFER_TYPE   *pRestrictions);
+
             virtual void FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo);
 
         public:

@@ -83,6 +83,36 @@ namespace GmmLib
                                 GMM_TEXTURE_INFO   *pTexInfo);
 
             void            FindMipTailStartLod(GMM_TEXTURE_INFO *pTexInfo);
+            GMM_VIRTUAL void                GetGenericRestrictions(GMM_TEXTURE_INFO* pTexInfo,
+                                                                   __GMM_BUFFER_TYPE *pBuff);
+            GMM_VIRTUAL __GMM_BUFFER_TYPE*  GetBestRestrictions(__GMM_BUFFER_TYPE *pFirstBuffer,
+                                                                const __GMM_BUFFER_TYPE *pSecondBuffer);
+            /* Inline functions */
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Checks where the restrictions are invalid or not
+            /// @param[in]  pRestriction Restrictions to check
+            /// @return     true if restriction is invalid. false otherwise.
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE_VIRTUAL GMM_INLINE bool IsRestrictionInvalid(__GMM_BUFFER_TYPE *pRestriction)
+            {
+                return ((pRestriction->MinDepth == 0xffffffff) ? true : false);
+            }
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Returns restrictions for a linear buffer.
+            /// @param[out]     pBuff Restrictions are returned in this buffer
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE_VIRTUAL GMM_INLINE void GetLinearRestrictions(GMM_TEXTURE_INFO* pTexInfo, __GMM_BUFFER_TYPE* pBuff)
+            {
+                *pBuff = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo)->Linear;
+            }
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Returns restrictions for the primary buffer.
+            /// @param[out]     pBuff Restrictions are returned in this buffer
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE_VIRTUAL GMM_INLINE void GetPrimaryRestrictions(GMM_TEXTURE_INFO* pTexInfo, __GMM_BUFFER_TYPE* pBuff)
+            {
+                *pBuff = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo)->ASyncFlipSurface;
+            }
 
             virtual uint32_t   Get2DMipMapHeight(GMM_TEXTURE_INFO   *pTexInfo) = 0;
 
@@ -220,6 +250,9 @@ namespace GmmLib
                                 GMM_TEXTURE_INFO *pTexInfo,
                                 uint32_t             *pColFactor,
                                 uint32_t             *pRowFactor);
+            void    GetResRestrictions(
+                                  GMM_TEXTURE_INFO* pTexInfo,
+                                  __GMM_BUFFER_TYPE& pBuff);
 
             // Virtual functions
             virtual GMM_STATUS GMM_STDCALL  FillTex1D(
