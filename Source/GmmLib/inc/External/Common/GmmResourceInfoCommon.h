@@ -1285,7 +1285,7 @@ namespace GmmLib
                 {
                     if (GetResFlags().Info.TiledYf || GMM_IS_64KB_TILE(GetResFlags()))
                     {
-                        HAlign = 0;
+                        HAlign = 1; //Ignored, but we'll retrun valid encoding nonetheless.
                     }
                     else
                     {
@@ -1294,7 +1294,7 @@ namespace GmmLib
                             case 4:  HAlign = 1; break;
                             case 8:  HAlign = 2; break;
                             case 16: HAlign = 3; break;
-                            default: HAlign = 0; __GMM_ASSERT(0);
+                            default: HAlign = 1;
                         }
                     }
                 }
@@ -1326,7 +1326,7 @@ namespace GmmLib
                 {
                     if (GetResFlags().Info.TiledYf || GMM_IS_64KB_TILE(GetResFlags()))
                     {
-                        VAlign = 0;
+                        VAlign = 1; // Ignored , but we'll return valid encoding nonetheless.
                     }
                     else
                     {
@@ -1335,7 +1335,7 @@ namespace GmmLib
                             case 4:  VAlign = 1; break;
                             case 8:  VAlign = 2; break;
                             case 16: VAlign = 3; break;
-                            default: VAlign = 0; __GMM_ASSERT(0);
+                            default: VAlign = 1;
                         }
                     }
                 }
