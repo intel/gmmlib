@@ -26,8 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "GmmResourceInfoExt.h"
 
 #if defined(_WIN32)
+    // Applicable upto Gen9, Gen11+ gmmlib provides Cross-OS Fixed MOCS table as default support.
     #define GMM_DYNAMIC_MOCS_TABLE
-    #define GMM_FIXED_MOCS_TABLE // Use for Gen11
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////

@@ -52,10 +52,10 @@ typedef struct GMM_CACHE_POLICY_ELEMENT_REC
             uint32_t                   SSO         : 2; // Self Snoop Override  control and value
             uint32_t                   HDCL1       : 1; // HDC L1 caching enable/disable
             uint32_t                   L3Eviction  : 2; // Specify L3-eviction type (NA, ReadOnly, Standard, Special)
+            uint32_t                   Initialized : 1;
             uint32_t                   SegOv       : 3; // Override seg-pref (none, local-only, sys-only, etc)
             uint32_t                   GlbGo       : 1; // Global GO point - L3 or Memory
             uint32_t                   UcLookup    : 1; // Snoop L3 for uncached 
-            uint32_t                   Initialized : 1;
             uint32_t                   Reserved    : 5;
         };
         uint32_t Value;

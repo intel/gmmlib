@@ -25,8 +25,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "External/Common/CachePolicy/GmmCachePolicyGen10.h"
 #include "External/Common/CachePolicy/GmmCachePolicyGen11.h"
 
-#define GMM_FIXED_MOCS_TABLE // Use for Gen11
-
 //=============================================================================
 //
 // Function: IsSpecialMOCSUsage
@@ -79,38 +77,7 @@ GMM_STATUS GmmLib::GmmGen11CachePolicy::InitCachePolicy()
 {
     __GMM_ASSERTPTR(pCachePolicy, GMM_ERROR);
 
-#if defined(GMM_FIXED_MOCS_TABLE)
-#define DEFINE_CACHE_ELEMENT(usage, llc, ellc, l3, wt, age, aom, lecc_scc, l3_scc, scf, sso, cos, i915) DEFINE_CP_ELEMENT(usage, llc, ellc, l3, wt, age, aom, lecc_scc, l3_scc, scf, sso, cos, 0, 0, 0, 0, 0)
-#else
-// This is temporary until UMDs ensure switching to new i915 kernel in their testing
-// Fall back to old i915 supported three GEN9 MOCS entries:
-//     MOCS[0]...LLC=0, ELLC=0, L3=0, AGE=0
-//     MOCS[1]...<N/A for GmmLib Purposes>
-//     MOCS[2]...LLC=1, ELLC=1, L3=1, AGE=3
-#define DEFINE_CACHE_ELEMENT(usage, llc, ellc, l3, wt, age, aom, lecc_scc, l3_scc, scf, sso, cos, i915) \
-    do                                                                                                  \
-    {                                                                                                   \
-        if((i915) == 0)                                                                                 \
-        {                                                                                               \
-            DEFINE_CP_ELEMENT(usage, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);                   \
-        }                                                                                               \
-        else if((i915) == 2)                                                                            \
-        {                                                                                               \
-            if(usage == GMM_RESOURCE_USAGE_MOCS_62)                                                     \
-            {                                                                                           \
-                DEFINE_CP_ELEMENT(usage, 1, 1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);               \
-            }                                                                                           \
-            else                                                                                        \
-            {                                                                                           \
-                DEFINE_CP_ELEMENT(usage, 1, 1, 1, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);               \
-            }                                                                                           \
-        }                                                                                               \
-        else                                                                                            \
-        {                                                                                               \
-            GMM_ASSERTDPF(0, "Invalid i915 MOCS specified");                                            \
-        }                                                                                               \
-    } while(0) ////////////////////////////////////////////////////////////////
-#endif
+#define DEFINE_CACHE_ELEMENT(usage, llc, ellc, l3, wt, age, aom, lecc_scc, l3_scc, scf, sso, cos) DEFINE_CP_ELEMENT(usage, llc, ellc, l3, wt, age, aom, lecc_scc, l3_scc, scf, sso, cos, 0, 0, 0, 0, 0)
 #include "GmmGen11CachePolicy.h"
 
 #define TC_LLC (1)

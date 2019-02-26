@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
     #if defined(_WIN64)
         #define GMM_UMD_DLL     "igdgmm64.dll"
     #else
-        #define GMM_UMD_DLL     "libigdgmm.so.8"
+        #define GMM_UMD_DLL     "libigdgmm.so.9"
     #endif
 #else
     #define GMM_ENTRY_NAME      "_OpenGmm@4"
@@ -40,6 +40,6 @@ OTHER DEALINGS IN THE SOFTWARE.
     #if defined(_WIN32)
         #define GMM_UMD_DLL     "igdgmm32.dll"
     #else
-        #define GMM_UMD_DLL     "libigdgmm.so.8"
+        #define GMM_UMD_DLL     "libigdgmm.so.9"
     #endif
 #endif

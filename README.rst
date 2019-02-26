@@ -40,7 +40,7 @@ Building
 Install
 ^^^^^^^
 Not a stand alone software component.
-GmmLib is build as static library for Intel media driver and Compute runtime for OpenCL
+GmmLib is built as dynamic library for Intel media driver and Compute runtime for OpenCL
 
 Supported Platforms
 -------------------
@@ -53,6 +53,8 @@ SKL (Skylake, Kaby Lake, Coffee Lake)
 BXT (Broxton) / APL (Apollolake)
 
 CNL (Cannonlake)
+
+ICL (Icelake)
 
 
 Known Issues and Limitations

@@ -24,11 +24,11 @@ cmake_minimum_required(VERSION 3.5)
 project(igfx_gmmumd)
 
 # GmmLib Api Version used for so naming
-set(GMMLIB_API_MAJOR_VERSION 8)
+set(GMMLIB_API_MAJOR_VERSION 9)
 set(GMMLIB_API_MINOR_VERSION 0)
 
 if(NOT DEFINED MAJOR_VERSION)
-	set(MAJOR_VERSION 8)
+	set(MAJOR_VERSION 9)
 endif()
 
 if(NOT DEFINED MINOR_VERSION)
@@ -146,26 +146,15 @@ MESSAGE("SourceConfiguration:")
 MESSAGE("CommonDir: ${BS_DIR_COMMON}")
 MESSAGE("IncDir: ${BS_DIR_INC}")
 
-# If '-DGMM_FIXED_MOCS_TABLE=TRUE' (default is FALSE) passed to cmake
-# configure command gmmlib will generate Fixed MOCS table depending on
-# usage requests (Gen11+). In this case on Linux user responsibility is to
-# make sure that same fixed MOCS table is programmed on KMD level.
-if (GMM_FIXED_MOCS_TABLE)
-    MESSAGE("MOCS table: Fixed")
-    add_definitions(-DGMM_FIXED_MOCS_TABLE)
-else()
-    MESSAGE("MOCS table: Dynamic")
-endif()
-
 # If '-DGMM_DYNAMIC_MOCS_TABLE=TRUE' (default is FALSE) passed to cmake
 # configure command gmmlib will generate MOCS table dynamically depending on
-# usage requests (Gen9+). In this case on Linux user responsibility is to
+# usage requests (Gen9). In this case on Linux user responsibility is to
 # make sure that generated MOCS table is programmed on KMD level.
 if (GMM_DYNAMIC_MOCS_TABLE)
-    MESSAGE("MOCS table: dynamic")
+    MESSAGE("MOCS table: Dynamic")
     add_definitions(-DGMM_DYNAMIC_MOCS_TABLE)
 else()
-    MESSAGE("MOCS table: static")
+    MESSAGE("MOCS table: Static")
 endif()
 
 if(DEFINED UFO_DRIVER_OPTIMIZATION_LEVEL)
