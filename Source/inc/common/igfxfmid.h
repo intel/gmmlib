@@ -85,7 +85,10 @@ typedef enum {
     PCH_CNP_H,          // Cannonlake Halo PCH
     PCH_ICP_LP,         // ICL LP PCH
     PCH_ICP_N,          // ICL N PCH
-	PCH_LKF,            // LKF PCH
+    PCH_LKF,            // LKF PCH
+    PCH_CMP_LP,         // CML LP PCH
+    PCH_CMP_H,          // CML Halo PCH
+    PCH_CMP_V,          // CML V PCH
     PCH_PRODUCT_FAMILY_FORCE_ULONG = 0x7fffffff
 } PCH_PRODUCT_FAMILY;
 
@@ -741,7 +744,25 @@ typedef enum __NATIVEGTTYPE
 #define ICFL_GT1_41F_2F1F_ULT_DEVICE_F0_ID      0x3EA4
 #define ICFL_GT2_U42F_U2F2F_ULT_DEVICE_F0_ID    0x3EA9
 
-
+//CML- continue to follow CFL Macro
+#define ICFL_GT2_ULT_DEVICE_V0_ID               0x9B41
+#define ICFL_GT1_ULT_DEVICE_V0_ID               0x9B21
+#define ICFL_GT2_ULT_DEVICE_A0_ID               0x9BCA
+#define ICFL_GT1_ULT_DEVICE_A0_ID               0x9BAA
+#define ICFL_GT2_ULT_DEVICE_S0_ID               0x9BCB
+#define ICFL_GT1_ULT_DEVICE_S0_ID               0x9BAB
+#define ICFL_GT2_ULT_DEVICE_K0_ID               0x9BCC
+#define ICFL_GT1_ULT_DEVICE_K0_ID               0x9BAC
+#define ICFL_GT2_ULX_DEVICE_S0_ID               0x9BC0
+#define ICFL_GT1_ULX_DEVICE_S0_ID               0x9BA0
+#define ICFL_GT2_DT_DEVICE_P0_ID                0x9BC5
+#define ICFL_GT1_DT_DEVICE_P0_ID                0x9BA5
+#define ICFL_GT2_DT_DEVICE_G0_ID                0x9BC8
+#define ICFL_GT1_DT_DEVICE_G0_ID                0x9BA8
+#define ICFL_GT2_HALO_DEVICE_15_ID              0x9BC4
+#define ICFL_GT1_HALO_DEVICE_16_ID              0x9BA4
+#define ICFL_GT2_HALO_DEVICE_17_ID              0x9BC2
+#define ICFL_GT1_HALO_DEVICE_18_ID              0x9BA2
 
 
 
@@ -1161,6 +1182,109 @@ typedef enum __NATIVEGTTYPE
 // LKF-PCH Device IDs
 #define PCH_LKF_UNFUSED_SKU_ID                  0x9880
 #define PCH_LKF_SUPER_SKU_ID                    0x9881
+
+//define CML LP PCH Device Ids
+#define PCH_CMP_LP_DEV_P1_ID                    0x0280
+#define PCH_CMP_LP_DEV_P2_ID                    0x0281
+#define PCH_CMP_LP_DEV_P3_ID                    0x0282
+#define PCH_CMP_LP_DEV_P4_ID                    0x0283
+#define PCH_CMP_LP_DEV_P5_ID                    0x0284
+#define PCH_CMP_LP_DEV_P6_ID                    0x0285
+#define PCH_CMP_LP_DEV_P7_ID                    0x0286
+#define PCH_CMP_LP_DEV_P8_ID                    0x0287
+#define PCH_CMP_LP_DEV_P9_ID                    0x0288
+#define PCH_CMP_LP_DEV_P10_ID                   0x0289
+#define PCH_CMP_LP_DEV_P11_ID                   0x028A
+#define PCH_CMP_LP_DEV_P12_ID                   0x028B
+#define PCH_CMP_LP_DEV_P13_ID                   0x028C
+#define PCH_CMP_LP_DEV_P14_ID                   0x028D
+#define PCH_CMP_LP_DEV_P15_ID                   0x028E
+#define PCH_CMP_LP_DEV_P16_ID                   0x028F
+#define PCH_CMP_LP_DEV_P17_ID                   0x0290
+#define PCH_CMP_LP_DEV_P18_ID                   0x0291
+#define PCH_CMP_LP_DEV_P19_ID                   0x0292
+#define PCH_CMP_LP_DEV_P20_ID                   0x0293
+#define PCH_CMP_LP_DEV_P21_ID                   0x0294
+#define PCH_CMP_LP_DEV_P22_ID                   0x0295
+#define PCH_CMP_LP_DEV_P23_ID                   0x0296
+#define PCH_CMP_LP_DEV_P24_ID                   0x0297
+#define PCH_CMP_LP_DEV_P25_ID                   0x0298
+#define PCH_CMP_LP_DEV_P26_ID                   0x0299
+#define PCH_CMP_LP_DEV_P27_ID                   0x029A
+#define PCH_CMP_LP_DEV_P28_ID                   0x029B
+#define PCH_CMP_LP_DEV_P29_ID                   0x029C
+#define PCH_CMP_LP_DEV_P30_ID                   0x029D
+#define PCH_CMP_LP_DEV_P31_ID                   0x029E
+#define PCH_CMP_LP_DEV_P32_ID                   0x029F
+
+//define CML H PCH Device Ids
+#define PCH_CMP_H_DEV_P1_ID                     0x0680
+#define PCH_CMP_H_DEV_P2_ID                     0x0681
+#define PCH_CMP_H_DEV_P3_ID                     0x0682
+#define PCH_CMP_H_DEV_P4_ID                     0x0683
+#define PCH_CMP_H_DEV_P5_ID                     0x0684
+#define PCH_CMP_H_DEV_P6_ID                     0x0685
+#define PCH_CMP_H_DEV_P7_ID                     0x0686
+#define PCH_CMP_H_DEV_P8_ID                     0x0687
+#define PCH_CMP_H_DEV_P9_ID                     0x0688
+#define PCH_CMP_H_DEV_P10_ID                    0x0689
+#define PCH_CMP_H_DEV_P11_ID                    0x068A
+#define PCH_CMP_H_DEV_P12_ID                    0x068B
+#define PCH_CMP_H_DEV_P13_ID                    0x068C
+#define PCH_CMP_H_DEV_P14_ID                    0x068D
+#define PCH_CMP_H_DEV_P15_ID                    0x068E
+#define PCH_CMP_H_DEV_P16_ID                    0x068F
+#define PCH_CMP_H_DEV_P17_ID                    0x0690
+#define PCH_CMP_H_DEV_P18_ID                    0x0691
+#define PCH_CMP_H_DEV_P19_ID                    0x0692
+#define PCH_CMP_H_DEV_P20_ID                    0x0693
+#define PCH_CMP_H_DEV_P21_ID                    0x0694
+#define PCH_CMP_H_DEV_P22_ID                    0x0695
+#define PCH_CMP_H_DEV_P23_ID                    0x0696
+#define PCH_CMP_H_DEV_P24_ID                    0x0697
+#define PCH_CMP_H_DEV_P25_ID                    0x0698
+#define PCH_CMP_H_DEV_P26_ID                    0x0699
+#define PCH_CMP_H_DEV_P27_ID                    0x069A
+#define PCH_CMP_H_DEV_P28_ID                    0x069B
+#define PCH_CMP_H_DEV_P29_ID                    0x069C
+#define PCH_CMP_H_DEV_P30_ID                    0x069D
+#define PCH_CMP_H_DEV_P31_ID                    0x069E
+#define PCH_CMP_H_DEV_P32_ID                    0x069F
+
+//define CML V PCH Device Ids
+#define PCH_CMP_V_DEV_P65_ID                   0xA3C0
+#define PCH_CMP_V_DEV_P66_ID                   0xA3C1
+#define PCH_CMP_V_DEV_P67_ID                   0xA3C2
+#define PCH_CMP_V_DEV_P68_ID                   0xA3C3
+#define PCH_CMP_V_DEV_P69_ID                   0xA3C4
+#define PCH_CMP_V_DEV_P70_ID                   0xA3C5
+#define PCH_CMP_V_DEV_P71_ID                   0xA3C6
+#define PCH_CMP_V_DEV_P72_ID                   0xA3C7
+#define PCH_CMP_V_DEV_P73_ID                   0xA3C8
+#define PCH_CMP_V_DEV_P74_ID                   0xA3C9
+#define PCH_CMP_V_DEV_P75_ID                   0xA3CA
+#define PCH_CMP_V_DEV_P76_ID                   0xA3CB
+#define PCH_CMP_V_DEV_P77_ID                   0xA3CC
+#define PCH_CMP_V_DEV_P78_ID                   0xA3CD
+#define PCH_CMP_V_DEV_P79_ID                   0xA3CE
+#define PCH_CMP_V_DEV_P80_ID                   0xA3CF
+#define PCH_CMP_V_DEV_P81_ID                   0xA3D0
+#define PCH_CMP_V_DEV_P82_ID                   0xA3D1
+#define PCH_CMP_V_DEV_P83_ID                   0xA3D2
+#define PCH_CMP_V_DEV_P84_ID                   0xA3D3
+#define PCH_CMP_V_DEV_P85_ID                   0xA3D4
+#define PCH_CMP_V_DEV_P86_ID                   0xA3D5
+#define PCH_CMP_V_DEV_P87_ID                   0xA3D6
+#define PCH_CMP_V_DEV_P88_ID                   0xA3D7
+#define PCH_CMP_V_DEV_P89_ID                   0xA3D8
+#define PCH_CMP_V_DEV_P90_ID                   0xA3D9
+#define PCH_CMP_V_DEV_P91_ID                   0xA3DA
+#define PCH_CMP_V_DEV_P92_ID                   0xA3DB
+#define PCH_CMP_V_DEV_P93_ID                   0xA3DC
+#define PCH_CMP_V_DEV_P94_ID                   0xA3DD
+#define PCH_CMP_V_DEV_P95_ID                   0xA3DE
+#define PCH_CMP_V_DEV_P96_ID                   0xA3DF
+
 #define MGM_HAS     0
 
 //#define SDG_HAS      1              //Reserve place for Springdale-G HAS
