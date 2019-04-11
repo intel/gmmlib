@@ -175,7 +175,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SURFACE_HME_DOWNSAMPLED_ENCODE          
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SURFACE_HME_DOWNSAMPLED_ENCODE_DST                    , 1   , EDRAM    , 1  , 0  , 3,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SURFACE_ME_DISTORTION_ENCODE                          , 1   , EDRAM    , 1  , 0  , 3,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SURFACE_BRC_ME_DISTORTION_ENCODE                      , 1   , EDRAM    , 1  , 0  , 3,    0,     0,       0,      0,    0,   0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_PAK_OBJECT_ENCODE                                     , 1   , EDRAM    , 1  , 0  , 3,    0,     0,       0,      0,    0,   0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_PAK_OBJECT_ENCODE                                     , 1   , EDRAM    , 0  , 0  , 3,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SURFACE_FLATNESS_CHECK_ENCODE                         , 1   , EDRAM    , 1  , 0  , 3,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SURFACE_MBENC_CURBE_ENCODE                            , 1   , EDRAM    , 1  , 0  , 3,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VDENC_ROW_STORE_BUFFER_CODEC                          , 1   , 0        , 0  , 0  , 3,    0 ,    0,       0,      0,    0,   0);
@@ -199,10 +199,10 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_PRED_COL_STORE_BUFFER_CODEC             
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SURFACE_UNCACHED                                      , 0   , 0        , 0  , 0  , 0,    0 ,    0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SURFACE_ELLC_ONLY                                     , 0   , EDRAM    , 0  , 0  , 0,    0 ,    0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SURFACE_ELLC_LLC_ONLY                                 , 1   , EDRAM    , 0  , 0  , 3,    0 ,    0,       0,      0,    0,   0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SURFACE_ELLC_LLC_L3                                   , 1   , EDRAM    , 1  , 0  , 3,    0 ,    0,       0,      0,    0,   0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SURFACE_ELLC_LLC_L3                                   , 1   , EDRAM    , 0  , 0  , 3,    0 ,    0,       0,      0,    0,   0);
 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SURFACE_BRC_HISTORY_ENCODE                            , 1   , EDRAM    , 1  , 0  , 3,    0,     0,       0,      0,    0,   0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SURFACE_SOFTWARE_SCOREBOARD_ENCODE                    , 1   , EDRAM    , 1  , 0  , 3,    0,     0,       0,      0,    0,   0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SURFACE_SOFTWARE_SCOREBOARD_ENCODE                    , 1   , EDRAM    , 0  , 0  , 3,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SURFACE_ME_MV_DATA_ENCODE                             , 1   , EDRAM    , 1  , 0  , 3,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SURFACE_MV_DISTORTION_ENCODE                          , 1   , EDRAM    , 1  , 0  , 3,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SURFACE_4XME_DISTORTION_ENCODE                        , 1   , EDRAM    , 1  , 0  , 3,    0,     0,       0,      0,    0,   0);
