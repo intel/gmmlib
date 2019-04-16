@@ -491,4 +491,7 @@ GmmLib::PlatformInfoGen9::PlatformInfoGen9(PLATFORM &Platform)
     }
 
     Data.HiZPixelsPerByte = 2;
+
+    Data.ReconMaxHeight = Data.Texture2DSurface.MaxHeight; // Reconstructed surfaces require more height and width for higher resolutions.
+    Data.ReconMaxWidth  = Data.Texture2DSurface.MaxWidth;
 }

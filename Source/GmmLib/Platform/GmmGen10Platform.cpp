@@ -507,4 +507,7 @@ GmmLib::PlatformInfoGen10::PlatformInfoGen10(PLATFORM &Platform)
     Data.SurfaceMaxSize                      = GMM_GBYTE(256);
     Data.MaxGpuVirtualAddressBitsPerResource = 38;
     Data.HiZPixelsPerByte                    = 2;
+
+    Data.ReconMaxHeight = Data.Texture2DSurface.MaxHeight; // Reconstructed surfaces require more height and width for higher resolutions.
+    Data.ReconMaxWidth  = Data.Texture2DSurface.MaxWidth;
 }

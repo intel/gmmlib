@@ -432,4 +432,7 @@ GmmLib::PlatformInfoGen8::PlatformInfoGen8(PLATFORM &Platform)
     Data.MaxSLMSize                          = GMM_KBYTE(384);
 
     Data.HiZPixelsPerByte = 2;
+
+    Data.ReconMaxHeight = Data.Texture2DSurface.MaxHeight; // Reconstructed surfaces require more height and width for higher resolutions.
+    Data.ReconMaxWidth  = Data.Texture2DSurface.MaxWidth;
 }

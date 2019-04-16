@@ -205,6 +205,11 @@ void GmmLib::GmmTextureCalc::GetGenericRestrictions(GMM_TEXTURE_INFO *pTexInfo, 
             {
                 *pBuff = pPlatformResource->Texture2DLinearSurface;
             }
+            if(GmmIsReconstructableSurface(pTexInfo->Format))
+            {
+                pBuff->MaxHeight = pPlatformResource->ReconMaxHeight;
+                pBuff->MaxWidth  = pPlatformResource->ReconMaxWidth;
+            }
         }
     }
     if(pTexInfo->Flags.Gpu.RenderTarget ||
@@ -230,6 +235,11 @@ void GmmLib::GmmTextureCalc::GetGenericRestrictions(GMM_TEXTURE_INFO *pTexInfo, 
             if(pTexInfo->Flags.Info.Linear)
             {
                 *pBuff = pPlatformResource->Texture2DLinearSurface;
+            }
+            if(GmmIsReconstructableSurface(pTexInfo->Format))
+            {
+                pBuff->MaxHeight = pPlatformResource->ReconMaxHeight;
+                pBuff->MaxWidth  = pPlatformResource->ReconMaxWidth;
             }
         }
     }

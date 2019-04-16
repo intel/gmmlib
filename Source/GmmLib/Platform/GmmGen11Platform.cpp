@@ -31,6 +31,9 @@ GmmLib::PlatformInfoGen11::PlatformInfoGen11(PLATFORM &Platform)
     Data.SurfaceMaxSize                      = GMM_GBYTE(16384);
     Data.MaxGpuVirtualAddressBitsPerResource = 44;
 
+    //Override the Height VP9 VdEnc requirement for Gen11 8k resolution.
+    Data.ReconMaxHeight = GMM_KBYTE(32);
+
     //Override CCS MaxPitch requirement
     if(GFX_GET_CURRENT_PRODUCT(Data.Platform) == IGFX_ICELAKE)
     {

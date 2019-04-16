@@ -417,6 +417,7 @@ GMM_FORMAT( MFX_JPEG_YUV444              ,   8,  1,  1, 1, R, x,   NA , 0xF ,   
 GMM_FORMAT( NV11                         ,   8,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      )
 GMM_FORMAT( NV12                         ,   8,  1,  1, 1, R, x,   NA , 0xF ,     ALWAYS      )
 GMM_FORMAT( NV21                         ,   8,  1,  1, 1, R, x,   NA , 0xF ,     ALWAYS      )
+GMM_FORMAT( P8                           ,   8,  1,  1, 1, R, x,   NA,  NC  ,     ALWAYS      )
 GMM_FORMAT( P010                         ,  16,  1,  1, 1, R, x,   NA , 0x7 ,     ALWAYS      )
 GMM_FORMAT( P012                         ,  16,  1,  1, 1, R, x,   NA , NC  ,     ALWAYS      )
 GMM_FORMAT( P016                         ,  16,  1,  1, 1, R, x,   NA , 0x8 ,     ALWAYS      )

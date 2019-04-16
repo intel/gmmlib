@@ -265,6 +265,8 @@ typedef struct __GMM_PLATFORM_RESOURCE_REC
     uint32_t                MaxSLMSize;
 
     uint8_t                 HiZPixelsPerByte; //HiZ-Bpp is < 1, keep inverse
+    uint64_t                ReconMaxHeight;
+    uint64_t                ReconMaxWidth;
 }__GMM_PLATFORM_RESOURCE, GMM_PLATFORM_INFO;
 
 //***************************************************************************

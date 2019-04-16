@@ -287,6 +287,46 @@ uint8_t GMM_STDCALL GmmIsPlanar(GMM_RESOURCE_FORMAT Format)
 
 //=============================================================================
 // Function:
+//    GmmIsReconstructableSurface
+//
+// Description:
+//     Checks if format is GmmIsReconstructableSurface
+//
+// Arguments: <Look at Function Header)
+//
+// Return:
+//    1 or 0
+//-----------------------------------------------------------------------------
+uint8_t GMM_STDCALL GmmIsReconstructableSurface(GMM_RESOURCE_FORMAT Format)
+{
+    uint8_t Status = 0;
+
+    switch(Format)
+    {
+        case GMM_FORMAT_AYUV:
+        case GMM_FORMAT_P010:
+        case GMM_FORMAT_P012:
+        case GMM_FORMAT_P016:
+        case GMM_FORMAT_Y210:
+        case GMM_FORMAT_Y216:
+        case GMM_FORMAT_Y212:
+        case GMM_FORMAT_Y410:
+        case GMM_FORMAT_Y416:
+        case GMM_FORMAT_P8:
+        case GMM_FORMAT_NV12:
+        case GMM_FORMAT_YUY2_2x1:
+        case GMM_FORMAT_YUY2:
+            Status = 1;
+            break;
+        default:
+            Status = 0;
+            break;
+    }
+    return Status;
+}
+
+//=============================================================================
+// Function:
 //    GmmIsP0xx
 //
 // Description:
