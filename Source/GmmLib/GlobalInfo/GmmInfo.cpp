@@ -140,13 +140,17 @@ extern "C" GMM_STATUS GMM_STDCALL GmmCreateSingletonContext(const PLATFORM Platf
 /////////////////////////////////////////////////////////////////////////////////////
 extern "C" void GMM_STDCALL GmmDestroySingletonContext(void)
 {
-    __GMM_ASSERTPTR(pGmmGlobalContext, VOIDRETURN);
-    int32_t ContextRefCount = GmmLib::Context::DecrementRefCount();
-    if(!ContextRefCount && pGmmGlobalContext)
+    GMM_STATUS SyncLockStatus = GmmLib::Context::LockSingletonContextSyncMutex();
+    if(SyncLockStatus == GMM_SUCCESS)
     {
-        pGmmGlobalContext->DestroyContext();
-        delete pGmmGlobalContext;
-        pGmmGlobalContext = NULL;
+        int32_t ContextRefCount = GmmLib::Context::DecrementRefCount();
+        if(!ContextRefCount && pGmmGlobalContext)
+        {
+            pGmmGlobalContext->DestroyContext();
+            delete pGmmGlobalContext;
+            pGmmGlobalContext = NULL;
+        }
+        GmmLib::Context::UnlockSingletonContextSyncMutex();
     }
 }
 
