@@ -1147,6 +1147,12 @@ typedef enum __NATIVEGTTYPE
 #define ILKF_GT0_DESK_DEVICE_A0_ID              0x9850
 #define ILKF_1x6x8_DESK_DEVICE_F0_ID            0x9841
 #define ILKF_1x4x8_DESK_DEVICE_F0_ID            0x9842
+
+//EHL
+#define IEHL_1x2x4_DEVICE_A0_ID                 0x4541
+#define IEHL_1x2x8_DEVICE_A0_ID                 0x4551
+#define IEHL_1x4x8_DEVICE_A0_ID                 0x4571
+
 //ICL PCH LP Device IDs
 #define ICP_LP_RESERVED_FUSE_ID                 0x3480
 #define ICP_LP_U_SUPER_SKU_ID                   0x3481
