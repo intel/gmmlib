@@ -63,6 +63,7 @@ typedef enum {
     IGFX_ICELAKE,
     IGFX_ICELAKE_LP,
     IGFX_LAKEFIELD,
+    IGFX_EHLKARTLAKE,
     IGFX_MAX_PRODUCT,
 
 
@@ -1149,8 +1150,9 @@ typedef enum __NATIVEGTTYPE
 #define ILKF_1x4x8_DESK_DEVICE_F0_ID            0x9842
 
 //EHL
+#define IEHL_1x4x8_SUPERSKU_DEVICE_A0_ID        0x4500
 #define IEHL_1x2x4_DEVICE_A0_ID                 0x4541
-#define IEHL_1x2x8_DEVICE_A0_ID                 0x4551
+#define IEHL_1x4x4_DEVICE_A0_ID                 0x4551
 #define IEHL_1x4x8_DEVICE_A0_ID                 0x4571
 
 //ICL PCH LP Device IDs
