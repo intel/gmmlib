@@ -315,6 +315,11 @@ void GmmLib::GmmTextureCalc::GetGenericRestrictions(GMM_TEXTURE_INFO *pTexInfo, 
     {
         //
         pBuff = GetBestRestrictions(pBuff, &pPlatformResource->Video);
+        if(GmmIsReconstructableSurface(pTexInfo->Format))
+        {
+            pBuff->MaxHeight = pPlatformResource->ReconMaxHeight;
+            pBuff->MaxWidth  = pPlatformResource->ReconMaxWidth;
+        }
     }
     if(pTexInfo->Flags.Gpu.StateDx9ConstantBuffer)
     {
