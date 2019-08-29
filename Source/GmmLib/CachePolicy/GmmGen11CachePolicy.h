@@ -24,6 +24,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #define EDRAM (SKU(FtrEDram))
 #define FBLLC (SKU(FtrFrameBufferLLC))
+#define NS    (SKU(FtrLLCBypass))
 
 // Cache Policy Definition
 // AOM = Do not allocate on miss (0 = allocate on miss [normal cache behavior], 1 = don't allocate on miss)
@@ -55,7 +56,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_KMD_STAGING_SURFACE                     
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_MBM_BUFFER                                            , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_NNDI_BUFFER                                           , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OVERLAY_MBM                                           , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_PRIMARY_SURFACE                                       , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_PRIMARY_SURFACE                                       , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      NS,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SCREEN_PROTECTION_INTERMEDIATE_SURFACE                , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SHADOW_SURFACE                                        , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SM_SCRATCH_STATE                                      , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0);
@@ -74,7 +75,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_BINDING_TABLE_POOL                      
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CCS                                                   , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CONSTANT_BUFFER_POOL                                  , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DEPTH_BUFFER                                          , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DISPLAYABLE_RENDER_TARGET                             , 0   , EDRAM, 0  , EDRAM  , 0 ,    0,     0,       0,      0,    0,   0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DISPLAYABLE_RENDER_TARGET                             , 0   , EDRAM, 0  , EDRAM  , 0 ,    0,     0,       0,  NS,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_GATHER_POOL                                           , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_SURFACE_STATE                                    , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_DYNAMIC_STATE                                    , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
@@ -97,7 +98,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_STAGING                                 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_STENCIL_BUFFER                                        , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_STREAM_OUTPUT_BUFFER                                  , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILE_POOL                                             , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SHADER_RESOURCE_LLC_BYPASS                            , 0   , 1    , 1  , 0  , 0 ,    0,     0,       0,      1,    0,   0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SHADER_RESOURCE_LLC_BYPASS                            , 0   , 1    , 1  , 0  , 0 ,    0,     0,       0,      NS,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_MOCS_62                                               , 1   , 0    , 0  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_L3_EVICTION                                           , 1   , 1    , 0  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
 

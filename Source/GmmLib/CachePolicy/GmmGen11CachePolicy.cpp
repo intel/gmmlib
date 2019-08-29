@@ -192,7 +192,7 @@ GMM_STATUS GmmLib::GmmGen11CachePolicy::InitCachePolicy()
             }
             else
             {
-                for(j = 0; j <= CurrentMaxMocsIndex; j++)
+                for(j = 1; j <= CurrentMaxMocsIndex; j++)
                 {
                     GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &pGmmGlobalContext->GetCachePolicyTlbElement()[j];
                     if(TblEle->LeCC.DwordValue == UsageEle.LeCC.DwordValue &&
@@ -343,10 +343,10 @@ void GmmLib::GmmGen11CachePolicy::SetUpMOCSTable()
     GMM_DEFINE_MOCS( 62     , 0     , 0     , 1     , 3     , 1     , 3     , 0     , 0     , 0     , 0     , 0     , 0     , 0 )
     GMM_DEFINE_MOCS( 63     , 0     , 0     , 1     , 3     , 1     , 3     , 0     , 0     , 0     , 0     , 0     , 0     , 0 )
 
-    if (GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_LAKEFIELD)
+    if (pGmmGlobalContext->GetSkuTable().FtrLLCBypass)
     {
-        GMM_DEFINE_MOCS( 16     , 0     , 0     , 3     , 1     , 1     , 0     , 0     , 0     , 0     , 0     , 1     , 0     , 0 )
-        GMM_DEFINE_MOCS( 17     , 0     , 0     , 3     , 3     , 1     , 3     , 0     , 0     , 0     , 0     , 0     , 0     , 3 )
+        GMM_DEFINE_MOCS( 16     , 0     , 0     , 1     , 1     , 1     , 0     , 0     , 0     , 0     , 0     , 1     , 0     , 0 )
+        GMM_DEFINE_MOCS( 17     , 0     , 0     , 3     , 1     , 1     , 0     , 0     , 0     , 0     , 0     , 1     , 0     , 0 )
     }
 
     CurrentMaxMocsIndex         = 23;
