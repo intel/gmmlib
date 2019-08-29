@@ -34,8 +34,10 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
 {
     GMM_GFX_SIZE_T *pUOffsetX, *pUOffsetY;
     GMM_GFX_SIZE_T *pVOffsetX, *pVOffsetY;
+    uint32_t        YHeight = 0, VHeight = 0;
     bool            UVPacked = false;
     uint32_t        Height;
+    uint32_t        WidthBytesPhysical = GFX_ULONG_CAST(pTexInfo->BaseWidth) * pTexInfo->BitsPerPixel >> 3;
 
 #define SWAP_UV()              \
     {                          \
@@ -53,6 +55,8 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
     __GMM_ASSERTPTR(pTexInfo, VOIDRETURN);
     __GMM_ASSERTPTR(((pTexInfo->TileMode < GMM_TILE_MODES) && (pTexInfo->TileMode >= TILE_NONE)), VOIDRETURN);
     GMM_DPF_ENTER;
+
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
 
     // GMM_PLANE_Y always at (0, 0)...
     pTexInfo->OffsetInfo.Plane.X[GMM_PLANE_Y] = 0;
@@ -100,9 +104,11 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
             // VVVVVVVV
             {
                 *pUOffsetX = 0;
+                YHeight    = GFX_ALIGN(pTexInfo->BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT);
                 *pUOffsetY = GFX_ALIGN(pTexInfo->BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT);
 
                 *pVOffsetX = 0;
+                VHeight    = GFX_ALIGN(GFX_CEIL_DIV(pTexInfo->BaseHeight, 2), GMM_IMCx_PLANE_ROW_ALIGNMENT);
                 *pVOffsetY =
                 GFX_ALIGN(pTexInfo->BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT) +
                 GFX_ALIGN(GFX_CEIL_DIV(pTexInfo->BaseHeight, 2), GMM_IMCx_PLANE_ROW_ALIGNMENT);
@@ -118,9 +124,11 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
             //VVVVVVVV
             {
                 *pUOffsetX = 0;
+                YHeight    = GFX_ALIGN(pTexInfo->BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT);
                 *pUOffsetY = GFX_ALIGN(pTexInfo->BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT);
 
                 *pVOffsetX = 0;
+                VHeight    = GFX_ALIGN(GFX_CEIL_DIV(pTexInfo->BaseHeight, 4), GMM_IMCx_PLANE_ROW_ALIGNMENT);
                 *pVOffsetY =
                 GFX_ALIGN(pTexInfo->BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT) +
                 GFX_ALIGN(GFX_CEIL_DIV(pTexInfo->BaseHeight, 4), GMM_IMCx_PLANE_ROW_ALIGNMENT);
@@ -170,9 +178,11 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
             // VVVVVVVV
             {
                 *pUOffsetX = 0;
+                YHeight    = GFX_ALIGN(pTexInfo->BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT);
                 *pUOffsetY = GFX_ALIGN(pTexInfo->BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT);
 
                 *pVOffsetX = 0;
+                VHeight    = GFX_ALIGN(pTexInfo->BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT);
                 *pVOffsetY = GFX_ALIGN(pTexInfo->BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT) * 2;
 
                 break;
@@ -191,10 +201,15 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
             __GMM_ASSERT((pTexInfo->Pitch & 1) == 0);
 
             *pUOffsetX = 0;
+            YHeight    = GFX_ALIGN(pTexInfo->BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT);
             *pUOffsetY = GFX_ALIGN(pTexInfo->BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT);
 
             *pVOffsetX = pTexInfo->Pitch / 2;
+            VHeight    = GFX_CEIL_DIV(YHeight, 2);
             *pVOffsetY = GFX_ALIGN(pTexInfo->BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT);
+
+            // Not technically UV packed but sizing works out the same
+            UVPacked = true;
 
             break;
         }
@@ -242,6 +257,8 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
             *pUOffsetX = UOffset % pTexInfo->Pitch;
             *pUOffsetY = UOffset / pTexInfo->Pitch;
 
+            YHeight = GFX_CEIL_DIV(YSize + 2 * VSize, WidthBytesPhysical);
+
             break;
         }
         case GMM_FORMAT_NV12:
@@ -258,7 +275,21 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
             // YYYYYYYY
             // [UV-Packing]
             *pUOffsetX = *pVOffsetX = 0;
-            *pUOffsetY = *pVOffsetY = Height;
+            YHeight                 = GFX_ALIGN(Height, __GMM_EVEN_ROW);
+            *pUOffsetY = *pVOffsetY = YHeight;
+
+            if((pTexInfo->Format == GMM_FORMAT_NV12) ||
+               (pTexInfo->Format == GMM_FORMAT_NV21) ||
+               (pTexInfo->Format == GMM_FORMAT_P010) ||
+               (pTexInfo->Format == GMM_FORMAT_P012) ||
+               (pTexInfo->Format == GMM_FORMAT_P016))
+            {
+                VHeight = GFX_CEIL_DIV(Height, 2);
+            }
+            else
+            {
+                VHeight = YHeight; // U/V plane is same as Y
+            }
 
             UVPacked = true;
             break;
@@ -270,9 +301,19 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
         }
     }
 
-    if(((pTexInfo->Flags.Info.TiledYs || pTexInfo->Flags.Info.TiledYf) &&
-        (pTexInfo->Flags.Info.StdSwizzle || UVPacked)) ||
-       pTexInfo->Flags.Gpu.__NonMsaaTileYCcs)
+    pTexInfo->OffsetInfo.Plane.UnAligned.Height[GMM_PLANE_Y] = YHeight;
+    if(pTexInfo->OffsetInfo.Plane.NoOfPlanes == 2)
+    {
+        pTexInfo->OffsetInfo.Plane.UnAligned.Height[GMM_PLANE_U] = VHeight;
+    }
+    else if(pTexInfo->OffsetInfo.Plane.NoOfPlanes == 3)
+    {
+        pTexInfo->OffsetInfo.Plane.UnAligned.Height[GMM_PLANE_U] =
+        pTexInfo->OffsetInfo.Plane.UnAligned.Height[GMM_PLANE_V] = VHeight;
+    }
+
+
+    if(GMM_IS_TILED(pPlatform->TileInfo[pTexInfo->TileMode]) || pTexInfo->Flags.Gpu.__NonMsaaTileYCcs)
     {
         GMM_GFX_SIZE_T TileHeight = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
         GMM_GFX_SIZE_T TileWidth  = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileWidth;
@@ -280,7 +321,9 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
         *pUOffsetX = GFX_ALIGN(*pUOffsetX, TileWidth);
         *pUOffsetY = GFX_ALIGN(*pUOffsetY, TileHeight);
         *pVOffsetX = GFX_ALIGN(*pVOffsetX, TileWidth);
-        *pVOffsetY = GFX_ALIGN(*pVOffsetY, TileHeight);
+        *pVOffsetY = UVPacked ?
+                     GFX_ALIGN(*pVOffsetY, TileHeight) :
+                     GFX_ALIGN(YHeight, TileHeight) + GFX_ALIGN(VHeight, TileHeight);
 
         if(pTexInfo->Flags.Gpu.UnifiedAuxSurface && pTexInfo->Flags.Gpu.__NonMsaaTileYCcs)
         {

@@ -104,6 +104,7 @@ typedef enum PERFTAG_CLASS_ENUM
 #define PERFTAG_UNKNOWN_BITS(PerfTag)       ( PerfTag &  (ULONG)0xFFFF0000 )    // Bits[16,31] Usage component specific
 #define PERFTAG_FRAMEID(PerfTag)            ( PerfTag &  (ULONG)0x00FF0000 )    // Bits[16,23] Media Specific - frame id
 #define PERFTAG_BUFFERID(PerfTag)           ( PerfTag &  (ULONG)0x0F000000 )    // Bits[24,27] Media Specific - buffer id
+#define PERFTAG_BATCHBUFFERID(PerfTag)      ( PerfTag &  (ULONG)0xF0000000 )    // Bits[28,31] Media Specific - batch buffer id
 #define PERFTAG_FRAMEID_SHIFT                 16
 #define PERFTAG_BUFFERID_SHIFT                24
 #define PERFTAG_BATCHBUFFERID_SHIFT           28
@@ -327,6 +328,13 @@ typedef enum _VPHAL_PERFTAG
     VPHAL_FDFB_FB_EYE_SAHDOW_MASK,
     VPHAL_FDFB_FB_EYE_SAHDOW,
     VPHAL_FDFB_FB_EYE_COLOR,
+
+    // SR 
+    VPHAL_SR_CONV_1X1_32_5,
+    VPHAL_SR_CONV_1X1_5_32,
+    VPHAL_SR_CONV_3X3,
+    VPHAL_SR_SUBPIXEL_CONV_2X2,
+    VPHAL_SR_CONV_5X5_Y8,
 
     // ADD TAGS FOR NEW ADVPROC KRNS HERE
 

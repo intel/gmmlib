@@ -54,7 +54,7 @@ typedef enum GPUNODE_REC
     GPUNODE_BLT = 2,        // available on GT
     GPUNODE_VE = 3,         // available on HSW+ (VideoEnhancement), virtual node
     GPUNODE_VCS2 = 4,       // available on BDW/SKL/KBL GT3+ and CNL,
-    GPUNODE_RESERVED = 5,   //
+    GPUNODE_CCS0 = 5,   //
     GPUNODE_REAL_MAX,       // all nodes beyond this are virtual nodes - they don't have an actual GPU engine
     GPUNODE_PICS = 6,       // available on CNL+. Real node but only for KMD internal use. Hence kept after GPUNODE_REAL_MAX (Note: We need to keep it before overlay node)
     GPUNODE_OVERLAY = 7,

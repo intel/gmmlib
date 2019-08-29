@@ -73,10 +73,16 @@ OTHER DEALINGS IN THE SOFTWARE.
     #define GMM_ENABLE_GEN11 0
 #endif
 
+#if (!defined(GMM_GFX_GEN) || (GMM_GFX_GEN == 120))
+#define GMM_ENABLE_GEN12 1
+#else
+#define GMM_ENABLE_GEN12 0
+#endif
+
 
 #if (IGFX_GEN >= IGFX_GEN11)
     #if !(GMM_ENABLE_GEN8 || GMM_ENABLE_GEN9 || GMM_ENABLE_GEN10 || \
-        GMM_ENABLE_GEN11)
+        GMM_ENABLE_GEN11 || GMM_ENABLE_GEN12)
     #error "Unrecognized GMM_GFX_GEN !"
     #endif
 #elif (IGFX_GEN >= IGFX_GEN10)

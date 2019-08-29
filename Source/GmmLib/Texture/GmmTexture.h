@@ -253,7 +253,9 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
             UnitAlignHeight = pPlatform->TexAlign.XAdapter.Height;
             UnitAlignWidth = pPlatform->TexAlign.XAdapter.Width;
         }
-        else if(((pTexInfo->Flags.Gpu.CCS && GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN9_CORE)) &&
+        else if(((pTexInfo->Flags.Gpu.MCS &&
+                  GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN12_CORE) ||
+                 (pTexInfo->Flags.Gpu.CCS && GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN9_CORE)) &&
                 (pTexInfo->MSAA.NumSamples > 1))
         {
             UnitAlignWidth  = 16;

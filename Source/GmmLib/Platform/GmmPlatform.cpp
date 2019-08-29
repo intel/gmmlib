@@ -37,23 +37,24 @@ GmmLib::PlatformInfo::PlatformInfo(PLATFORM &Platform)
 #define GMM_FORMAT_GEN(X) (GFX_GET_CURRENT_RENDERCORE(Data.Platform) >= IGFX_GEN##X##_CORE)
 #define GMM_FORMAT_SKU(FtrXxx) (pGmmGlobalContext->GetSkuTable().FtrXxx != 0)
 #define GMM_FORMAT_WA(WaXxx) (pGmmGlobalContext->GetWaTable().WaXxx != 0)
-#define GMM_FORMAT(Name, bpe, _Width, _Height, _Depth, IsRT, IsASTC, RcsSurfaceFormat, AuxL1Format, Availability) \
-                                                                                                                  \
-    {                                                                                                             \
-        GmmFormat                                      = GMM_FORMAT_##Name;                                       \
-        Data.FormatTable[GmmFormat].ASTC               = (IsASTC);                                                \
-        Data.FormatTable[GmmFormat].Element.BitsPer    = (bpe);                                                   \
-        Data.FormatTable[GmmFormat].Element.Depth      = (_Depth);                                                \
-        Data.FormatTable[GmmFormat].Element.Height     = (_Height);                                               \
-        Data.FormatTable[GmmFormat].Element.Width      = (_Width);                                                \
-        Data.FormatTable[GmmFormat].RenderTarget       = ((IsRT) != 0);                                           \
-        Data.FormatTable[GmmFormat].SurfaceStateFormat = ((GMM_SURFACESTATE_FORMAT)(RcsSurfaceFormat));           \
-        Data.FormatTable[GmmFormat].Reserved           = ((uint32_t)(AuxL1Format));                               \
-        Data.FormatTable[GmmFormat].Supported          = ((Availability) != 0);                                   \
-        if(((_Depth) > 1) || ((_Height) > 1) || ((_Width) > 1))                                                   \
-        {                                                                                                         \
-            Data.FormatTable[GmmFormat].Compressed = 1;                                                           \
-        }                                                                                                         \
+#define GMM_COMPR_FORMAT_INVALID GMM_E2ECOMP_FORMAT_INVALID
+#define GMM_FORMAT(Name, bpe, _Width, _Height, _Depth, IsRT, IsASTC, RcsSurfaceFormat, SSCompressionFmt, Availability)        \
+                                                                                                                         \
+    {                                                                                                                    \
+        GmmFormat                                                       = GMM_FORMAT_##Name;                             \
+        Data.FormatTable[GmmFormat].ASTC                                = (IsASTC);                                      \
+        Data.FormatTable[GmmFormat].Element.BitsPer                     = (bpe);                                         \
+        Data.FormatTable[GmmFormat].Element.Depth                       = (_Depth);                                      \
+        Data.FormatTable[GmmFormat].Element.Height                      = (_Height);                                     \
+        Data.FormatTable[GmmFormat].Element.Width                       = (_Width);                                      \
+        Data.FormatTable[GmmFormat].RenderTarget                        = ((IsRT) != 0);                                 \
+        Data.FormatTable[GmmFormat].SurfaceStateFormat                  = ((GMM_SURFACESTATE_FORMAT)(RcsSurfaceFormat)); \
+        Data.FormatTable[GmmFormat].CompressionFormat.CompressionFormat = (SSCompressionFmt);                            \
+        Data.FormatTable[GmmFormat].Supported                           = ((Availability) != 0);                         \
+        if(((_Depth) > 1) || ((_Height) > 1) || ((_Width) > 1))                                                          \
+        {                                                                                                                \
+            Data.FormatTable[GmmFormat].Compressed = 1;                                                                  \
+        }                                                                                                                \
     }
 
 #include "External/Common/GmmFormatTable.h"

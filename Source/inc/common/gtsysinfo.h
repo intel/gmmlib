@@ -35,6 +35,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Maximums which bound all supported GT
 #define GT_MAX_SLICE                   (4)
 #define GT_MAX_SUBSLICE_PER_SLICE      (8)
+#define GT_MAX_SUBSLICE_PER_DSS        (2) // Currently max value based on Gen12
+#define GT_MAX_DUALSUBSLICE_PER_SLICE  (6) // Currently max value based on Gen12LP
 
 typedef struct GT_SUBSLICE_INFO
 {
@@ -43,11 +45,19 @@ typedef struct GT_SUBSLICE_INFO
     uint32_t            EuEnabledMask;      // Mask of EUs enabled on this SubSlice
 } GT_SUBSLICE_INFO;
 
+typedef struct GT_DUALSUBSLICE_INFO
+{
+    bool Enabled;                                       // Bool to determine if this SS is enabled.
+    GT_SUBSLICE_INFO SubSlice[GT_MAX_SUBSLICE_PER_DSS]; // SS details that belong to this DualSubSlice.
+} GT_DUALSUBSLICE_INFO;
+
 typedef struct GT_SLICE_INFO
 {
     bool                 Enabled;                                    // determine if this slice is enabled.
     GT_SUBSLICE_INFO     SubSliceInfo[GT_MAX_SUBSLICE_PER_SLICE];    // SS details that belong to this slice.
+    GT_DUALSUBSLICE_INFO DSSInfo[GT_MAX_DUALSUBSLICE_PER_SLICE];     // DSS details that belong to this slice.
     uint32_t             SubSliceEnabledCount;                       // No. of SS enabled in this slice
+    uint32_t             DualSubSliceEnabledCount;                   // No. of DSS enabled in this slice
 } GT_SLICE_INFO;
 
 typedef struct GT_VEBOX_INFO
@@ -119,6 +129,25 @@ typedef struct GT_VDBOX_INFO
     bool     IsValid;                            // flag to check if VDBoxInfo is valid.
 
 } GT_VDBOX_INFO;
+typedef struct GT_CCS_INFO
+{
+    union CCSInstances
+    {
+        struct CCSBitStruct
+        {
+            uint32_t    CCS0Enabled : 1;      // To determine if CCS0 is enabled
+            uint32_t    Reserved    : 31;     // Reserved bits
+        } Bits;
+
+        uint32_t CCSEnableMask;               // Union for all CCS instances. It can be used to know which CCS is enabled.
+
+    } Instances;
+
+    uint32_t NumberOfCCSEnabled;              // Number of bits set among bit 0-3 of CCSEnableMask;
+
+    bool     IsValid;                         // flag to check if CCSInfo is valid.
+
+} GT_CCS_INFO;
 
 typedef struct GT_SQIDI_INFO
 {
@@ -133,6 +162,7 @@ typedef struct GT_SYSTEM_INFO
     uint32_t        ThreadCount;                    // total no of system threads available
     uint32_t        SliceCount;                     // Total no. of enabled slices
     uint32_t        SubSliceCount;                  // Total no. of enabled subslices
+    uint32_t        DualSubSliceCount;              // Total no. of enabled dualsubslices
     uint64_t        L3CacheSizeInKb;                // Total L3 cache size in kilo bytes
     uint64_t        LLCCacheSizeInKb;               // Total LLC cache size in kilo bytes
     uint64_t        EdramSizeInKb;                  // Total EDRAM size in kilo bytes
@@ -147,6 +177,8 @@ typedef struct GT_SYSTEM_INFO
     uint32_t        TotalGsThreads;                 // Total threads in GS
     uint32_t        TotalPsThreadsWindowerRange;    // Total threads in PS Windower Range
 
+    uint32_t        TotalVsThreads_Pocs;            // Total threads in VS for POCS
+
     // Note: The CSR size requirement is not clear at this moment. Till then the driver will set
     // the maximum size that should be sufficient for all platform SKUs. 
     uint32_t        CsrSizeInMb;                    // Total size that driver needs to allocate for CSR.
@@ -159,6 +191,7 @@ typedef struct GT_SYSTEM_INFO
     uint32_t        MaxEuPerSubSlice;               // Max available EUs per sub-slice. 
     uint32_t        MaxSlicesSupported;             // Max slices this platfrom can have.
     uint32_t        MaxSubSlicesSupported;          // Max total sub-slices this platform can have (not per slice)
+    uint32_t        MaxDualSubSlicesSupported;      // Max total dual sub-slices this platform can have (not per slice)
     /*------------------------------------*/
 
     // Flag to determine if hashing is enabled. If enabled then one of the L3 banks will be disabled.
@@ -186,10 +219,9 @@ typedef struct GT_SYSTEM_INFO
     GT_SQIDI_INFO   SqidiInfo;
 
     uint32_t        ReservedCCSWays;                // Reserved CCS ways provides value of reserved L3 ways for CCS when CCS is enabled.
-	                                                // This is a hardcoded value as suggested by HW. No MMIO read is needed for same.
-
+	                                            // This is a hardcoded value as suggested by HW. No MMIO read is needed for same.
+    GT_CCS_INFO     CCSInfo;                        // CCSInfo provides details(enabled/disabled) of all CCS instances.
 } GT_SYSTEM_INFO, *PGT_SYSTEM_INFO;
-
 
 #pragma pack(pop)
 

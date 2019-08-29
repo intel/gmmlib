@@ -1,5 +1,5 @@
 /*==============================================================================
-Copyright(c) 2017 Intel Corporation
+Copyright(c) 2019 Intel Corporation
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files(the "Software"),
@@ -19,27 +19,19 @@ OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
+
 #pragma once
 
-#if defined(_WIN64 ) || defined(__x86_64__) || defined(__LP64__)
-    #define GMM_ENTRY_NAME      "OpenGmm"
-    #define GMM_INIT_NAME       "GmmInit"
-    #define GMM_DESTROY_NAME    "GmmDestroy"
+#include "GmmCachePolicyULT.h"
 
-    #if defined(_WIN64)
-        #define GMM_UMD_DLL     "igdgmm64.dll"
-    #else
-        #define GMM_UMD_DLL     "libigdgmm.so.10"
-    #endif
-#else
-    #define GMM_ENTRY_NAME      "_OpenGmm@4"
+class CTestGen12CachePolicy : public CTestCachePolicy
+{
+protected:
+    virtual void CheckL3CachePolicy();
+    virtual void CheckLlcEdramCachePolicy();
 
-    #define GMM_INIT_NAME       "_GmmInit@48"
-    #define GMM_DESTROY_NAME    "_GmmDestroy@4"
-
-    #if defined(_WIN32)
-        #define GMM_UMD_DLL     "igdgmm32.dll"
-    #else
-        #define GMM_UMD_DLL     "libigdgmm.so.10"
-    #endif
-#endif
+public:
+    static void SetUpTestCase();
+    static void TearDownTestCase();
+};
+#pragma once

@@ -66,6 +66,8 @@ typedef struct _SKU_FEATURE_TABLE
         unsigned int   FtrVERing    : 1;  // Separate Ring for VideoEnhancement commands
         unsigned int   FtrVcs2      : 1;  // Second VCS engine supported on Gen8 to Gen10 (in some configurations);
         unsigned int   FtrLCIA      : 1;  // Indicates Atom (Low Cost Intel Architecture)
+        unsigned int   FtrCCSRing : 1; // To indicate if CCS hardware ring support is present.
+        unsigned int   FtrCCSNode : 1; // To indicate if CCS Node support is present.
         unsigned int   FtrTileY     : 1;  // Identifies Legacy tiles TileY/Yf/Ys on the platform
     };
 
@@ -75,6 +77,7 @@ typedef struct _SKU_FEATURE_TABLE
 
         unsigned int   FtrPPGTT                         : 1;  // Per-Process GTT
         unsigned int   FtrIA32eGfxPTEs                  : 1;  // GTT/PPGTT's use 64-bit IA-32e PTE format.
+        unsigned int   FtrMemTypeMocsDeferPAT           : 1;  // Pre-Gen12 MOCS can defers to PAT,  e.g. eLLC Target Cache for MOCS
         unsigned int   FtrPml4Support                   : 1;  // PML4-based gfx page tables are supported (in addition to PD-based tables).
         unsigned int   FtrSVM                           : 1;  // Shared Virtual Memory (i.e. support for SVM buffers which can be accessed by both the CPU and GPU at numerically equivalent addresses.)
         unsigned int   FtrTileMappedResource            : 1;  // Tiled Resource support aka Sparse Textures.
@@ -82,17 +85,19 @@ typedef struct _SKU_FEATURE_TABLE
         unsigned int   FtrUserModeTranslationTable      : 1;  // User mode managed Translation Table support for Tiled Resources.
         unsigned int   FtrNullPages                     : 1;  // Support for PTE-based Null pages for Sparse/Tiled Resources).
         unsigned int   FtrEDram                         : 1;  // embedded DRAM enable
+        unsigned int   FtrLLCBypass                     : 1;  // Partial tunneling of UC memory traffic via CCF (LLC Bypass)
         unsigned int   FtrCrystalwell                   : 1;  // Crystalwell Sku
         unsigned int   FtrCentralCachePolicy            : 1;  // Centralized Cache Policy
         unsigned int   FtrWddm2GpuMmu                   : 1;  // WDDMv2 GpuMmu Model (Set in platform SKU files, but disabled by GMM as appropriate for given system.)
         unsigned int   FtrWddm2Svm                      : 1;  // WDDMv2 SVM Model (Set in platform SKU files, but disabled by GMM as appropriate for given system.)
         unsigned int   FtrStandardMipTailFormat         : 1;  // Dx Standard MipTail Format for TileYf/Ys
         unsigned int   FtrWddm2_1_64kbPages             : 1;  // WDDMv2.1 64KB page support
+        unsigned int   FtrE2ECompression                : 1;  // E2E Compression ie Aux Table support
+        unsigned int   FtrLinearCCS                     : 1;  // Linear Aux surface is supported
         unsigned int   FtrFrameBufferLLC                : 1;  // Displayable Frame buffers cached in LLC
         unsigned int   FtrDriverFLR                     : 1;  // Enable Function Level Reset (Gen11+)
         unsigned int   FtrLocalMemory                   : 1;
-        unsigned int   FtrLLCBypass                     : 1;  // Partial tunneling of UC memory traffic via CCF (LLC Bypass)
-    };
+   };
 
 
     struct //_sku_3d
@@ -362,6 +367,12 @@ typedef struct _WA_TABLE
         WA_BUG_TYPE_FUNCTIONAL,
         WA_BUG_PERF_IMPACT, WA_COMPONENT_GMM)
 
+        WA_DECLARE(
+        WaMemTypeIsMaxOfPatAndMocs,
+        "WA to set PAT.MT = UC. Since TGLLP uses MAX function to resolve PAT vs MOCS MemType So unless PTE.PAT says UC, MOCS won't be able to set UC!",
+        WA_BUG_TYPE_FUNCTIONAL,
+        WA_BUG_PERF_IMPACT, WA_COMPONENT_GMM)
+		
         WA_DECLARE(
         WaGttPat0GttWbOverOsIommuEllcOnly,
         "WA to set PAT0 to full cacheable (LLC+eLLC) for GTT access over eLLC only usage for OS based SVM",

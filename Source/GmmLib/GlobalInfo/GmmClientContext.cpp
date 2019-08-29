@@ -284,6 +284,45 @@ GMM_SURFACESTATE_FORMAT GMM_STDCALL GmmLib::GmmClientContext::GetSurfaceStateFor
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
+/// Member function of ClientContext class for returning
+/// RENDER_SURFACE_STATE::CompressionFormat
+///
+/// @return     uint8_t
+/////////////////////////////////////////////////////////////////////////////////////
+uint8_t GMM_STDCALL GmmLib::GmmClientContext::GetSurfaceStateCompressionFormat(GMM_RESOURCE_FORMAT Format)
+{
+    __GMM_ASSERT((Format > GMM_FORMAT_INVALID) && (Format < GMM_RESOURCE_FORMATS));
+
+    return pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].CompressionFormat.AuxL1eFormat;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of ClientContext class for returning
+/// MEDIA_SURFACE_STATE::CompressionFormat
+///
+/// @return     uint8_t
+/////////////////////////////////////////////////////////////////////////////////////
+uint8_t GMM_STDCALL GmmLib::GmmClientContext::GetMediaSurfaceStateCompressionFormat(GMM_RESOURCE_FORMAT Format)
+{
+    __GMM_ASSERT((Format > GMM_FORMAT_INVALID) && (Format < GMM_RESOURCE_FORMATS));
+
+    return pGmmGlobalContext->GetPlatformInfoObj()->OverrideCompressionFormat(Format, (uint8_t)0x1);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of ClientContext class for returning E2E compression format
+///
+/// @return     GMM_E2ECOMP_FORMAT
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_E2ECOMP_FORMAT GMM_STDCALL GmmLib::GmmClientContext::GetLosslessCompressionType(GMM_RESOURCE_FORMAT Format)
+{
+    // ToDo: Remove the definition of GmmGetLosslessCompressionType(Format)
+    __GMM_ASSERT((Format > GMM_FORMAT_INVALID) && (Format < GMM_RESOURCE_FORMATS));
+
+    return pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].CompressionFormat.AuxL1eFormat;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
 /// Member function of ClientContext class to return InternalGpuVaMax value
 /// stored in pGmmGlobalContext
 ///

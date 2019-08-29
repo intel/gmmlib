@@ -53,6 +53,13 @@ namespace GmmLib {
             GMM_UNREFERENCED_PARAMETER(UnitAlign);
         }
 
+        virtual uint8_t OverrideCompressionFormat(GMM_RESOURCE_FORMAT Format, uint8_t IsMC)
+        {
+            GMM_UNREFERENCED_PARAMETER(Format);
+            GMM_UNREFERENCED_PARAMETER(IsMC);
+            return 0;
+        }
+
         void SetDataSurfaceMaxSize(uint64_t Size)
         {
             Data.SurfaceMaxSize = Size;

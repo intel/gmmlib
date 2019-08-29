@@ -162,7 +162,7 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetupPAT()
     {
         GMM_PRIVATE_PAT PAT = {0};
 
-        if(pGmmGlobalContext->GetWaTable().WaNoMocsEllcOnly)
+        if(pGmmGlobalContext->GetWaTable().FtrMemTypeMocsDeferPAT)
         {
             GfxTargetCache = GMM_GFX_TC_ELLC_ONLY;
         }
@@ -225,7 +225,7 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetupPAT()
                 // For BDW-H, due to Perf issue, TC has to be eLLC only for Page Tables when eDRAM is present.
                 GfxMemType = GMM_GFX_WB;
 
-                if(pGmmGlobalContext->GetWaTable().WaNoMocsEllcOnly)
+                if(pGmmGlobalContext->GetWaTable().FtrMemTypeMocsDeferPAT)
                 {
                     GfxTargetCache = GMM_GFX_TC_ELLC_ONLY;
                 }
@@ -285,10 +285,6 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetPATInitWA()
     WA_TABLE * pWaTable = &const_cast<WA_TABLE &>(pGmmGlobalContext->GetWaTable());
 
 #if(defined(__GMM_KMD__))
-    if(pGmmGlobalContext->GetGtSysInfoPtr()->EdramSizeInKb)
-    {
-        pWaTable->WaNoMocsEllcOnly = 1;
-    }
 
     pWaTable->WaGttPat0                         = 1;
     pWaTable->WaGttPat0WB                       = 1;

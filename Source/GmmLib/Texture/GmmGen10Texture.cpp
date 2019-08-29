@@ -395,6 +395,13 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTex2D(GMM_TEXTURE_INFO *
 
     AlignedWidth = __GMM_EXPAND_WIDTH(this, Width, HAlign, pTexInfo);
 
+    // For Non - planar surfaces, the alignment is done on the entire height of the allocation
+    if(pGmmGlobalContext->GetWaTable().WaAlignYUVResourceToLCU &&
+       GmmIsYUVFormatLCUAligned(pTexInfo->Format))
+    {
+        AlignedWidth = GFX_ALIGN(AlignedWidth, GMM_SCANLINES(GMM_MAX_LCU_SIZE));
+    }
+
     // Calculate special pitch case of small dimensions where LOD1 + LOD2 widths
     // are greater than LOD0. e.g. dimensions 4x4 and MinPitch == 1
     if((pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs) &&
@@ -527,11 +534,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
     __GMM_ASSERTPTR(pRestrictions, GMM_ERROR);
     __GMM_ASSERT(!pTexInfo->Flags.Info.TiledW);
-    // Client should always give us linear-fallback option for planar surfaces,
-    // except for MMC surfaces, which are TileY.
-    //__GMM_ASSERT(pTexInfo->Flags.Info.Linear || pTexInfo->Flags.Gpu.MMC);
-    pTexInfo->Flags.Info.Linear = 1;
-    pTexInfo->TileMode          = TILE_NONE;
+    pTexInfo->TileMode = TILE_NONE;
 
     const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
 
@@ -569,10 +572,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
 
                 Height = YHeight + 2 * VHeight; // One VHeight for V and one for U.
 
-                FillTexPlanar_SetTilingBasedOnRequiredAlignment(
-                pTexInfo,
-                YHeight, true,  // <-- YHeight alignment needed (so U is properly aligned).
-                VHeight, true); // <-- VHeight alignment needed (so V is properly aligned).
+                pTexInfo->OffsetInfo.Plane.NoOfPlanes = 3;
 
                 break;
             }
@@ -590,10 +590,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
 
                 Height = YHeight + 2 * VHeight;
 
-                FillTexPlanar_SetTilingBasedOnRequiredAlignment(
-                pTexInfo,
-                YHeight, true,  // <-- YHeight alignment needed (so U is properly aligned).
-                VHeight, true); // <-- VHeight alignment needed (so V is properly aligned).
+                pTexInfo->OffsetInfo.Plane.NoOfPlanes = 3;
 
                 break;
             }
@@ -644,10 +641,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
 
                 Height = YHeight + 2 * VHeight;
 
-                FillTexPlanar_SetTilingBasedOnRequiredAlignment(
-                pTexInfo,
-                YHeight, true,  // <-- YHeight alignment needed (so U is properly aligned).
-                YHeight, true); // <-- VHeight alignment needed (so V is properly aligned).
+                pTexInfo->OffsetInfo.Plane.NoOfPlanes = 3;
 
                 break;
             }
@@ -668,11 +662,6 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
 
             Height = YHeight + VHeight;
 
-            FillTexPlanar_SetTilingBasedOnRequiredAlignment(
-            pTexInfo,
-            YHeight, true, // <-- YHeight alignment needed (so U/V are properly aligned, vertically).
-            0, false);     // <-- VHeight alignment NOT needed (since U/V aren't on top of eachother).
-
             // With SURFACE_STATE.XOffset support, the U-V interface has
             // much lighter restrictions--which will be naturally met by
             // surface pitch restrictions (i.e. dividing an IMC2/4 pitch
@@ -681,7 +670,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
 
             // Not technically UV packed but sizing works out the same
             // if the resource is std swizzled
-            UVPacked = pTexInfo->Flags.Info.StdSwizzle ? true : false;
+            UVPacked                              = true;
+            pTexInfo->OffsetInfo.Plane.NoOfPlanes = 2;
 
             break;
         }
@@ -722,11 +712,6 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
                (pTexInfo->Format == GMM_FORMAT_P208))
             {
                 WidthBytesPhysical = GFX_ALIGN(WidthBytesPhysical, 2); // If odd YWidth, pitch bumps-up to fit rounded-up U/V planes.
-
-                FillTexPlanar_SetTilingBasedOnRequiredAlignment(
-                pTexInfo,
-                YHeight, true, // <-- YHeight alignment needed (so UV is properly aligned).
-                0, false);     // <-- VHeight alignment NOT needed (since U/V aren't on top of eachother).
             }
             else //if(pTexInfo->Format == GMM_FORMAT_NV11)
             {
@@ -738,8 +723,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
                 pTexInfo->Flags.Info.Linear  = 1;
             }
 
-            UVPacked = true;
-
+            UVPacked                              = true;
+            pTexInfo->OffsetInfo.Plane.NoOfPlanes = 2;
             break;
         }
         case GMM_FORMAT_I420: // IYUV & I420: are identical to YV12 except,
@@ -788,6 +773,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
             pTexInfo->Flags.Info.TiledX  = 0;
             pTexInfo->Flags.Info.Linear  = 1;
 
+            pTexInfo->OffsetInfo.Plane.NoOfPlanes = 1;
             break;
         }
         default:
@@ -802,8 +788,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
 
     SetTileMode(pTexInfo);
 
-    // If the Surface has Odd height dimension, we will fall back to Linear Format.
-    // If MMC is enabled, disable MMC during such cases.
+    // MMC is not supported for linear formats.
     if(pTexInfo->Flags.Gpu.MMC)
     {
         if(!(pTexInfo->Flags.Info.TiledY || pTexInfo->Flags.Info.TiledYf || pTexInfo->Flags.Info.TiledYs))
@@ -849,24 +834,25 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
         Height += AdjustedVHeight - VHeight;
     }
 
-    // For std swizzled and UV packed tile Ys/Yf cases, the planes
-    // must be tile-boundary aligned. Actual alignment is handled
-    // in FillPlanarOffsetAddress, but height and width must
-    // be adjusted for correct size calculation
-    if((pTexInfo->Flags.Info.TiledYs || pTexInfo->Flags.Info.TiledYf) &&
-       (pTexInfo->Flags.Info.StdSwizzle || UVPacked))
+    // For Tiled Planar surfaces, the planes must be tile-boundary aligned.
+    // Actual alignment is handled in FillPlanarOffsetAddress, but height
+    // and width must be adjusted for correct size calculation
+    if(GMM_IS_TILED(pPlatform->TileInfo[pTexInfo->TileMode]))
     {
         uint32_t TileHeight = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
         uint32_t TileWidth  = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileWidth;
+
+        pTexInfo->OffsetInfo.Plane.IsTileAlignedPlanes = true;
 
         //for separate U and V planes, use U plane unaligned and V plane aligned
         Height = GFX_ALIGN(YHeight, TileHeight) + (UVPacked ? GFX_ALIGN(AdjustedVHeight, TileHeight) :
                                                               (GFX_ALIGN(VHeight, TileHeight) + GFX_ALIGN(AdjustedVHeight, TileHeight)));
 
-        if(UVPacked)
+        if(pTexInfo->Format == GMM_FORMAT_IMC2 || // IMC2, IMC4 needs even tile columns
+           pTexInfo->Format == GMM_FORMAT_IMC4)
         {
-            // If the UV planes are packed then the surface pitch must be
-            // padded out so that the tile-aligned UV data will fit.
+            // If the U & V planes are side-by-side then the surface pitch must be
+            // padded out so that U and V planes will being on a tile boundary.
             // This means that an odd Y plane width must be padded out
             // with an additional tile. Even widths do not need padding
             uint32_t TileCols = GFX_CEIL_DIV(WidthBytesPhysical, TileWidth);
@@ -876,9 +862,13 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
             }
         }
 
-        pTexInfo->Flags.Info.RedecribedPlanes = 1;
+        if(pTexInfo->Flags.Info.TiledYs || pTexInfo->Flags.Info.TiledYf)
+        {
+            pTexInfo->Flags.Info.RedecribedPlanes = true;
+        }
     }
 
+    // Vary wide planar tiled planar formats do not support MMC pre gen11. All formats do not support
     //Special case LKF MMC compressed surfaces
     if(pTexInfo->Flags.Gpu.MMC &&
        pTexInfo->Flags.Gpu.UnifiedAuxSurface &&

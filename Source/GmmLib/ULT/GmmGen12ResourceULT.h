@@ -1,5 +1,5 @@
 /*==============================================================================
-Copyright(c) 2017 Intel Corporation
+Copyright(c) 2019 Intel Corporation
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files(the "Software"),
@@ -21,25 +21,20 @@ OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
 #pragma once
 
-#if defined(_WIN64 ) || defined(__x86_64__) || defined(__LP64__)
-    #define GMM_ENTRY_NAME      "OpenGmm"
-    #define GMM_INIT_NAME       "GmmInit"
-    #define GMM_DESTROY_NAME    "GmmDestroy"
+#include "GmmGen10ResourceULT.h"
+#include "../GmmLib/inc/Internal/Common/Platform/GmmGen12Platform.h"
 
-    #if defined(_WIN64)
-        #define GMM_UMD_DLL     "igdgmm64.dll"
-    #else
-        #define GMM_UMD_DLL     "libigdgmm.so.10"
-    #endif
-#else
-    #define GMM_ENTRY_NAME      "_OpenGmm@4"
+class CTestGen12Resource : public CTestGen10Resource
+{
+public:
+    static void SetUpTestCase();
+    static void TearDownTestCase();
+};
 
-    #define GMM_INIT_NAME       "_GmmInit@48"
-    #define GMM_DESTROY_NAME    "_GmmDestroy@4"
-
-    #if defined(_WIN32)
-        #define GMM_UMD_DLL     "igdgmm32.dll"
-    #else
-        #define GMM_UMD_DLL     "libigdgmm.so.10"
-    #endif
-#endif
+#define DEFINE_TILE(xxx, bpp)                                                                                       \
+    (bpp == TEST_BPP_8) ? TILE_##xxx##_8bpe :                                                                       \
+                          (bpp == TEST_BPP_16) ? TILE_##xxx##_16bpe :                                               \
+                                                 (bpp == TEST_BPP_32) ? TILE_##xxx##_32bpe :                        \
+                                                                        (bpp == TEST_BPP_64) ? TILE_##xxx##_64bpe : \
+                                                                                               TILE_##xxx##_128bpe
+                                                                                               

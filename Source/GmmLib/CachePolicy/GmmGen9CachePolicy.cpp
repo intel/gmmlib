@@ -290,7 +290,7 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::SetupPAT()
     {
         GMM_PRIVATE_PAT PAT = {0};
 
-        if(pGmmGlobalContext->GetWaTable().WaNoMocsEllcOnly)
+        if(pGmmGlobalContext->GetWaTable().FtrMemTypeMocsDeferPAT)
         {
             GfxTargetCache = GMM_GFX_TC_ELLC_ONLY;
         }

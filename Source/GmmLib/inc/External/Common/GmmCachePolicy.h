@@ -173,6 +173,12 @@ typedef union GMM_PRIVATE_PAT_REC {
     }Gen10;
 #endif
 
+    struct
+    {
+        uint32_t MemoryType : 2;
+        uint32_t Reserved   : 30;
+    }Gen12;
+
     uint32_t   Value;
 
 } GMM_PRIVATE_PAT;

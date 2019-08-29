@@ -67,7 +67,10 @@ typedef struct GMM_FORMAT_ENTRY_REC
         uint8_t                 Width;
     }                       Element;
     GMM_SURFACESTATE_FORMAT SurfaceStateFormat;
-    uint32_t                Reserved;
+    union {
+        GMM_E2ECOMP_FORMAT      AuxL1eFormat;
+        uint8_t                 CompressionFormat;
+    } CompressionFormat;
 }GMM_FORMAT_ENTRY;
 
 //===========================================================================
@@ -267,6 +270,8 @@ typedef struct __GMM_PLATFORM_RESOURCE_REC
     uint8_t                 HiZPixelsPerByte; //HiZ-Bpp is < 1, keep inverse
     uint64_t                ReconMaxHeight;
     uint64_t                ReconMaxWidth;
+    uint8_t                 NoOfBitsSupported;                 // No of bits supported for System physcial address on GPU
+    uint64_t                HighestAcceptablePhysicalAddress;  // Highest acceptable System physical Address
 }__GMM_PLATFORM_RESOURCE, GMM_PLATFORM_INFO;
 
 //***************************************************************************

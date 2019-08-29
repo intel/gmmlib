@@ -112,6 +112,9 @@ namespace GmmLib
         GMM_VIRTUAL uint8_t                             GMM_STDCALL IsCompressed(GMM_RESOURCE_FORMAT Format);
         GMM_VIRTUAL uint8_t                             GMM_STDCALL IsYUVPacked(GMM_RESOURCE_FORMAT Format);
         GMM_VIRTUAL GMM_SURFACESTATE_FORMAT             GMM_STDCALL GetSurfaceStateFormat(GMM_RESOURCE_FORMAT Format);
+        GMM_VIRTUAL uint8_t                             GMM_STDCALL GetSurfaceStateCompressionFormat(GMM_RESOURCE_FORMAT Format);
+        GMM_VIRTUAL uint8_t                             GMM_STDCALL GetMediaSurfaceStateCompressionFormat(GMM_RESOURCE_FORMAT Format);
+        GMM_VIRTUAL GMM_E2ECOMP_FORMAT                  GMM_STDCALL GetLosslessCompressionType(GMM_RESOURCE_FORMAT Format);
         GMM_VIRTUAL uint64_t                            GMM_STDCALL GetInternalGpuVaRangeLimit();
 
         /* ResourceInfo Creation and Destroy API's */

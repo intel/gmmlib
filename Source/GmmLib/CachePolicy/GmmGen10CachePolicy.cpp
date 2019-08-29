@@ -254,10 +254,7 @@ GMM_STATUS GmmLib::GmmGen10CachePolicy::SetPATInitWA()
     GMM_STATUS Status = GMM_SUCCESS;
 
 #if(defined(__GMM_KMD__))
-    if(pGmmGlobalContext->GetGtSysInfoPtr()->EdramSizeInKb)
-    {
-        const_cast<WA_TABLE &>(pGmmGlobalContext->GetWaTable()).WaNoMocsEllcOnly = 1;
-    }
+    
 #else
     Status = GMM_ERROR;
 #endif
@@ -363,7 +360,7 @@ GMM_STATUS GmmLib::GmmGen10CachePolicy::SetupPAT()
     {
         GMM_PRIVATE_PAT PAT = {0};
 
-        if(pGmmGlobalContext->GetWaTable().WaNoMocsEllcOnly)
+        if(pGmmGlobalContext->GetWaTable().FtrMemTypeMocsDeferPAT)
         {
             GfxTargetCache = GMM_GFX_TC_ELLC_ONLY;
         }
