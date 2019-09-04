@@ -144,11 +144,11 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::InitCachePolicy()
                pGmmGlobalContext->GetPlatformInfo().Platform.eProductFamily == IGFX_GEMINILAKE)
             {
                 UsageEle.LeCC.AOM          = 0;
-                UsageEle.LeCC.LRUM         = 0;
                 UsageEle.LeCC.Cacheability = LeCC_UNCACHEABLE; // To avoid side effects use 01b even though 01b(UC) 11b(WB) are equivalent option
 
 #if defined(GMM_DYNAMIC_MOCS_TABLE)
                 UsageEle.LeCC.TargetCache = TC_LLC; // No LLC for Broxton, but we still set it to LLC since it is needed for IA coherency cases
+                UsageEle.LeCC.LRUM         = 0;
 #else
                 UsageEle.LeCC.TargetCache = TC_LLC_ELLC; // To match I915_GEN9_MOCS[0]
 #endif
