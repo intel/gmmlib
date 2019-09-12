@@ -101,3 +101,4 @@ uint8_t     __CanSupportStdTiling(GMM_TEXTURE_INFO Surface);
 #ifdef __cplusplus
 }
 #endif /*__cplusplus*/
+

@@ -577,7 +577,7 @@ void GmmLib::GmmTextureCalc::GetResRestrictions(GMM_TEXTURE_INFO * pTexinfo,
     if(pTexinfo->Flags.Info.RenderCompressed ||
        pTexinfo->Flags.Info.MediaCompressed)
     {
-        Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, GMM_KBYTE(64));
+        Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, (!WA16K ? GMM_KBYTE(64) : GMM_KBYTE(16)));
     }
 
     GMM_DPF_EXIT;

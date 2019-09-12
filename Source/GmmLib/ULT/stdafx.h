@@ -59,6 +59,7 @@ extern "C" {
 #include "../inc/External/Common/GmmInfoExt.h"
 #include "../inc/External/Common/GmmInfo.h"
 #include "../inc/External/Common/GmmClientContext.h"
+#include "../inc/External/Common/GmmPageTableMgr.h"
 #include "../inc/External/Common/GmmLibDll.h"
 #include "../inc/External/Common/GmmLibDllName.h"
 

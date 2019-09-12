@@ -457,6 +457,24 @@ typedef struct _WA_TABLE
         WA_BUG_TYPE_CORRUPTION,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
 
+        WA_DECLARE(
+        WaAuxTable16KGranular,
+        "AuxTable map granularity changed to 16K ",
+        WA_BUG_TYPE_PERF,
+        WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_UNKNOWN)
+
+        WA_DECLARE(
+        WaLimit128BMediaCompr,
+        "WA to limit media decompression on Render pipe to 128B (2CLs) 4:n.",
+        WA_BUG_TYPE_FUNCTIONAL,
+        WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
+
+        WA_DECLARE(
+        WaUntypedBufferCompression,
+        "WA to allow untyped raw buffer AuxTable mapping",
+        WA_BUG_TYPE_FUNCTIONAL,
+        WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
+
 } WA_TABLE, *PWA_TABLE;
 
 //********************************** SKU/WA Macros *************************************

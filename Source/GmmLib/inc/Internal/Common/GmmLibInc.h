@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "External/Common/GmmConst.h"
 #include "External/Common/GmmUtil.h"
+#include "External/Common/GmmHw.h"
 
 #include "External/Common/GmmCommonExt.h"
 #include "External/Common/GmmPlatformExt.h"
@@ -58,6 +59,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "External/Common/GmmInfoExt.h"
 #include "External/Common/GmmInfo.h"
 #include "../Utility/GmmUtility.h"
+#include "External/Common/GmmPageTableMgr.h"
 
 #include "External/Common/GmmDebug.h"                   // Unified Definitions of GMM_ASSERT and GMM_DEBUG Macros
 

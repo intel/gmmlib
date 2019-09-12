@@ -838,7 +838,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
 
         //U/V must be aligned to AuxT granularity, 4x pitchalign enforces 16K-align,
         //add extra padding for 64K AuxT
-        TileHeight *= (!GMM_IS_64KB_TILE(pTexInfo->Flags)) ? 4 : 1;
+        TileHeight *= (!GMM_IS_64KB_TILE(pTexInfo->Flags) && !WA16K) ? 4 : 1;
 
         if(pTexInfo->Format == GMM_FORMAT_IMC2 || // IMC2, IMC4 needs even tile columns
            pTexInfo->Format == GMM_FORMAT_IMC4)

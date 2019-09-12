@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "..\..\inc\common\gfxEscape.h"
 #include "..\..\..\miniport\LHDM\inc\gmmEscape.h"
 #include "Internal\Windows\GmmResourceInfoWinInt.h"
+#include "../TranslationTable/GmmUmdTranslationTable.h"
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -465,6 +466,40 @@ void GMM_STDCALL GmmLib::GmmClientContext::DestroyResInfoObject(GMM_RESOURCE_INF
     }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of ClientContext class for creation of PAgeTableMgr Object .
+/// @see        GmmLib::GMM_PAGETABLE_MGR::GMM_PAGETABLE_MGR
+///
+/// @param[in] pDevCb: Pointer to GMM_DEVICE_CALLBACKS_INT
+/// @param[in] pTTCB: Pointer to GMM_TRANSLATIONTABLE_CALLBACKS
+/// @param[in] TTFags
+/// @return     Pointer to GMM_PAGETABLE_MGR class.
+//TBD: move the code to new overloaded the API and remove this API once all clients are moved to new API.
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_PAGETABLE_MGR* GMM_STDCALL GmmLib::GmmClientContext::CreatePageTblMgrObject(GMM_DEVICE_CALLBACKS_INT* pDevCb,
+                                                                                uint32_t TTFlags)
+{
+    GMM_PAGETABLE_MGR* pPageTableMgr = NULL;
+
+    pPageTableMgr = new GMM_PAGETABLE_MGR(pDevCb, TTFlags, this);
+
+    return pPageTableMgr;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of ClientContext class for destroy of PageTableMgr Object .
+///
+/// @param[in] pPageTableMgr: Pointer to GMM_PAGETABLE_MGR
+/// @return     void.
+/////////////////////////////////////////////////////////////////////////////////////
+void GMM_STDCALL GmmLib::GmmClientContext::DestroyPageTblMgrObject(GMM_PAGETABLE_MGR* pPageTableMgr)
+{
+    if (pPageTableMgr)
+    {
+        delete pPageTableMgr;
+    }
+}
+
 #ifdef GMM_LIB_DLL
 /////////////////////////////////////////////////////////////////////////////////////
 /// Member function of ClientContext class for creation of ResourceInfo Object .
@@ -568,6 +603,48 @@ void GMM_STDCALL GmmLib::GmmClientContext::DestroyResInfoObject(GMM_RESOURCE_INF
     }
 }
 #endif
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of ClientContext class for creation of PAgeTableMgr Object .
+/// @see        GmmLib::GMM_PAGETABLE_MGR::GMM_PAGETABLE_MGR
+///
+/// @param[in] pDevCb: Pointer to GMM_DEVICE_CALLBACKS_INT
+/// @param[in] pTTCB: Pointer to GMM_TRANSLATIONTABLE_CALLBACKS
+/// @param[in] TTFags
+/// @return     Pointer to GMM_PAGETABLE_MGR class.
+/// TBD: move the code to new overloaded the API and remove this API once all clients are moved to new API.
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_PAGETABLE_MGR* GMM_STDCALL GmmLib::GmmClientContext::CreatePageTblMgrObject(
+                                                         GMM_DEVICE_CALLBACKS_INT* pDevCb,
+                                                         uint32_t                      TTFlags,
+                                                         GmmClientAllocationCallbacks* pAllocCbs)
+{
+    if (!pAllocCbs || !pAllocCbs->pfnAllocation)
+    {
+        return CreatePageTblMgrObject(
+            pDevCb,
+            TTFlags);
+    }
+    else
+    {
+        GMM_PAGETABLE_MGR* pPageTableMgr = NULL;
+        return pPageTableMgr;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of ClientContext class for destroy of PageTableMgr Object .
+///
+/// @param[in] pPageTableMgr: Pointer to GMM_PAGETABLE_MGR
+/// @return     void.
+/////////////////////////////////////////////////////////////////////////////////////
+void GMM_STDCALL GmmLib::GmmClientContext::DestroyPageTblMgrObject(GMM_PAGETABLE_MGR* pPageTableMgr,
+    GmmClientAllocationCallbacks* pAllocCbs)
+{
+    if (!pAllocCbs || !pAllocCbs->pfnFree)
+    {
+        return DestroyPageTblMgrObject(pPageTableMgr);
+    }
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// Gmm lib DLL exported C wrapper for creating GmmLib::GmmClientContext object

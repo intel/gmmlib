@@ -191,6 +191,7 @@ set(HEADERS_
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmConst.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmDebug.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmFormatTable.h
+	${BS_DIR_GMMLIB}/inc/External/Common/GmmHw.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmInfo.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmInfoExt.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmInternal.h
@@ -205,6 +206,7 @@ set(HEADERS_
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmTextureExt.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmUtil.h
 	${BS_DIR_GMMLIB}/inc/External/Linux/GmmResourceInfoLin.h
+        ${BS_DIR_GMMLIB}/inc/External/Linux/GmmResourceInfoLinExt.h
 	${BS_DIR_GMMLIB}/inc/Internal/Common/Platform/GmmGen10Platform.h
 	${BS_DIR_GMMLIB}/inc/Internal/Common/Platform/GmmGen11Platform.h
 	${BS_DIR_GMMLIB}/inc/Internal/Common/Platform/GmmGen12Platform.h
@@ -225,6 +227,7 @@ set(HEADERS_
 
 set(UMD_HEADERS
 	${HEADERS_}
+	${BS_DIR_GMMLIB}/inc/External/Common/GmmPageTableMgr.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmClientContext.h
         ${BS_DIR_GMMLIB}/inc/External/Common/GmmLibDll.h
         ${BS_DIR_GMMLIB}/inc/External/Common/GmmLibDllName.h
@@ -250,6 +253,7 @@ set(SOURCES_
   ${BS_DIR_GMMLIB}/Resource/GmmResourceInfoCommon.cpp
   ${BS_DIR_GMMLIB}/Resource/GmmResourceInfoCommonEx.cpp
   ${BS_DIR_GMMLIB}/Resource/GmmRestrictions.cpp
+  ${BS_DIR_GMMLIB}/Resource/Linux/GmmResourceInfoLinCWrapper.cpp
   ${BS_DIR_GMMLIB}/Texture/GmmGen7Texture.cpp
   ${BS_DIR_GMMLIB}/Texture/GmmGen8Texture.cpp
   ${BS_DIR_GMMLIB}/Texture/GmmGen9Texture.cpp
@@ -269,6 +273,9 @@ set(SOURCES_
 
 set(UMD_SOURCES
   ${SOURCES_}
+  ${BS_DIR_GMMLIB}/TranslationTable/GmmAuxTable.cpp
+  ${BS_DIR_GMMLIB}/TranslationTable/GmmPageTableMgr.cpp
+  ${BS_DIR_GMMLIB}/TranslationTable/GmmUmdTranslationTable.cpp
   ${BS_DIR_GMMLIB}/GlobalInfo/GmmClientContext.cpp
   ${BS_DIR_GMMLIB}/GlobalInfo/GmmOldApi.cpp
    ${BS_DIR_GMMLIB}/GlobalInfo/GmmLibDllMain.cpp
@@ -287,12 +294,26 @@ source_group("Source Files\\Cache Policy" ${BS_DIR_GMMLIB}/CachePolicy/*.cpp)
 source_group("Source Files\\Global" ${BS_DIR_GMMLIB}/GlobalInfo/.*)
 source_group("Source Files\\Platform" ${BS_DIR_GMMLIB}/Platform/.*)
 source_group("Source Files\\Texture" ${BS_DIR_GMMLIB}/Texture/.*)
+source_group("Source Files\\Translation Table" ${BS_DIR_GMMLIB}/TranslationTable/.*)
 source_group("Source Files\\Utility" ${BS_DIR_GMMLIB}/Utility/.*)
 
 source_group("Source Files\\Resource" FILES
 			${BS_DIR_GMMLIB}/Resource/GmmResourceInfo.cpp
 			${BS_DIR_GMMLIB}/Resource/GmmResourceInfoCommon.cpp
+			${BS_DIR_GMMLIB}/Resource/GmmResourceInfoCommonEx.cpp
 			${BS_DIR_GMMLIB}/Resource/GmmRestrictions.cpp)
+
+source_group("Source Files\\Resource\\Linux" FILES
+			${BS_DIR_GMMLIB}/Resource/Linux/GmmResourceInfoLinCWrapper.cpp
+			)
+
+source_group("Source Files\\TranslationTable\\Windows" FILES
+			 ${BS_DIR_GMMLIB}/TranslationTable/GmmAuxTable.cpp
+			 ${BS_DIR_GMMLIB}/TranslationTable/GmmPageTableMgr.cpp
+			 ${BS_DIR_GMMLIB}/TranslationTable/GmmUmdTranslationTable.cpp)
+
+source_group("Source Files\\TranslationTable" FILES
+			${BS_DIR_GMMLIB}/TranslationTable/GmmUmdTranslationTable.h)
 
 source_group("Header Files\\External\\Common" FILES
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmCachePolicy.h
@@ -302,6 +323,7 @@ source_group("Header Files\\External\\Common" FILES
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmConst.h
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmDebug.h
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmFormatTable.h
+			${BS_DIR_GMMLIB}/inc/External/Common/GmmHw.h
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmInfo.h
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmInfoExt.h
 			${BS_DIR_GMMLIB}/inc/External/Common/GmmInternal.h
@@ -331,6 +353,7 @@ source_group("Header Files\\External\\Common\\Cache Policy" FILES
 
 source_group("Header Files\\External\\Linux" FILES
 			 ${BS_DIR_GMMLIB}/inc/External/Linux/GmmResourceInfoLin.h
+			 ${BS_DIR_GMMLIB}/inc/External/Linux/GmmResourceInfoLinExt.h
 			)
 
 source_group("Header Files\\Internal\\Common" FILES

@@ -90,6 +90,28 @@ namespace GmmLib
             GMM_VIRTUAL bool                ReAdjustPlaneProperties(bool IsAuxSurf);
             GMM_VIRTUAL const GMM_PLATFORM_INFO& GetPlatformInfo();
 
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Returns tile mode for SURFACE_STATE programming.
+            /// @return     Tiled Mode
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE uint32_t GetTileModeSurfaceState(const GMM_TEXTURE_INFO *pTextureInfo) const
+            {
+                uint32_t TiledMode = 0;
+
+                if(GMM_IS_TILEY)
+                {
+                    TiledMode =
+                        pTextureInfo->Flags.Info.Linear ? 0 :
+                            pTextureInfo->Flags.Info.TiledW ? 1 :
+                            pTextureInfo->Flags.Info.TiledX ? 2 :
+                            /* Y/YF/YS */ 3;
+
+                    __GMM_ASSERT((TiledMode != 3) || (pTextureInfo->Flags.Info.TiledY || pTextureInfo->Flags.Info.TiledYf || pTextureInfo->Flags.Info.TiledYs));
+                }
+
+                return TiledMode;
+            }
+
     public:
             /* Constructors */
             GmmResourceInfoCommon():
@@ -138,6 +160,7 @@ namespace GmmLib
                 ClientType          = rhs.ClientType;
                 Surf                = rhs.Surf;
                 AuxSurf             = rhs.AuxSurf;
+                AuxSecSurf          = rhs.AuxSecSurf;
                 RotateInfo          = rhs.RotateInfo;
                 ExistingSysMem      = rhs.ExistingSysMem;
                 SvmAddress          = rhs.SvmAddress;
@@ -1292,12 +1315,15 @@ namespace GmmLib
                     }
                     else
                     {
-                        switch (GetHAlign())
+                        if(GMM_IS_TILEY)
                         {
-                            case 4:  HAlign = 1; break;
-                            case 8:  HAlign = 2; break;
-                            case 16: HAlign = 3; break;
-                            default: HAlign = 1;
+                            switch (GetHAlign())
+                            {
+                                case 4:  HAlign = 1; break;
+                                case 8:  HAlign = 2; break;
+                                case 16: HAlign = 3; break;
+                                default: HAlign = 1; // TODO(Benign): Change back to 0 + assert after packed YUV handling corrected.
+                            }
                         }
                     }
                 }
@@ -1362,16 +1388,16 @@ namespace GmmLib
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetTileModeSurfaceState()
             {
-                uint32_t   TiledMode = 0;
-
-                TiledMode =
-                    Surf.Flags.Info.Linear ? 0 :
-                        Surf.Flags.Info.TiledX ? 2 :
-                        /* Y/YF/YS */       3;
-
-                __GMM_ASSERT((TiledMode != 3) || (Surf.Flags.Info.TiledY || Surf.Flags.Info.TiledYf || Surf.Flags.Info.TiledYs));
-
-                return TiledMode;
+                return GetTileModeSurfaceState(&Surf);
+			}
+			
+			/////////////////////////////////////////////////////////////////////////////////////
+            /// Returns tile mode for AUX SURFACE_STATE programming.
+            /// @return     Tiled Mode
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetAuxTileModeSurfaceState()
+            {
+                return GetTileModeSurfaceState(&AuxSurf);
             }
 
             /////////////////////////////////////////////////////////////////////////////////////

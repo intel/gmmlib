@@ -72,6 +72,10 @@ extern const SWIZZLE_DESCRIPTOR INTEL_64KB_UNDEFINED_64_128bpp;
 #define GMM_NO_FENCE_REG        0xDEADBEEF
 #define GMM_MAX_DISPLAYS        3
 
+#if defined __linux__
+typedef void* HANDLE;
+#endif
+
 //===========================================================================
 // typedef:
 //      GMM_GFX_ADDRESS/etc.

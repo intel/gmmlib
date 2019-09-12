@@ -32,6 +32,7 @@ set(GMMULT_HEADERS
      GmmGen9CachePolicyULT.h
      GmmGen9ResourceULT.h
      GmmResourceULT.h
+     GmmAuxTableULT.h
      stdafx.h
      targetver.h
      )
@@ -49,6 +50,7 @@ set(GMMULT_SOURCES
     GmmGen9ResourceULT.cpp
     GmmResourceCpuBltULT.cpp
     GmmResourceULT.cpp
+    GmmAuxTableULT.cpp
     googletest/src/gtest-all.cc
     GmmULT.cpp
 )
@@ -65,9 +67,18 @@ source_group("Source Files\\Resource" FILES
             GmmGen10ResourceULT.cpp
             GmmGen11ResourceULT.cpp
             GmmGen12ResourceULT.cpp
+
             GmmGen9ResourceULT.cpp
             GmmResourceCpuBltULT.cpp
             GmmResourceULT.cpp
+            )
+
+source_group("Source Files\\TranslationTable" FILES
+            GmmAuxTableULT.cpp
+            )
+
+source_group("Header Files\\TranslationTable" FILES
+            GmmAuxTableULT.h
             )
 
 source_group("Header Files\\Cache Policy" FILES
@@ -79,9 +90,9 @@ source_group("Header Files\\Cache Policy" FILES
             )
 
 source_group("Header Files\\Resource" FILES
-             GmmGen12ResourceULT.h
-             GmmGen11ResourceULT.h
              GmmGen10ResourceULT.h
+             GmmGen11ResourceULT.h
+             GmmGen12ResourceULT.h
              GmmGen9ResourceULT.h
              GmmResourceULT.h
             )

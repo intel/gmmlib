@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <dlfcn.h>
 #endif
 
+
 ADAPTER_INFO *      CommonULT::pGfxAdapterInfo      = NULL;
 PLATFORM            CommonULT::GfxPlatform          = {};
 GMM_CLIENT_CONTEXT *CommonULT::pGmmULTClientContext = NULL;

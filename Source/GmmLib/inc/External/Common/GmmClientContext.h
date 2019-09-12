@@ -122,7 +122,7 @@ namespace GmmLib
         GMM_VIRTUAL GMM_RESOURCE_INFO* GMM_STDCALL       CopyResInfoObject(GMM_RESOURCE_INFO *pSrcRes);
         GMM_VIRTUAL void GMM_STDCALL                     ResMemcpy(void *pDst, void *pSrc);
         GMM_VIRTUAL void  GMM_STDCALL                    DestroyResInfoObject(GMM_RESOURCE_INFO    *pResInfo);
-
+        
 #ifdef GMM_LIB_DLL
         /* ResourceInfo and PageTableMgr Create and Destroy APIs with Client provided Memory Allocators */
         GMM_VIRTUAL GMM_RESOURCE_INFO* GMM_STDCALL       CreateResInfoObject(GMM_RESCREATE_PARAMS *pCreateParams,
@@ -130,6 +130,18 @@ namespace GmmLib
         GMM_VIRTUAL void  GMM_STDCALL                    DestroyResInfoObject(GMM_RESOURCE_INFO    *pResInfo,
                                                                               GmmClientAllocationCallbacks *pAllocCbs);
 #endif
+         
+        /* PageTableMgr Creation and Destroy API's */
+        GMM_VIRTUAL GMM_PAGETABLE_MGR*  GMM_STDCALL      CreatePageTblMgrObject(GMM_DEVICE_CALLBACKS_INT *pDevCb, uint32_t TTFlags);
+        /* PageTableMgr Creation and Destroy API's */
+        GMM_VIRTUAL void GMM_STDCALL                    DestroyPageTblMgrObject(GMM_PAGETABLE_MGR    *pPageTableMgr);
+        
+        GMM_VIRTUAL GMM_PAGETABLE_MGR* GMM_STDCALL      CreatePageTblMgrObject(
+                                                        GMM_DEVICE_CALLBACKS_INT* pDevCb,
+                                                        uint32_t TTFlags,
+                                                        GmmClientAllocationCallbacks* pAllocCbs);
+        GMM_VIRTUAL void GMM_STDCALL                    DestroyPageTblMgrObject(GMM_PAGETABLE_MGR* pPageTableMgr,
+                                                        GmmClientAllocationCallbacks* pAllocCbs);
     };
 }
 
