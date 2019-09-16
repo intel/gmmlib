@@ -37,7 +37,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 GmmLib::GmmClientContext::GmmClientContext(GMM_CLIENT ClientType)
     : ClientType(),
       pUmdAdapter(),
-      pGmmUmdContext()
+      pGmmUmdContext(),
+      DeviceCB(),
+      IsDeviceCbReceived(0)
 {
     this->ClientType = ClientType;
 }
@@ -470,8 +472,25 @@ void GMM_STDCALL GmmLib::GmmClientContext::DestroyResInfoObject(GMM_RESOURCE_INF
 /// Member function of ClientContext class for creation of PAgeTableMgr Object .
 /// @see        GmmLib::GMM_PAGETABLE_MGR::GMM_PAGETABLE_MGR
 ///
+/// @param[in] TTFags
+/// @return     Pointer to GMM_PAGETABLE_MGR class.
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_PAGETABLE_MGR* GMM_STDCALL GmmLib::GmmClientContext::CreatePageTblMgrObject(uint32_t TTFlags)
+{
+    if (!IsDeviceCbReceived)
+    {
+        GMM_ASSERTDPF(0, "Device_callbacks not set");
+        return NULL;
+    }
+
+    return CreatePageTblMgrObject(&DeviceCB, TTFlags);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of ClientContext class for creation of PAgeTableMgr Object .
+/// @see        GmmLib::GMM_PAGETABLE_MGR::GMM_PAGETABLE_MGR
+///
 /// @param[in] pDevCb: Pointer to GMM_DEVICE_CALLBACKS_INT
-/// @param[in] pTTCB: Pointer to GMM_TRANSLATIONTABLE_CALLBACKS
 /// @param[in] TTFags
 /// @return     Pointer to GMM_PAGETABLE_MGR class.
 //TBD: move the code to new overloaded the API and remove this API once all clients are moved to new API.
@@ -603,12 +622,33 @@ void GMM_STDCALL GmmLib::GmmClientContext::DestroyResInfoObject(GMM_RESOURCE_INF
     }
 }
 #endif
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of ClientContext class for creation of PAgeTableMgr Object .
+/// @see        GmmLib::GMM_PAGETABLE_MGR::GMM_PAGETABLE_MGR
+///
+/// @param[in] TTFags
+/// @return     Pointer to GMM_PAGETABLE_MGR class.
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_PAGETABLE_MGR* GMM_STDCALL GmmLib::GmmClientContext::CreatePageTblMgrObject(uint32_t TTFlags,
+                                                         GmmClientAllocationCallbacks* pAllocCbs)
+{
+    if (!IsDeviceCbReceived)
+    {
+        GMM_ASSERTDPF(0, "Device_callbacks not set");
+        return NULL;
+    }
+    return CreatePageTblMgrObject(
+        &DeviceCB,
+        TTFlags,
+        pAllocCbs);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 /// Member function of ClientContext class for creation of PAgeTableMgr Object .
 /// @see        GmmLib::GMM_PAGETABLE_MGR::GMM_PAGETABLE_MGR
 ///
 /// @param[in] pDevCb: Pointer to GMM_DEVICE_CALLBACKS_INT
-/// @param[in] pTTCB: Pointer to GMM_TRANSLATIONTABLE_CALLBACKS
 /// @param[in] TTFags
 /// @return     Pointer to GMM_PAGETABLE_MGR class.
 /// TBD: move the code to new overloaded the API and remove this API once all clients are moved to new API.
@@ -644,6 +684,27 @@ void GMM_STDCALL GmmLib::GmmClientContext::DestroyPageTblMgrObject(GMM_PAGETABLE
     {
         return DestroyPageTblMgrObject(pPageTableMgr);
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+/// Member function of ClientContext class for doing device specific operations.
+/// Clients must call it before any Gfx resource (incl. svm)
+/// is mapped, must happen before any use of GfxPartition, or PageTableMgr init.
+/// @param[in]  DeviceInfo : Pointer to info related to Device Operations.
+/// @return     GMM_STATUS.
+//////////////////////////////////////////////////////////////////////////////////////////
+GMM_STATUS GMM_STDCALL GmmLib::GmmClientContext::GmmSetDeviceInfo(GMM_DEVICE_INFO* DeviceInfo)
+{
+    GMM_STATUS Status = GMM_SUCCESS;
+
+    if (DeviceInfo == NULL || DeviceInfo->pDeviceCb == NULL)
+    {
+        return GMM_INVALIDPARAM;
+    }
+
+    DeviceCB = *(DeviceInfo->pDeviceCb);
+    IsDeviceCbReceived = 1;
+    return Status;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
