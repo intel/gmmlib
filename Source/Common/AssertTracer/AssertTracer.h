@@ -91,7 +91,7 @@ void __stdcall ReportAssertETW(const unsigned short compId,
     }
 #endif
 
-#elif defined( __linux__ ) && defined( _RELEASE_INTERNAL ) && !defined( __ANDROID__ )
+#elif defined( _RELEASE_INTERNAL ) && !defined( _WIN32 ) && !defined( __ANDROID__ )
 // do while() is missing ";" at the end and this is intentional
 // As invoking assert looks like this: assert(expr); So semicolon will
 // be stuck to do.. while() and that way sorting out possible

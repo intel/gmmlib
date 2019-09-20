@@ -27,7 +27,7 @@ Description: This file contains the class definitions for GmmPageTablePool
 #pragma once
 #include "External/Common/GmmPageTableMgr.h"
 
-#ifdef __linux__
+#ifndef _WIN32
 #include <pthread.h>
 #include <string.h>
 
@@ -448,7 +448,7 @@ namespace GmmLib
     public:
 #ifdef _WIN32
         CRITICAL_SECTION    TTLock;                  //synchronized access of PageTable obj
-#elif defined __linux__
+#else
         pthread_mutex_t TTLock;
 #endif
 

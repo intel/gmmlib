@@ -196,12 +196,9 @@ bool GmmLib::Logger::GmmLogInit()
 #elif defined(__ANDROID__)
             // Log to logcat
             SpdLogger   = spdlog::android_logger(GMM_LOGGER_NAME, GMM_LOG_TAG);
-#elif defined(__linux__)
+#else
             // Log to syslog
             SpdLogger = spdlog::syslog_logger(GMM_LOGGER_NAME, GMM_LOG_TAG, 1 /*Log Pid*/);
-#else
-            __GMM_ASSERT(0);
-            return false;
 #endif
         }
     }

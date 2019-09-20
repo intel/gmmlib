@@ -22,7 +22,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#if defined(__linux__) && !LHDM
+#if !defined(_WIN32) && !LHDM
 
 // GMM Lib Client Exports
 #include "External/Common/GmmCommonExt.h"
@@ -68,4 +68,4 @@ int GmmCheckForNullDevCbPfn(GMM_CLIENT ClientType, GMM_DEVICE_CALLBACKS_INT *pDe
 
 extern GMM_TRANSLATIONTABLE_CALLBACKS DummyTTCB;
 
-#endif /*__linux__*/
+#endif /*!_WIN32*/
