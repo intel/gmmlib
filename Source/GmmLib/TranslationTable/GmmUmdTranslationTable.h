@@ -59,8 +59,11 @@ static inline void LeaveCriticalSection(pthread_mutex_t *mutex)
 static inline int _BitScanForward(uint32_t *index, uint32_t mask)
 {
     int i;
-
+#ifdef __ANDROID__
+    i = ffs(mask);
+#else
     i = ffsl(mask);
+#endif
     if(i > 0)
     {
         *index = (uint32_t)(i - 1);
@@ -71,17 +74,17 @@ static inline int _BitScanForward(uint32_t *index, uint32_t mask)
 #endif
 #endif
 
-#define GMM_L1_SIZE(TTType, pGmmLibContext)       GMM_AUX_L1_SIZE(pGmmLibContext) 
+#define GMM_L1_SIZE(TTType, pGmmLibContext)       GMM_AUX_L1_SIZE(pGmmLibContext)
 #define GMM_L1_SIZE_DWORD(TTType, pGmmLibContext) GMM_AUX_L1_SIZE_DWORD(pGmmLibContext)
 #define GMM_L2_SIZE(TTType)                       GMM_AUX_L2_SIZE
-#define GMM_L2_SIZE_DWORD(TTType)                 GMM_AUX_L2_SIZE_DWORD 
-#define GMM_L3_SIZE(TTType)                       GMM_AUX_L3_SIZE 
-#define GMM_L1_ENTRY_IDX(TTType, GfxAddress, pGmmLibContext) GMM_AUX_L1_ENTRY_IDX((GfxAddress), (pGmmLibContext)) 
-#define GMM_L2_ENTRY_IDX(TTType, GfxAddress)                 GMM_AUX_L2_ENTRY_IDX((GfxAddress)) 
-#define GMM_L3_ENTRY_IDX(TTType, GfxAddress)                 GMM_AUX_L3_ENTRY_IDX((GfxAddress)) 
+#define GMM_L2_SIZE_DWORD(TTType)                 GMM_AUX_L2_SIZE_DWORD
+#define GMM_L3_SIZE(TTType)                       GMM_AUX_L3_SIZE
+#define GMM_L1_ENTRY_IDX(TTType, GfxAddress, pGmmLibContext) GMM_AUX_L1_ENTRY_IDX((GfxAddress), (pGmmLibContext))
+#define GMM_L2_ENTRY_IDX(TTType, GfxAddress)                 GMM_AUX_L2_ENTRY_IDX((GfxAddress))
+#define GMM_L3_ENTRY_IDX(TTType, GfxAddress)                 GMM_AUX_L3_ENTRY_IDX((GfxAddress))
 
 #ifdef GMM_ULT
-#define GMM_L1_ENTRY_IDX_EXPORTED(TTType, GfxAddress, WA64KEx)    GMM_AUX_L1_ENTRY_IDX_EXPORTED((GfxAddress), WA64KEx) 
+#define GMM_L1_ENTRY_IDX_EXPORTED(TTType, GfxAddress, WA64KEx)    GMM_AUX_L1_ENTRY_IDX_EXPORTED((GfxAddress), WA64KEx)
 #endif
 
 #ifdef __cplusplus
@@ -90,7 +93,7 @@ static inline int _BitScanForward(uint32_t *index, uint32_t mask)
 //HW provides single-set of TR/Aux-TT registers for non-privileged programming
 //Engine-specific offsets are HW-updated with programmed values.
 #define GET_L3ADROFFSET(TRTT, L3AdrOffset) \
-           L3AdrOffset = 0x4200;            
+           L3AdrOffset = 0x4200;
 
 
 #define ASSIGN_POOLNODE(Pool, NodeIdx, PerTableNodes)    {       \
@@ -118,27 +121,27 @@ namespace GmmLib
 
 
     //////////////////////////////////////////////////////////////////////////////////////////////
-    /// Contains functions and members for GmmPageTablePool. 
+    /// Contains functions and members for GmmPageTablePool.
     /// PageTablePool is a Linked-list, provides common location for both Aux TT and TR-TT pages
-    /// Separate NodePool (linked-list element) kept for each PoolType, for cleaner management in 
+    /// Separate NodePool (linked-list element) kept for each PoolType, for cleaner management in
     /// per-table size
     /////////////////////////////////////////////////////////////////////////////////////////////
     class GmmPageTablePool
     {
     private:
                                        //PageTablePool allocation descriptor
-        GMM_RESOURCE_INFO* pGmmResInfo;   
+        GMM_RESOURCE_INFO* pGmmResInfo;
         HANDLE             PoolHandle;
         GMM_GFX_ADDRESS    PoolGfxAddress;
         GMM_GFX_ADDRESS    CPUAddress;              //LMEM-cpuvisible adr
 
-        POOL_TYPE         PoolType;       //Separate Node-pools for TR-L2, TR-L1, Aux-L2, Aux-L1 usages-  
+        POOL_TYPE         PoolType;       //Separate Node-pools for TR-L2, TR-L1, Aux-L2, Aux-L1 usages-
 
                                       //PageTablePool usage descriptors
         int              NumFreeNodes;    //has value {0 to Pool_Max_nodes}
-        uint32_t*           NodeUsage;       //destined node state (updated during node assignment and removed based on destined state of L1/L2 Table 
-                                          //that used the pool node) 
-                                          //Aux-Pool node-usage tracked at every eighth/second node(for L2 vs L1) 
+        uint32_t*           NodeUsage;       //destined node state (updated during node assignment and removed based on destined state of L1/L2 Table
+                                          //that used the pool node)
+                                          //Aux-Pool node-usage tracked at every eighth/second node(for L2 vs L1)
                                           //ie 1b per node for TR-table, 1b per 8-nodes for Aux-L2table, 1b per 2-nodes for AuxL1-table
                                           //array size= POOL_SIZE_IN_DWORD for TR, =POOL_SIZE_IN_DWORD/8 for AuxL2, POOL_SIZE_IN_DWORD/2 for AuxL1
 
@@ -239,7 +242,7 @@ namespace GmmLib
     };
 
     //////////////////////////////////////////////////////////////////////////////////////////////
-    /// Contains functions and members for Table. 
+    /// Contains functions and members for Table.
     /// Table defines basic building block for tables at different page-table levels
     /////////////////////////////////////////////////////////////////////////////////////////////
     class Table
@@ -270,7 +273,7 @@ namespace GmmLib
     };
 
     //////////////////////////////////////////////////////////////////////////////////////////////
-    /// Contains functions and members for LastLevelTable. 
+    /// Contains functions and members for LastLevelTable.
     /// LastLevelTable defines leaf level tables in multi-level pageTable structure
     /////////////////////////////////////////////////////////////////////////////////////////////
     class LastLevelTable : public Table
@@ -311,7 +314,7 @@ namespace GmmLib
     };
 
     //////////////////////////////////////////////////////////////////////////////////////////////
-    /// Contains functions and members for MidLevelTable. 
+    /// Contains functions and members for MidLevelTable.
     /// MidLevelTable defines secondary level tables in multi-level pageTable structure
     /////////////////////////////////////////////////////////////////////////////////////////////
     class MidLevelTable : public Table
@@ -407,8 +410,8 @@ namespace GmmLib
     };
 
     /////////////////////////////////////////////////////
-    /// Contains functions and members for PageTable. 
-    /// PageTable defines multi-level pageTable 
+    /// Contains functions and members for PageTable.
+    /// PageTable defines multi-level pageTable
     /////////////////////////////////////////////////////
     class PageTable :
         public GmmMemAllocator
@@ -457,7 +460,7 @@ namespace GmmLib
 
             DeleteCriticalSection(&TTLock);
         }
-       
+
         GMM_GFX_ADDRESS GetL3Address() { return TTL3.GfxAddress; }
         bool &GetRegisterStatus() { return TTL3.NeedRegisterUpdate; }
         GMM_STATUS AllocateL3Table(uint32_t L3TableSize, uint32_t L3AddrAlignment);
@@ -470,7 +473,7 @@ namespace GmmLib
     };
 
     //////////////////////////////////////////////////////////////////////////////////////////////
-    /// Contains functions and members for AuxTable. 
+    /// Contains functions and members for AuxTable.
     /// AuxTable defines PageTable for translating VA->AuxVA, ie defines page-walk to get address
     /// of CCS-cacheline containing auxiliary data (compression tag, etc) for some resource
     /////////////////////////////////////////////////////////////////////////////////////////////
@@ -528,4 +531,3 @@ GMM_STATUS __GmmDeviceDealloc(GMM_CLIENT                ClientType,
 
 }
 #endif  // #ifdef __cplusplus
-
