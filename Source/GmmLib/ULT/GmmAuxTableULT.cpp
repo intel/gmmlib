@@ -20,7 +20,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
 
-#ifdef __linux__
+#if defined (__linux__) && !defined(__i386__)
 
 #include "GmmAuxTableULT.h"
 

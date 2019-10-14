@@ -22,7 +22,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#ifdef __linux__
+#if defined (__linux__) && !defined(__i386__)
 
 #ifndef _ISOC11_SOURCE
 #define _ISOC11_SOURCE 1
