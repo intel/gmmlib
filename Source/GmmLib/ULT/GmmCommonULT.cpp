@@ -57,6 +57,9 @@ void CommonULT::SetUpTestCase()
 {
     printf("%s\n", __FUNCTION__);
 
+    GMM_INIT_IN_ARGS  InArgs;
+    GMM_INIT_OUT_ARGS OutArgs;
+
     if(GfxPlatform.eProductFamily == IGFX_UNKNOWN ||
        GfxPlatform.eRenderCoreFamily == IGFX_UNKNOWN_CORE)
     {
@@ -66,20 +69,23 @@ void CommonULT::SetUpTestCase()
 
     AllocateAdapterInfo();
 
+    InArgs.ClientType = GMM_EXCITE_VISTA;
+    InArgs.pGtSysInfo = &pGfxAdapterInfo->SystemInfo;
+    InArgs.pSkuTable  = &pGfxAdapterInfo->SkuTable;
+    InArgs.pWaTable   = &pGfxAdapterInfo->WaTable;
+    InArgs.Platform   = GfxPlatform;
+
     hGmmLib = dlopen(GMM_UMD_DLL, RTLD_LAZY);
     ASSERT_TRUE(hGmmLib);
 
-    *(void **)(&pfnGmmInit)    = dlsym(hGmmLib, "GmmInit");
+    *(void **)(&pfnGmmInit)    = dlsym(hGmmLib, "InitializeGmm");
     *(void **)(&pfnGmmDestroy) = dlsym(hGmmLib, "GmmDestroy");
 
     ASSERT_TRUE(pfnGmmInit);
     ASSERT_TRUE(pfnGmmDestroy);
 
-    pGmmULTClientContext = pfnGmmInit(GfxPlatform,
-                                      &pGfxAdapterInfo->SkuTable,
-                                      &pGfxAdapterInfo->WaTable,
-                                      &pGfxAdapterInfo->SystemInfo,
-                                      GMM_EXCITE_VISTA);
+    pfnGmmInit(&InArgs, &OutArgs);
+    pGmmULTClientContext = OutArgs.pGmmClientContext;
 
     ASSERT_TRUE(pGmmULTClientContext);
 }
@@ -88,7 +94,10 @@ void CommonULT::TearDownTestCase()
 {
     printf("%s\n", __FUNCTION__);
 
-    pfnGmmDestroy(static_cast<GMM_CLIENT_CONTEXT *>(pGmmULTClientContext));
+    GMM_INIT_OUT_ARGS OutArgs;
+    OutArgs.pGmmClientContext = static_cast<GMM_CLIENT_CONTEXT *>(pGmmULTClientContext);
+
+    pfnGmmDestroy(&OutArgs);
 
     if(hGmmLib)
     {

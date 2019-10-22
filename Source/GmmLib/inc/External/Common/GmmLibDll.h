@@ -24,6 +24,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "GmmCommonExt.h"
 #include "GmmInfo.h"
 
+typedef struct _GMM_INIT_IN_ARGS_
+{
+    PLATFORM           Platform;
+    void              *pSkuTable;
+    void              *pWaTable;
+    void              *pGtSysInfo;
+    uint32_t           FileDescriptor;
+    GMM_CLIENT ClientType;
+} GMM_INIT_IN_ARGS;
+
+typedef struct _GMM_INIT_OUT_ARGS_
+{
+    GMM_CLIENT_CONTEXT *pGmmClientContext;
+} GMM_INIT_OUT_ARGS;
+
 // Interfaces exported from  GMM Lib DLL
 typedef struct _GmmExportEntries
 {
@@ -54,6 +69,8 @@ extern "C" {
 /// Only function exported from GMM lib DLL.
 /////////////////////////////////////////////////////////////////////////////////////
     GMM_LIB_API GMM_STATUS GMM_STDCALL OpenGmm(GmmExportEntries *pm_GmmFuncs);
+    GMM_LIB_API GMM_STATUS GMM_STDCALL InitializeGmm(GMM_INIT_IN_ARGS *pInArgs, GMM_INIT_OUT_ARGS *pOutArgs);
+    GMM_LIB_API void GMM_STDCALL GmmDestroy(GMM_INIT_OUT_ARGS *pInArgs);
 
 #ifdef __cplusplus
 }

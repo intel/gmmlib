@@ -134,6 +134,22 @@ typedef struct _KM_DEFERRED_WAIT_INFO
     uint32_t                                   ActiveDisplay;
 } KM_DEFERRED_WAIT_INFO;
 
+// struct to hold Adapter's BDF
+typedef struct _ADAPTER_BDF_
+{
+    union
+    {
+        struct
+        {
+            uint32_t    Bus         : 8;
+            uint32_t    Device      : 8;
+            uint32_t    Function    : 8;
+            uint32_t    Reserved    : 8;
+        };
+        uint32_t    Data;
+    };
+}ADAPTER_BDF;
+
 // Private data structure for D3D callback QueryAdapterInfoCB
 
 //===========================================================================
