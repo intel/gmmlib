@@ -59,7 +59,7 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
                 CreateParams.Flags.Info.TiledY = true;
 
                 // Pre-Gen11 Planar
-                if(GmmIsPlanar(CreateParams.Format))
+                if(GmmIsPlanar(CreateParams.Format) && (GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) < IGFX_GEN11_CORE))
                 {
                     CreateParams.Flags.Info.TiledX = true;
                 }
