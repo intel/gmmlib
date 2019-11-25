@@ -1292,6 +1292,40 @@ typedef enum __NATIVEGTTYPE
 #define PCH_CMP_LP_DEV_P31_ID                   0x029E
 #define PCH_CMP_LP_DEV_P32_ID                   0x029F
 
+// TGL_H PCH Device ID range 0x4380-0x439F
+#define PCH_TGL_H_UNKNOWN_SKU_ID_1              0x4380
+#define PCH_TGL_H_UNKNOWN_SKU_ID_2              0x4381
+#define PCH_TGL_H_UNKNOWN_SKU_ID_3              0x4382
+#define PCH_TGL_H_UNKNOWN_SKU_ID_4              0x4383
+#define PCH_TGL_H_UNKNOWN_SKU_ID_5              0x4384
+#define PCH_TGL_H_UNKNOWN_SKU_ID_6              0x4385
+#define PCH_TGL_H_UNKNOWN_SKU_ID_7              0x4386
+#define PCH_TGL_H_UNKNOWN_SKU_ID_8              0x4387
+#define PCH_TGL_H_UNKNOWN_SKU_ID_9              0x4388
+#define PCH_TGL_H_UNKNOWN_SKU_ID_10             0x4389
+#define PCH_TGL_H_UNKNOWN_SKU_ID_11             0x438A
+#define PCH_TGL_H_UNKNOWN_SKU_ID_12             0x438B
+#define PCH_TGL_H_UNKNOWN_SKU_ID_13             0x438C
+#define PCH_TGL_H_UNKNOWN_SKU_ID_14             0x438D
+#define PCH_TGL_H_UNKNOWN_SKU_ID_15             0x438E
+#define PCH_TGL_H_UNKNOWN_SKU_ID_16             0x438F
+#define PCH_TGL_H_UNKNOWN_SKU_ID_17             0x4390
+#define PCH_TGL_H_UNKNOWN_SKU_ID_18             0x4391
+#define PCH_TGL_H_UNKNOWN_SKU_ID_19             0x4392
+#define PCH_TGL_H_UNKNOWN_SKU_ID_20             0x4393
+#define PCH_TGL_H_UNKNOWN_SKU_ID_21             0x4394
+#define PCH_TGL_H_UNKNOWN_SKU_ID_22             0x4395
+#define PCH_TGL_H_UNKNOWN_SKU_ID_23             0x4396
+#define PCH_TGL_H_UNKNOWN_SKU_ID_24             0x4397
+#define PCH_TGL_H_UNKNOWN_SKU_ID_25             0x4398
+#define PCH_TGL_H_UNKNOWN_SKU_ID_26             0x4399
+#define PCH_TGL_H_UNKNOWN_SKU_ID_27             0x439A
+#define PCH_TGL_H_UNKNOWN_SKU_ID_28             0x439B
+#define PCH_TGL_H_UNKNOWN_SKU_ID_29             0x439C
+#define PCH_TGL_H_UNKNOWN_SKU_ID_30             0x439D
+#define PCH_TGL_H_UNKNOWN_SKU_ID_31             0x439E
+#define PCH_TGL_H_UNKNOWN_SKU_ID_32             0x439F
+
 //define CML H PCH Device Ids
 #define PCH_CMP_H_DEV_P1_ID                     0x0680
 #define PCH_CMP_H_DEV_P2_ID                     0x0681
