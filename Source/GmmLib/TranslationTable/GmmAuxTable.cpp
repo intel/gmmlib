@@ -519,7 +519,7 @@ GMM_STATUS GmmLib::AuxTable::InvalidateTable(GMM_UMD_SYNCCONTEXT *UmdContext, GM
                 {
                     // Clear valid bit of L2 entry
                     L2e.Valid                                    = 0;
-                    ((GMM_AUXTTL2e *)L2GfxAddress)[L2eIdx].Valid = 0;
+                    ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx].Valid = 0;
                 }
                 if(DoNotWait)
                 {

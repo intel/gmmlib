@@ -69,7 +69,7 @@ GMM_STATUS GmmLib::__GmmDeviceAlloc(GmmClientContext *        pClientContext,
         }
 
         pAlloc->GfxVA  = Alloc.gfxAddr;
-        pAlloc->CPUVA  = Alloc.gfxAddr; 
+        pAlloc->CPUVA  = (GMM_GFX_ADDRESS) Alloc.cpuAddr;
         pAlloc->Handle = (HANDLE)Alloc.bo;
     }
 
