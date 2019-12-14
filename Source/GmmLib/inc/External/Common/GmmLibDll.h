@@ -70,7 +70,7 @@ extern "C" {
 /////////////////////////////////////////////////////////////////////////////////////
     GMM_LIB_API GMM_STATUS GMM_STDCALL OpenGmm(GmmExportEntries *pm_GmmFuncs);
     GMM_LIB_API GMM_STATUS GMM_STDCALL InitializeGmm(GMM_INIT_IN_ARGS *pInArgs, GMM_INIT_OUT_ARGS *pOutArgs);
-    GMM_LIB_API void GMM_STDCALL GmmDestroy(GMM_INIT_OUT_ARGS *pInArgs);
+    GMM_LIB_API void GMM_STDCALL GmmAdapterDestroy(GMM_INIT_OUT_ARGS *pInArgs);
 
 #ifdef __cplusplus
 }

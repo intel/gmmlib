@@ -85,6 +85,37 @@ extern "C" GMM_LIB_API GMM_STATUS GMM_STDCALL OpenGmm(GmmExportEntries *pm_GmmFu
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
+/// First Call to GMM Lib DLL/so to initialize singleton global context
+/// and create client context
+///
+/////////////////////////////////////////////////////////////////////////////////////
+#ifdef _WIN32
+extern "C" GMM_LIB_API GMM_CLIENT_CONTEXT *GMM_STDCALL GmmInit(const PLATFORM           Platform,
+                                                               const SKU_FEATURE_TABLE *pSkuTable,
+                                                               const WA_TABLE *         pWaTable,
+                                                               const GT_SYSTEM_INFO *   pGtSysInfo,
+                                                               GMM_CLIENT               ClientType)
+#else
+extern "C" GMM_LIB_API GMM_CLIENT_CONTEXT *GMM_STDCALL GmmInit(const PLATFORM Platform,
+                                                               const void *   pSkuTable,
+                                                               const void *   pWaTable,
+                                                               const void *   pGtSysInfo,
+                                                               GMM_CLIENT     ClientType)
+#endif
+{
+    GMM_STATUS          Status         = GMM_SUCCESS;
+    GMM_CLIENT_CONTEXT *pClientContext = NULL;
+
+    Status = GmmCreateSingletonContext(Platform, pSkuTable, pWaTable, pGtSysInfo);
+
+    if(Status == GMM_SUCCESS)
+     {
+        pClientContext = GmmCreateClientContext(ClientType);
+     }
+
+    return pClientContext;
+}
+/////////////////////////////////////////////////////////////////////////////////////
 // First Call to GMM Lib DLL/so to initialize singleton global context
 // and create client context
 /////////////////////////////////////////////////////////////////////////////////////
@@ -107,9 +138,19 @@ extern "C" GMM_LIB_API GMM_STATUS GMM_STDCALL InitializeGmm(GMM_INIT_IN_ARGS *pI
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
+/// Destroys singleton global context and client context
+///
+/////////////////////////////////////////////////////////////////////////////////////
+extern "C" GMM_LIB_API void GMM_STDCALL GmmDestroy(GMM_CLIENT_CONTEXT *pGmmClientContext)
+{
+    GmmDestroySingletonContext();
+    GmmDeleteClientContext(pGmmClientContext);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
 // Destroys singleton global context and client context
 /////////////////////////////////////////////////////////////////////////////////////
-extern "C" GMM_LIB_API void GMM_STDCALL GmmDestroy(GMM_INIT_OUT_ARGS *pInArgs)
+extern "C" GMM_LIB_API void GMM_STDCALL GmmAdapterDestroy(GMM_INIT_OUT_ARGS *pInArgs)
 {
     if(pInArgs && pInArgs->pGmmClientContext)
     {
