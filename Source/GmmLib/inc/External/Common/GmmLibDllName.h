@@ -24,9 +24,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #if defined(_WIN64 ) || defined(__x86_64__) || defined(__LP64__)
     #define GMM_ENTRY_NAME            "OpenGmm"
     #define GMM_INIT_NAME             "GmmInit"
-    #define GMM_ADAPTOR_INIT_NAME     "InitializeGmm"
+    #define GMM_ADAPTER_INIT_NAME     "InitializeGmm"
     #define GMM_DESTROY_NAME          "GmmDestroy"
-    #define GMM_ADAPTOR_DESTROY_NAME  "GmmAdaptorDestroy"
+    #define GMM_ADAPTER_DESTROY_NAME  "GmmAdapterDestroy"
 
     #if defined(_WIN64)
         #define GMM_UMD_DLL           "igdgmm64.dll"
@@ -36,9 +36,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #else
     #define GMM_ENTRY_NAME            "_OpenGmm@4"
     #define GMM_INIT_NAME             "_GmmInit@48"
-    #define GMM_ADAPTOR_INIT_NAME     "_InitializeGmm@8"
+    #define GMM_ADAPTER_INIT_NAME     "_InitializeGmm@8"
     #define GMM_DESTROY_NAME          "_GmmDestroy@4"
-    #define GMM_ADAPTOR_DESTROY_NAME  "_GmmAdaptorDestroy@4"
+    #define GMM_ADAPTER_DESTROY_NAME  "_GmmAdapterDestroy@4"
 
     #if defined(_WIN32)
         #define GMM_UMD_DLL     "igdgmm32.dll"

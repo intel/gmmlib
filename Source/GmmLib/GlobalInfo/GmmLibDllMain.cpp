@@ -150,7 +150,7 @@ extern "C" GMM_LIB_API void GMM_STDCALL GmmDestroy(GMM_CLIENT_CONTEXT *pGmmClien
 /////////////////////////////////////////////////////////////////////////////////////
 // Destroys singleton global context and client context
 /////////////////////////////////////////////////////////////////////////////////////
-extern "C" GMM_LIB_API void GMM_STDCALL GmmAdaptorDestroy(GMM_INIT_OUT_ARGS *pInArgs)
+extern "C" GMM_LIB_API void GMM_STDCALL GmmAdapterDestroy(GMM_INIT_OUT_ARGS *pInArgs)
 {
     if(pInArgs && pInArgs->pGmmClientContext)
     {
