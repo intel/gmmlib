@@ -30,7 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "GmmGen10ResourceULT.h"
 #include <stdlib.h>
-#include <malloc.h>
 
 #ifndef ALIGN
 #define ALIGN(v, a) (((v) + ((a)-1)) & ~((a)-1))
