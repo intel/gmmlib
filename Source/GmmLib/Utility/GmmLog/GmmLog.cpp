@@ -34,7 +34,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fstream>
-#include <linux/limits.h>
 #endif
 
 /// Logger instance shared by all of GmmLib within a process
