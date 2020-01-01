@@ -160,7 +160,7 @@ target_link_libraries(${EXE_NAME} igfx_gmmumd_dll)
 
 target_link_libraries(${EXE_NAME}
     pthread
-    dl
+    ${CMAKE_DL_LIBS}
 )
 
 add_custom_target(Run_ULT ALL DEPENDS GMMULT)
