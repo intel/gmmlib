@@ -60,12 +60,7 @@ static inline int _BitScanForward(uint32_t *index, uint32_t mask)
 {
     int i;
 
-#ifdef __ANDROID__
-    i = ffs(mask);
-#else
-    i = ffsl(mask);
-#endif
-
+    i = __builtin_ffsl(mask);
     if(i > 0)
     {
         *index = (uint32_t)(i - 1);
