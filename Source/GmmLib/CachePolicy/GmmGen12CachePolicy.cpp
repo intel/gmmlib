@@ -676,7 +676,8 @@ void GmmLib::GmmGen12CachePolicy::SetUpMOCSTable()
     GMM_DEFINE_MOCS( 63     , 0     , 0     , 1     , 3     , 1     , 3     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0 )
 
 
-    if(!pGmmGlobalContext->GetSkuTable().FtrLLCBypass)
+    if(!pGmmGlobalContext->GetSkuTable().FtrLLCBypass ||
+        GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_ROCKETLAKE)
     {
         GMM_DEFINE_MOCS( 16     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0 )
         GMM_DEFINE_MOCS( 17     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0 )

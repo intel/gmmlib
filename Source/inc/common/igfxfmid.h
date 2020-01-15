@@ -65,11 +65,13 @@ typedef enum {
     IGFX_LAKEFIELD,
     IGFX_JASPERLAKE,
     IGFX_ELKHARTLAKE     =IGFX_JASPERLAKE,
+
     IGFX_TIGERLAKE_LP,
+    IGFX_ROCKETLAKE,
+
     IGFX_DG1             = 1210,
+
     IGFX_MAX_PRODUCT,
-
-
     IGFX_GENNEXT               = 0x7ffffffe,
     PRODUCT_FAMILY_FORCE_ULONG = 0x7fffffff
 } PRODUCT_FAMILY;
@@ -1191,6 +1193,14 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_9A7F                             0x9A7F
 
 #define DEV_ID_4905                             0x4905
+
+// Rocketlake
+#define DEV_ID_4C80                             0x4C80
+#define DEV_ID_4C8A                             0x4C8A
+#define DEV_ID_4C8B                             0x4C8B
+#define DEV_ID_4C8C                             0x4C8C
+#define DEV_ID_4C90                             0x4C90
+#define DEV_ID_4C9A                             0x4C9A
 
 //LKF
 #define ILKF_1x8x8_DESK_DEVICE_F0_ID            0x9840
