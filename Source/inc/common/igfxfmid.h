@@ -93,6 +93,7 @@ typedef enum {
     PCH_CMP_LP,         // CML LP PCH
     PCH_CMP_H,          // CML Halo PCH
     PCH_CMP_V,          // CML V PCH
+    PCH_JSP_N,          // JSL N PCH Device IDs for JSL+ Rev02
     PCH_PRODUCT_FAMILY_FORCE_ULONG = 0x7fffffff
 } PCH_PRODUCT_FAMILY;
 
@@ -1225,6 +1226,40 @@ typedef enum __NATIVEGTTYPE
 #define ICL_LP_UNKNOWN_SKU_ID_24                0x349D
 #define ICL_LP_UNKNOWN_SKU_ID_25                0x349E
 #define ICL_LP_UNKNOWN_SKU_ID_26                0x349F
+
+// JSL N PCH Device IDs for JSL+ Rev02
+#define PCH_JSP_N_UNKNOWN_SKU_ID_1              0x4D80
+#define PCH_JSP_N_UNKNOWN_SKU_ID_2              0x4D81
+#define PCH_JSP_N_UNKNOWN_SKU_ID_3              0x4D82
+#define PCH_JSP_N_UNKNOWN_SKU_ID_4              0x4D83
+#define PCH_JSP_N_UNKNOWN_SKU_ID_5              0x4D84
+#define PCH_JSP_N_UNKNOWN_SKU_ID_6              0x4D85
+#define PCH_JSP_N_UNKNOWN_SKU_ID_7              0x4D86
+#define PCH_JSP_N_UNKNOWN_SKU_ID_8              0x4D87
+#define PCH_JSP_N_UNKNOWN_SKU_ID_9              0x4D88
+#define PCH_JSP_N_UNKNOWN_SKU_ID_10             0x4D89
+#define PCH_JSP_N_UNKNOWN_SKU_ID_11             0x4D8A
+#define PCH_JSP_N_UNKNOWN_SKU_ID_12             0x4D8B
+#define PCH_JSP_N_UNKNOWN_SKU_ID_13             0x4D8C
+#define PCH_JSP_N_UNKNOWN_SKU_ID_14             0x4D8D
+#define PCH_JSP_N_UNKNOWN_SKU_ID_15             0x4D8E
+#define PCH_JSP_N_UNKNOWN_SKU_ID_16             0x4D8F
+#define PCH_JSP_N_UNKNOWN_SKU_ID_17             0x4D90
+#define PCH_JSP_N_UNKNOWN_SKU_ID_18             0x4D91
+#define PCH_JSP_N_UNKNOWN_SKU_ID_19             0x4D92
+#define PCH_JSP_N_UNKNOWN_SKU_ID_20             0x4D93
+#define PCH_JSP_N_UNKNOWN_SKU_ID_21             0x4D94
+#define PCH_JSP_N_UNKNOWN_SKU_ID_22             0x4D95
+#define PCH_JSP_N_UNKNOWN_SKU_ID_23             0x4D96
+#define PCH_JSP_N_UNKNOWN_SKU_ID_24             0x4D97
+#define PCH_JSP_N_UNKNOWN_SKU_ID_25             0x4D98
+#define PCH_JSP_N_UNKNOWN_SKU_ID_26             0x4D99
+#define PCH_JSP_N_UNKNOWN_SKU_ID_27             0x4D9A
+#define PCH_JSP_N_UNKNOWN_SKU_ID_28             0x4D9B
+#define PCH_JSP_N_UNKNOWN_SKU_ID_29             0x4D9C
+#define PCH_JSP_N_UNKNOWN_SKU_ID_30             0x4D9D
+#define PCH_JSP_N_UNKNOWN_SKU_ID_31             0x4D9E
+#define PCH_JSP_N_UNKNOWN_SKU_ID_32             0x4D9F
 
 // LKF-PCH Device IDs
 #define PCH_LKF_UNFUSED_SKU_ID                  0x9880
