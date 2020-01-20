@@ -25,14 +25,14 @@ project(igfx_gmmumd)
 
 # GmmLib Api Version used for so naming
 set(GMMLIB_API_MAJOR_VERSION 11)
-set(GMMLIB_API_MINOR_VERSION 1)
+set(GMMLIB_API_MINOR_VERSION 2)
 
 if(NOT DEFINED MAJOR_VERSION)
 	set(MAJOR_VERSION 11)
 endif()
 
 if(NOT DEFINED MINOR_VERSION)
-	set(MINOR_VERSION 1)
+	set(MINOR_VERSION 2)
 endif()
 
 if(NOT DEFINED PATCH_VERSION)

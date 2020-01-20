@@ -1634,6 +1634,10 @@ namespace GmmLib
                 Surf.OffsetInfo.Plane.Y[Plane] = YOffset;
             }
 
+            GMM_VIRTUAL GMM_STATUS              GMM_STDCALL CreateCustomRes(Context& GmmLibContext, GMM_RESCREATE_CUSTOM_PARAMS& CreateParams);
+            protected:
+                GMM_VIRTUAL void UpdateUnAlignedParams();
+
     };
 
 } // namespace GmmLib
