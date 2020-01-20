@@ -337,6 +337,41 @@ uint64_t GMM_STDCALL GmmLib::GmmClientContext::GetInternalGpuVaRangeLimit()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
+/// Member function of ClientContext class for creation of Custiom ResourceInfo Object .
+/// @see        GmmLib::GmmResourceInfoCommon::Create()
+///
+/// @param[in] pCreateParams: Flags which specify what sort of resource to create
+/// @return     Pointer to GmmResourceInfo class.
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_RESOURCE_INFO *GMM_STDCALL GmmLib::GmmClientContext::CreateCustomResInfoObject(GMM_RESCREATE_CUSTOM_PARAMS *pCreateParams)
+{
+    GMM_RESOURCE_INFO *pRes             = NULL;
+    GmmClientContext * pClientContextIn = NULL;
+
+    pClientContextIn = this;
+
+    if((pRes = new GMM_RESOURCE_INFO(pClientContextIn)) == NULL)
+    {
+        GMM_ASSERTDPF(0, "Allocation failed!");
+        goto ERROR_CASE;
+    }
+
+    if(pRes->CreateCustomRes(*pGmmGlobalContext, *pCreateParams) != GMM_SUCCESS)
+    {
+        goto ERROR_CASE;
+    }
+
+    return (pRes);
+
+ERROR_CASE:
+    if(pRes)
+    {
+        DestroyResInfoObject(pRes);
+    }
+
+    return (NULL);
+}
+/////////////////////////////////////////////////////////////////////////////////////
 /// Member function of ClientContext class for creation of ResourceInfo Object .
 /// @see        GmmLib::GmmResourceInfoCommon::Create()
 ///

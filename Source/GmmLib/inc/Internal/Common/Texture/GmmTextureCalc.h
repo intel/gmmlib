@@ -165,11 +165,10 @@ namespace GmmLib
                 return 0;
             }
 
-            void            SetTileMode(GMM_TEXTURE_INFO* pTexInfo);
-
         public:
             /* Constructors */
             // "Creates GmmTextureCalc object based on platform ID"
+            void            SetTileMode(GMM_TEXTURE_INFO* pTexInfo);
             static GmmTextureCalc* Create(PLATFORM Platform, uint8_t Override);
 
             static void IncrementRefCount()

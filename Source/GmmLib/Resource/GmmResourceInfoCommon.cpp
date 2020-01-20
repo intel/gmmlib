@@ -102,6 +102,126 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(GMM_RESCREATE_PARAM
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
+/// Allows clients to "create"  Custom memory layout received from the App as user pointer or DMABUF
+// This function does not allocate any memory for the resource. It just calculates/ populates the various parameters
+/// which are useful for the client and can be queried using other functions.
+///
+/// @param[in]  GmmLib Context: Reference to ::GmmLibContext
+/// @param[in]  CreateParams: Flags which specify what sort of resource to create
+///
+/// @return     ::GMM_STATUS
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::CreateCustomRes(Context &GmmLibContext, GMM_RESCREATE_CUSTOM_PARAMS &CreateParams)
+{
+    const GMM_PLATFORM_INFO *pPlatform;
+    GMM_STATUS               Status       = GMM_ERROR;
+    GMM_TEXTURE_CALC *       pTextureCalc = NULL;
+    uint32_t                 BitsPerPixel, i;
+
+
+    GMM_DPF_ENTER;
+
+    __GMM_ASSERTPTR(pGmmGlobalContext, GMM_ERROR);
+    pGmmLibContext = reinterpret_cast<uint64_t>(&GmmLibContext);
+
+
+    if((CreateParams.Format > GMM_FORMAT_INVALID) &&
+       (CreateParams.Format < GMM_RESOURCE_FORMATS))
+    {
+        BitsPerPixel = pGmmGlobalContext->GetPlatformInfo().FormatTable[CreateParams.Format].Element.BitsPer;
+    }
+    else
+    {
+        GMM_ASSERTDPF(0, "Format Error");
+        Status = GMM_INVALIDPARAM;
+        goto ERROR_CASE;
+    }
+
+    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+
+    Surf.Type                    = CreateParams.Type;
+    Surf.Format                  = CreateParams.Format;
+    Surf.BaseWidth               = CreateParams.BaseWidth64;
+    Surf.BaseHeight              = CreateParams.BaseHeight;
+    Surf.Flags                   = CreateParams.Flags;
+    Surf.CachePolicy.Usage       = CreateParams.Usage;
+    Surf.Pitch                   = CreateParams.Pitch;
+    Surf.Size                    = CreateParams.Size;
+    Surf.Alignment.BaseAlignment = CreateParams.BaseAlignment;
+    Surf.MaxLod                  = 1;
+    Surf.ArraySize               = 1;
+
+#if(_DEBUG || _RELEASE_INTERNAL)
+    Surf.Platform = pGmmGlobalContext->GetPlatformInfo().Platform;
+#endif
+    Surf.BitsPerPixel     = BitsPerPixel;
+    Surf.Alignment.QPitch = (GMM_GLOBAL_GFX_SIZE_T)(Surf.Pitch * Surf.BaseHeight);
+
+    pTextureCalc->SetTileMode(&Surf);
+
+    if(GmmIsPlanar(Surf.Format))
+    {
+        if(GMM_IS_TILED(pPlatform->TileInfo[Surf.TileMode]))
+        {
+            Surf.OffsetInfo.Plane.IsTileAlignedPlanes = true;
+        }
+        for(i = 1; i <= CreateParams.NoOfPlanes; i++)
+        {
+            Surf.OffsetInfo.Plane.X[i] = CreateParams.PlaneOffset.X[i];
+            Surf.OffsetInfo.Plane.Y[i] = CreateParams.PlaneOffset.Y[i];
+        }
+        Surf.OffsetInfo.Plane.NoOfPlanes  = CreateParams.NoOfPlanes;
+        Surf.OffsetInfo.Plane.ArrayQPitch = Surf.Pitch * Surf.BaseHeight;
+        UpdateUnAlignedParams();
+    }
+
+    switch(Surf.Type)
+    {
+        case RESOURCE_1D:
+        case RESOURCE_2D:
+        case RESOURCE_PRIMARY:
+        case RESOURCE_SHADOW:
+        case RESOURCE_STAGING:
+        case RESOURCE_GDI:
+        case RESOURCE_NNDI:
+        case RESOURCE_HARDWARE_MBM:
+        case RESOURCE_OVERLAY_INTERMEDIATE_SURFACE:
+        case RESOURCE_IFFS_MAPTOGTT:
+#if _WIN32
+        case RESOURCE_WGBOX_ENCODE_DISPLAY:
+        case RESOURCE_WGBOX_ENCODE_REFERENCE:
+#endif
+        {
+            Surf.OffsetInfo.Texture2DOffsetInfo.ArrayQPitchRender =
+            Surf.OffsetInfo.Texture2DOffsetInfo.ArrayQPitchLock = Surf.Pitch * Surf.BaseHeight;
+            for(i = 0; i <= Surf.MaxLod; i++)
+            {
+                Surf.OffsetInfo.Texture2DOffsetInfo.Offset[i] = 0;
+            }
+
+            break;
+        }
+        default:
+        {
+            GMM_ASSERTDPF(0, "GmmTexAlloc: Unknown surface type!");
+            Status = GMM_INVALIDPARAM;
+            goto ERROR_CASE;
+            ;
+        }
+    };
+
+    GMM_DPF_EXIT;
+    return GMM_SUCCESS;
+
+ERROR_CASE:
+    //Zero out all the members
+    new(this) GmmResourceInfoCommon();
+
+    GMM_DPF_EXIT;
+    return Status;
+}
+/////////////////////////////////////////////////////////////////////////////////////
 /// Allows clients to "create" any type of resource. This function does not
 /// allocate any memory for the resource. It just calculates the various parameters
 /// which are useful for the client and can be queried using other functions.
@@ -352,6 +472,220 @@ ERROR_CASE:
     return Status;
 }
 
+void GmmLib::GmmResourceInfoCommon::UpdateUnAlignedParams()
+{
+    uint32_t YHeight = 0, VHeight = 0;
+    uint32_t Height = 0, UmdUHeight = 0, UmdVHeight = 0;
+    uint32_t WidthBytesPhysical = GFX_ULONG_CAST(Surf.BaseWidth) * Surf.BitsPerPixel >> 3;
+
+    __GMM_ASSERTPTR(((Surf.TileMode < GMM_TILE_MODES) && (Surf.TileMode >= TILE_NONE)), VOIDRETURN);
+    GMM_DPF_ENTER;
+
+    Height = Surf.BaseHeight;
+
+    switch(Surf.Format)
+    {
+        case GMM_FORMAT_IMC1: // IMC1 = IMC3 with Swapped U/V
+        case GMM_FORMAT_IMC3:
+        case GMM_FORMAT_MFX_JPEG_YUV420: // Same as IMC3.
+        // YYYYYYYY
+        // YYYYYYYY
+        // YYYYYYYY
+        // YYYYYYYY
+        // UUUU
+        // UUUU
+        // VVVV
+        // VVVV
+        case GMM_FORMAT_MFX_JPEG_YUV422V: // Similar to IMC3 but U/V are full width.
+            // YYYYYYYY
+            // YYYYYYYY
+            // YYYYYYYY
+            // YYYYYYYY
+            // UUUUUUUU
+            // UUUUUUUU
+            // VVVVVVVV
+            // VVVVVVVV
+            {
+                YHeight = GFX_ALIGN(Surf.BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT);
+
+                VHeight = GFX_ALIGN(GFX_CEIL_DIV(Surf.BaseHeight, 2), GMM_IMCx_PLANE_ROW_ALIGNMENT);
+
+                break;
+            }
+        case GMM_FORMAT_MFX_JPEG_YUV411R_TYPE: //Similar to IMC3 but U/V are quarther height and full width.
+            //YYYYYYYY
+            //YYYYYYYY
+            //YYYYYYYY
+            //YYYYYYYY
+            //UUUUUUUU
+            //VVVVVVVV
+            {
+                YHeight = GFX_ALIGN(Surf.BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT);
+
+                VHeight = GFX_ALIGN(GFX_CEIL_DIV(Surf.BaseHeight, 4), GMM_IMCx_PLANE_ROW_ALIGNMENT);
+
+                break;
+            }
+        case GMM_FORMAT_MFX_JPEG_YUV411: // Similar to IMC3 but U/V are quarter width and full height.
+        // YYYYYYYY
+        // YYYYYYYY
+        // YYYYYYYY
+        // YYYYYYYY
+        // UU
+        // UU
+        // UU
+        // UU
+        // VV
+        // VV
+        // VV
+        // VV
+        case GMM_FORMAT_MFX_JPEG_YUV422H: // Similar to IMC3 but U/V are full height.
+        // YYYYYYYY
+        // YYYYYYYY
+        // YYYYYYYY
+        // YYYYYYYY
+        // UUUU
+        // UUUU
+        // UUUU
+        // UUUU
+        // VVVV
+        // VVVV
+        // VVVV
+        // VVVV
+        case GMM_FORMAT_BGRP:
+        case GMM_FORMAT_RGBP:
+        case GMM_FORMAT_MFX_JPEG_YUV444: // Similar to IMC3 but U/V are full size.
+            // YYYYYYYY
+            // YYYYYYYY
+            // YYYYYYYY
+            // YYYYYYYY
+            // UUUUUUUU
+            // UUUUUUUU
+            // UUUUUUUU
+            // UUUUUUUU
+            // VVVVVVVV
+            // VVVVVVVV
+            // VVVVVVVV
+            // VVVVVVVV
+            {
+                YHeight = GFX_ALIGN(Surf.BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT);
+
+                VHeight = GFX_ALIGN(Surf.BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT);
+
+                break;
+            }
+        case GMM_FORMAT_IMC2: // IMC2 = IMC4 with Swapped U/V
+        case GMM_FORMAT_IMC4:
+        {
+            // YYYYYYYY
+            // YYYYYYYY
+            // YYYYYYYY
+            // YYYYYYYY
+            // UUUUVVVV
+            // UUUUVVVV
+
+            __GMM_ASSERT((Surf.Pitch & 1) == 0);
+
+            YHeight = GFX_ALIGN(Surf.BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT);
+
+            VHeight = GFX_CEIL_DIV(YHeight, 2);
+
+            break;
+        }
+        case GMM_FORMAT_I420: // I420 = IYUV
+        case GMM_FORMAT_IYUV: // I420/IYUV = YV12 with Swapped U/V
+        case GMM_FORMAT_YV12:
+        case GMM_FORMAT_YVU9:
+        {
+            // YYYYYYYY
+            // YYYYYYYY
+            // YYYYYYYY
+            // YYYYYYYY
+            // VVVVVV..  <-- V and U planes follow the Y plane, as linear
+            // ..UUUUUU      arrays--without respect to pitch.
+
+            uint32_t YSize, YVSizeRShift, VSize, UOffset;
+            uint32_t YSizeForUVPurposes, YSizeForUVPurposesDimensionalAlignment;
+
+            YSize = GFX_ULONG_CAST(Surf.Pitch) * Surf.BaseHeight;
+
+            // YVU9 has one U/V pixel for each 4x4 Y block.
+            // The others have one U/V pixel for each 2x2 Y block.
+
+            // YVU9 has a Y:V size ratio of 16 (4x4 --> 1).
+            // The others have a ratio of 4 (2x2 --> 1).
+            YVSizeRShift = (Surf.Format != GMM_FORMAT_YVU9) ? 2 : 4;
+
+            // If a Y plane isn't fully-aligned to its Y-->U/V block size, the
+            // extra/unaligned Y pixels still need corresponding U/V pixels--So
+            // for the purpose of computing the UVSize, we must consider a
+            // dimensionally "rounded-up" YSize. (E.g. a 13x5 YVU9 Y plane would
+            // require 4x2 U/V planes--the same UVSize as a fully-aligned 16x8 Y.)
+            YSizeForUVPurposesDimensionalAlignment = (Surf.Format != GMM_FORMAT_YVU9) ? 2 : 4;
+            YSizeForUVPurposes =
+            GFX_ALIGN(GFX_ULONG_CAST(Surf.Pitch), YSizeForUVPurposesDimensionalAlignment) *
+            GFX_ALIGN(Surf.BaseHeight, YSizeForUVPurposesDimensionalAlignment);
+
+            VSize = (YSizeForUVPurposes >> YVSizeRShift);
+
+            YHeight = GFX_CEIL_DIV(YSize + 2 * VSize, WidthBytesPhysical);
+
+            break;
+        }
+        case GMM_FORMAT_NV12:
+        case GMM_FORMAT_NV21:
+        case GMM_FORMAT_NV11:
+        case GMM_FORMAT_P010:
+        case GMM_FORMAT_P012:
+        case GMM_FORMAT_P016:
+        case GMM_FORMAT_P208:
+        {
+            // YYYYYYYY
+            // YYYYYYYY
+            // YYYYYYYY
+            // YYYYYYYY
+            // [UV-Packing]
+            YHeight = GFX_ALIGN(Height, __GMM_EVEN_ROW);
+
+            if((Surf.Format == GMM_FORMAT_NV12) ||
+               (Surf.Format == GMM_FORMAT_NV21) ||
+               (Surf.Format == GMM_FORMAT_P010) ||
+               (Surf.Format == GMM_FORMAT_P012) ||
+               (Surf.Format == GMM_FORMAT_P016))
+            {
+                VHeight = GFX_CEIL_DIV(Height, 2);
+            }
+            else
+            {
+                VHeight = YHeight; // U/V plane is same as Y
+            }
+
+            break;
+        }
+        default:
+        {
+            GMM_ASSERTDPF(0, "Unknown Video Format U\n");
+            break;
+        }
+    }
+
+    Surf.OffsetInfo.Plane.UnAligned.Height[GMM_PLANE_Y] = YHeight;
+    if(Surf.OffsetInfo.Plane.NoOfPlanes == 2)
+    {
+        Surf.OffsetInfo.Plane.UnAligned.Height[GMM_PLANE_U] = VHeight;
+        UmdUHeight                                          = (GMM_GLOBAL_GFX_SIZE_T)((Surf.Size / Surf.Pitch) - Surf.OffsetInfo.Plane.Y[GMM_PLANE_U]);
+    }
+    else if(Surf.OffsetInfo.Plane.NoOfPlanes == 3)
+    {
+        Surf.OffsetInfo.Plane.UnAligned.Height[GMM_PLANE_U] =
+        Surf.OffsetInfo.Plane.UnAligned.Height[GMM_PLANE_V] = VHeight;
+        UmdUHeight                                          = (GMM_GLOBAL_GFX_SIZE_T)(Surf.OffsetInfo.Plane.Y[GMM_PLANE_V] - Surf.OffsetInfo.Plane.Y[GMM_PLANE_U]);
+        UmdVHeight                                          = (GMM_GLOBAL_GFX_SIZE_T)(((Surf.Size / Surf.Pitch) - Surf.OffsetInfo.Plane.Y[GMM_PLANE_U]) / 2);
+        __GMM_ASSERTPTR((UmdUHeight == UmdVHeight), VOIDRETURN);
+    }
+
+    __GMM_ASSERTPTR(((Surf.OffsetInfo.Plane.Y[GMM_PLANE_U] == YHeight) && (UmdUHeight == VHeight)), VOIDRETURN);
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /// This function calculates number of planes required for the given input format
 /// and allocates texture info for the respective planes.

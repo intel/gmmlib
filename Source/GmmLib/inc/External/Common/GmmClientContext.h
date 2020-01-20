@@ -160,6 +160,7 @@ namespace GmmLib
         GMM_VIRTUAL void GMM_STDCALL                    DestroyPageTblMgrObject(GMM_PAGETABLE_MGR* pPageTableMgr,
                                                         GmmClientAllocationCallbacks* pAllocCbs);
         GMM_VIRTUAL GMM_STATUS GMM_STDCALL              GmmSetDeviceInfo(GMM_DEVICE_INFO* DeviceInfo);
+        GMM_VIRTUAL GMM_RESOURCE_INFO* GMM_STDCALL      CreateCustomResInfoObject(GMM_RESCREATE_CUSTOM_PARAMS* pCreateParams);
     };
 }
 

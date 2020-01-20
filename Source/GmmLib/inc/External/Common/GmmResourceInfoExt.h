@@ -288,6 +288,28 @@ typedef struct GMM_RESCREATE_PARAMS_REC
 
 } GMM_RESCREATE_PARAMS;
 
+typedef struct GMM_RESCREATE_CUSTOM_PARAMS__REC
+{
+    GMM_RESOURCE_TYPE              Type;    // 1D/2D/.../SCRATCH/...
+    GMM_RESOURCE_FORMAT            Format;         // Pixel format e.g. NV12, GENERIC_8BIT
+    GMM_RESOURCE_FLAG              Flags;          // See substructure type.
+    GMM_RESOURCE_USAGE_TYPE        Usage;   // Intended use for this resource. See enumerated type.
+    GMM_GFX_SIZE_T                 BaseWidth64;
+    uint32_t                       BaseHeight;     // Aligned height of buffer (aligned according to .Format)
+
+    uint32_t                       Pitch;
+    GMM_GFX_SIZE_T                 Size;
+    uint32_t                       BaseAlignment;
+
+    struct
+    {
+        uint32_t X[GMM_MAX_PLANE];
+        uint32_t Y[GMM_MAX_PLANE];
+    }PlaneOffset;
+
+    uint32_t NoOfPlanes;
+}GMM_RESCREATE_CUSTOM_PARAMS;
+
 //===========================================================================
 // enum :
 //        GMM_UNIFIED_AUX_TYPE

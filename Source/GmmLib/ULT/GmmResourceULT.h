@@ -203,6 +203,37 @@ protected:
         }
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////
+    /// Set the tile flag in Gmm Custom ResCreate Params
+    ///
+    /// @param[in]  Parms: Gmm Rescreate params
+    /// @param[in]  Tile: Tile Type
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////
+    void SetTileFlag_Custom(GMM_RESCREATE_CUSTOM_PARAMS& Params, TEST_TILE_TYPE Tile)
+    {
+        switch (Tile)
+        {
+        case TEST_LINEAR:
+            Params.Flags.Info.Linear = 1;
+            break;
+        case TEST_TILEX:
+            Params.Flags.Info.TiledX = 1;
+            break;
+        case TEST_TILEY:
+            Params.Flags.Info.TiledY = 1;
+            break;
+        case TEST_TILEYF:
+            Params.Flags.Info.TiledY = 1;
+            Params.Flags.Info.TiledYf = 1;
+            break;
+        case TEST_TILEYS:
+            Params.Flags.Info.TiledY = 1;
+            Params.Flags.Info.TiledYs = 1;
+            break;
+        default: break;
+        }
+    }
 
     /////////////////////////////////////////////////////////////////////////////////////
     /// Sets Resource Type in GmmParams
