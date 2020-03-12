@@ -314,6 +314,11 @@ void GmmLib::GmmGen11CachePolicy::SetUpMOCSTable()
 
     // clang-format off
 
+    //Default MOCS Table
+    for(int index = 0; index < GMM_MAX_NUMBER_MOCS_INDEXES; index++)
+    {  //              Index     ESC    SCC      L3CC    LeCC    TC      LRUM    DAoM    ERSC    SCC     PFM     SCF     CoS     SSE
+        GMM_DEFINE_MOCS(index   , 0     , 0     , 3     , 3     , 1     , 3     , 0     , 0     , 0     , 0     , 0     , 0     , 0 )
+    }
     // Explicit MOCS Table
     //              Index     ESC	  SCC	  L3CC    LeCC    TC      LRUM    DAoM	  ERSC	  SCC	  PFM	  SCF     CoS     SSE
     GMM_DEFINE_MOCS( 0      , 0     , 0     , 1     , 1     , 1     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0 )
