@@ -43,8 +43,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define GMM_NUM_PAT_ENTRIES                             8
 #define GMM_NUM_MEMORY_TYPES                            4
 #define GMM_NUM_GFX_PAT_TYPES                           6
-#define GMM_TILED_RESOURCE_NO_MIP_TAIL                 0xFFFFFFFF
-#define GMM_TILED_RESOURCE_NO_PACKED_MIPS              0xFFFFFFFF
+#define GMM_TILED_RESOURCE_NO_MIP_TAIL                 0xF
+#define GMM_TILED_RESOURCE_NO_PACKED_MIPS              0xF
 #define GMM_GEN10_HDCL1_MOCS_INDEX_START               (48)     // CNL+ MOCS index 48-61 allows HDC L1 caching, last 2 are reserved by h/w.
 #define GMM_MSAA_SAMPLES_MIN                            1       //Define min and max MSAA samples
 #define GMM_MSAA_SAMPLES_MAX                            16
