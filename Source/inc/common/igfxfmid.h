@@ -777,6 +777,8 @@ typedef enum __NATIVEGTTYPE
 #define ICFL_GT1_DT_DEVICE_P0_ID                0x9BA5
 #define ICFL_GT2_DT_DEVICE_G0_ID                0x9BC8
 #define ICFL_GT1_DT_DEVICE_G0_ID                0x9BA8
+#define ICFL_GT2_WKS_DEVICE_P0_ID               0x9BC6
+#define ICFL_GT2_WKS_DEVICE_G0_ID               0x9BE6
 #define ICFL_GT2_HALO_DEVICE_15_ID              0x9BC4
 #define ICFL_GT1_HALO_DEVICE_16_ID              0x9BA4
 #define ICFL_GT2_HALO_DEVICE_17_ID              0x9BC2
