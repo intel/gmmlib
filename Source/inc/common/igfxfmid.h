@@ -1164,16 +1164,20 @@ typedef enum __NATIVEGTTYPE
 #define IICL_LP_1x4x8_LOW_MEDIA_ULX_DEVICE_F0_ID 0x8A58
 
 //TGL LP
-#define IGEN12LP_GT1_MOB_DEVICE_F0_ID           0xFF20
-#define ITGL_LP_1x6x16_UNKNOWN_SKU_F0_ID_5      0x9A49      // Remove this once newer enums are merged in OpenCL. Added this to avoid build failure with Linux/OpenCL.
-#define ITGL_LP_1x6x16_ULT_15W_DEVICE_F0_ID     0x9A49      // Mobile    - U42 - 15W
-#define ITGL_LP_1x6x16_ULX_5_2W_DEVICE_F0_ID    0x9A40      // Mobile    - Y42 - 5.2W
-#define ITGL_LP_1x6x16_ULT_12W_DEVICE_F0_ID     0x9A59      // Mobile    - U42 - 12W
-#define ITGL_LP_1x2x16_HALO_45W_DEVICE_F0_ID    0x9A60      // Halo      - H81 - 45W
-#define ITGL_LP_1x2x16_DESK_65W_DEVICE_F0_ID    0x9A68      // Desktop   - S81 - 35W/65W/95W
-#define ITGL_LP_1x2x16_HALO_WS_45W_DEVICE_F0_ID 0x9A70      // Mobile WS - H81 - 45W
-#define ITGL_LP_1x2x16_DESK_WS_65W_DEVICE_F0_ID 0x9A78      // Desktop WS- S81 - 35W/65W/95W
-#define ITGL_LP_GT0_ULT_DEVICE_F0_ID            0x9A7F      // GT0 - No GFX, Display Only
+#define IGEN12LP_GT1_MOB_DEVICE_F0_ID            0xFF20
+#define ITGL_LP_1x6x16_UNKNOWN_SKU_F0_ID_5       0x9A49
+#define ITGL_LP_1x6x16_ULT_15W_DEVICE_F0_ID      0x9A49
+#define ITGL_LP_1x6x16_ULX_5_2W_DEVICE_F0_ID     0x9A40
+#define ITGL_LP_1x6x16_ULT_12W_DEVICE_F0_ID      0x9A59
+#define ITGL_LP_1x2x16_HALO_45W_DEVICE_F0_ID     0x9A60
+#define ITGL_LP_1x2x16_DESK_65W_DEVICE_F0_ID     0x9A68
+#define ITGL_LP_1x2x16_HALO_WS_45W_DEVICE_F0_ID  0x9A70
+#define ITGL_LP_1x2x16_DESK_WS_65W_DEVICE_F0_ID  0x9A78
+#define ITGL_LP_GT0_ULT_DEVICE_F0_ID             0x9A7F
+#define ITGL_LP_1x6x16_ULT_15W_DEVICE_F0_ID2     0x9AC9
+#define ITGL_LP_1x3x16_ULT_15W_DEVICE_F0_ID      0x9AF8
+#define ITGL_LP_1x6x16_ULX_5_2W_DEVICE_F0_ID2    0x9AC0
+#define ITGL_LP_1x6x16_ULT_IOTG_12W_DEVICE_F0_ID 0x9AD9
 
 //LKF
 #define ILKF_1x8x8_DESK_DEVICE_F0_ID            0x9840
