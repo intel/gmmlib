@@ -323,12 +323,9 @@ void GmmLib::GmmGen11TextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTex
 
         if(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) > IGFX_GEN11LP_CORE)
         {
-            if(pTexInfo->Flags.Gpu.CCS)
-            {
-                //U/V must be aligned to AuxT granularity, for 16K AuxT- 4x pitchalign enforces it,
-                //add extra padding for 64K AuxT
-                TileHeight *= (!GMM_IS_64KB_TILE(pTexInfo->Flags) && !WA16K) ? 4 : 1;
-            }
+            //U/V must be aligned to AuxT granularity, for 16K AuxT- 4x pitchalign enforces it,
+            //add extra padding for 64K AuxT
+            TileHeight *= (!GMM_IS_64KB_TILE(pTexInfo->Flags) && !WA16K) ? 4 : 1;
         }
 
         *pUOffsetX = GFX_ALIGN(*pUOffsetX, TileWidth);
