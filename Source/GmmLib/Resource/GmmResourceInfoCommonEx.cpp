@@ -347,6 +347,57 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
         goto ERROR_CASE;
     }
 
+
+    if(pGmmGlobalContext->GetSkuTable().FtrLocalMemory)
+    {
+        GMM_ASSERTDPF(((Surf.Flags.Info.NonLocalOnly && Surf.Flags.Info.LocalOnly) == 0),
+                      "Incorrect segment preference, cannot be both local and system memory.");
+
+        if(Surf.Flags.Gpu.Overlay ||
+           Surf.Flags.Gpu.FlipChain)
+        {
+            if(Surf.Flags.Info.NonLocalOnly)
+            {
+                GMM_ASSERTDPF(0, "Overlay and FlipChain cannot be in system memory.");
+                goto ERROR_CASE;
+            }
+            Surf.Flags.Info.LocalOnly    = 1;
+            Surf.Flags.Info.NonLocalOnly = 0;
+        }
+
+        if(!Surf.Flags.Info.NotLockable &&
+           Surf.Flags.Info.Shared)
+        {
+            if(Surf.Flags.Info.LocalOnly)
+            {
+                GMM_ASSERTDPF(0, "Lockable Shared cannot be in local memory.");
+                goto ERROR_CASE;
+            }
+            Surf.Flags.Info.LocalOnly    = 0;
+            Surf.Flags.Info.NonLocalOnly = 1;
+        }
+
+        if(Surf.Flags.Gpu.CameraCapture)
+        {
+            if(Surf.Flags.Info.LocalOnly)
+            {
+                GMM_ASSERTDPF(0, "CameraCapture cannot be in local memory.");
+            }
+            Surf.Flags.Info.LocalOnly    = 0;
+            Surf.Flags.Info.NonLocalOnly = 1;
+        }
+
+        if(!Surf.Flags.Info.NonLocalOnly &&
+           (!pGmmGlobalContext->GetSkuTable().FtrLocalMemoryAllows4KB))
+        {
+            Surf.Flags.Info.LocalOnly = true;
+        }
+    }
+    else
+    {
+        Surf.Flags.Info.LocalOnly = false; //Zero out on iGPU
+    }
+
     if((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) < IGFX_GEN8_CORE) &&
        Surf.Flags.Info.TiledW)
     {

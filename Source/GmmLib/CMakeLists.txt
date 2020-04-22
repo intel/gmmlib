@@ -177,11 +177,13 @@ set(HEADERS_
 	${BS_DIR_GMMLIB}/CachePolicy/GmmGen10CachePolicy.h
 	${BS_DIR_GMMLIB}/CachePolicy/GmmGen11CachePolicy.h
 	${BS_DIR_GMMLIB}/CachePolicy/GmmGen12CachePolicy.h
+        ${BS_DIR_GMMLIB}/CachePolicy/GmmGen12dGPUCachePolicy.h
 	${BS_DIR_GMMLIB}/CachePolicy/GmmGen8CachePolicy.h
 	${BS_DIR_GMMLIB}/CachePolicy/GmmGen9CachePolicy.h
 	${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen10.h
 	${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen11.h
 	${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen12.h
+        ${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen12dGPU.h
 	${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen8.h
 	${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen9.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmCachePolicy.h
@@ -243,6 +245,7 @@ set(SOURCES_
   ${BS_DIR_GMMLIB}/CachePolicy/GmmGen10CachePolicy.cpp
   ${BS_DIR_GMMLIB}/CachePolicy/GmmGen11CachePolicy.cpp
   ${BS_DIR_GMMLIB}/CachePolicy/GmmGen12CachePolicy.cpp
+  ${BS_DIR_GMMLIB}/CachePolicy/GmmGen12dGPUCachePolicy.cpp
   ${BS_DIR_GMMLIB}/Platform/GmmGen11Platform.cpp
   ${BS_DIR_GMMLIB}/Platform/GmmGen12Platform.cpp
   ${BS_DIR_GMMLIB}/Platform/GmmGen8Platform.cpp
@@ -286,6 +289,7 @@ source_group("Source Files\\Cache Policy\\Client Files" FILES
 			${BS_DIR_GMMLIB}/CachePolicy/GmmGen10CachePolicy.h
 			${BS_DIR_GMMLIB}/CachePolicy/GmmGen11CachePolicy.h
 			${BS_DIR_GMMLIB}/CachePolicy/GmmGen12CachePolicy.h
+                        ${BS_DIR_GMMLIB}/CachePolicy/GmmGen12dGPUCachePolicy.h
 			${BS_DIR_GMMLIB}/CachePolicy/GmmGen8CachePolicy.h
 			${BS_DIR_GMMLIB}/CachePolicy/GmmGen9CachePolicy.h
 			)
@@ -347,6 +351,7 @@ source_group("Header Files\\External\\Common\\Cache Policy" FILES
 			${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen10.h
 			${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen11.h
 			${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen12.h
+                        ${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen12dGPU.h
 			${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen8.h
 			${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen9.h
 			)

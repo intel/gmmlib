@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "External/Common/CachePolicy/GmmCachePolicyGen10.h"
 #include "External/Common/CachePolicy/GmmCachePolicyGen11.h"
 #include "External/Common/CachePolicy/GmmCachePolicyGen12.h"
+#include "External/Common/CachePolicy/GmmCachePolicyGen12dGPU.h"
 #include "Internal/Common/Texture/GmmTextureCalc.h"
 #include "Internal/Common/Texture/GmmGen10TextureCalc.h"
 #include "Internal/Common/Texture/GmmGen11TextureCalc.h"
@@ -104,7 +105,14 @@ GmmLib::GmmCachePolicyCommon *GmmLib::GmmCachePolicyCommon::Create()
 
     if (GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN12_CORE)
     {
-        pGmmCachePolicy = new GmmLib::GmmGen12CachePolicy(CachePolicy);
+        if(pGmmGlobalContext->GetSkuTable().FtrLocalMemory)
+        {
+            pGmmCachePolicy = new GmmLib::GmmGen12dGPUCachePolicy(CachePolicy);
+        }
+        else
+        {
+            pGmmCachePolicy = new GmmLib::GmmGen12CachePolicy(CachePolicy);
+        }
     }
     else if(GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN11_CORE)
     {

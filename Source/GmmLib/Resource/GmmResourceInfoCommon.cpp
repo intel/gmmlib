@@ -52,6 +52,20 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::Is64KBPageSuitable()
         Ignore64KBPadding = true;
     }
 
+    if(pGmmGlobalContext->GetSkuTable().FtrLocalMemory)
+    {
+        Ignore64KBPadding |= (Surf.Flags.Info.NonLocalOnly || (Surf.Flags.Info.Shared && !Surf.Flags.Info.NotLockable));
+    }
+    else
+    {
+        // The final padded size cannot be larger then a set percentage of the original size
+        if((Surf.Flags.Info.NoOptimizationPadding && !GFX_IS_ALIGNED(Size, GMM_KBYTE(64))) /*Surface is not 64kb aligned*/ ||
+           (!Surf.Flags.Info.NoOptimizationPadding && (((Size * (100 + pGmmGlobalContext->GetAllowedPaddingFor64KbPagesPercentage())) / 100) < GFX_ALIGN(Size, GMM_KBYTE(64)))) /*10% padding TBC */)
+        {
+            Ignore64KBPadding |= true;
+        }
+    }
+
     // If 64KB paging is enabled pad out the resource to 64KB alignment
     if(pGmmGlobalContext->GetSkuTable().FtrWddm2_1_64kbPages &&
        // Ignore the padding for the above VirtualPadding or ESM cases
@@ -62,13 +76,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::Is64KBPageSuitable()
         (Surf.Alignment.BaseAlignment == GMM_KBYTE(32)) ||
         (Surf.Alignment.BaseAlignment == GMM_KBYTE(16)) ||
         (Surf.Alignment.BaseAlignment == GMM_KBYTE(8)) ||
-        (Surf.Alignment.BaseAlignment == GMM_KBYTE(4))) &&
-       // The final padded size cannot be larger then a set percentage of the original size
-       ((!Surf.Flags.Info.NoOptimizationPadding &&
-         ((Size * (100 + pGmmGlobalContext->GetAllowedPaddingFor64KbPagesPercentage())) / 100) >= GFX_ALIGN(Size, GMM_KBYTE(64))) ||
-        (Surf.Flags.Info.NoOptimizationPadding && GFX_IS_ALIGNED(Size, GMM_KBYTE(64))))
-
-       )
+        (Surf.Alignment.BaseAlignment == GMM_KBYTE(4))))
     {
         return 1;
     }
@@ -334,6 +342,11 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
                 ExistingSysMem.pGfxAlignedVirtAddress = (uint64_t)GFX_ALIGN(ExistingSysMem.pVirtAddress, Restrictions.Alignment);
             }
         }
+    }
+
+    if(Is64KBPageSuitable() && pGmmGlobalContext->GetSkuTable().FtrLocalMemory)
+    {
+        Surf.Alignment.BaseAlignment = GMM_KBYTE(64);
     }
 
     GMM_DPF_EXIT;
