@@ -161,8 +161,6 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
         // VVVV
         // VVVV
         // VVVV
-        case GMM_FORMAT_BGRP:
-        case GMM_FORMAT_RGBP:
         case GMM_FORMAT_MFX_JPEG_YUV444: // Similar to IMC3 but U/V are full size.
             // YYYYYYYY
             // YYYYYYYY
@@ -187,6 +185,32 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
 
                 break;
             }
+        case GMM_FORMAT_BGRP:
+        case GMM_FORMAT_RGBP:
+        {
+            //For RGBP linear Tile keep resource Offset non aligned and for other Tile format to be 16-bit aligned
+            if(pTexInfo->Flags.Info.Linear)
+            {
+                *pUOffsetX = 0;
+                YHeight    = pTexInfo->BaseHeight;
+                *pUOffsetY = pTexInfo->BaseHeight;
+
+                *pVOffsetX = 0;
+                VHeight    = pTexInfo->BaseHeight;
+                *pVOffsetY = (GMM_GFX_SIZE_T)pTexInfo->BaseHeight * 2;
+            }
+            else // Tiled
+            {
+                *pUOffsetX = 0;
+                YHeight    = GFX_ALIGN(pTexInfo->BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT);
+                *pUOffsetY = GFX_ALIGN(pTexInfo->BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT);
+
+                *pVOffsetX = 0;
+                VHeight    = GFX_ALIGN(pTexInfo->BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT);
+                *pVOffsetY = (GMM_GFX_SIZE_T)GFX_ALIGN(pTexInfo->BaseHeight, GMM_IMCx_PLANE_ROW_ALIGNMENT) * 2;
+            }
+            break;
+        }
         case GMM_FORMAT_IMC2:
             SWAP_UV(); // IMC2 = IMC4 with Swapped U/V
         case GMM_FORMAT_IMC4:

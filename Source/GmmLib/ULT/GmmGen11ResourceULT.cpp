@@ -271,7 +271,7 @@ TEST_F(CTestGen11Resource, TestPlanar2D_RGBP)
         else
         {
             Pitch  = GMM_ULT_ALIGN(gmmParams.BaseWidth64, GMM_BYTES(64));
-            Height = GMM_ULT_ALIGN(gmmParams.BaseHeight, PlaneRowAlignment /* min16 rows*/) * 3 /*Y, U, V*/;
+            Height = gmmParams.BaseHeight * 3 /*Y, U, V*/;
         }
 
         uint32_t Size = GMM_ULT_ALIGN(Pitch * Height, GMM_KBYTE(4));

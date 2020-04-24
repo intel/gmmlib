@@ -2866,7 +2866,7 @@ TEST_F(CTestResource, TestPlanar2D_RGBP)
         else
         {
             Pitch  = GMM_ULT_ALIGN(gmmParams.BaseWidth64, GMM_BYTES(64));
-            Height = GMM_ULT_ALIGN(gmmParams.BaseHeight, PlaneRowAlignment /* min16 rows*/) * 3 /*Y, U, V*/;
+            Height = gmmParams.BaseHeight * 3 /*Y, U, V*/;
         }
         uint32_t Size = GMM_ULT_ALIGN(Pitch * Height, GMM_KBYTE(4));
 
@@ -2891,6 +2891,110 @@ TEST_F(CTestResource, TestPlanar2D_RGBP)
         // V plane should be at end of U plane
         EXPECT_EQ(0, ResourceInfo->GetPlanarXOffset(GMM_PLANE_V));
         EXPECT_EQ(2 * (Height / 3), ResourceInfo->GetPlanarYOffset(GMM_PLANE_V));
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
+    }
+}
+
+/// @brief ULT for Plannar 2D Resource Unaligned - RGBP
+TEST_F(CTestResource, TestPlanar2D_RGBP_Unaligned)
+{
+    /* Test planar surfaces where all planes are full-sized */
+    // YYYYYYYY
+    // YYYYYYYY
+    // YYYYYYYY
+    // YYYYYYYY
+    // UUUUUUUU
+    // UUUUUUUU
+    // UUUUUUUU
+    // UUUUUUUU
+    // VVVVVVVV
+    // VVVVVVVV
+    // VVVVVVVV
+    // VVVVVVVV
+    const TEST_TILE_TYPE TileTypes[]       = {TEST_LINEAR, TEST_TILEX, TEST_TILEY};
+    const uint32_t       PlaneRowAlignment = 16;
+
+    const uint32_t TileSize[3][2] = {{1, 1},     //Linear
+                                     {512, 8},   // TileX
+                                     {128, 32}}; // TileY
+    for(uint32_t TileIndex = 0; TileIndex < sizeof(TileTypes) / sizeof(TileTypes[0]); TileIndex++)
+    {
+        TEST_TILE_TYPE Tile = TileTypes[TileIndex];
+
+        GMM_RESCREATE_PARAMS gmmParams = {};
+        gmmParams.Type                 = RESOURCE_2D;
+        gmmParams.NoGfxMemory          = 1;
+        gmmParams.Flags.Gpu.Texture    = 1;
+        gmmParams.BaseWidth64          = 480;
+        gmmParams.BaseHeight           = 300;
+        gmmParams.Depth                = 0x1;
+        SetTileFlag(gmmParams, static_cast<TEST_TILE_TYPE>(Tile));
+        gmmParams.Format = GMM_FORMAT_RGBP;
+
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
+
+        uint32_t Pitch, Height;
+        if(Tile != TEST_LINEAR)
+        {
+            Pitch = GMM_ULT_ALIGN(gmmParams.BaseWidth64, TileSize[TileIndex][0]);
+            //Since Tile alignment factor is greater than GMM_IMCx_PLANE_ROW_ALIGNMENT=16
+            Height = GMM_ULT_ALIGN(gmmParams.BaseHeight, PlaneRowAlignment);
+            Height = GMM_ULT_ALIGN(Height, TileSize[TileIndex][1]) * 3 /*Y, U, V*/;
+        }
+        else
+        {
+            Pitch  = GMM_ULT_ALIGN(gmmParams.BaseWidth64, GMM_BYTES(64));
+            Height = gmmParams.BaseHeight * 3 /*Y, U, V*/;
+        }
+        uint32_t Size = GMM_ULT_ALIGN(Pitch * Height, GMM_KBYTE(4));
+
+        VerifyResourcePitch<true>(ResourceInfo, Pitch);
+        if(Tile != TEST_LINEAR)
+        {
+            VerifyResourcePitchInTiles<true>(ResourceInfo, Pitch / TileSize[TileIndex][0]);
+        }
+
+        VerifyResourceSize<true>(ResourceInfo, Size);
+        VerifyResourceHAlign<false>(ResourceInfo, 0); // Same as any other 2D surface -- tested elsewhere
+        VerifyResourceVAlign<false>(ResourceInfo, 0); // Same as any other 2D surface -- tested elsewhere
+        VerifyResourceQPitch<false>(ResourceInfo, 0); // N/A for planar
+
+        // Y plane should be at 0,0
+        EXPECT_EQ(0, ResourceInfo->GetPlanarXOffset(GMM_PLANE_Y));
+        EXPECT_EQ(0, ResourceInfo->GetPlanarYOffset(GMM_PLANE_Y));
+
+        // U plane should be at end of Y plane
+        EXPECT_EQ(0, ResourceInfo->GetPlanarXOffset(GMM_PLANE_U));
+        EXPECT_EQ(Height / 3, ResourceInfo->GetPlanarYOffset(GMM_PLANE_U));
+
+        // V plane should be at end of U plane
+        EXPECT_EQ(0, ResourceInfo->GetPlanarXOffset(GMM_PLANE_V));
+        EXPECT_EQ(2 * (Height / 3), ResourceInfo->GetPlanarYOffset(GMM_PLANE_V));
+
+        //Resource Offset
+        //Y PLANE
+        GMM_REQ_OFFSET_INFO OffsetInfo = {};
+        OffsetInfo.ReqRender           = 1;
+        OffsetInfo.MipLevel            = 0; //Mip 0
+        OffsetInfo.Plane               = GMM_PLANE_Y;
+        ResourceInfo->GetOffset(OffsetInfo);
+        EXPECT_EQ(0, OffsetInfo.Render.Offset64);
+
+        //U PLANE
+        OffsetInfo.ReqRender = 1;
+        OffsetInfo.MipLevel  = 0; //Mip 0
+        OffsetInfo.Plane     = GMM_PLANE_U;
+        ResourceInfo->GetOffset(OffsetInfo);
+        EXPECT_EQ(Pitch * (Height / 3), OffsetInfo.Render.Offset64);
+
+        // V PLANE
+        OffsetInfo.ReqRender = 1;
+        OffsetInfo.MipLevel  = 0; //Mip 0
+        OffsetInfo.Plane     = GMM_PLANE_V;
+        ResourceInfo->GetOffset(OffsetInfo);
+        EXPECT_EQ(2 * Pitch * (Height / 3), OffsetInfo.Render.Offset64);
 
         pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
