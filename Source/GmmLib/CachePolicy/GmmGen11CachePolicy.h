@@ -277,4 +277,6 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_SELF_SNOOP_BUFFER                   
 DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE                             , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0);
 /**********************************************************************************/
 
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CAMERA_CAPTURE                                        , CAM$, 0    , 0  , 0  , CAM$ , 0,     0,       0,      0,    0,   0);
+
 #include "GmmCachePolicyUndefineConditionals.h"

@@ -195,4 +195,6 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_IMAGE_FROM_BUFFER                   
 DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE                     , 0   , 0    , 0  , 0  , 0);
 /**********************************************************************************/
 
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CAMERA_CAPTURE                                , CAM$ , 0    , 0  , 0  , CAM$ );
+
 #include "GmmCachePolicyUndefineConditionals.h"

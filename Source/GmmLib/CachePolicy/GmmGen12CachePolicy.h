@@ -296,5 +296,7 @@ DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_BLT_SOURCE                             
 DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_BLT_DESTINATION                                      , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0,    0,    NA );
 /**********************************************************************************/
 
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CAMERA_CAPTURE                                        , CAM$, 0    , 0  , 0  , CAM$ , 0,     0,       0,      0,    0,   0,    0,    NA );
+
 #include "GmmCachePolicyUndefineConditionals.h"
 

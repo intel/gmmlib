@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define _L3           (pGmmGlobalContext->GetGtSysInfo()->L3CacheSizeInKb)
 #define _LLC          (pGmmGlobalContext->GetGtSysInfo()->LLCCacheSizeInKb)
 #define _ELLC         (pGmmGlobalContext->GetGtSysInfo()->EdramSizeInKb)
+#define CAM$          (SKU(FtrCameraCaptureCaching))
 
 // Units are already in KB in the system information, so these helper macros need to account for that
 #define KB(N)         (N)
