@@ -100,7 +100,7 @@ static inline int _BitScanForward(uint32_t *index, uint32_t mask)
 
 #define ASSIGN_POOLNODE(Pool, NodeIdx, PerTableNodes)    {       \
     (Pool)->GetNodeUsageAtIndex((NodeIdx) / (32 *(PerTableNodes))) |= __BIT(((NodeIdx) / (PerTableNodes)) % 32);  \
-    (Pool)->GetNodeBBInfoAtIndex((NodeIdx)/ (PerTableNodes)) = SyncInfo();                              \
+    (Pool)->GetNodeBBInfoAtIndex(NodeIdx) = SyncInfo();                              \
     (Pool)->GetNumFreeNode() -= (PerTableNodes);                      \
                                           }
 
@@ -225,7 +225,13 @@ namespace GmmLib
         int& GetNumFreeNode() { return NumFreeNodes; }
         SyncInfo& GetPoolBBInfo() { return PoolBBInfo; }
         uint32_t& GetNodeUsageAtIndex(int j) { return NodeUsage[j]; }
-        SyncInfo& GetNodeBBInfoAtIndex(int j) { return NodeBBInfo[j]; }
+        SyncInfo& GetNodeBBInfoAtIndex(int j)
+        {
+            int BBInfoNodeIdx = (PoolType == POOL_TYPE_AUXTTL1) ? j / AUX_L1TABLE_SIZE_IN_POOLNODES
+                : (PoolType == POOL_TYPE_AUXTTL2) ? j / AUX_L2TABLE_SIZE_IN_POOLNODES
+                : j;
+            return NodeBBInfo[BBInfoNodeIdx];
+        }
         GMM_GFX_ADDRESS GetGfxAddress() { return PoolGfxAddress; }
         GMM_GFX_ADDRESS GetCPUAddress() { return CPUAddress; }
         GMM_RESOURCE_INFO* &GetGmmResInfo() { return pGmmResInfo; }
