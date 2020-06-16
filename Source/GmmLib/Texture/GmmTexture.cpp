@@ -292,6 +292,7 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
         case GMM_FORMAT_P012:
         case GMM_FORMAT_P016:
         case GMM_FORMAT_P208:
+        case GMM_FORMAT_P216:
         {
             // YYYYYYYY
             // YYYYYYYY

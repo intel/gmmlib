@@ -682,6 +682,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
         case GMM_FORMAT_P012:
         case GMM_FORMAT_P016:
         case GMM_FORMAT_P208:
+        case GMM_FORMAT_P216:
         {
             // YYYYYYYY
             // YYYYYYYY
@@ -709,7 +710,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
                (pTexInfo->Format == GMM_FORMAT_P010) ||
                (pTexInfo->Format == GMM_FORMAT_P012) ||
                (pTexInfo->Format == GMM_FORMAT_P016) ||
-               (pTexInfo->Format == GMM_FORMAT_P208))
+               (pTexInfo->Format == GMM_FORMAT_P208) ||
+               (pTexInfo->Format == GMM_FORMAT_P216))
             {
                 WidthBytesPhysical = GFX_ALIGN(WidthBytesPhysical, 2); // If odd YWidth, pitch bumps-up to fit rounded-up U/V planes.
             }

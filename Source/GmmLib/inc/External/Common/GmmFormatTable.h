@@ -465,6 +465,7 @@ GMM_FORMAT( MEDIA_Y16_SNORM              ,  16,  1,  1, 1, x, x,   NA , FC(2,  x
 GMM_FORMAT( MEDIA_Y16_UNORM              ,  16,  1,  1, 1, x, x,   NA , FC(2,  x,    P010,   ,   ),     GEN(8)      )
 GMM_FORMAT( MEDIA_Y32_UNORM              ,   1,  1,  1, 1, x, x,   NA , NC                        ,     GEN(8)      ) // Y32 is BDW name for SKL Y1, and is 1bpp with 32b granularity
 GMM_FORMAT( B16G16R16A16_UNORM           ,  64,  1,  1, 1, R, x,   NA , FC(3, 16,    RGBA, 16,  U),     ALWAYS      ) // Swapped ARGB16 for media-SFC output
+GMM_FORMAT( P216                         ,  16,  1,  1, 1, R, x,   NA , NC                        ,     ALWAYS      )
 #if _WIN32
 GMM_FORMAT( WGBOX_YUV444                 ,  32,  1,  1, 1, x, x,   NA , NC                        ,     GEN(9)      ) // For testing purposes only.
 GMM_FORMAT( WGBOX_PLANAR_YUV444          ,  32,  1,  1, 1, x, x,   NA , NC                        ,     GEN(9)      ) // For testing purposes only.
