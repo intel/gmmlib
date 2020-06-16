@@ -59,6 +59,8 @@ typedef enum GMM_RESOURCE_MMC_INFO_REC
     GMM_MMC_DISABLED = 0,
     GMM_MMC_HORIZONTAL,
     GMM_MMC_VERTICAL,
+    GMM_MMC_MC,
+    GMM_MMC_RC
 }GMM_RESOURCE_MMC_INFO;
 
 //===========================================================================
