@@ -139,7 +139,6 @@ GmmLib::GMM_PAGETABLEPool *GmmLib::GmmPageTableMgr::__AllocateNodePool(uint32_t 
 
     pTTPool = new GMM_PAGETABLEPool(PoolHnd, pGmmResInfo, Alloc.GfxVA, Alloc.CPUVA, Type);
 
-    __GMM_ASSERTPTR(pTTPool, NULL);
 
     if(pTTPool)
     {
@@ -163,6 +162,7 @@ GmmLib::GMM_PAGETABLEPool *GmmLib::GmmPageTableMgr::__AllocateNodePool(uint32_t 
     }
     else
     {
+        __GMM_ASSERT(0);
         Status = GMM_OUT_OF_MEMORY;
     }
 
