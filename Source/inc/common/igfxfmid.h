@@ -1180,6 +1180,16 @@ typedef enum __NATIVEGTTYPE
 #define ITGL_LP_1x2x16_DESK_WS_65W_DEVICE_F0_ID 0x9A78      // Desktop WS- S81 - 35W/65W/95W
 #define ITGL_LP_GT0_ULT_DEVICE_F0_ID            0x9A7F      // GT0 - No GFX, Display Only
 
+#define DEV_ID_FF20                             0xFF20
+#define DEV_ID_9A49                             0x9A49
+#define DEV_ID_9A40                             0x9A40
+#define DEV_ID_9A59                             0x9A59
+#define DEV_ID_9A60                             0x9A60
+#define DEV_ID_9A68                             0x9A68
+#define DEV_ID_9A70                             0x9A70
+#define DEV_ID_9A78                             0x9A78
+#define DEV_ID_9A7F                             0x9A7F
+
 #define DEV_ID_4905                             0x4905
 
 //LKF
