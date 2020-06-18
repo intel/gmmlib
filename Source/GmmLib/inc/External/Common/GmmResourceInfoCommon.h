@@ -633,7 +633,7 @@ namespace GmmLib
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL SetMmcMode(GMM_RESOURCE_MMC_INFO Mode, uint32_t ArrayIndex)
             {
-                __GMM_ASSERT((Mode == GMM_MMC_DISABLED) || (Mode == GMM_MMC_HORIZONTAL) || (Mode == GMM_MMC_VERTICAL) || (Mode == GMM_MMC_MC) || (Mode == GMM_MMC_RC));
+                __GMM_ASSERT((Mode == GMM_MMC_DISABLED) || (Mode == GMM_MMC_HORIZONTAL) || (Mode == GMM_MMC_VERTICAL));
                 __GMM_ASSERT(ArrayIndex < GMM_MAX_MMC_INDEX);
 
                 if (ArrayIndex < GMM_MAX_MMC_INDEX)
