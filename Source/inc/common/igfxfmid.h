@@ -1207,10 +1207,21 @@ typedef enum __NATIVEGTTYPE
 #define IEHL_1x4x4_DEVICE_A0_ID                 0x4551
 #define IEHL_1x4x8_DEVICE_A0_ID                 0x4571
 
+#define DEV_ID_4500                             0x4500
+#define DEV_ID_4541                             0x4541
+#define DEV_ID_4551                             0x4551
+#define DEV_ID_4571                             0x4571
+#define DEV_ID_4555                             0x4555
+
 //JSL+ Rev02
 #define IJSL_1x4x4_DEVICE_B0_ID                 0x4E51
 #define IJSL_1x4x6_DEVICE_B0_ID                 0x4E61
 #define IJSL_1x4x8_DEVICE_B0_ID                 0x4E71
+
+#define DEV_ID_4E51                             0x4E51
+#define DEV_ID_4E61                             0x4E61
+#define DEV_ID_4E71                             0x4E71
+#define DEV_ID_4E55                             0x4E55
 
 //ICL PCH LP Device IDs
 #define ICP_LP_RESERVED_FUSE_ID                 0x3480
