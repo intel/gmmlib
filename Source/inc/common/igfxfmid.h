@@ -1193,6 +1193,8 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_9A7F                             0x9A7F
 
 #define DEV_ID_4905                             0x4905
+#define DEV_ID_4906                             0x4906
+#define DEV_ID_4907                             0x4907
 
 // Rocketlake
 #define DEV_ID_4C80                             0x4C80
