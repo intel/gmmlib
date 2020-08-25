@@ -115,6 +115,11 @@ GmmLib::PlatformInfoGen12::PlatformInfoGen12(PLATFORM &Platform)
     Data.ReconMaxHeight = GMM_KBYTE(48);
     Data.ReconMaxWidth  = GMM_KBYTE(32);
 
+    if((GFX_GET_CURRENT_PRODUCT(Data.Platform) >= IGFX_DG1))
+    {
+        Data.HiZPixelsPerByte = 4;
+    }
+
     Data.TexAlign.Depth.Width                      = 8; // Not D16_UNORM
     Data.TexAlign.Depth.Height                     = 4;
     Data.TexAlign.Depth_D16_UNORM_1x_4x_16x.Width  = 8;
