@@ -55,6 +55,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::Is64KBPageSuitable()
     if(pGmmGlobalContext->GetSkuTable().FtrLocalMemory)
     {
         Ignore64KBPadding |= (Surf.Flags.Info.NonLocalOnly || (Surf.Flags.Info.Shared && !Surf.Flags.Info.NotLockable));
+        Ignore64KBPadding |= (pGmmGlobalContext->GetSkuTable().FtrLocalMemoryAllows4KB && Surf.Flags.Info.NoOptimizationPadding);
     }
     else
     {
