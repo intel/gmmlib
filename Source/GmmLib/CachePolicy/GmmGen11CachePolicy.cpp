@@ -321,7 +321,6 @@ void GmmLib::GmmGen11CachePolicy::SetUpMOCSTable()
     }
     // Explicit MOCS Table
     //              Index     ESC	  SCC	  L3CC    LeCC    TC      LRUM    DAoM	  ERSC	  SCC	  PFM	  SCF     CoS     SSE
-    GMM_DEFINE_MOCS( 0      , 0     , 0     , 1     , 1     , 1     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0 )
     GMM_DEFINE_MOCS( 1      , 0     , 0     , 3     , 0     , 1     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0 )
     GMM_DEFINE_MOCS( 2      , 0     , 0     , 3     , 3     , 1     , 3     , 0     , 0     , 0     , 0     , 0     , 0     , 0 )
     GMM_DEFINE_MOCS( 3      , 0     , 0     , 1     , 1     , 1     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0 )

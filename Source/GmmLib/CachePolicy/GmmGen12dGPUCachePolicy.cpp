@@ -299,7 +299,6 @@ void GmmLib::GmmGen12dGPUCachePolicy::SetUpMOCSTable()
         }
         // Fixed MOCS Table
         //              Index     ESC	  SCC	  L3CC    HDCL1
-        GMM_DEFINE_MOCS( 0      , 0     , 0     , 1     , 0 )
         GMM_DEFINE_MOCS( 1      , 0     , 0     , 1     , 0 )
         GMM_DEFINE_MOCS( 2      , 0     , 0     , 0     , 0 )
         GMM_DEFINE_MOCS( 3      , 0     , 0     , 0     , 0 )
