@@ -257,6 +257,11 @@ FCRECTALIGN(TILE_YS_2D_128bpe, 128,  32,  32,  16, 16);
     // clang-format on
     Data.NoOfBitsSupported                = 39;
     Data.HighestAcceptablePhysicalAddress = GFX_MASK_LARGE(0, 38);
+    if(GFX_GET_CURRENT_PRODUCT(Data.Platform) == IGFX_ALDERLAKE_S)
+    {
+        Data.NoOfBitsSupported                = 46;
+        Data.HighestAcceptablePhysicalAddress = GFX_MASK_LARGE(0, 45);
+    }
 }
 
 void GmmLib::PlatformInfoGen12::ApplyExtendedTexAlign(uint32_t CCSMode, ALIGNMENT &UnitAlign)

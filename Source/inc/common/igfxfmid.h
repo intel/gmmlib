@@ -68,6 +68,7 @@ typedef enum {
 
     IGFX_TIGERLAKE_LP,
     IGFX_ROCKETLAKE,
+    IGFX_ALDERLAKE_S,
 
     IGFX_DG1             = 1210,
 
@@ -97,6 +98,7 @@ typedef enum {
     PCH_CMP_H,          // CML Halo PCH
     PCH_CMP_V,          // CML V PCH
     PCH_JSP_N,          // JSL N PCH Device IDs for JSL+ Rev02
+    PCH_ADL_S,          // ADL_S PCH
     PCH_PRODUCT_FAMILY_FORCE_ULONG = 0x7fffffff
 } PCH_PRODUCT_FAMILY;
 
@@ -1234,6 +1236,18 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_4E61                             0x4E61
 #define DEV_ID_4E71                             0x4E71
 #define DEV_ID_4E55                             0x4E55
+
+//ADL-S PCH Device IDs
+#define DEV_ID_4680                             0x4680
+#define DEV_ID_4681                             0x4681
+#define DEV_ID_4682                             0x4682
+#define DEV_ID_4683                             0x4683
+#define DEV_ID_4690                             0x4690
+#define DEV_ID_4691                             0x4691
+#define DEV_ID_4692                             0x4692
+#define DEV_ID_4693                             0x4693
+#define DEV_ID_4698                             0x4698
+#define DEV_ID_4699                             0x4699
 
 //ICL PCH LP Device IDs
 #define ICP_LP_RESERVED_FUSE_ID                 0x3480
