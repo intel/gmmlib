@@ -429,7 +429,7 @@ namespace GmmLib
         const int NodesPerTable;                   //Aux L2/L3 has 32KB size, Aux L1 has 4KB -can't use as selector for PageTable is AuxTT
                                                    // 1 node for TR-table, 8 nodes for Aux-Table L2, 2 nodes for Aux-table L1
         //Root Table structure
-        struct
+        struct RootTable
         {
             GMM_RESOURCE_INFO* pGmmResInfo;
             HANDLE         L3Handle;
@@ -437,6 +437,7 @@ namespace GmmLib
             GMM_GFX_ADDRESS  CPUAddress;              //LMEM-cpuvisible adr
             bool        NeedRegisterUpdate;        //True @ L3 allocation, False when L3AdrRegWrite done
             SyncInfo        BBInfo;
+            RootTable() : pGmmResInfo(NULL), L3Handle(NULL), GfxAddress(0), CPUAddress(0), NeedRegisterUpdate(false), BBInfo() {}
         } TTL3;
 
         MidLevelTable*   pTTL2;                      //array of L2-Tables
@@ -455,8 +456,6 @@ namespace GmmLib
             NodesPerTable(Size / PAGE_SIZE),
             TTType(flag)
         {
-            memset(&TTL3, 0, sizeof(TTL3));
-
             InitializeCriticalSection(&TTLock);
 
             pTTL2 = new MidLevelTable[NumL3e];
