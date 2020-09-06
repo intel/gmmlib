@@ -71,8 +71,8 @@ namespace GmmLib
     public:
         HANDLE BBQueueHandle;
         uint64_t BBFence;
-        SyncInfoLin() {}
-        SyncInfoLin(HANDLE Handle, uint64_t Fence) {}
+        SyncInfoLin() : BBQueueHandle(NULL), BBFence(0) {}
+        SyncInfoLin(HANDLE Handle, uint64_t Fence) : BBQueueHandle(Handle), BBFence(Fence) {}
     };
     typedef class SyncInfoLin  SyncInfo;
 
