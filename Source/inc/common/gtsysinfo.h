@@ -151,9 +151,23 @@ typedef struct GT_CCS_INFO
 
 typedef struct GT_SQIDI_INFO
 {
-	uint32_t        NumberofSQIDI;                        // Total no. of enabled SQIDIs
-	uint32_t        NumberofDoorbellPerSQIDI;             // Total no. of doorbells available per SQIDI unit
+        uint32_t        NumberofSQIDI;                        // Total no. of enabled SQIDIs.
+        uint32_t        NumberofDoorbellPerSQIDI;             // Total no. of doorbells available per SQIDI unit
 }GT_SQIDI_INFO;
+
+typedef union _GT_CACHE_TYPES
+{
+    struct
+    {
+        uint32_t  L3        : 1;
+        uint32_t  LLC       : 1;
+        uint32_t  eDRAM     : 1;
+        uint32_t  Reserved : 29;
+    };
+
+    uint32_t CacheTypeMask;
+
+} GT_CACHE_TYPES;
 
 typedef struct GT_SYSTEM_INFO
 {
@@ -214,13 +228,17 @@ typedef struct GT_SYSTEM_INFO
     GT_SLICE_INFO   SliceInfo[GT_MAX_SLICE];
     bool            IsDynamicallyPopulated;
 
-	//SqidiInfo provides the detailed information for number of SQIDIs supported in GT.
-	//It also provides total no. of doorbells available per SQIDI unit.
+        //SqidiInfo provides the detailed information for number of SQIDIs supported in GT.
+        //It also provides total no. of doorbells available per SQIDI unit.
     GT_SQIDI_INFO   SqidiInfo;
 
     uint32_t        ReservedCCSWays;                // Reserved CCS ways provides value of reserved L3 ways for CCS when CCS is enabled.
-	                                            // This is a hardcoded value as suggested by HW. No MMIO read is needed for same.
+                                                    // This is a hardcoded value as suggested by HW. No MMIO read is needed for same.
     GT_CCS_INFO     CCSInfo;                        // CCSInfo provides details(enabled/disabled) of all CCS instances.
+
+    uint32_t        NumThreadsPerEu;                // Number of threads per EU. 
+    GT_CACHE_TYPES  CacheTypes;                     // Types of caches available on system (L3/LLC/eDRAM).                     
+    uint32_t        MaxVECS;                        // Max VECS instances.
 } GT_SYSTEM_INFO, *PGT_SYSTEM_INFO;
 
 #pragma pack(pop)
