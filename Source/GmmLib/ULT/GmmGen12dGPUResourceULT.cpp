@@ -2329,7 +2329,7 @@ TEST_F(CTestGen12dGPUResource, DISABLED_TestDepthCompressedResource)
             VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
             VerifyResourcePitchInTiles<true>(ResourceInfo, 4); // 2 tile wide
 
-            uint32_t TwoDQPitch, ExpectedQPitch;
+            uint32_t TwoDQPitch, ExpectedQPitch = 0u;
             if(gmmParams.Type == RESOURCE_3D)
             {
                 TwoDQPitch     = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
