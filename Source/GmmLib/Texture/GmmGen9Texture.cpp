@@ -580,8 +580,17 @@ void GmmLib::GmmGen9TextureCalc::Fill2DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
         }
 
         // Calculate the overall Block height...Mip0Height + Max(Mip1Height, Sum of Mip2Height..MipnHeight)
-        ArrayQPitch                = Get2DMipMapTotalHeight(pTexInfo);
-        ArrayQPitch                = GFX_ALIGN_NP2(ArrayQPitch, Alignment);
+        ArrayQPitch = Get2DMipMapTotalHeight(pTexInfo);
+        ArrayQPitch = GFX_ALIGN_NP2(ArrayQPitch, Alignment);
+	    
+	// Color Surf with MSAA Enabled Mutiply 4
+        if((pTexInfo->Flags.Info.TiledYs) && (!pGmmGlobalContext->GetSkuTable().FtrTileY) &&
+           ((pTexInfo->MSAA.NumSamples == 8) && (pTexInfo->MSAA.NumSamples == 16)) &&
+           ((pTexInfo->Flags.Gpu.Depth == 0) && (pTexInfo->Flags.Gpu.SeparateStencil == 0)))
+        {
+            ArrayQPitch *= 4; /* Aligned height of 4 samples */
+        }
+	    
         pTexInfo->Alignment.QPitch = ArrayQPitch;
 
         if(GmmIsCompressed(pTexInfo->Format))
