@@ -253,6 +253,12 @@ namespace GmmLib
                                   GMM_TEXTURE_INFO* pTexInfo,
                                   __GMM_BUFFER_TYPE& pBuff);
 
+	    bool RedescribeTexturePlanes(GMM_TEXTURE_INFO *pTexInfo,
+			           uint32_t *pWidthBytesPhysical);
+
+            bool GetRedescribedPlaneParams(GMM_TEXTURE_INFO *pTexInfo, 
+			           GMM_YUV_PLANE PlaneType, GMM_TEXTURE_INFO *pRedescribedTexInfo);
+
             // Virtual functions
             virtual GMM_STATUS GMM_STDCALL  FillTex1D(
                                                 GMM_TEXTURE_INFO  *pTexInfo,

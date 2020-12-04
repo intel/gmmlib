@@ -923,6 +923,14 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
 
         Height = YHeight + VHeight;
     }
+    
+    if(pTexInfo->Flags.Info.RedecribedPlanes)
+    {
+        if(false == RedescribeTexturePlanes(pTexInfo, &WidthBytesPhysical))
+        {
+            __GMM_ASSERT(FALSE);
+        }
+    }
 
     if((Status = // <-- Note assignment.
         FillTexPitchAndSize(
