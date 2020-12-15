@@ -64,7 +64,7 @@ namespace GmmLib
             GMM_TEXTURE_INFO                    Surf;                       ///< Contains info about the surface being created
             GMM_TEXTURE_INFO                    AuxSurf;                    ///< Contains info about the auxiliary surface if using Unified Auxiliary surfaces.
             GMM_TEXTURE_INFO                    AuxSecSurf;                 ///< For multi-Aux surfaces, contains info about the secondary auxiliary surface
-            //GMM_TEXTURE_INFO                    PlaneSurf[GMM_MAX_PLANE];   ///< Contains info for each plane for tiled Ys/Yf planar resources
+            GMM_TEXTURE_INFO                    PlaneSurf[GMM_MAX_PLANE];   ///< Contains info for each plane for tiled Ys/Yf planar resources
 
             uint32_t                            RotateInfo;
             GMM_EXISTING_SYS_MEM                ExistingSysMem;     ///< Info about resources initialized with existing system memory
@@ -86,8 +86,8 @@ namespace GmmLib
             GMM_VIRTUAL bool                IsPresentableformat();
             // Move GMM Restrictions to it's own class?
             virtual bool        CopyClientParams(GMM_RESCREATE_PARAMS &CreateParams);
-            //GMM_VIRTUAL bool                RedescribePlanes();
-            //GMM_VIRTUAL bool                ReAdjustPlaneProperties(bool IsAuxSurf);
+            GMM_VIRTUAL bool                RedescribePlanes();
+            GMM_VIRTUAL bool                ReAdjustPlaneProperties(bool IsAuxSurf);
             GMM_VIRTUAL const GMM_PLATFORM_INFO& GetPlatformInfo();
 
             /////////////////////////////////////////////////////////////////////////////////////
@@ -119,7 +119,7 @@ namespace GmmLib
                 Surf(),
                 AuxSurf(),
                 AuxSecSurf(),
-                //PlaneSurf{},
+                PlaneSurf{},
                 RotateInfo(),
                 ExistingSysMem(),
                 SvmAddress(),
@@ -143,7 +143,7 @@ namespace GmmLib
                 Surf(),
                 AuxSurf(),
                 AuxSecSurf(),
-                //PlaneSurf{},
+                PlaneSurf{},
                 RotateInfo(),
                 ExistingSysMem(),
                 SvmAddress(),

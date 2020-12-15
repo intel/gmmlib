@@ -1354,14 +1354,6 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmTextureCalc::FillTexPlanar(GMM_TEXTURE_INFO * 
             pTexInfo->Flags.Gpu.MMC = 0;
         }
     }
-    
-    if(pTexInfo->Flags.Info.RedecribedPlanes)
-    {
-        if(false == RedescribeTexturePlanes(pTexInfo, &WidthBytesPhysical))
-        {
-            __GMM_ASSERT(FALSE);
-        }
-    }
 
     if((Status = // <-- Note assignment.
         FillTexPitchAndSize(
