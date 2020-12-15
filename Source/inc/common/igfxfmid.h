@@ -1490,6 +1490,40 @@ typedef enum __NATIVEGTTYPE
 #define PCH_CMP_V_DEV_P95_ID                   0xA3DE
 #define PCH_CMP_V_DEV_P96_ID                   0xA3DF
 
+// ADL_S PCH Device ID range
+#define DEV_ID_7A80                            0x7A80
+#define DEV_ID_7A81                            0x7A81
+#define DEV_ID_7A82                            0x7A82
+#define DEV_ID_7A83                            0x7A83
+#define DEV_ID_7A84                            0x7A84
+#define DEV_ID_7A85                            0x7A85
+#define DEV_ID_7A86                            0x7A86
+#define DEV_ID_7A87                            0x7A87
+#define DEV_ID_7A88                            0x7A88
+#define DEV_ID_7A89                            0x7A89
+#define DEV_ID_7A8A                            0x7A8A
+#define DEV_ID_7A8B                            0x7A8B
+#define DEV_ID_7A8C                            0x7A8C
+#define DEV_ID_7A8D                            0x7A8D
+#define DEV_ID_7A8E                            0x7A8E
+#define DEV_ID_7A8F                            0x7A8F
+#define DEV_ID_7A90                            0x7A90
+#define DEV_ID_7A91                            0x7A91
+#define DEV_ID_7A92                            0x7A92
+#define DEV_ID_7A93                            0x7A93
+#define DEV_ID_7A94                            0x7A94
+#define DEV_ID_7A95                            0x7A95
+#define DEV_ID_7A96                            0x7A96
+#define DEV_ID_7A97                            0x7A97
+#define DEV_ID_7A98                            0x7A98
+#define DEV_ID_7A99                            0x7A99
+#define DEV_ID_7A9A                            0x7A9A
+#define DEV_ID_7A9B                            0x7A9B
+#define DEV_ID_7A9C                            0x7A9C
+#define DEV_ID_7A9D                            0x7A9D
+#define DEV_ID_7A9E                            0x7A9E
+#define DEV_ID_7A9F                            0x7A9F
+
 #define MGM_HAS     0
 
 //#define SDG_HAS      1              //Reserve place for Springdale-G HAS
