@@ -181,7 +181,12 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::CreateCustomRes(Context &G
             Surf.OffsetInfo.Plane.Y[i] = CreateParams.PlaneOffset.Y[i];
         }
         Surf.OffsetInfo.Plane.NoOfPlanes  = CreateParams.NoOfPlanes;
-        Surf.OffsetInfo.Plane.ArrayQPitch = Surf.Pitch * Surf.BaseHeight;
+
+        if (Surf.ArraySize > 1)
+        {
+            //Surf.OffsetInfo.Plane.ArrayQPitch = Surf.Size;  //Not required as this new interface doesn't support arrayed surfaces.
+        }
+
         UpdateUnAlignedParams();
     }
 
@@ -202,8 +207,13 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::CreateCustomRes(Context &G
         case RESOURCE_WGBOX_ENCODE_REFERENCE:
 #endif
         {
-            Surf.OffsetInfo.Texture2DOffsetInfo.ArrayQPitchRender =
-            Surf.OffsetInfo.Texture2DOffsetInfo.ArrayQPitchLock = Surf.Pitch * Surf.BaseHeight;
+
+        if (Surf.ArraySize > 1)
+        {
+           // Surf.OffsetInfo.Texture2DOffsetInfo.ArrayQPitchRender =
+           // Surf.OffsetInfo.Texture2DOffsetInfo.ArrayQPitchLock = Surf.Pitch * Surf.BaseHeight;  //Not required as this new interface doesn't support arrayed surfaces.
+        }
+
             for(i = 0; i <= Surf.MaxLod; i++)
             {
                 Surf.OffsetInfo.Texture2DOffsetInfo.Offset[i] = 0;
