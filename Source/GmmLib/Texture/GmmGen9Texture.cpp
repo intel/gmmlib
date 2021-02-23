@@ -585,7 +585,7 @@ void GmmLib::GmmGen9TextureCalc::Fill2DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
 	    
 	// Color Surf with MSAA Enabled Mutiply 4
         if((pTexInfo->Flags.Info.TiledYs) && (!pGmmGlobalContext->GetSkuTable().FtrTileY) &&
-           ((pTexInfo->MSAA.NumSamples == 8) && (pTexInfo->MSAA.NumSamples == 16)) &&
+           ((pTexInfo->MSAA.NumSamples == 8) || (pTexInfo->MSAA.NumSamples == 16)) &&
            ((pTexInfo->Flags.Gpu.Depth == 0) && (pTexInfo->Flags.Gpu.SeparateStencil == 0)))
         {
             ArrayQPitch *= 4; /* Aligned height of 4 samples */
