@@ -69,6 +69,7 @@ typedef enum {
     IGFX_TIGERLAKE_LP,
     IGFX_ROCKETLAKE,
     IGFX_ALDERLAKE_S,
+    IGFX_ALDERLAKE_P,
 
     IGFX_DG1             = 1210,
 
@@ -99,6 +100,7 @@ typedef enum {
     PCH_CMP_V,          // CML V PCH
     PCH_JSP_N,          // JSL N PCH Device IDs for JSL+ Rev02
     PCH_ADL_S,          // ADL_S PCH
+    PCH_ADL_P,          // ADL_P PCH
     PCH_PRODUCT_FAMILY_FORCE_ULONG = 0x7fffffff
 } PCH_PRODUCT_FAMILY;
 
@@ -1249,6 +1251,20 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_4698                             0x4698
 #define DEV_ID_4699                             0x4699
 
+// ADL-P
+#define DEV_ID_46A0                             0x46A0
+#define DEV_ID_46A1                             0x46A1
+#define DEV_ID_46A2                             0x46A2
+#define DEV_ID_46A3                             0x46A3
+#define DEV_ID_46B0                             0x46B0
+#define DEV_ID_46B1                             0x46B1
+#define DEV_ID_46B2                             0x46B2
+#define DEV_ID_46B3                             0x46B3
+#define DEV_ID_46C0                             0x46C0
+#define DEV_ID_46C1                             0x46C1
+#define DEV_ID_46C2                             0x46C2
+#define DEV_ID_46C3                             0x46C3
+
 //ICL PCH LP Device IDs
 #define ICP_LP_RESERVED_FUSE_ID                 0x3480
 #define ICP_LP_U_SUPER_SKU_ID                   0x3481
@@ -1524,9 +1540,42 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_7A9E                            0x7A9E
 #define DEV_ID_7A9F                            0x7A9F
 
+// ADL_P PCH Device ID range
+#define PCH_DEV_ID_5180         0x5180
+#define PCH_DEV_ID_5181         0x5181
+#define PCH_DEV_ID_5182         0x5182
+#define PCH_DEV_ID_5183         0x5183
+#define PCH_DEV_ID_5184         0x5184
+#define PCH_DEV_ID_5185         0x5185
+#define PCH_DEV_ID_5186         0x5186
+#define PCH_DEV_ID_5187         0x5187
+#define PCH_DEV_ID_5188         0x5188
+#define PCH_DEV_ID_5189         0x5189
+#define PCH_DEV_ID_518A         0x518A
+#define PCH_DEV_ID_518B         0x518B
+#define PCH_DEV_ID_518C         0x518C
+#define PCH_DEV_ID_518D         0x518D
+#define PCH_DEV_ID_518E         0x518E
+#define PCH_DEV_ID_518F         0x518F
+#define PCH_DEV_ID_5190         0x5190
+#define PCH_DEV_ID_5191         0x5191
+#define PCH_DEV_ID_5192         0x5192
+#define PCH_DEV_ID_5193         0x5193
+#define PCH_DEV_ID_5194         0x5194
+#define PCH_DEV_ID_5195         0x5195
+#define PCH_DEV_ID_5196         0x5196
+#define PCH_DEV_ID_5197         0x5197
+#define PCH_DEV_ID_5198         0x5198
+#define PCH_DEV_ID_5199         0x5199
+#define PCH_DEV_ID_519A         0x519A
+#define PCH_DEV_ID_519B         0x519B
+#define PCH_DEV_ID_519C         0x519C
+#define PCH_DEV_ID_519D         0x519D
+#define PCH_DEV_ID_519E         0x519E
+#define PCH_DEV_ID_519F         0x519F
+
 #define MGM_HAS     0
 
 //#define SDG_HAS      1              //Reserve place for Springdale-G HAS
 //#define SDG_SUPPORT    1              //Springdale G build switch
 #endif
-
