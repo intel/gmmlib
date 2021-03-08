@@ -52,3 +52,4 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define GMM_MEDIA_COMPRESSION_STATE_SIZE               (64)
 #define GMM_CLEAR_COLOR_FLOAT_SIZE                     (16)
 #define GMM_MAX_LCU_SIZE                                64  // Media Largest coding Unit
+#define GMM_MAX_UV_PLANE_Y_OFFSET                       GMM_KBYTE(16)  // RENDER_SURFACE_STATE structure only have 0:13 bit to write Y Offset for U or UV Plan(max value is <16384)

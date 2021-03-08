@@ -344,6 +344,17 @@ bool GmmLib::GmmTextureCalc::ValidateTexInfo(GMM_TEXTURE_INFO * pTexInfo,
         return false;
     }
 
+    if(GmmIsPlanar(pTexInfo->Format))
+    {
+        if((!GmmIsReconstructableSurface(pTexInfo->Format)) && (pTexInfo->OffsetInfo.Plane.Y[GMM_PLANE_U] >= GMM_MAX_UV_PLANE_Y_OFFSET))
+        {
+            GMM_ASSERTDPF(0,
+                          "GmmLib::GmmTextureCalc::ValidateTexInfo:Y offset of U plane"
+                          "exceeds max HW U plane Y offset restriction.\r\n");
+            return false;
+        }
+    }
+
     GMM_DPF_EXIT;
     return true;
 }
