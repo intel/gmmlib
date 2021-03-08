@@ -2291,7 +2291,7 @@ TEST_F(CTestGen12dGPUResource, DISABLED_TestDepthCompressedResource)
             VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
             VerifyResourcePitchInTiles<true>(ResourceInfo, 4); // 2 tileY wide
 
-            uint32_t ExpectedQPitch;
+            uint32_t ExpectedQPitch = 0;
             if(gmmParams.ArraySize > 1 || gmmParams.Type == RESOURCE_CUBE)
             {
                 ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
@@ -2329,7 +2329,7 @@ TEST_F(CTestGen12dGPUResource, DISABLED_TestDepthCompressedResource)
             VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
             VerifyResourcePitchInTiles<true>(ResourceInfo, 4); // 2 tile wide
 
-            uint32_t TwoDQPitch, ExpectedQPitch;
+            uint32_t TwoDQPitch, ExpectedQPitch = 0;
             if(gmmParams.Type == RESOURCE_3D)
             {
                 TwoDQPitch     = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);

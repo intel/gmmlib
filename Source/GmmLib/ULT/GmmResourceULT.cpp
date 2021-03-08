@@ -2448,7 +2448,7 @@ TEST_F(CTestResource, TestSeparateStencil)
         VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
         VerifyResourcePitchInTiles<true>(ResourceInfo, 2); // 2 tiles wide
 
-        uint32_t ExpectedQPitch;
+        uint32_t ExpectedQPitch = 0;
         if(gmmParams.ArraySize > 1 || gmmParams.Type == RESOURCE_CUBE)
         {
             ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign); //Interleaved rows for TileW-arrangement - but Qpitch calculated w/o interleaving in mind. No Qpitch for 3d, only for 2d-array and cube on Gen8
@@ -2504,7 +2504,7 @@ TEST_F(CTestResource, TestSeparateStencil)
         VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
         VerifyResourcePitchInTiles<true>(ResourceInfo, 2); // 2 tile wide
 
-        uint32_t TwoDQPitch, ExpectedQPitch;
+        uint32_t TwoDQPitch, ExpectedQPitch = 0;
         {
             TwoDQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign); //Interleaved rows for TileW-arrangement - but Qpitch calculated w/o interleaving in mind. No Qpitch for 3d, only for 2d-array and cube on Gen8
             //GMM_ULT_ALIGN(GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign)/2, VAlign); //Doesn't HW expect distance in rows between 2 cube-faces (array slices) : It does so, but in logical view not physical view, so not interleaved rows.
