@@ -230,4 +230,8 @@ DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE               
 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CAMERA_CAPTURE                                        , CAM$, 0    , 0  , 0  , CAM$ ,  0,       0,      0,   0,    0);
 
+// Uncacheable copies
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COPY_SOURCE                                          , 0   , 0    , 0  , 0  , 0 ,     0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COPY_DEST                                            , 0   , 0    , 0  , 0  , 0 ,     0,       0,      0,   0,    0);
+
 #include "GmmCachePolicyUndefineConditionals.h"

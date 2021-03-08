@@ -244,6 +244,9 @@ DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE               
 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CAMERA_CAPTURE                                        , CAM$, 0    , 0  , CAM$ , WB );
 
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COPY_SOURCE                                           , 0   , 0    , 0  , 0  , UC);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COPY_DEST                                             , 0   , 0    , 0  , 0  , UC);
+
 #undef UC
 #undef WB
 #include "GmmCachePolicyUndefineConditionals.h"
