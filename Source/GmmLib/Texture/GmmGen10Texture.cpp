@@ -355,6 +355,11 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTex2D(GMM_TEXTURE_INFO *
            (pTexInfo->Flags.Gpu.S3dDx && pGmmGlobalContext->GetSkuTable().FtrDisplayEngineS3d))
         {
             Alignment = pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileHeight;
+	    //Gmm uses TileY for Stencil allocations, having half TileW height (TileY width compensates)
+            if(pTexInfo->Flags.Gpu.SeparateStencil && pTexInfo->Flags.Info.TiledW)
+            {
+                Alignment *= 2;
+            }
         }
 
         // Calculate the overall Block height...Mip0Height + Max(Mip1Height, Sum of Mip2Height..MipnHeight)

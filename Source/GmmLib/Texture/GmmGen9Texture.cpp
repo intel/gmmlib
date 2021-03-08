@@ -483,8 +483,10 @@ GMM_GFX_SIZE_T GmmLib::GmmGen9TextureCalc::Get2DTexOffsetAddressPerMip(GMM_TEXTU
         }
         else if(pTexInfo->Flags.Gpu.SeparateStencil && pTexInfo->Flags.Info.TiledW)
         {
-            MipWidth *= 2;
-        }
+	    //Expt: Stencil Row interleaving, where Rowheight = VALign=8
+            //XOffset on interleaved row not different than w/o interleave.
+            //MipWidth *= 2;	
+	}
         else if(pTexInfo->Flags.Gpu.CCS && pTexInfo->Flags.Gpu.__NonMsaaTileYCcs)
         {
             BitsPerPixel = 8; // Aux Surfaces are 8bpp
@@ -577,7 +579,12 @@ void GmmLib::GmmGen9TextureCalc::Fill2DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
            (pTexInfo->Flags.Gpu.S3dDx && pGmmGlobalContext->GetSkuTable().FtrDisplayEngineS3d))
         {
             Alignment = pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileHeight;
-        }
+	    //Gmm uses TileY for Stencil allocations, having half TileW height (TileY width compensates)
+            if(pTexInfo->Flags.Gpu.SeparateStencil && pTexInfo->Flags.Info.TiledW)
+            {
+                Alignment *= 2;
+            }
+	}
 
         // Calculate the overall Block height...Mip0Height + Max(Mip1Height, Sum of Mip2Height..MipnHeight)
         ArrayQPitch = Get2DMipMapTotalHeight(pTexInfo);
@@ -609,6 +616,10 @@ void GmmLib::GmmGen9TextureCalc::Fill2DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
         else if(pTexInfo->Flags.Gpu.SeparateStencil && pTexInfo->Flags.Info.TiledW)
         {
             ArrayQPitch /= 2;
+	    if(pTexInfo->Type == RESOURCE_3D && !pTexInfo->Flags.Info.Linear)
+            {
+                pTexInfo->Alignment.QPitch = ArrayQPitch;
+            }
         }
         else if(pTexInfo->Flags.Gpu.CCS && pTexInfo->Flags.Gpu.__NonMsaaTileYCcs)
         {
@@ -757,7 +768,12 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex2D(GMM_TEXTURE_INFO * 
            (pTexInfo->Flags.Gpu.S3dDx && pGmmGlobalContext->GetSkuTable().FtrDisplayEngineS3d))
         {
             Alignment = pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileHeight;
-        }
+	    //Gmm uses TileY for Stencil allocations, having half TileW height (TileY width compensates)
+            if(pTexInfo->Flags.Gpu.SeparateStencil && pTexInfo->Flags.Info.TiledW)
+            {
+                Alignment *= 2;
+            }
+	}
 
         // Calculate the overall Block height...Mip0Height + Max(Mip1Height, Sum of Mip2Height..MipnHeight)
         BlockHeight = Get2DMipMapTotalHeight(pTexInfo);

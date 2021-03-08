@@ -1728,10 +1728,6 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::CpuBlt(GMM_RES_COPY_BLT *pBlt
                 __GMM_ASSERT((SwizzledSurface.Pitch % 2) == 0);
                 SwizzledSurface.Pitch /= 2;
                 SwizzledSurface.Height *= 2;
-
-                __GMM_ASSERT((GetOffset.Render.XOffset % 2) == 0);
-                SwizzledSurface.OffsetX = GetOffset.Render.XOffset / 2 + __OffsetXBytes;
-                SwizzledSurface.OffsetY = GetOffset.Render.YOffset * 2 + __OffsetY;
             }
             else if(GMM_IS_4KB_TILE(pTexInfo->Flags) &&
                     !(pTexInfo->Flags.Info.TiledYf ||

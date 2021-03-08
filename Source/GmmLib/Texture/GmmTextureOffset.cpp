@@ -490,15 +490,37 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexRenderOffset(GMM_TEXTURE_INFO *   pTexI
                 // Since 1D surfaces only have an X-dimension, this Pitch calculation is only used for OffsetX calculation.
                 Pitch = pTexInfo->Size;
             }
-            OffsetX            = GFX_ULONG_CAST(AddressOffset % Pitch);
-            TileAlignedOffsetX = GFX_ALIGN_FLOOR(OffsetX, pTileInfo->LogicalTileWidth);
-            OffsetX -= TileAlignedOffsetX;
+	    
+	    if(pTexInfo->Flags.Gpu.SeparateStencil && pTexInfo->Flags.Info.TiledW)
+            {
+                OffsetX            = GFX_ULONG_CAST(AddressOffset % Pitch);
+                TileAlignedOffsetX = GFX_ALIGN_FLOOR(OffsetX, pTileInfo->LogicalTileWidth / 2);
+                OffsetX -= TileAlignedOffsetX;
+            }
+            else
+            {
+                OffsetX            = GFX_ULONG_CAST(AddressOffset % Pitch);
+                TileAlignedOffsetX = GFX_ALIGN_FLOOR(OffsetX, pTileInfo->LogicalTileWidth);
+                OffsetX -= TileAlignedOffsetX;
+            }
 
             if(pTexInfo->Pitch)
             {
-                OffsetY            = GFX_ULONG_CAST(AddressOffset / pTexInfo->Pitch);
-                TileAlignedOffsetY = GFX_ALIGN_FLOOR(OffsetY, pTileInfo->LogicalTileHeight * pTileInfo->LogicalTileDepth);
-                OffsetY -= TileAlignedOffsetY;
+                if(pTexInfo->Flags.Gpu.SeparateStencil && pTexInfo->Flags.Info.TiledW)
+                {
+                    //Expt: YOffset ignore row-interleave -- verify both 2d/3d mips
+                    OffsetY = GFX_ULONG_CAST(AddressOffset / pTexInfo->Pitch);
+                    OffsetY *= 2;
+                    TileAlignedOffsetY = GFX_ALIGN_FLOOR(OffsetY, pTileInfo->LogicalTileHeight * 2 * pTileInfo->LogicalTileDepth);
+                    OffsetY -= TileAlignedOffsetY;
+                    TileAlignedOffsetY /= 2;
+                }
+                else
+                {
+                    OffsetY            = GFX_ULONG_CAST(AddressOffset / pTexInfo->Pitch);
+                    TileAlignedOffsetY = GFX_ALIGN_FLOOR(OffsetY, pTileInfo->LogicalTileHeight * pTileInfo->LogicalTileDepth);
+                    OffsetY -= TileAlignedOffsetY;
+                }
             }
 
             RenderAlignOffset =

@@ -1378,7 +1378,541 @@ TEST_F(CTestGen9Resource, Test2DTileYfMippedResource)
         pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
+/// @brief ULT for 2D Stencil (TileW) Mipped-array Resource
+TEST_F(CTestGen9Resource, Test2DStencilMippedArrayedResource)
+{
+    const uint32_t HAlign = {8};
+    const uint32_t VAlign = {8};
 
+    const uint32_t TileSize[2] = {64, 64}; //TileW
+
+    GMM_RESCREATE_PARAMS gmmParams      = {};
+    gmmParams.Type                      = RESOURCE_2D;
+    gmmParams.NoGfxMemory               = 1;
+    gmmParams.Flags.Info.TiledW         = 1;
+    gmmParams.Flags.Gpu.SeparateStencil = 1;
+    gmmParams.MaxLod                    = 4;
+    gmmParams.ArraySize                 = 4;
+
+    //for(uint32_t i = 0; i < TEST_BPP_MAX; i++)
+    {
+        uint32_t AlignedWidth  = 0;
+        uint32_t AlignedHeight = 0;
+        uint32_t ExpectedPitch = 0;
+        // Valigned Mip Heights
+        uint32_t Mip0Height = 0;
+        uint32_t Mip1Height = 0;
+        uint32_t Mip2Height = 0;
+
+        // Haligned Mip Widths
+        uint32_t Mip0Width = 0;
+        uint32_t Mip1Width = 0;
+        uint32_t Mip2Width = 0;
+
+        TEST_BPP bpp          = TEST_BPP_8;
+        gmmParams.Format      = SetResourceFormat(bpp);
+        gmmParams.BaseWidth64 = 0x10;
+        gmmParams.BaseHeight  = 0x10;
+
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
+
+        VerifyResourceHAlign<true>(ResourceInfo, HAlign);
+        VerifyResourceVAlign<true>(ResourceInfo, VAlign);
+
+        // Mip resource Aligned Width calculation
+        Mip0Width  = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
+        Mip0Height = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
+
+        for(uint32_t i = 1; i <= gmmParams.MaxLod; i++)
+        {
+            uint32_t MipWidth  = GMM_ULT_ALIGN(GMM_ULT_MAX(Mip0Width >> i, 1), HAlign);
+            uint32_t MipHeight = GMM_ULT_ALIGN(GMM_ULT_MAX(Mip0Height >> i, 1), VAlign);
+            if(i == 1)
+            {
+                Mip1Width = AlignedWidth = MipWidth;
+                Mip1Height               = MipHeight;
+            }
+            else if(i == 2)
+            {
+                AlignedWidth += MipWidth;
+                Mip2Height = MipHeight;
+            }
+            else
+            {
+                Mip2Height += MipHeight;
+            }
+        }
+
+        uint32_t MaxHeight = GMM_ULT_MAX(Mip1Height, Mip2Height);
+        AlignedHeight      = Mip0Height + MaxHeight;
+
+        ExpectedPitch = GMM_ULT_MAX(AlignedWidth, Mip0Width) * GetBppValue(bpp);
+        ExpectedPitch = GMM_ULT_ALIGN(ExpectedPitch, TileSize[0]);
+        //TileW is programmed as row-interleaved.. ie doubled pitch
+        VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch * 2);
+
+        VerifyResourcePitchInTiles<true>(ResourceInfo, static_cast<uint32_t>(ExpectedPitch / TileSize[0]));
+        VerifyResourceSize<true>(ResourceInfo, GMM_ULT_ALIGN(ExpectedPitch * AlignedHeight * gmmParams.ArraySize, PAGE_SIZE));
+        VerifyResourceQPitch<true>(ResourceInfo, AlignedHeight);
+
+        for(uint8_t i = 0; i < gmmParams.ArraySize && gmmParams.MaxLod >= 4; i++)
+        {
+            uint64_t ArrayOffset = AlignedHeight * ExpectedPitch * i;
+
+            // Mip 0 offsets, offset is 0,0
+            GMM_REQ_OFFSET_INFO ReqInfo = {0};
+            ReqInfo.MipLevel            = 0;
+            ReqInfo.ReqRender           = 1;
+            ReqInfo.ArrayIndex          = i;
+            ResourceInfo->GetOffset(ReqInfo);
+
+            uint32_t Mip0Size        = ExpectedPitch * Mip0Height;
+            uint64_t SliceTileOffset = GFX_ALIGN_FLOOR(AlignedHeight * i, TileSize[1]) * TileSize[0];
+            uint32_t SliceY          = (AlignedHeight * i) % TileSize[1];
+            EXPECT_EQ(SliceTileOffset, ReqInfo.Render.Offset64);
+            EXPECT_EQ(0, ReqInfo.Render.XOffset);
+            EXPECT_EQ(SliceY, ReqInfo.Render.YOffset);
+
+            // Mip 1 offsets
+            ReqInfo            = {0};
+            ReqInfo.MipLevel   = 1;
+            ReqInfo.ReqRender  = 1;
+            ReqInfo.ArrayIndex = i;
+            ResourceInfo->GetOffset(ReqInfo);
+            uint32_t Mip1Offset = Mip0Size + ArrayOffset;
+            uint32_t Mip1X      = uint32_t(Mip1Offset % ExpectedPitch);
+            uint32_t Mip1Y      = uint32_t(Mip1Offset / ExpectedPitch);
+            EXPECT_EQ(0, ReqInfo.Render.XOffset);
+            EXPECT_EQ(Mip1Y % TileSize[1], ReqInfo.Render.YOffset);
+            Mip1X                            = GFX_ALIGN_FLOOR(Mip1X, TileSize[0]);
+            Mip1Y                            = GFX_ALIGN_FLOOR(Mip1Y, TileSize[1]);
+            uint32_t Mip1RenderAlignedOffset = Mip1Y * ExpectedPitch + (Mip1X / TileSize[0]) * (TileSize[0] * TileSize[1]);
+            EXPECT_EQ(Mip1RenderAlignedOffset, ReqInfo.Render.Offset64);
+
+
+            // Mip 2 offset
+            ReqInfo            = {0};
+            ReqInfo.MipLevel   = 2;
+            ReqInfo.ReqRender  = 1;
+            ReqInfo.ArrayIndex = i;
+            ResourceInfo->GetOffset(ReqInfo);
+            uint32_t Mip2Offset = Mip1Width * GetBppValue(bpp) + Mip0Height * ExpectedPitch + ArrayOffset;
+            uint32_t Mip2X      = uint32_t(Mip2Offset % ExpectedPitch);
+            uint32_t Mip2Y      = uint32_t(Mip2Offset / ExpectedPitch);
+            EXPECT_EQ(8, ReqInfo.Render.XOffset);
+            EXPECT_EQ(Mip2Y % TileSize[1], ReqInfo.Render.YOffset);
+            Mip2X                            = GFX_ALIGN_FLOOR(Mip2X, TileSize[0]);
+            Mip2Y                            = GFX_ALIGN_FLOOR(Mip2Y, TileSize[1]);
+            uint32_t Mip2RenderAlignedOffset = Mip2Y * ExpectedPitch + (Mip2X / TileSize[0]) * (TileSize[0] * TileSize[1]);
+            EXPECT_EQ(Mip2RenderAlignedOffset, ReqInfo.Render.Offset64);
+
+            // Mip 3 offset
+            ReqInfo            = {0};
+            ReqInfo.MipLevel   = 3;
+            ReqInfo.ReqRender  = 1;
+            ReqInfo.ArrayIndex = i;
+            ResourceInfo->GetOffset(ReqInfo);
+
+            uint32_t Mip3Offset = Mip1Width * GetBppValue(bpp) + (Mip0Height + GMM_ULT_ALIGN(Mip0Height >> 2, VAlign)) * ExpectedPitch + ArrayOffset;
+            uint32_t Mip3X      = uint32_t(Mip3Offset % ExpectedPitch);
+            uint32_t Mip3Y      = uint32_t(Mip3Offset / ExpectedPitch);
+            EXPECT_EQ(8, ReqInfo.Render.XOffset);
+            EXPECT_EQ(Mip3Y % TileSize[1], ReqInfo.Render.YOffset);
+            Mip3X                            = GFX_ALIGN_FLOOR(Mip3X, TileSize[0]);
+            Mip3Y                            = GFX_ALIGN_FLOOR(Mip3Y, TileSize[1]);
+            uint32_t Mip3RenderAlignedOffset = Mip3Y * ExpectedPitch + (Mip3X / TileSize[0]) * (TileSize[0] * TileSize[1]);
+            EXPECT_EQ(Mip3RenderAlignedOffset, ReqInfo.Render.Offset64);
+
+            // Mip 4 offset
+            ReqInfo            = {0};
+            ReqInfo.MipLevel   = 4;
+            ReqInfo.ReqRender  = 1;
+            ReqInfo.ArrayIndex = i;
+            ResourceInfo->GetOffset(ReqInfo);
+            uint32_t Mip4Offset = 0;
+            Mip4Offset          = Mip1Width * GetBppValue(bpp) + (Mip0Height + GMM_ULT_ALIGN(Mip0Height >> 2, VAlign) + GMM_ULT_ALIGN(Mip0Height >> 3, VAlign)) * ExpectedPitch + ArrayOffset;
+            uint32_t Mip4X      = uint32_t(Mip4Offset % ExpectedPitch);
+            uint32_t Mip4Y      = uint32_t(Mip4Offset / ExpectedPitch);
+            EXPECT_EQ(8, ReqInfo.Render.XOffset);
+            EXPECT_EQ(Mip4Y % TileSize[1], ReqInfo.Render.YOffset);
+            Mip4X                            = GFX_ALIGN_FLOOR(Mip4X, TileSize[0]);
+            Mip4Y                            = GFX_ALIGN_FLOOR(Mip4Y, TileSize[1]);
+            uint32_t Mip4RenderAlignedOffset = Mip4Y * ExpectedPitch + (Mip4X / TileSize[0]) * (TileSize[0] * TileSize[1]);
+            EXPECT_EQ(Mip4RenderAlignedOffset, ReqInfo.Render.Offset64);
+        }
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
+    }
+}
+
+/// @brief ULT for 2D Stencil (TileW) Mipped-array Resource, and CpuBlt
+TEST_F(CTestGen9Resource, Test2DStencilArrayedCpuBltResource)
+{
+    const uint32_t HAlign = {8};
+    const uint32_t VAlign = {8};
+
+    const uint32_t TileSize[2] = {64, 64}; //TileW
+
+    GMM_RESCREATE_PARAMS gmmParams      = {};
+    gmmParams.Type                      = RESOURCE_2D;
+    gmmParams.NoGfxMemory               = 1;
+    gmmParams.Flags.Info.TiledW         = 1;
+    gmmParams.Flags.Gpu.SeparateStencil = 1;
+    gmmParams.MaxLod                    = 0;
+    gmmParams.ArraySize                 = 6;
+
+    {
+        uint32_t AlignedWidth  = 0;
+        uint32_t AlignedHeight = 0;
+        uint32_t ExpectedPitch = 0;
+        // Valigned Mip Heights
+        uint32_t Mip0Height = 0;
+        uint32_t Mip1Height = 0;
+        uint32_t Mip2Height = 0;
+
+        // Haligned Mip Widths
+        uint32_t Mip0Width = 0;
+        uint32_t Mip1Width = 0;
+        uint32_t Mip2Width = 0;
+
+        TEST_BPP bpp          = TEST_BPP_8;
+        gmmParams.Format      = SetResourceFormat(bpp);
+        gmmParams.BaseWidth64 = 0x4;
+        gmmParams.BaseHeight  = 0x4;
+
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
+
+        VerifyResourceHAlign<true>(ResourceInfo, HAlign);
+        VerifyResourceVAlign<true>(ResourceInfo, VAlign);
+
+        // Mip resource Aligned Width calculation
+        Mip0Width  = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
+        Mip0Height = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
+
+        for(uint32_t i = 1; i <= gmmParams.MaxLod; i++)
+        {
+            uint32_t MipWidth  = GMM_ULT_ALIGN(GMM_ULT_MAX(Mip0Width >> i, 1), HAlign);
+            uint32_t MipHeight = GMM_ULT_ALIGN(GMM_ULT_MAX(Mip0Height >> i, 1), VAlign);
+            if(i == 1)
+            {
+                Mip1Width = AlignedWidth = MipWidth;
+                Mip1Height               = MipHeight;
+            }
+            else if(i == 2)
+            {
+                AlignedWidth += MipWidth;
+                Mip2Height = MipHeight;
+            }
+            else
+            {
+                Mip2Height += MipHeight;
+            }
+        }
+
+        uint32_t MaxHeight = GMM_ULT_MAX(Mip1Height, Mip2Height);
+        AlignedHeight      = Mip0Height + MaxHeight;
+
+        ExpectedPitch = GMM_ULT_MAX(AlignedWidth, Mip0Width) * GetBppValue(bpp);
+        ExpectedPitch = GMM_ULT_ALIGN(ExpectedPitch, TileSize[0]);
+        //TileW is programmed as row-interleaved.. ie doubled pitch
+        VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch * 2);
+
+        VerifyResourcePitchInTiles<true>(ResourceInfo, static_cast<uint32_t>(ExpectedPitch / TileSize[0]));
+        VerifyResourceSize<true>(ResourceInfo, GMM_ULT_ALIGN(ExpectedPitch * AlignedHeight * gmmParams.ArraySize, PAGE_SIZE));
+        VerifyResourceQPitch<true>(ResourceInfo, AlignedHeight);
+
+        for(uint8_t i = 0; i < gmmParams.ArraySize && gmmParams.MaxLod >= 4; i++)
+        {
+            uint64_t ArrayOffset = AlignedHeight * ExpectedPitch * i;
+
+            // Mip 0 offsets, offset is 0,0
+            GMM_REQ_OFFSET_INFO ReqInfo = {0};
+            ReqInfo.MipLevel            = 0;
+            ReqInfo.ReqRender           = 1;
+            ReqInfo.ArrayIndex          = i;
+            ResourceInfo->GetOffset(ReqInfo);
+
+            uint32_t Mip0Size        = ExpectedPitch * Mip0Height;
+            uint64_t SliceTileOffset = GFX_ALIGN_FLOOR(AlignedHeight * i, TileSize[1]) * TileSize[0];
+            uint32_t SliceY          = (AlignedHeight * i) % TileSize[1];
+            EXPECT_EQ(SliceTileOffset, ReqInfo.Render.Offset64);
+            EXPECT_EQ(0, ReqInfo.Render.XOffset);
+            EXPECT_EQ(SliceY, ReqInfo.Render.YOffset);
+
+            // Mip 1 offsets
+            ReqInfo            = {0};
+            ReqInfo.MipLevel   = 1;
+            ReqInfo.ReqRender  = 1;
+            ReqInfo.ArrayIndex = i;
+            ResourceInfo->GetOffset(ReqInfo);
+            uint32_t Mip1Offset = Mip0Size + ArrayOffset;
+            uint32_t Mip1X      = uint32_t(Mip1Offset % ExpectedPitch);
+            uint32_t Mip1Y      = uint32_t(Mip1Offset / ExpectedPitch);
+            EXPECT_EQ(0, ReqInfo.Render.XOffset);
+            EXPECT_EQ(Mip1Y % TileSize[1], ReqInfo.Render.YOffset);
+            Mip1X                            = GFX_ALIGN_FLOOR(Mip1X, TileSize[0]);
+            Mip1Y                            = GFX_ALIGN_FLOOR(Mip1Y, TileSize[1]);
+            uint32_t Mip1RenderAlignedOffset = Mip1Y * ExpectedPitch + (Mip1X / TileSize[0]) * (TileSize[0] * TileSize[1]);
+            EXPECT_EQ(Mip1RenderAlignedOffset, ReqInfo.Render.Offset64);
+
+
+            // Mip 2 offset
+            ReqInfo            = {0};
+            ReqInfo.MipLevel   = 2;
+            ReqInfo.ReqRender  = 1;
+            ReqInfo.ArrayIndex = i;
+            ResourceInfo->GetOffset(ReqInfo);
+            uint32_t Mip2Offset = Mip1Width * GetBppValue(bpp) + Mip0Height * ExpectedPitch + ArrayOffset;
+            uint32_t Mip2X      = uint32_t(Mip2Offset % ExpectedPitch);
+            uint32_t Mip2Y      = uint32_t(Mip2Offset / ExpectedPitch);
+            EXPECT_EQ(8, ReqInfo.Render.XOffset);
+            EXPECT_EQ(Mip2Y % TileSize[1], ReqInfo.Render.YOffset);
+            Mip2X                            = GFX_ALIGN_FLOOR(Mip2X, TileSize[0]);
+            Mip2Y                            = GFX_ALIGN_FLOOR(Mip2Y, TileSize[1]);
+            uint32_t Mip2RenderAlignedOffset = Mip2Y * ExpectedPitch + (Mip2X / TileSize[0]) * (TileSize[0] * TileSize[1]);
+            EXPECT_EQ(Mip2RenderAlignedOffset, ReqInfo.Render.Offset64);
+
+            // Mip 3 offset
+            ReqInfo            = {0};
+            ReqInfo.MipLevel   = 3;
+            ReqInfo.ReqRender  = 1;
+            ReqInfo.ArrayIndex = i;
+            ResourceInfo->GetOffset(ReqInfo);
+
+            uint32_t Mip3Offset = Mip1Width * GetBppValue(bpp) + (Mip0Height + GMM_ULT_ALIGN(Mip0Height >> 2, VAlign)) * ExpectedPitch + ArrayOffset;
+            uint32_t Mip3X      = uint32_t(Mip3Offset % ExpectedPitch);
+            uint32_t Mip3Y      = uint32_t(Mip3Offset / ExpectedPitch);
+            EXPECT_EQ(8, ReqInfo.Render.XOffset);
+            EXPECT_EQ(Mip3Y % TileSize[1], ReqInfo.Render.YOffset);
+            Mip3X                            = GFX_ALIGN_FLOOR(Mip3X, TileSize[0]);
+            Mip3Y                            = GFX_ALIGN_FLOOR(Mip3Y, TileSize[1]);
+            uint32_t Mip3RenderAlignedOffset = Mip3Y * ExpectedPitch + (Mip3X / TileSize[0]) * (TileSize[0] * TileSize[1]);
+            EXPECT_EQ(Mip3RenderAlignedOffset, ReqInfo.Render.Offset64);
+
+            // Mip 4 offset
+            ReqInfo            = {0};
+            ReqInfo.MipLevel   = 4;
+            ReqInfo.ReqRender  = 1;
+            ReqInfo.ArrayIndex = i;
+            ResourceInfo->GetOffset(ReqInfo);
+            uint32_t Mip4Offset = 0;
+            Mip4Offset          = Mip1Width * GetBppValue(bpp) + (Mip0Height + GMM_ULT_ALIGN(Mip0Height >> 2, VAlign) + GMM_ULT_ALIGN(Mip0Height >> 3, VAlign)) * ExpectedPitch + ArrayOffset;
+            uint32_t Mip4X      = uint32_t(Mip4Offset % ExpectedPitch);
+            uint32_t Mip4Y      = uint32_t(Mip4Offset / ExpectedPitch);
+            EXPECT_EQ(8, ReqInfo.Render.XOffset);
+            EXPECT_EQ(Mip4Y % TileSize[1], ReqInfo.Render.YOffset);
+            Mip4X                            = GFX_ALIGN_FLOOR(Mip4X, TileSize[0]);
+            Mip4Y                            = GFX_ALIGN_FLOOR(Mip4Y, TileSize[1]);
+            uint32_t Mip4RenderAlignedOffset = Mip4Y * ExpectedPitch + (Mip4X / TileSize[0]) * (TileSize[0] * TileSize[1]);
+            EXPECT_EQ(Mip4RenderAlignedOffset, ReqInfo.Render.Offset64);
+        }
+
+        //Verify CpuBlt path (uses Render offset for upload)
+        {
+#ifdef _WIN32
+#define ULT_ALIGNED_MALLOC(Size, alignBytes) _aligned_malloc(Size, alignBytes)
+#define ULT_ALIGNED_FREE(ptr) _aligned_free(ptr)
+#else
+#define ULT_ALIGNED_MALLOC(Size, alignBytes) memalign(alignBytes, Size)
+#define ULT_ALIGNED_FREE(ptr) free(ptr)
+#endif
+
+#ifdef _WIN32
+            void *LockVA = ULT_ALIGNED_MALLOC(ResourceInfo->GetSizeSurface(), ResourceInfo->GetBaseAlignment());
+            memset(LockVA, 0, ResourceInfo->GetSizeSurface());
+            void *Sysmem = malloc(gmmParams.BaseWidth64 * gmmParams.BaseHeight);
+            memset(Sysmem, 0xbb, gmmParams.BaseWidth64 * gmmParams.BaseHeight);
+            //Test Upload
+            GMM_RES_COPY_BLT Blt  = {0};
+            Blt.Gpu.pData         = LockVA;
+            Blt.Gpu.Slice         = 4;
+            Blt.Gpu.MipLevel      = 0;
+            Blt.Sys.BufferSize    = gmmParams.BaseWidth64 * gmmParams.BaseHeight;
+            Blt.Sys.pData         = Sysmem;
+            Blt.Sys.RowPitch      = gmmParams.BaseWidth64;
+            Blt.Sys.PixelPitch    = 1;
+            Blt.Sys.SlicePitch    = Blt.Sys.BufferSize;
+            Blt.Blt.Upload        = 1;
+            Blt.Blt.BytesPerPixel = 1;
+            ResourceInfo->CpuBlt(&Blt);
+
+            uint64_t Offset = 0x100; /*Blt.Gpu.Slice * ResourceInfo->GetQPitchInBytes();*/ // Need SwizzledOffset
+            for(uint8_t byte = 0; byte < Blt.Sys.BufferSize; byte++)
+            {
+                uint8_t *Byte = ((uint8_t *)LockVA) + Offset + byte;
+                EXPECT_EQ(Byte[0], 0xbb);
+            }
+
+            free(Sysmem);
+            ULT_ALIGNED_FREE(LockVA);
+#endif
+        }
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
+    }
+}
+
+/// @brief ULT for 3D Stencil (TileW) Mipped-array Resource
+TEST_F(CTestGen9Resource, Test3DStencilMippedResource)
+{
+    const uint32_t HAlign = {8};
+    const uint32_t VAlign = {8};
+
+    const uint32_t TileSize[2] = {64, 64}; //TileW
+
+    GMM_RESCREATE_PARAMS gmmParams      = {};
+    gmmParams.Type                      = RESOURCE_3D;
+    gmmParams.NoGfxMemory               = 1;
+    gmmParams.Flags.Info.TiledW         = 1;
+    gmmParams.Flags.Gpu.SeparateStencil = 1;
+    gmmParams.MaxLod                    = 4;
+
+    {
+        uint32_t AlignedWidth  = 0;
+        uint32_t AlignedHeight = 0;
+        uint32_t ExpectedPitch = 0;
+        // Valigned Mip Heights
+        uint32_t Mip0Height = 0;
+        uint32_t Mip1Height = 0;
+        uint32_t Mip2Height = 0;
+
+        // Haligned Mip Widths
+        uint32_t Mip0Width = 0;
+        uint32_t Mip1Width = 0;
+        uint32_t Mip2Width = 0;
+
+        TEST_BPP bpp          = TEST_BPP_8;
+        gmmParams.Format      = SetResourceFormat(bpp);
+        gmmParams.BaseWidth64 = 0x10;
+        gmmParams.BaseHeight  = 0x10;
+        gmmParams.Depth       = 0x10;
+
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
+
+        VerifyResourceHAlign<true>(ResourceInfo, HAlign);
+        VerifyResourceVAlign<true>(ResourceInfo, VAlign);
+
+        // Mip resource Aligned Width calculation
+        Mip0Width  = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign);
+        Mip0Height = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
+
+        for(uint32_t i = 1; i <= gmmParams.MaxLod; i++)
+        {
+            uint32_t MipWidth  = GMM_ULT_ALIGN(Mip0Width >> i, HAlign);
+            uint32_t MipHeight = GMM_ULT_ALIGN(Mip0Height >> i, VAlign);
+            if(i == 1)
+            {
+                Mip1Width = AlignedWidth = MipWidth;
+                Mip1Height               = MipHeight;
+            }
+            else if(i == 2)
+            {
+                AlignedWidth += MipWidth;
+                Mip2Height = MipHeight;
+            }
+            else
+            {
+                Mip2Height += MipHeight;
+            }
+        }
+
+        uint32_t MaxHeight = GMM_ULT_MAX(Mip1Height, Mip2Height);
+        AlignedHeight      = Mip0Height + MaxHeight;
+
+        ExpectedPitch = AlignedWidth * GetBppValue(bpp);
+        ExpectedPitch = GMM_ULT_ALIGN(ExpectedPitch, TileSize[0]);
+        //TileW is programmed as row-interleaved.. ie doubled pitch
+        VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch * 2);
+
+        VerifyResourcePitchInTiles<true>(ResourceInfo, static_cast<uint32_t>(ExpectedPitch / TileSize[0]));
+        VerifyResourceSize<true>(ResourceInfo, GMM_ULT_ALIGN(ExpectedPitch * AlignedHeight, PAGE_SIZE) * gmmParams.Depth);
+
+        //3D QPitch must be aligned to Tile-height, div by 2 for Pitch is doubled
+        // i.e. Slice-offset = Qpitch*Pitch is tile-aligned.
+        AlignedHeight = GMM_ULT_ALIGN(AlignedHeight, TileSize[1]);
+        VerifyResourceQPitch<true>(ResourceInfo, AlignedHeight / 2);
+
+        for(uint8_t i = 0; i < gmmParams.Depth; i++)
+        {
+            uint64_t SliceOffset = AlignedHeight * ExpectedPitch;
+            // Mip 0 offsets, offset is 0,0
+            GMM_REQ_OFFSET_INFO ReqInfo = {0};
+            ReqInfo.MipLevel            = 0;
+            ReqInfo.ReqRender           = 1;
+            ReqInfo.Slice               = i;
+            ResourceInfo->GetOffset(ReqInfo);
+
+            uint32_t Mip0Size = ExpectedPitch * Mip0Height;
+            EXPECT_EQ((0 + SliceOffset * i), ReqInfo.Render.Offset64);
+            EXPECT_EQ(0, ReqInfo.Render.XOffset);
+            EXPECT_EQ(0, ReqInfo.Render.YOffset);
+
+            // Mip 1 offsets -- uses 2d mip layout
+            ReqInfo           = {0};
+            ReqInfo.MipLevel  = 1;
+            ReqInfo.ReqRender = 1;
+            ReqInfo.Slice     = i;
+            ResourceInfo->GetOffset(ReqInfo);
+            uint32_t Mip1Offset              = Mip0Size;
+            uint32_t Mip1X                   = GFX_ALIGN_FLOOR(uint32_t(Mip1Offset % ExpectedPitch), TileSize[0]);
+            uint32_t Mip1Y                   = GFX_ALIGN_FLOOR(uint32_t(Mip1Offset / ExpectedPitch), TileSize[1]);
+            uint32_t Mip1RenderAlignedOffset = Mip1Y * ExpectedPitch + (Mip1X / TileSize[0]) * (TileSize[0] * TileSize[1]) + SliceOffset * i;
+            EXPECT_EQ(0, ReqInfo.Render.XOffset);
+            EXPECT_EQ(16, ReqInfo.Render.YOffset);
+            EXPECT_EQ(Mip1RenderAlignedOffset, ReqInfo.Render.Offset64);
+
+
+            // Mip 2 offset
+            ReqInfo           = {0};
+            ReqInfo.MipLevel  = 2;
+            ReqInfo.ReqRender = 1;
+            ReqInfo.Slice     = i;
+            ResourceInfo->GetOffset(ReqInfo);
+            uint32_t Mip2Offset = Mip1Width * GetBppValue(bpp) + (Mip0Height * ExpectedPitch) + SliceOffset * i;
+            EXPECT_EQ(8, ReqInfo.Render.XOffset);
+            EXPECT_EQ(16, ReqInfo.Render.YOffset);
+            uint32_t Mip2X                   = GFX_ALIGN_FLOOR(uint32_t(Mip2Offset % ExpectedPitch), TileSize[0]);
+            uint32_t Mip2Y                   = GFX_ALIGN_FLOOR(uint32_t(Mip2Offset / ExpectedPitch), TileSize[1]);
+            uint32_t Mip2RenderAlignedOffset = Mip2Y * ExpectedPitch + (Mip2X / TileSize[0]) * (TileSize[0] * TileSize[1]);
+            EXPECT_EQ(Mip2RenderAlignedOffset, ReqInfo.Render.Offset64);
+
+            // Mip 3 offset
+            ReqInfo           = {0};
+            ReqInfo.MipLevel  = 3;
+            ReqInfo.ReqRender = 1;
+            ReqInfo.Slice     = i;
+            ResourceInfo->GetOffset(ReqInfo);
+            uint32_t Mip3Offset = 0;
+            Mip3Offset          = Mip1Width * GetBppValue(bpp) + Mip0Height * ExpectedPitch;
+            EXPECT_EQ(8, ReqInfo.Render.XOffset);
+            EXPECT_EQ(24, ReqInfo.Render.YOffset);
+            uint32_t Mip3X                   = GFX_ALIGN_FLOOR(uint32_t(Mip3Offset % ExpectedPitch), TileSize[0]);
+            uint32_t Mip3Y                   = GFX_ALIGN_FLOOR(uint32_t(Mip3Offset / ExpectedPitch), TileSize[1]);
+            uint32_t Mip3RenderAlignedOffset = Mip3Y * ExpectedPitch + (Mip3X / TileSize[0]) * (TileSize[0] * TileSize[1]) + SliceOffset * i;
+            EXPECT_EQ(Mip3RenderAlignedOffset, ReqInfo.Render.Offset64);
+
+            // Mip 4 offset
+            ReqInfo           = {0};
+            ReqInfo.MipLevel  = 4;
+            ReqInfo.ReqRender = 1;
+            ReqInfo.Slice     = i;
+            ResourceInfo->GetOffset(ReqInfo);
+            uint32_t Mip4Offset = 0;
+            Mip4Offset          = Mip1Width * GetBppValue(bpp) + Mip0Height * ExpectedPitch;
+            EXPECT_EQ(8, ReqInfo.Render.XOffset);
+            EXPECT_EQ(32, ReqInfo.Render.YOffset);
+            uint32_t Mip4X                   = GFX_ALIGN_FLOOR(uint32_t(Mip4Offset % ExpectedPitch), TileSize[0]);
+            uint32_t Mip4Y                   = GFX_ALIGN_FLOOR(uint32_t(Mip4Offset / ExpectedPitch), TileSize[1]);
+            uint32_t Mip4RenderAlignedOffset = Mip4Y * ExpectedPitch + (Mip4X / TileSize[0]) * (TileSize[0] * TileSize[1]) + SliceOffset * i;
+            EXPECT_EQ(Mip4RenderAlignedOffset, ReqInfo.Render.Offset64);
+        }
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
+    }
+}
 
 // ********************************************************************************//
 /// @brief ULT for 3D Linear Resource
