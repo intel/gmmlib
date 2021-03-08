@@ -412,7 +412,7 @@ ERROR_CASE:
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_GFX_ADDRESS GmmLib::GmmPageTableMgr::GetAuxL3TableAddr()
 {
-    return AuxTTObj ? AuxTTObj->GetL3Address() : NULL;
+    return AuxTTObj ? AuxTTObj->GetL3Address() : 0ULL;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -471,7 +471,7 @@ GMM_STATUS GmmLib::GmmPageTableMgr::InitContextAuxTableRegister(HANDLE CmdQHandl
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_STATUS GmmLib::GmmPageTableMgr::UpdateAuxTable(const GMM_DDI_UPDATEAUXTABLE *UpdateReq)
 {
-    if(GetAuxL3TableAddr() == NULL)
+    if(GetAuxL3TableAddr() == 0ULL)
     {
         GMM_ASSERTDPF(0, "Invalid AuxTable update request, AuxTable is not initialized");
         return GMM_INVALIDPARAM;
