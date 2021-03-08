@@ -453,8 +453,8 @@ namespace GmmLib
         GmmClientContext    *pClientContext;
 
         PageTable(int Size, int NumL3e, TT_TYPE flag) :
-            NodesPerTable(Size / PAGE_SIZE),
-            TTType(flag)
+            TTType(flag),
+	    NodesPerTable(Size / PAGE_SIZE)
         {
             InitializeCriticalSection(&TTLock);
 
