@@ -1231,6 +1231,12 @@ uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetQPitch()
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetOffset(GMM_REQ_OFFSET_INFO &ReqInfo)
 {
+    GMM_TEXTURE_CALC *pTextureCalc;
+
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+
+    __GMM_ASSERT((pTextureCalc != NULL))
+
     if(Surf.Flags.Info.RedecribedPlanes)
     {
         uint8_t RestoreReqStdLayout = ReqInfo.ReqStdLayout ? 1 : 0;
@@ -1246,6 +1252,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetOffset(GMM_REQ_OFFSET_I
         if(ReqInfo.ReqStdLayout)
         {
             GMM_REQ_OFFSET_INFO TempReqInfo[GMM_MAX_PLANE] = {0};
+	    GMM_TEXTURE_INFO    TexInfo[GMM_MAX_PLANE];
             uint32_t            Plane, TotalPlanes = GmmLib::Utility::GmmGetNumPlanes(Surf.Format);
 
             // Caller must specify which plane they need the offset into if not
@@ -1262,11 +1269,15 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetOffset(GMM_REQ_OFFSET_I
             TempReqInfo[GMM_PLANE_Y].ReqLock = TempReqInfo[GMM_PLANE_Y].ReqRender = 0;
 
             TempReqInfo[GMM_PLANE_V] = TempReqInfo[GMM_PLANE_U] = TempReqInfo[GMM_PLANE_Y];
+            
+	    pTextureCalc->GetRedescribedPlaneParams(&Surf, GMM_PLANE_Y, &TexInfo[GMM_PLANE_Y]);
+            pTextureCalc->GetRedescribedPlaneParams(&Surf, GMM_PLANE_U, &TexInfo[GMM_PLANE_U]);
+            pTextureCalc->GetRedescribedPlaneParams(&Surf, GMM_PLANE_V, &TexInfo[GMM_PLANE_V]);
 
-            if(GMM_SUCCESS != GmmTexGetMipMapOffset(&PlaneSurf[GMM_PLANE_Y], &TempReqInfo[GMM_PLANE_Y]) ||
-               GMM_SUCCESS != GmmTexGetMipMapOffset(&PlaneSurf[GMM_PLANE_U], &TempReqInfo[GMM_PLANE_U]) ||
-               GMM_SUCCESS != GmmTexGetMipMapOffset(&PlaneSurf[GMM_PLANE_V], &TempReqInfo[GMM_PLANE_V]))
-            {
+            if(GMM_SUCCESS != GmmTexGetMipMapOffset(&TexInfo[GMM_PLANE_Y], &TempReqInfo[GMM_PLANE_Y]) ||
+               GMM_SUCCESS != GmmTexGetMipMapOffset(&TexInfo[GMM_PLANE_U], &TempReqInfo[GMM_PLANE_U]) ||
+               GMM_SUCCESS != GmmTexGetMipMapOffset(&TexInfo[GMM_PLANE_V], &TempReqInfo[GMM_PLANE_V]))
+	    {
                 __GMM_ASSERT(0);
                 return GMM_ERROR;
             }
@@ -1295,9 +1306,10 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetOffset(GMM_REQ_OFFSET_I
                 {
                     // Find the size of the previous planes and add it to the offset
                     TempReqInfo[Plane].StdLayout.Offset = -1;
-
-                    if(GMM_SUCCESS != GmmTexGetMipMapOffset(&PlaneSurf[Plane], &TempReqInfo[Plane]))
+                
+		    if(GMM_SUCCESS != GmmTexGetMipMapOffset(&TexInfo[Plane], &TempReqInfo[Plane]))
                     {
+                 
                         __GMM_ASSERT(0);
                         return GMM_ERROR;
                     }
@@ -1336,6 +1348,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::CpuBlt(GMM_RES_COPY_BLT *pBlt
     uint8_t                  Success = 1;
     GMM_TEXTURE_INFO *       pTexInfo;
     GMM_TEXTURE_CALC *       pTextureCalc;
+    GMM_TEXTURE_INFO         RedescribedPlaneInfo;
 
     __GMM_ASSERTPTR(pBlt, 0);
 
@@ -1468,13 +1481,15 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::CpuBlt(GMM_RES_COPY_BLT *pBlt
 
         if(pBlt->Gpu.OffsetY < pTexInfo->OffsetInfo.Plane.Y[GMM_PLANE_U])
         {
+	    pTextureCalc->GetRedescribedPlaneParams(pTexInfo, GMM_PLANE_Y, &RedescribedPlaneInfo);
             // Y Plane
-            pTexInfo = &(PlaneSurf[GMM_PLANE_Y]);
+            pTexInfo = &RedescribedPlaneInfo;
         }
         else
         {
             // UV Plane
-            pTexInfo = &(PlaneSurf[GMM_PLANE_U]);
+	    pTextureCalc->GetRedescribedPlaneParams(pTexInfo, GMM_PLANE_U, &RedescribedPlaneInfo);
+            pTexInfo = &RedescribedPlaneInfo;
         }
     }
 
@@ -1869,12 +1884,14 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetMappingSpanDesc(GMM_GET_MA
     uint8_t                  WasFinalSpan = 0;
     GMM_TEXTURE_INFO *       pTexInfo;
     GMM_TEXTURE_CALC *       pTextureCalc;
+    GMM_TEXTURE_INFO         RedescribedPlaneInfo;
 
     __GMM_ASSERT(Surf.Flags.Info.StdSwizzle);
 
     pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
     pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
 
+    __GMM_ASSERT(pTextureCalc != NULL);
     pTexInfo = &Surf;
 
     if(pMapping->Type == GMM_MAPPING_GEN9_YS_TO_STDSWIZZLE)
@@ -1933,7 +1950,9 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetMappingSpanDesc(GMM_GET_MA
                 pMapping->__NextSpan.VirtualOffset  = ReqInfo.Render.Offset64;
             }
 
-            pTexInfo = &PlaneSurf[pMapping->Scratch.Plane];
+	    pTextureCalc->GetRedescribedPlaneParams(pTexInfo, GMM_PLANE_Y, &RedescribedPlaneInfo);
+            pTexInfo = &RedescribedPlaneInfo;
+
         }
 
         // Initialization of Mapping Params...

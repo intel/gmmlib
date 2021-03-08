@@ -369,8 +369,12 @@ namespace GmmLib
                                                                 GMM_GFX_SIZE_T &WidthBytesPhysical,
                                                                 GMM_GFX_SIZE_T &WidthBytesLock);
             GMM_STATUS MSAACompression(GMM_TEXTURE_INFO *pTexInfo);
+	    
+	    bool RedescribeTexturePlanes(GMM_TEXTURE_INFO *pTexInfo, uint32_t *pWidthBytesPhysical);
+	    
+	    bool GetRedescribedPlaneParams(GMM_TEXTURE_INFO *pTexInfo, GMM_YUV_PLANE PlaneType, GMM_TEXTURE_INFO *pRedescribedTexInfo);
 
-            /* inline functions */
+	    /* inline functions */
     };
 
 }

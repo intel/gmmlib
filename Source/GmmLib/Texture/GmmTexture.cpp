@@ -629,3 +629,200 @@ EXIT_ERROR:
     *pRowFactor = 0;
     return false;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// This function redescribes WidthBytesPhysical of main surface as per UV plane bpp and tilemode
+///
+/// @return     ::bool
+/////////////////////////////////////////////////////////////////////////////////////
+bool GmmLib::GmmTextureCalc::RedescribeTexturePlanes(GMM_TEXTURE_INFO *pTexInfo, uint32_t *pWidthBytesPhysical)
+{
+    GMM_STATUS               Status = GMM_SUCCESS;
+    GMM_TEXTURE_INFO         TexInfoUVPlane;
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+
+    __GMM_ASSERT(pTexInfo);
+    __GMM_ASSERT(pTexInfo->Flags.Info.RedecribedPlanes);
+    __GMM_ASSERT(pWidthBytesPhysical);
+
+    TexInfoUVPlane = *pTexInfo;
+#ifdef _WIN32
+    memcpy_s(&TexInfoUVPlane, sizeof(GMM_TEXTURE_INFO), pTexInfo, sizeof(GMM_TEXTURE_INFO));
+#else
+    memcpy(&TexInfoUVPlane, pTexInfo, sizeof(GMM_TEXTURE_INFO));
+#endif // _WIN32
+
+
+    if(GmmIsUVPacked(pTexInfo->Format))
+    {
+        // UV packed resources must have two seperate
+        // tiling modes per plane, due to the packed
+        // UV plane having twice the bits per pixel
+        // as the Y plane.
+        switch(pTexInfo->Format)
+        {
+            case GMM_FORMAT_NV12:
+            case GMM_FORMAT_NV21:
+            case GMM_FORMAT_P208:
+                TexInfoUVPlane.BitsPerPixel = 16; // Redescribe bpp to 16 from 8
+                break;
+            case GMM_FORMAT_P010:
+            case GMM_FORMAT_P012:
+            case GMM_FORMAT_P016:
+            case GMM_FORMAT_P216:
+                TexInfoUVPlane.BitsPerPixel = 32;
+                break;
+            default:
+                GMM_ASSERTDPF(0, "Unsupported format/pixel size combo!");
+                Status = GMM_INVALIDPARAM;
+                goto ERROR_CASE;
+                break;
+        }
+    }
+    else
+    {
+        // Non-UV packed surfaces, TileMode and bpp of each plane is same as that of pTexInfo
+    }
+
+    SetTileMode(&TexInfoUVPlane);
+    *pWidthBytesPhysical = GFX_ALIGN(*pWidthBytesPhysical, pPlatform->TileInfo[TexInfoUVPlane.TileMode].LogicalTileWidth);
+
+ERROR_CASE:
+    return (Status == GMM_SUCCESS) ? true : false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// This function returns per plane redescribed parameters (pRedescribedTexInfo: fmt, tilemode,bpp, width, height, size) when main surface pTexInfo is passed
+///
+/// @return     ::bool
+/////////////////////////////////////////////////////////////////////////////////////
+bool GmmLib::GmmTextureCalc::GetRedescribedPlaneParams(GMM_TEXTURE_INFO *pTexInfo, GMM_YUV_PLANE PlaneType, GMM_TEXTURE_INFO *pRedescribedTexInfo)
+{
+    GMM_STATUS               Status = GMM_SUCCESS;
+    GMM_TEXTURE_INFO         TexInfoUVPlane;
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+
+    __GMM_ASSERT(pTexInfo);
+    __GMM_ASSERT(pTexInfo->Flags.Info.RedecribedPlanes);
+    __GMM_ASSERT(pRedescribedTexInfo);
+
+    *pRedescribedTexInfo                             = *pTexInfo;
+    pRedescribedTexInfo->Flags.Info.RedecribedPlanes = 0;
+#ifdef _WIN32
+    memcpy_s(&TexInfoUVPlane, sizeof(GMM_TEXTURE_INFO), pTexInfo, sizeof(GMM_TEXTURE_INFO));
+#else
+    memcpy(&TexInfoUVPlane, pTexInfo, sizeof(GMM_TEXTURE_INFO));
+#endif // _WIN32
+
+    if(GmmIsUVPacked(pTexInfo->Format))
+    {
+        // UV packed resources must have two seperate
+        // tiling modes per plane, due to the packed
+        // UV plane having twice the bits per pixel
+        // as the Y plane.
+        if((PlaneType == GMM_PLANE_U) || (PlaneType == GMM_PLANE_V))
+        {
+            switch(pTexInfo->Format)
+            {
+                // GMM_FORMAT_NV11  :                               linear format, no tiling supported, hence no redescription supported
+                case GMM_FORMAT_NV12:
+                case GMM_FORMAT_NV21:
+                    pRedescribedTexInfo->BitsPerPixel = 16;
+                    pRedescribedTexInfo->BaseWidth    = GFX_CEIL_DIV(pTexInfo->BaseWidth, 2);
+                    pRedescribedTexInfo->BaseHeight   = GFX_CEIL_DIV(pTexInfo->BaseHeight, 2);
+                    break;
+                case GMM_FORMAT_P208:
+                    pRedescribedTexInfo->BitsPerPixel = 16;
+                    pRedescribedTexInfo->BaseWidth    = GFX_CEIL_DIV(pTexInfo->BaseWidth, 2);
+                    // same base height as main surface
+                    break;
+                case GMM_FORMAT_P010:
+                case GMM_FORMAT_P012:
+                case GMM_FORMAT_P016:
+                    pRedescribedTexInfo->BitsPerPixel = 32;
+                    pRedescribedTexInfo->BaseWidth    = GFX_CEIL_DIV(pTexInfo->BaseWidth, 2);
+                    pRedescribedTexInfo->BaseHeight   = GFX_CEIL_DIV(pTexInfo->BaseHeight, 2);
+                    break;
+                case GMM_FORMAT_P216:
+                    pRedescribedTexInfo->BitsPerPixel = 32;
+                    pRedescribedTexInfo->BaseWidth    = GFX_CEIL_DIV(pTexInfo->BaseWidth, 2);
+                    // same base height as main surface
+                    break;
+                default:
+                    GMM_ASSERTDPF(0, "Unsupported format/pixel size combo!");
+                    Status = GMM_INVALIDPARAM;
+                    goto ERROR_CASE;
+                    break;
+            }
+        }
+    }
+    else
+    {
+        // Non-UV packed surfaces TileMode of each plane is same as that of pTexInfo
+        if((PlaneType == GMM_PLANE_U) || (PlaneType == GMM_PLANE_V))
+        { // Non-UV packed surfaces only require the plane descriptors have proper height and width for each plane
+            switch(pTexInfo->Format)
+            {
+                case GMM_FORMAT_IMC1:
+                case GMM_FORMAT_IMC2:
+                case GMM_FORMAT_IMC3:
+                case GMM_FORMAT_IMC4:
+                case GMM_FORMAT_MFX_JPEG_YUV420:
+                    pRedescribedTexInfo->BaseWidth  = GFX_CEIL_DIV(pTexInfo->BaseWidth, 2);
+                    pRedescribedTexInfo->BaseHeight = GFX_CEIL_DIV(pTexInfo->BaseHeight, 2);
+                    break;
+                case GMM_FORMAT_MFX_JPEG_YUV422V:
+                    pRedescribedTexInfo->BaseHeight = GFX_CEIL_DIV(pTexInfo->BaseHeight, 2);
+                    break;
+                case GMM_FORMAT_MFX_JPEG_YUV411R_TYPE:
+                    pRedescribedTexInfo->BaseHeight = GFX_CEIL_DIV(pTexInfo->BaseHeight, 4);
+                    break;
+                case GMM_FORMAT_MFX_JPEG_YUV411:
+                    pRedescribedTexInfo->BaseWidth = GFX_CEIL_DIV(pTexInfo->BaseWidth, 4);
+                    break;
+                case GMM_FORMAT_MFX_JPEG_YUV422H:
+                    pRedescribedTexInfo->BaseWidth = GFX_CEIL_DIV(pTexInfo->BaseWidth, 2);
+                    break;
+                default:
+                    GMM_ASSERTDPF(0, "Unsupported format/pixel size combo!");
+                    Status = GMM_INVALIDPARAM;
+                    goto ERROR_CASE;
+                    break;
+            }
+        }
+    }
+
+    SetTileMode(pRedescribedTexInfo);
+    switch(pRedescribedTexInfo->BitsPerPixel)
+    {
+        case 8:
+            pRedescribedTexInfo->Format = GMM_FORMAT_R8_UINT;
+            break;
+        case 16:
+            pRedescribedTexInfo->Format = GMM_FORMAT_R16_UINT;
+            break;
+        case 32:
+            pRedescribedTexInfo->Format = GMM_FORMAT_R32_UINT;
+            break;
+        default:
+            GMM_ASSERTDPF(0, "Unsupported format/pixel size combo!");
+            Status = GMM_INVALIDPARAM;
+            goto ERROR_CASE;
+            break;
+    }
+    if(pTexInfo->ArraySize > 1)
+    {
+        pRedescribedTexInfo->OffsetInfo.Plane.ArrayQPitch = 0; // no longer a planar format on redescription
+        pRedescribedTexInfo->Alignment.QPitch             = GFX_ALIGN(pRedescribedTexInfo->BaseHeight, pTexInfo->Alignment.VAlign);
+        pRedescribedTexInfo->OffsetInfo.Texture2DOffsetInfo.ArrayQPitchRender =
+        pRedescribedTexInfo->OffsetInfo.Texture2DOffsetInfo.ArrayQPitchLock = pRedescribedTexInfo->Alignment.QPitch * pTexInfo->Pitch;
+        pRedescribedTexInfo->Size                                           = pRedescribedTexInfo->Alignment.QPitch * pTexInfo->Pitch * pTexInfo->ArraySize;
+    }
+    else
+    {
+        pRedescribedTexInfo->Size = (GFX_ALIGN(pRedescribedTexInfo->BaseHeight, pTexInfo->Alignment.VAlign)) * pTexInfo->Pitch;
+    }
+
+ERROR_CASE:
+    return (Status == GMM_SUCCESS) ? true : false;
+}
