@@ -971,7 +971,7 @@ TEST_F(CTestGen12dGPUResource, DISABLED_TestPlanarYCompressedResource)
 }
 
 /// @brief ULT for Planar Ys Compressed resource
-TEST_F(CTestGen12dGPUResource, TestPlanarTile64CompressedResource)
+TEST_F(CTestGen12dGPUResource, TestPlanarYsCompressedResource)
 {
     const TEST_TILE_TYPE TileTypeSupported = {TEST_TILEYS};
 
