@@ -388,7 +388,6 @@ include_directories(BEFORE ${BS_DIR_GMMLIB}/)
 
 include_directories(BEFORE ${PROJECT_SOURCE_DIR})
 
-bs_add_some_common_includes()
 
   include_directories(
   ${BS_DIR_GMMLIB}
