@@ -64,26 +64,26 @@ GmmLib::PlatformInfo *GmmLib::PlatformInfo::Create(PLATFORM Platform, bool Overr
     }
 #endif
     GMM_DPF_EXIT;
-    if (GFX_GET_CURRENT_RENDERCORE(Platform) >= IGFX_GEN12_CORE)
+    switch(GFX_GET_CURRENT_RENDERCORE(Platform))
     {
-        return new GmmLib::PlatformInfoGen12(Platform);
+        case IGFX_GEN12LP_CORE:
+        case IGFX_GEN12_CORE:
+            return new GmmLib::PlatformInfoGen12(Platform);
+            break;
+        case IGFX_GEN11_CORE:
+            return new GmmLib::PlatformInfoGen11(Platform);
+            break;
+        case IGFX_GEN10_CORE:
+            return new GmmLib::PlatformInfoGen10(Platform);
+            break;
+        case IGFX_GEN9_CORE:
+            return new GmmLib::PlatformInfoGen9(Platform);
+            break;
+        default:
+            return new GmmLib::PlatformInfoGen8(Platform);
+            break;
     }
-    else if(GFX_GET_CURRENT_RENDERCORE(Platform) >= IGFX_GEN11_CORE)
-    {
-        return new GmmLib::PlatformInfoGen11(Platform);
-    }
-    else if(GFX_GET_CURRENT_RENDERCORE(Platform) >= IGFX_GEN10_CORE)
-    {
-        return new GmmLib::PlatformInfoGen10(Platform);
-    }
-    else if(GFX_GET_CURRENT_RENDERCORE(Platform) >= IGFX_GEN9_CORE)
-    {
-        return new GmmLib::PlatformInfoGen9(Platform);
-    }
-    else
-    {
-        return new GmmLib::PlatformInfoGen8(Platform);
-    }
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -103,34 +103,32 @@ GmmLib::GmmCachePolicyCommon *GmmLib::GmmCachePolicyCommon::Create()
         return pGmmGlobalContext->GetCachePolicyObj();
     }
 
-    if (GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN12_CORE)
-    {
-        if(pGmmGlobalContext->GetSkuTable().FtrLocalMemory)
+        switch(GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform))
         {
-            pGmmCachePolicy = new GmmLib::GmmGen12dGPUCachePolicy(CachePolicy);
+            case IGFX_GEN12LP_CORE:
+            case IGFX_GEN12_CORE:
+                if(pGmmGlobalContext->GetSkuTable().FtrLocalMemory)
+                {
+                    pGmmCachePolicy = new GmmLib::GmmGen12dGPUCachePolicy(CachePolicy);
+                }
+                else
+                {
+                    pGmmCachePolicy = new GmmLib::GmmGen12CachePolicy(CachePolicy);
+                }
+                break;
+            case IGFX_GEN11_CORE:
+                pGmmCachePolicy = new GmmLib::GmmGen11CachePolicy(CachePolicy);
+                break;
+            case IGFX_GEN10_CORE:
+                pGmmCachePolicy = new GmmLib::GmmGen10CachePolicy(CachePolicy);
+                break;
+            case IGFX_GEN9_CORE:
+                pGmmCachePolicy = new GmmLib::GmmGen9CachePolicy(CachePolicy);
+                break;
+            default:
+                pGmmCachePolicy = new GmmLib::GmmGen8CachePolicy(CachePolicy);
+                break;
         }
-        else
-        {
-            pGmmCachePolicy = new GmmLib::GmmGen12CachePolicy(CachePolicy);
-        }
-    }
-    else if(GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN11_CORE)
-    {
-        pGmmCachePolicy = new GmmLib::GmmGen11CachePolicy(CachePolicy);
-    }
-    else if(GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN10_CORE)
-    {
-        pGmmCachePolicy = new GmmLib::GmmGen10CachePolicy(CachePolicy);
-    }
-
-    else if(GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN9_CORE)
-    {
-        pGmmCachePolicy = new GmmLib::GmmGen9CachePolicy(CachePolicy);
-    }
-    else
-    {
-        pGmmCachePolicy = new GmmLib::GmmGen8CachePolicy(CachePolicy);
-    }
 
     if(!pGmmCachePolicy)
     {
@@ -177,6 +175,7 @@ GmmLib::GmmTextureCalc *GmmLib::GmmTextureCalc::Create(PLATFORM Platform, uint8_
         case IGFX_GEN11_CORE:
             return new GmmGen11TextureCalc();
             break;
+        case IGFX_GEN12LP_CORE:
         case IGFX_GEN12_CORE:
         default:
             return new GmmGen12TextureCalc();
