@@ -172,6 +172,16 @@ else                                                \
     ClientType = GMM_UNDEFINED_CLIENT;              \
 }                                                   \
 
+#define GET_RES_CLIENT_TYPE(pResourceInfo, ClientType)  \
+if(pResourceInfo)                                       \
+{                                                       \
+    ClientType = (pResourceInfo)->GetClientType();      \
+}                                                       \
+else                                                    \
+{                                                       \
+    ClientType = GMM_UNDEFINED_CLIENT;                  \
+}                                                       \
+
 //===========================================================================
 // typedef:
 //     GMM_TEXTURE_LAYOUT
@@ -197,7 +207,9 @@ typedef enum GMM_TILE_TYPE_ENUM
     GMM_TILED_X,
     GMM_TILED_Y,
     GMM_TILED_W,
-    GMM_NOT_TILED
+    GMM_NOT_TILED,
+    GMM_TILED_4,
+    GMM_TILED_64
 }GMM_TILE_TYPE;
 
 //===========================================================================
@@ -402,7 +414,7 @@ typedef enum GMM_RESOURCE_FORMAT_ENUM
 {
     GMM_FORMAT_INVALID = 0, // <-- This stays zero! (For boolean and valid range checks.)
 
-    #define GMM_FORMAT(Name, bpe, Width, Height, Depth, IsRT, IsASTC, RcsSurfaceFormat, AuxL1eFormat, Availability) \
+    #define GMM_FORMAT(Name, bpe, Width, Height, Depth, IsRT, IsASTC, RcsSurfaceFormat, SSCompressionFmt, Availability) \
         GMM_FORMAT_##Name, \
         GMM_FORMAT_##Name##_TYPE = GMM_FORMAT_##Name, // TODO(Minor): Remove _TYPE suffix from every GMM_FORMAT_ reference throughout driver and delete this aliasing. (And remove the \ from the line above.)
     #include "GmmFormatTable.h"
@@ -429,7 +441,7 @@ typedef enum GMM_SURFACESTATE_FORMAT_ENUM
     GMM_SURFACESTATE_FORMAT_INVALID = -1, // Can't use zero since that's an actual enum value.
 
     #define GMM_FORMAT_INCLUDE_SURFACESTATE_FORMATS_ONLY
-    #define GMM_FORMAT(Name, bpe, Width, Height, Depth, IsRT, IsASTC, RcsSurfaceFormat, AuxL1eFormat, Availability) \
+    #define GMM_FORMAT(Name, bpe, Width, Height, Depth, IsRT, IsASTC, RcsSurfaceFormat, SSCompressionFmt, Availability) \
         GMM_SURFACESTATE_FORMAT_##Name = RcsSurfaceFormat,
     #include "GmmFormatTable.h"
 } GMM_SURFACESTATE_FORMAT;
@@ -513,7 +525,9 @@ typedef enum GMM_TILE_WALK_REC
     GMM_HW_TILED_W_WALK     = 2,
     GMM_HW_TILED_YF_WALK    = 3,
     GMM_HW_TILED_YS_WALK    = 4,
-    GMM_HW_NOT_TILED        = 5
+    GMM_HW_TILED_4_WALK     = 5,
+    GMM_HW_TILED_64_WALK    = 6,
+    GMM_HW_NOT_TILED        = 7
 } GMM_TILE_WALK;
 
 //===========================================================================

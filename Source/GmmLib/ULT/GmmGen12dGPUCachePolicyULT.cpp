@@ -49,7 +49,7 @@ void CTestGen12dGPUCachePolicy::SetUpGen12dGPUVariant(PRODUCT_FAMILY platform)
 
     GfxPlatform.eProductFamily = platform;
 
-    GfxPlatform.eRenderCoreFamily = IGFX_GEN12_CORE;
+    GfxPlatform.eRenderCoreFamily = IGFX_XE_HP_CORE;
 
     pGfxAdapterInfo = (ADAPTER_INFO *)malloc(sizeof(ADAPTER_INFO));
     if(pGfxAdapterInfo)
@@ -58,7 +58,7 @@ void CTestGen12dGPUCachePolicy::SetUpGen12dGPUVariant(PRODUCT_FAMILY platform)
 
         pGfxAdapterInfo->SkuTable.FtrLinearCCS             = 1; //legacy y =>0 - test both
         pGfxAdapterInfo->SkuTable.FtrStandardMipTailFormat = 1;
-        pGfxAdapterInfo->SkuTable.FtrTileY                 = 1;
+        pGfxAdapterInfo->SkuTable.FtrTileY                 = 0;
         pGfxAdapterInfo->SkuTable.FtrLocalMemory           = 1;
         CommonULT::SetUpTestCase();
     }
@@ -80,6 +80,15 @@ TEST_F(CTestGen12dGPUCachePolicy, TestGen12dGPU_DG1CachePolicy)
     TearDownGen12dGPUVariant();
 }
 
+TEST_F(CTestGen12dGPUCachePolicy, TestGen12dGPU_XE_HP_SDVCachePolicy)
+{
+    SetUpGen12dGPUVariant(IGFX_XE_HP_SDV);
+
+    CheckL3Gen12dGPUCachePolicy();
+
+    TearDownGen12dGPUVariant();
+}
+
 void CTestGen12dGPUCachePolicy::CheckSpecialMocs(uint32_t                    Usage,
                                                uint32_t                    AssignedMocsIdx,
                                                GMM_CACHE_POLICY_ELEMENT ClientRequest)
@@ -88,11 +97,13 @@ void CTestGen12dGPUCachePolicy::CheckSpecialMocs(uint32_t                    Usa
     {
         EXPECT_EQ(AssignedMocsIdx, 60) << "Usage# " << Usage << ": Incorrect Index for CCS";
         EXPECT_EQ(0, ClientRequest.L3) << "Usage# " << Usage << ": Incorrect L3 cacheability for CCS";
+        EXPECT_EQ(0, ClientRequest.UcLookup) << "Usage# " << Usage << ": Incorrect L3 LookUp cacheability for CCS";
     }
     else if(Usage == GMM_RESOURCE_USAGE_CCS_MEDIA_WRITABLE) // 61
     {
         EXPECT_EQ(AssignedMocsIdx, 61) << "Usage# " << Usage << ": Incorrect Index for CCS";
         EXPECT_EQ(0, ClientRequest.L3) << "Usage# " << Usage << ": Incorrect L3 cacheability for CCS";
+        EXPECT_EQ(0, ClientRequest.UcLookup) << "Usage# " << Usage << ": Incorrect L3 LookUp cacheability for CCS";
     }
     else if(Usage == GMM_RESOURCE_USAGE_MOCS_62) //62
     {
@@ -145,12 +156,12 @@ void CTestGen12dGPUCachePolicy::CheckL3Gen12dGPUCachePolicy()
         // Check if Mocs Index is not greater than GMM_MAX_NUMBER_MOCS_INDEXES
         EXPECT_GT(GMM_MAX_NUMBER_MOCS_INDEXES, AssignedMocsIdx) << "Usage# " << Usage << ": MOCS Index greater than MAX allowed (63)";
 
-        if(GfxPlatform.eProductFamily <= IGFX_DG1)
+        if(GfxPlatform.eProductFamily <= IGFX_XE_HP_SDV)
         {
             CheckMocsIdxHDCL1(Usage, AssignedMocsIdx, ClientRequest);
         }
 
-        if(GfxPlatform.eProductFamily <= IGFX_DG1)
+        if(GfxPlatform.eProductFamily <= IGFX_XE_HP_SDV)
         {
             CheckSpecialMocs(Usage, AssignedMocsIdx, ClientRequest);
         }

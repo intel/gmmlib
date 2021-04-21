@@ -585,7 +585,7 @@ bool GmmLib::GmmTextureCalc::GmmGetD3DToHwTileConversion(GMM_TEXTURE_INFO *pTexI
     }
 
     // for TileYS, no conversion
-    if(pTexInfo->Flags.Info.TiledYs || pTexInfo->Flags.Info.Linear)
+    if(GMM_IS_64KB_TILE(pTexInfo->Flags) || pTexInfo->Flags.Info.Linear)
     {
         *pColFactor = 1;
         *pRowFactor = 1;

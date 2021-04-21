@@ -35,8 +35,8 @@ using namespace std;
 void CTestGen12dGPUResource::SetUpTestCase()
 {
     printf("%s\n", __FUNCTION__);
-    GfxPlatform.eProductFamily    = IGFX_DG1;
-    GfxPlatform.eRenderCoreFamily = IGFX_GEN12_CORE;
+    GfxPlatform.eProductFamily    = IGFX_XE_HP_SDV;
+    GfxPlatform.eRenderCoreFamily = IGFX_XE_HP_CORE;
 
     pGfxAdapterInfo = (ADAPTER_INFO *)malloc(sizeof(ADAPTER_INFO));
     if(pGfxAdapterInfo)
@@ -971,9 +971,8 @@ TEST_F(CTestGen12dGPUResource, DISABLED_TestPlanarYCompressedResource)
 }
 
 /// @brief ULT for Planar Ys Compressed resource
-TEST_F(CTestGen12dGPUResource, TestPlanarYsCompressedResource)
+TEST_F(CTestGen12dGPUResource, TestPlanarTile64CompressedResource)
 {
-    const TEST_TILE_TYPE TileTypeSupported = {TEST_TILEYS};
 
     const uint32_t TileSize[TEST_BPP_MAX][2] = {
     {256, 256}, {512, 128}, {512, 128}, {1024, 64}, {1024, 64}}; // TileYS
@@ -1018,6 +1017,7 @@ TEST_F(CTestGen12dGPUResource, TestPlanarYsCompressedResource)
         ResourceInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
 	
 	GMM_REQ_OFFSET_INFO OffsetInfo = {};
+
         OffsetInfo.ReqLock             = 1;
         OffsetInfo.ReqRender           = 1;
         OffsetInfo.Plane               = GMM_PLANE_Y;
@@ -1030,9 +1030,21 @@ TEST_F(CTestGen12dGPUResource, TestPlanarYsCompressedResource)
         //    gmmParams.Flags.Gpu.UnifiedAuxSurface = 0;
 	//    GMM_RESOURCE_INFO *AuxResourceInfo;
         //    AuxResourceInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
+        //    EXPECT_EQ(ResourceInfo->GetSizeAuxSurface(GMM_AUX_CCS), AuxResourceInfo->G
+
+        // add verification
+
+        //{ //separate Aux
+        //    gmmParams.Flags.Gpu.UnifiedAuxSurface = 0;
+
+        //    GMM_RESOURCE_INFO *AuxResourceInfo;
+        //    AuxResourceInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
+
         //    EXPECT_EQ(ResourceInfo->GetSizeAuxSurface(GMM_AUX_CCS), AuxResourceInfo->GetSizeSurface());
+
         //    pGmmULTClientContext->DestroyResInfoObject(AuxResourceInfo);
         //}
+
         pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
@@ -2166,12 +2178,12 @@ TEST_F(CTestGen12dGPUResource, DISABLED_TestLinearCompressedResource)
         pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
-///TODO Add MSAA/Depth Compressed Resource tests
+///Add MSAA/Depth Compressed Resource tests
 TEST_F(CTestGen12dGPUResource, DISABLED_TestLosslessMSAACompressedResource)
 {
 }
 
-///TODO Add MSAA/Depth Compressed Resource tests
+///Add MSAA/Depth Compressed Resource tests
 TEST_F(CTestGen12dGPUResource, DISABLED_TestDepthCompressedResource)
 {
     const uint32_t HAlign = 8;

@@ -402,6 +402,18 @@ void __GmmPlatformResetRestrictions(__GMM_BUFFER_TYPE *pRestriction)
     pRestriction->MinDepth = 0xffffffff;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+/// Internal function resets the restrictions and puts the allocation in invalid state
+///
+/// @param[in]  pTexInfo: ptr to ::GMM_TEXTURE_INFO,
+/// @param[in]  pRestrictions: reset the restrictions to invalid state.
+///
+/////////////////////////////////////////////////////////////////////////////////////
+void GmmLib::GmmTextureCalc::ResetRestrictions(__GMM_BUFFER_TYPE *pRestriction)
+{
+    pRestriction->MinDepth = 0xffffffff;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// Internal function returns the best restrictions depending on how the surface may
@@ -449,7 +461,7 @@ void GmmLib::GmmTextureCalc::GetResRestrictions(GMM_TEXTURE_INFO * pTexinfo,
         return;
     }
 
-    __GmmPlatformResetRestrictions(&Restrictions); //Set to Default
+    ResetRestrictions(&Restrictions); //Set to Default
 
     // Get worst case restrictions that match GPU flags set in resource
     switch(pTexinfo->Type)
@@ -577,7 +589,14 @@ void GmmLib::GmmTextureCalc::GetResRestrictions(GMM_TEXTURE_INFO * pTexinfo,
     if(pTexinfo->Flags.Info.RenderCompressed ||
        pTexinfo->Flags.Info.MediaCompressed)
     {
-        Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, (!WA16K ? GMM_KBYTE(64) : GMM_KBYTE(16)));
+      if(pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS)
+        {
+            Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, GMM_KBYTE(64));
+        }
+        else // only for platforms having auxtable
+        {
+            Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, (!WA16K ? GMM_KBYTE(64) : GMM_KBYTE(16)));
+        }
     }
 
     GMM_DPF_EXIT;

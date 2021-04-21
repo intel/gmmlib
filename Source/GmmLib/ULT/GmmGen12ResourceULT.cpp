@@ -45,7 +45,7 @@ void CTestGen12Resource::SetUpTestCase()
 
         pGfxAdapterInfo->SkuTable.FtrLinearCCS = 1; //legacy y =>0 - test both
         pGfxAdapterInfo->SkuTable.FtrTileY     = 1;
-        pGfxAdapterInfo->SkuTable.FtrLLCBypass = 1;
+        pGfxAdapterInfo->SkuTable.FtrLLCBypass = 0;
         CommonULT::SetUpTestCase();
     }
 }

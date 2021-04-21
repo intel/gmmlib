@@ -222,6 +222,49 @@ typedef struct GMM_S3D_INFO_REC
 
 //===========================================================================
 // typedef:
+//        GMM_MULTI_TILE_ARCH
+//
+// Description:
+//     This structure is provides an advanced allocation interface for 4xXeHP
+//     multi tile Gpu support
+//---------------------------------------------------------------------------
+typedef struct GMM_MULTI_TILE_ARCH_REC // FtrMultiTileArch Advanced Parameters...
+{
+
+    uint8_t Enable          : 1;    // When FALSE, this struct is ignored
+                                    // and GMM will make such decisions
+                                    // based on the process's default
+                                    // tile assignment from KMD.
+
+    uint8_t TileInstanced   : 1;    // When TRUE allocation is Tile
+                                    // instanced resource
+
+    uint8_t GpuVaMappingSet;        // Bitmask indicating which tiles
+                                    // should receive page table updates
+                                    // when this allocation is mapped.
+                                    // For all tiles set ADAPTER_INFO.MultiTileArch.TileMask
+
+    uint8_t LocalMemEligibilitySet; // Bitmask indicating which tile's
+                                    // Local Memory this allocation
+                                    // can reside in--i.e. in addition to
+                                    // its preferred set, which others
+                                    // can it be migrated to under memory
+                                    // pressure. Entirely zeroed mask
+                                    // would be used for NonLocalOnly
+                                    // allocations.
+
+    uint8_t LocalMemPreferredSet;   // Bitmask indicating subset of above
+                                    // eligibility set that is preferred
+                                    // above the others. Entirely zeroed
+                                    // mask is equivalent to mask of all
+                                    // ones--i.e. "no preference within
+                                    // eligibility set".
+
+    uint32_t Reserved;
+
+} GMM_MULTI_TILE_ARCH;
+//===========================================================================
+// typedef:
 //        GMM_RESCREATE_PARAMS
 //
 // Description:
@@ -285,6 +328,7 @@ typedef struct GMM_RESCREATE_PARAMS_REC
     uint32_t                               MaximumRenamingListLength;
     uint8_t                             NoGfxMemory;
     GMM_RESOURCE_INFO                   *pPreallocatedResInfo;
+    GMM_MULTI_TILE_ARCH                 MultiTileArch;
 
 } GMM_RESCREATE_PARAMS;
 
@@ -362,6 +406,7 @@ typedef struct GMM_RESCREATE_CUSTOM_PARAMS__REC
 //     C. GmmResGetAuxSurfaceOffset(pRes, GMM_AUX_CCS or GMM_AUX_ZCS)
 typedef enum
 {
+    GMM_AUX_INVALID,   // Main resource
     GMM_AUX_CCS,    // RT buffer's color control surface (Unpadded)
     GMM_AUX_Y_CCS,  // color control surface for Y-plane
     GMM_AUX_UV_CCS, // color control surface for UV-plane

@@ -181,8 +181,8 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
             pTexInfo->Flags.Info.TiledW  = 0;
             pTexInfo->Flags.Info.TiledX  = 0;
             pTexInfo->Flags.Info.TiledYf = 0;
-            pTexInfo->Flags.Info.TiledYs = 0;
 
+            GMM_SET_64KB_TILE(pTexInfo->Flags, 0);
             GMM_SET_4KB_TILE(pTexInfo->Flags, 1);
         }
         else
@@ -197,7 +197,11 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
         // With CCS surface creation, clients send height, width, depth, etc. of
         // the associated RenderTarget--and here we convert to the appropriate CCS
         // creation parameters...
-        __GMM_ASSERT((pTexInfo->Flags.Info.Linear + pTexInfo->Flags.Info.TiledW + pTexInfo->Flags.Info.TiledX + pTexInfo->Flags.Info.TiledY) == 1);
+        __GMM_ASSERT((!pGmmLibContext->GetSkuTable().FtrTileY ||
+                      (pTexInfo->Flags.Info.Linear + pTexInfo->Flags.Info.TiledW + pTexInfo->Flags.Info.TiledX + pTexInfo->Flags.Info.TiledY)) == 1);
+
+        __GMM_ASSERT((pGmmLibContext->GetSkuTable().FtrTileY || (pTexInfo->Flags.Info.Linear + pTexInfo->Flags.Info.Tile4 + pTexInfo->Flags.Info.Tile64)) == 1);
+
         __GMM_ASSERT((pTexInfo->MSAA.NumSamples == 1) || (pTexInfo->MSAA.NumSamples == 2) || (pTexInfo->MSAA.NumSamples == 4) ||
                      (pTexInfo->MSAA.NumSamples == 8) || (pTexInfo->MSAA.NumSamples == 16));
 
@@ -210,8 +214,8 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
             pTexInfo->Flags.Info.TiledW  = 0;
             pTexInfo->Flags.Info.TiledX  = 0;
             pTexInfo->Flags.Info.TiledYf = 0;
-            pTexInfo->Flags.Info.TiledYs = 0;
 
+            GMM_SET_64KB_TILE(pTexInfo->Flags, 0);
             GMM_SET_4KB_TILE(pTexInfo->Flags, 1);
 
             //Clear compression request in CCS
@@ -237,22 +241,29 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
                 GMM_ASSERTDPF((pTexInfo->MaxLod == 0), "Stencil Buffer LOD's not supported!");
             }
 
-            // Separate Stencil Tile-W Gen8-Gen11, otherwise Tile-Y
-            pTexInfo->Flags.Info.Linear  = 0;
-            pTexInfo->Flags.Info.TiledX  = 0;
-            pTexInfo->Flags.Info.TiledYf = 0;
-            pTexInfo->Flags.Info.TiledYs = 0;
-            pTexInfo->Flags.Info.TiledW  = 0;
-            pTexInfo->Flags.Info.TiledY  = 0;
-
-            if(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE &&
-               GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN11_CORE)
+            if(pGmmGlobalContext->GetSkuTable().FtrTileY)
             {
-                pTexInfo->Flags.Info.TiledW = 1;
+                // Separate Stencil Tile-W Gen8-Gen11, otherwise Tile-Y
+                pTexInfo->Flags.Info.Linear  = 0;
+                pTexInfo->Flags.Info.TiledX  = 0;
+                pTexInfo->Flags.Info.TiledYf = 0;
+                pTexInfo->Flags.Info.TiledW  = 0;
+                GMM_SET_4KB_TILE(pTexInfo->Flags, 0);
+                GMM_SET_64KB_TILE(pTexInfo->Flags, 0);
+
+                if(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE &&
+                   GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN11_CORE)
+                {
+                    pTexInfo->Flags.Info.TiledW = 1;
+                }
+                else
+                {
+                    GMM_SET_4KB_TILE(pTexInfo->Flags, 1);
+                }
             }
             else
             {
-                GMM_SET_4KB_TILE(pTexInfo->Flags, 1);
+                __GMM_ASSERT(pTexInfo->Flags.Info.Tile4 + pTexInfo->Flags.Info.Tile64 == 1);
             }
         }
         else

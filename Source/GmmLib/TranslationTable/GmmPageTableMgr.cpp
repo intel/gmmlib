@@ -353,7 +353,8 @@ GmmLib::GmmPageTableMgr::GmmPageTableMgr(GMM_DEVICE_CALLBACKS_INT *DeviceCB, uin
         ptr->pClientContext = pClientContextIn;
         memcpy(&ptr->DeviceCbInt, DeviceCB, sizeof(GMM_DEVICE_CALLBACKS_INT));
 
-        if(pGmmGlobalContext->GetSkuTable().FtrE2ECompression)
+        if(pGmmGlobalContext->GetSkuTable().FtrE2ECompression &&
+           !pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS)
         {
             __GMM_ASSERT(TTFlags & AUXTT); //Aux-TT is mandatory
             ptr->AuxTTObj = new AuxTable();

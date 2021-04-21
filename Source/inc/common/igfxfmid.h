@@ -71,7 +71,8 @@ typedef enum {
     IGFX_ALDERLAKE_S,
     IGFX_ALDERLAKE_P,
 
-    IGFX_DG1             = 1210,
+    IGFX_DG1  = 1210,
+    IGFX_XE_HP_SDV = 1250,
 
     IGFX_MAX_PRODUCT,
     IGFX_GENNEXT               = 0x7ffffffe,
@@ -124,6 +125,8 @@ typedef enum {
     IGFX_GEN11LP_CORE    = 16,  //Gen11 LP Family
     IGFX_GEN12_CORE      = 17,  //Gen12 Family
     IGFX_GEN12LP_CORE    = 18,  //Gen12 LP Family
+    IGFX_XE_HP_CORE      =0x0c05, //XE_HP family
+
                                 //Please add new GENs BEFORE THIS !
     IGFX_MAX_CORE,
 
@@ -279,7 +282,8 @@ typedef enum __NATIVEGTTYPE
 #define GFX_GET_CURRENT_RENDERCORE(p)  ( (p).eRenderCoreFamily )
 
 // This macro returns true if the product family is discrete
-#define GFX_IS_DISCRETE_FAMILY(p)      ( ( GFX_GET_CURRENT_PRODUCT(p) == IGFX_DG1 ) )
+#define GFX_IS_DISCRETE_FAMILY(p)      ( ( GFX_GET_CURRENT_PRODUCT(p) == IGFX_DG1 ) ||  \
+                                         ( GFX_GET_CURRENT_PRODUCT(p) == IGFX_XE_HP_SDV ))
 
 // These macros return true/false depending on the current render family.
 #define GFX_IS_NAPA_RENDER_FAMILY(p)   ( ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN3_CORE )    ||   \
@@ -1185,6 +1189,24 @@ typedef enum __NATIVEGTTYPE
 #define ITGL_LP_1x2x16_HALO_WS_45W_DEVICE_F0_ID 0x9A70      // Mobile WS - H81 - 45W
 #define ITGL_LP_1x2x16_DESK_WS_65W_DEVICE_F0_ID 0x9A78      // Desktop WS- S81 - 35W/65W/95W
 #define ITGL_LP_GT0_ULT_DEVICE_F0_ID            0x9A7F      // GT0 - No GFX, Display Only
+
+#define DEV_ID_0205                                0x0205
+#define DEV_ID_020A                                0x020A
+//Internal Validation Sku's Only
+#define DEV_ID_0201                                0x0201
+#define DEV_ID_0202                                0x0202
+#define DEV_ID_0203                                0x0203
+#define DEV_ID_0204                                0x0204
+#define DEV_ID_0206                                0x0206
+#define DEV_ID_0207                                0x0207
+#define DEV_ID_0208                                0x0208
+#define DEV_ID_0209                                0x0209
+#define DEV_ID_020B                                0x020B
+#define DEV_ID_020C                                0x020C
+#define DEV_ID_020D                                0x020D
+#define DEV_ID_020E                                0x020E
+#define DEV_ID_020F                                0x020F
+#define DEV_ID_0210                                0x0210
 
 #define DEV_ID_FF20                             0xFF20
 #define DEV_ID_9A49                             0x9A49

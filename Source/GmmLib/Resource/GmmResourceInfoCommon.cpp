@@ -349,6 +349,11 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
             if(Surf.Flags.Gpu.IndirectClearColor ||
                Surf.Flags.Gpu.ColorDiscard)
             {
+                if(pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS && AuxSurf.Type == RESOURCE_INVALID)
+                {
+                    //ie only AuxType is CCS, doesn't exist with FlatCCS, enable it for CC
+                    AuxSurf.Type = Surf.Type;
+                }
                 if(!Surf.Flags.Gpu.TiledResource)
                 {
                     AuxSurf.CCSize = PAGE_SIZE; // 128bit Float Value + 32bit RT Native Value + Padding.
@@ -1748,7 +1753,14 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::CpuBlt(GMM_RES_COPY_BLT *pBlt
                     !(pTexInfo->Flags.Info.TiledYf ||
                       GMM_IS_64KB_TILE(pTexInfo->Flags)))
             {
-                SwizzledSurface.pSwizzle = &INTEL_TILE_Y;
+                if(pGmmGlobalContext->GetSkuTable().FtrTileY)
+                {
+                    SwizzledSurface.pSwizzle = &INTEL_TILE_Y;
+                }
+                else
+                {
+                    SwizzledSurface.pSwizzle = &INTEL_TILE_4;
+                }
             }
             else if(pTexInfo->Flags.Info.TiledX)
             {
@@ -1774,7 +1786,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::CpuBlt(GMM_RES_COPY_BLT *pBlt
                         CASE(Layout, Tile, msaa, xD, 128);    \
                     }
 
-                #define SWITCH_MSAA_INTEL(Layout, Tile, xD)     \
+                #define SWITCH_MSAA_TILE64(Layout, Tile, xD)     \
                 {\
                     switch(pTexInfo->MSAA.NumSamples)           \
                     {                                           \
@@ -1790,7 +1802,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::CpuBlt(GMM_RES_COPY_BLT *pBlt
                         case 4:                                 \
                         case 8:                                 \
                         case 16:                                \
-                            SWITCH_BPP(Layout, Tile, MSAA4_, xD);  \
+                            SWITCH_BPP(Layout, Tile, MSAA_, xD);  \
                             break;                              \
                     }\
                 }
@@ -1825,13 +1837,17 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::CpuBlt(GMM_RES_COPY_BLT *pBlt
                 {
                     if(pTexInfo->Flags.Info.TiledYf)
                     {
-                        SWITCH_BPP(INTEL, TILEYF, , 3D_);
+                        SWITCH_BPP(INTEL, TILE_YF, , 3D_);
                     }
                     else if(GMM_IS_64KB_TILE(pTexInfo->Flags))
                     {
                         if(pGmmGlobalContext->GetSkuTable().FtrTileY)
                         {
-                            SWITCH_BPP(INTEL, TILEYS, , 3D_);
+                            SWITCH_BPP(INTEL, TILE_YS, , 3D_);
+                        }
+                        else
+                        {
+                            SWITCH_BPP(INTEL, TILE_64, , 3D_);
                         }
                     }
                 }
@@ -1839,13 +1855,17 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::CpuBlt(GMM_RES_COPY_BLT *pBlt
                 {
                     if(pTexInfo->Flags.Info.TiledYf)
                     {
-                        SWITCH_MSAA(INTEL, TILEYF, );
+                        SWITCH_MSAA(INTEL, TILE_YF, );
                     }
                     else if(GMM_IS_64KB_TILE(pTexInfo->Flags))
                     {
                         if(pGmmGlobalContext->GetSkuTable().FtrTileY)
                         {
-                            SWITCH_MSAA(INTEL, TILEYS, );
+                            SWITCH_MSAA(INTEL, TILE_YS, );
+                        }
+                        else
+                        {
+                            SWITCH_MSAA_TILE64(INTEL, TILE_64, );
                         }
                     }
                 }

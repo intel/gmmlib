@@ -566,7 +566,7 @@ namespace GmmLib
             // Validate Block Dimensions...
             if(!(
 #define GMM_FORMAT_INCLUDE_ASTC_FORMATS_ONLY
-#define GMM_FORMAT(Name, bpe, Width, Height, Depth, IsRT, IsASTC, RcsSurfaceFormat, AuxL1eFormat, Availability) \
+#define GMM_FORMAT(Name, bpe, Width, Height, Depth, IsRT, IsASTC, RcsSurfaceFormat, SSCompressionFmt, Availability) \
     ((BlockWidth == (Width)) && (BlockHeight == (Height)) && (BlockDepth == (Depth))) ||
 #include "External/Common/GmmFormatTable.h"
                0)) // <-- 0 benignly terminates the chain of OR expressions.

@@ -99,3 +99,10 @@ OTHER DEALINGS IN THE SOFTWARE.
          GmmGetGttContext(pGmmGlobalContext)->GfxAddrRange.PP.Size)))
 
 #define GMM_INLINE __inline
+
+#if(defined(__GMM_KMD__))
+#define GMM_OVERRIDE_SIZE_64KB_ALLOC  if(GmmGetSkuTable(pGmmGlobalContext)->FtrPpgtt64KBWalkOptimization){ return (this->GetSizeAllocation());}
+#else 
+#define GMM_OVERRIDE_SIZE_64KB_ALLOC  if(((GmmClientContext*)pClientContext)->GetSkuTable().FtrPpgtt64KBWalkOptimization){ return (this->GetSizeAllocation());}
+#endif
+

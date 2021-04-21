@@ -26,6 +26,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Internal/Common/Texture/GmmGen11TextureCalc.h"
 #include "Internal/Common/Texture/GmmGen12TextureCalc.h"
 
+GMM_MIPTAIL_SLOT_OFFSET MipTailSlotOffset1DSurface[15][5] = GEN11_MIPTAIL_SLOT_OFFSET_1D_SURFACE;
+GMM_MIPTAIL_SLOT_OFFSET MipTailSlotOffset2DSurface[15][5] = GEN11_MIPTAIL_SLOT_OFFSET_2D_SURFACE;
+GMM_MIPTAIL_SLOT_OFFSET MipTailSlotOffset3DSurface[15][5] = GEN11_MIPTAIL_SLOT_OFFSET_3D_SURFACE;
+
 /////////////////////////////////////////////////////////////////////////////////////
 /// Calculates height of the 2D mip layout on Gen9
 ///
@@ -145,9 +149,12 @@ uint32_t GmmLib::GmmGen12TextureCalc::Get2DMipMapHeight(GMM_TEXTURE_INFO *pTexIn
 GMM_STATUS GmmLib::GmmGen12TextureCalc::FillTexCCS(GMM_TEXTURE_INFO *pSurf,
                                                    GMM_TEXTURE_INFO *pAuxTexInfo)
 {
-
-    
-    if(pAuxTexInfo->Flags.Gpu.__NonMsaaLinearCCS)
+    if(pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS && !pSurf->Flags.Gpu.ProceduralTexture)
+    {
+        //No CCS allocation for lossless compression (exclude AMFS CCS).
+        return GMM_SUCCESS;
+    }    
+    else if(pAuxTexInfo->Flags.Gpu.__NonMsaaLinearCCS)
     {
         GMM_TEXTURE_INFO         Surf      = *pSurf;
         const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pSurf);
@@ -167,7 +174,9 @@ GMM_STATUS GmmLib::GmmGen12TextureCalc::FillTexCCS(GMM_TEXTURE_INFO *pSurf,
         ((Surf.Flags.Gpu.Depth || Surf.Flags.Gpu.SeparateStencil ||
           GMM_IS_64KB_TILE(Surf.Flags) || Surf.Flags.Info.TiledYf) ?
          1 :
-         Surf.MSAA.NumSamples); // MSAA (non-Depth/Stencil) RT samples stored as array planes.
+         Surf.MSAA.NumSamples) *                                                                                         // MSAA (non-Depth/Stencil) RT samples stored as array planes.
+        ((GMM_IS_64KB_TILE(Surf.Flags) && !pGmmGlobalContext->GetSkuTable().FtrTileY && (Surf.MSAA.NumSamples == 16)) ? 4 : // MSAA x8/x16 stored as pseudo array planes each with 4x samples
+         (GMM_IS_64KB_TILE(Surf.Flags) && !pGmmGlobalContext->GetSkuTable().FtrTileY && (Surf.MSAA.NumSamples == 8)) ? 2 : 1);
 
         if(GMM_IS_64KB_TILE(Surf.Flags) || Surf.Flags.Info.TiledYf)
         {
@@ -227,6 +236,11 @@ GMM_STATUS GmmLib::GmmGen12TextureCalc::FillTexCCS(GMM_TEXTURE_INFO *pSurf,
                 pAuxTexInfo->Alignment.QPitch = GFX_ULONG_CAST(pAuxTexInfo->Size); //HW doesn't use QPitch for Aux except MCS, how'd AMFS get sw-filled non-zero QPitch?
 
                 pAuxTexInfo->Size *= ExpandedArraySize;
+                if(Surf.MSAA.NumSamples && !pGmmGlobalContext->GetSkuTable().FtrTileY)
+                {
+                    //MSAA Qpitch is sample-distance, multiply NumSamples in a tile
+                    pAuxTexInfo->Size *= GFX_MIN(Surf.MSAA.NumSamples, 4);
+                }
             }
             else
             {
@@ -236,6 +250,7 @@ GMM_STATUS GmmLib::GmmGen12TextureCalc::FillTexCCS(GMM_TEXTURE_INFO *pSurf,
         pAuxTexInfo->Pitch                   = 0;
         pAuxTexInfo->Type                    = RESOURCE_BUFFER;
         pAuxTexInfo->Alignment               = {0};
+        __GMM_ASSERT(ExpandedArraySize || (pAuxTexInfo->Size == 0));
         pAuxTexInfo->Alignment.QPitch        = GFX_ULONG_CAST(pAuxTexInfo->Size) / ExpandedArraySize;
         pAuxTexInfo->Alignment.BaseAlignment = GMM_KBYTE(4);                            //TODO: TiledResource?
         pAuxTexInfo->Size                    = GFX_ALIGN(pAuxTexInfo->Size, PAGE_SIZE); //page-align final size
@@ -838,6 +853,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
 
     AdjustedVHeight = VHeight;
 
+    FindMipTailStartLod(pTexInfo);
+
     // In case of Planar surfaces, only the last Plane has to be aligned to 64 for LCU access
     if(pGmmGlobalContext->GetWaTable().WaAlignYUVResourceToLCU && GmmIsYUVFormatLCUAligned(pTexInfo->Format) && VHeight > 0)
     {
@@ -857,7 +874,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
 
         pTexInfo->OffsetInfo.Plane.IsTileAlignedPlanes = true;
 
-        if(pTexInfo->Flags.Gpu.CCS)
+        if(pTexInfo->Flags.Gpu.CCS && !pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS)
         {
             //U/V must be aligned to AuxT granularity, 4x pitchalign enforces 16K-align,
             //add extra padding for 64K AuxT
@@ -1198,3 +1215,126 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::MSAACCSUsage(GMM_TEXTURE_INF
     }
     return Status;
 }
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Returns the mip offset of given LOD in Mip Tail
+///
+/// @param[in]  pTexInfo: ptr to ::GMM_TEXTURE_INFO,
+///             MipLevel: mip-map level
+///
+/// @return     offset value of LOD in bytes
+/////////////////////////////////////////////////////////////////////////////////////
+uint32_t GmmLib::GmmGen12TextureCalc::GetMipTailByteOffset(GMM_TEXTURE_INFO *pTexInfo,
+                                                           uint32_t          MipLevel)
+{
+    uint32_t ByteOffset = 0, Slot = 0xff;
+
+    GMM_DPF_ENTER;
+
+    if(pGmmGlobalContext->GetSkuTable().FtrTileY)
+    {
+        return GmmGen11TextureCalc::GetMipTailByteOffset(pTexInfo, MipLevel);
+    }
+    // 3D textures follow the Gen10 mip tail format
+    if(!pGmmGlobalContext->GetSkuTable().FtrStandardMipTailFormat)
+    {
+        return GmmGen9TextureCalc::GetMipTailByteOffset(pTexInfo, MipLevel);
+    }
+
+    // Til64 is the only format which supports MipTail on FtrTileY disabled platforms
+    __GMM_ASSERT(pTexInfo->Flags.Info.Tile64);
+    // Mipped MSAA is not supported for Tile64
+    __GMM_ASSERT(pTexInfo->MSAA.NumSamples <= 1);
+
+    if((pTexInfo->Type == RESOURCE_1D) || (pTexInfo->Type == RESOURCE_3D) || (pTexInfo->Type == RESOURCE_2D || pTexInfo->Type == RESOURCE_CUBE))
+    {
+        Slot = MipLevel - pTexInfo->Alignment.MipTailStartLod;
+    }
+
+    // Miptail Slot layout in Tile64: as per specifications
+    // Byteoffset varies based on bpp for tile64 format, so any caller who needs to use byteoffset needs to call cpuswizzle with corresponding geomteric offsets
+    // Returning ByteOffset as 0 for Tile64 always
+
+    // GMM_DPF_CRITICAL("Miptail byte offset requested for Tile64 \r\n");
+    GMM_DPF_EXIT;
+
+    // return ByteOffset=0, i.e return start of miptail for any address within packed miptail
+    return (ByteOffset);
+}
+
+void GmmLib::GmmGen12TextureCalc::GetMipTailGeometryOffset(GMM_TEXTURE_INFO *pTexInfo,
+                                                           uint32_t          MipLevel,
+                                                           uint32_t *        OffsetX,
+                                                           uint32_t *        OffsetY,
+                                                           uint32_t *        OffsetZ)
+{
+    uint32_t ArrayIndex = 0;
+    uint32_t Slot       = 0;
+
+    GMM_DPF_ENTER;
+
+    if(pGmmGlobalContext->GetSkuTable().FtrTileY)
+    {
+        return GmmGen11TextureCalc::GetMipTailGeometryOffset(pTexInfo, MipLevel, OffsetX, OffsetY, OffsetZ);
+    }
+
+    // Til64 is the only format which supports MipTail on FtrTileY disabled platforms
+    __GMM_ASSERT(pTexInfo->Flags.Info.Tile64);
+    // Mipped MSAA is not supported for Tile64
+    __GMM_ASSERT(pTexInfo->MSAA.NumSamples <= 1);
+
+    switch(pTexInfo->BitsPerPixel)
+    {
+        case 128:
+            ArrayIndex = 0;
+            break;
+        case 64:
+            ArrayIndex = 1;
+            break;
+        case 32:
+            ArrayIndex = 2;
+            break;
+        case 16:
+            ArrayIndex = 3;
+            break;
+        case 8:
+            ArrayIndex = 4;
+            break;
+        default:
+            __GMM_ASSERT(0);
+            break;
+    }
+
+
+    // FtrTileY disabled platforms: platforms which support Tile4/Tile64 tiled formats
+    if(pTexInfo->Type == RESOURCE_1D)
+    {
+        Slot = MipLevel - pTexInfo->Alignment.MipTailStartLod;
+
+        *OffsetX = MipTailSlotOffset1DSurface[Slot][ArrayIndex].X * pTexInfo->BitsPerPixel / 8;
+        *OffsetY = MipTailSlotOffset1DSurface[Slot][ArrayIndex].Y;
+        *OffsetZ = MipTailSlotOffset1DSurface[Slot][ArrayIndex].Z;
+    }
+    else if(pTexInfo->Type == RESOURCE_2D || pTexInfo->Type == RESOURCE_CUBE)
+    {
+        // Mipped MSAA is not supported on Tile64, so need not account for MSAA here
+        Slot = MipLevel - pTexInfo->Alignment.MipTailStartLod;
+
+        *OffsetX = MipTailSlotOffset2DSurface[Slot][ArrayIndex].X * pTexInfo->BitsPerPixel / 8;
+        *OffsetY = MipTailSlotOffset2DSurface[Slot][ArrayIndex].Y;
+        *OffsetZ = MipTailSlotOffset2DSurface[Slot][ArrayIndex].Z;
+    }
+    else if(pTexInfo->Type == RESOURCE_3D)
+    {
+        Slot = MipLevel - pTexInfo->Alignment.MipTailStartLod;
+
+        *OffsetX = MipTailSlotOffset3DSurface[Slot][ArrayIndex].X * pTexInfo->BitsPerPixel / 8;
+        *OffsetY = MipTailSlotOffset3DSurface[Slot][ArrayIndex].Y;
+        *OffsetZ = MipTailSlotOffset3DSurface[Slot][ArrayIndex].Z;
+    }
+
+    GMM_DPF_EXIT;
+    return;
+}
+

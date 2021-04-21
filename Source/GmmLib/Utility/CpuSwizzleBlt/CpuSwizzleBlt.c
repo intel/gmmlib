@@ -147,104 +147,116 @@ spatial locality for 3D or MSAA sample neighbors can be controlled, also. */
                 { (b15 == 'x' ? 0x8000 : 0) + (b14 == 'x' ? 0x4000 : 0) + (b13 == 'x' ? 0x2000 : 0) + (b12 == 'x' ? 0x1000 : 0) + (b11 == 'x' ? 0x0800 : 0) + (b10 == 'x' ? 0x0400 : 0) + (b9 == 'x' ? 0x0200 : 0) + (b8 == 'x' ? 0x0100 : 0) + (b7 == 'x' ? 0x0080 : 0) + (b6 == 'x' ? 0x0040 : 0) + (b5 == 'x' ? 0x0020 : 0) + (b4 == 'x' ? 0x0010 : 0) + (b3 == 'x' ? 0x0008 : 0) + (b2 == 'x' ? 0x0004 : 0) + (b1 == 'x' ? 0x0002 : 0) + (b0 == 'x' ? 0x0001 : 0), \
                   (b15 == 'y' ? 0x8000 : 0) + (b14 == 'y' ? 0x4000 : 0) + (b13 == 'y' ? 0x2000 : 0) + (b12 == 'y' ? 0x1000 : 0) + (b11 == 'y' ? 0x0800 : 0) + (b10 == 'y' ? 0x0400 : 0) + (b9 == 'y' ? 0x0200 : 0) + (b8 == 'y' ? 0x0100 : 0) + (b7 == 'y' ? 0x0080 : 0) + (b6 == 'y' ? 0x0040 : 0) + (b5 == 'y' ? 0x0020 : 0) + (b4 == 'y' ? 0x0010 : 0) + (b3 == 'y' ? 0x0008 : 0) + (b2 == 'y' ? 0x0004 : 0) + (b1 == 'y' ? 0x0002 : 0) + (b0 == 'y' ? 0x0001 : 0), \
                   (b15 == 'z' ? 0x8000 : 0) + (b14 == 'z' ? 0x4000 : 0) + (b13 == 'z' ? 0x2000 : 0) + (b12 == 'z' ? 0x1000 : 0) + (b11 == 'z' ? 0x0800 : 0) + (b10 == 'z' ? 0x0400 : 0) + (b9 == 'z' ? 0x0200 : 0) + (b8 == 'z' ? 0x0100 : 0) + (b7 == 'z' ? 0x0080 : 0) + (b6 == 'z' ? 0x0040 : 0) + (b5 == 'z' ? 0x0020 : 0) + (b4 == 'z' ? 0x0010 : 0) + (b3 == 'z' ? 0x0008 : 0) + (b2 == 'z' ? 0x0004 : 0) + (b1 == 'z' ? 0x0002 : 0) + (b0 == 'z' ? 0x0001 : 0) }
-    #endif
+#endif
     #define SWIZZLE(__SWIZZLE_Args) __SWIZZLE __SWIZZLE_Args
 
     // Legacy Intel Tiling Swizzles...
     SWIZZLE(( INTEL_TILE_X              o o o o Y Y Y X X X X X X X X X ));
     SWIZZLE(( INTEL_TILE_Y              o o o o X X X Y Y Y Y Y X X X X ));
 
-    // Standard Tiling Swizzles...
-    #define LOW_128bpp                                  X X Y Y X X X X
-    #define LOW_64bpp                                   LOW_128bpp
-    #define LOW_32bpp                                   X Y Y Y X X X X
-    #define LOW_16bpp                                   LOW_32bpp
-    #define LOW_8bpp                                    Y Y Y Y X X X X
-
-    SWIZZLE(( INTEL_TILEYF_128          o o o o X Y X Y LOW_128bpp ));
-    SWIZZLE(( INTEL_TILEYF_64           o o o o X Y X Y LOW_64bpp  ));
-    SWIZZLE(( INTEL_TILEYF_32           o o o o X Y X Y LOW_32bpp  ));
-    SWIZZLE(( INTEL_TILEYF_16           o o o o X Y X Y LOW_16bpp  ));
-    SWIZZLE(( INTEL_TILEYF_8            o o o o X Y X Y LOW_8bpp   ));
-
-    SWIZZLE(( INTEL_TILEYS_128          X Y X Y X Y X Y LOW_128bpp ));
-    SWIZZLE(( INTEL_TILEYS_64           X Y X Y X Y X Y LOW_64bpp  ));
-    SWIZZLE(( INTEL_TILEYS_32           X Y X Y X Y X Y LOW_32bpp  ));
-    SWIZZLE(( INTEL_TILEYS_16           X Y X Y X Y X Y LOW_16bpp  ));
-    SWIZZLE(( INTEL_TILEYS_8            X Y X Y X Y X Y LOW_8bpp   ));
-
-    SWIZZLE(( INTEL_TILEYF_MSAA2_128    o o o o S Y X Y LOW_128bpp ));
-    SWIZZLE(( INTEL_TILEYF_MSAA2_64     o o o o S Y X Y LOW_64bpp  ));
-    SWIZZLE(( INTEL_TILEYF_MSAA2_32     o o o o S Y X Y LOW_32bpp  ));
-    SWIZZLE(( INTEL_TILEYF_MSAA2_16     o o o o S Y X Y LOW_16bpp  ));
-    SWIZZLE(( INTEL_TILEYF_MSAA2_8      o o o o S Y X Y LOW_8bpp   ));
-
-    SWIZZLE(( INTEL_TILEYS_MSAA2_128    S Y X Y X Y X Y LOW_128bpp ));
-    SWIZZLE(( INTEL_TILEYS_MSAA2_64     S Y X Y X Y X Y LOW_64bpp  ));
-    SWIZZLE(( INTEL_TILEYS_MSAA2_32     S Y X Y X Y X Y LOW_32bpp  ));
-    SWIZZLE(( INTEL_TILEYS_MSAA2_16     S Y X Y X Y X Y LOW_16bpp  ));
-    SWIZZLE(( INTEL_TILEYS_MSAA2_8      S Y X Y X Y X Y LOW_8bpp   ));
-
-    SWIZZLE(( INTEL_TILEYF_MSAA4_128    o o o o S S X Y LOW_128bpp ));
-    SWIZZLE(( INTEL_TILEYF_MSAA4_64     o o o o S S X Y LOW_64bpp  ));
-    SWIZZLE(( INTEL_TILEYF_MSAA4_32     o o o o S S X Y LOW_32bpp  ));
-    SWIZZLE(( INTEL_TILEYF_MSAA4_16     o o o o S S X Y LOW_16bpp  ));
-    SWIZZLE(( INTEL_TILEYF_MSAA4_8      o o o o S S X Y LOW_8bpp   ));
-
-    SWIZZLE(( INTEL_TILEYS_MSAA4_128    S S X Y X Y X Y LOW_128bpp ));
-    SWIZZLE(( INTEL_TILEYS_MSAA4_64     S S X Y X Y X Y LOW_64bpp  ));
-    SWIZZLE(( INTEL_TILEYS_MSAA4_32     S S X Y X Y X Y LOW_32bpp  ));
-    SWIZZLE(( INTEL_TILEYS_MSAA4_16     S S X Y X Y X Y LOW_16bpp  ));
-    SWIZZLE(( INTEL_TILEYS_MSAA4_8      S S X Y X Y X Y LOW_8bpp   ));
-
-    SWIZZLE(( INTEL_TILEYF_MSAA8_128    o o o o S S S Y LOW_128bpp ));
-    SWIZZLE(( INTEL_TILEYF_MSAA8_64     o o o o S S S Y LOW_64bpp  ));
-    SWIZZLE(( INTEL_TILEYF_MSAA8_32     o o o o S S S Y LOW_32bpp  ));
-    SWIZZLE(( INTEL_TILEYF_MSAA8_16     o o o o S S S Y LOW_16bpp  ));
-    SWIZZLE(( INTEL_TILEYF_MSAA8_8      o o o o S S S Y LOW_8bpp   ));
-
-    SWIZZLE(( INTEL_TILEYS_MSAA8_128    S S S Y X Y X Y LOW_128bpp ));
-    SWIZZLE(( INTEL_TILEYS_MSAA8_64     S S S Y X Y X Y LOW_64bpp  ));
-    SWIZZLE(( INTEL_TILEYS_MSAA8_32     S S S Y X Y X Y LOW_32bpp  ));
-    SWIZZLE(( INTEL_TILEYS_MSAA8_16     S S S Y X Y X Y LOW_16bpp  ));
-    SWIZZLE(( INTEL_TILEYS_MSAA8_8      S S S Y X Y X Y LOW_8bpp   ));
-
-    SWIZZLE(( INTEL_TILEYF_MSAA16_128   o o o o S S S S LOW_128bpp ));
-    SWIZZLE(( INTEL_TILEYF_MSAA16_64    o o o o S S S S LOW_64bpp  ));
-    SWIZZLE(( INTEL_TILEYF_MSAA16_32    o o o o S S S S LOW_32bpp  ));
-    SWIZZLE(( INTEL_TILEYF_MSAA16_16    o o o o S S S S LOW_16bpp  ));
-    SWIZZLE(( INTEL_TILEYF_MSAA16_8     o o o o S S S S LOW_8bpp   ));
-
-    SWIZZLE(( INTEL_TILEYS_MSAA16_128   S S S S X Y X Y LOW_128bpp ));
-    SWIZZLE(( INTEL_TILEYS_MSAA16_64    S S S S X Y X Y LOW_64bpp  ));
-    SWIZZLE(( INTEL_TILEYS_MSAA16_32    S S S S X Y X Y LOW_32bpp  ));
-    SWIZZLE(( INTEL_TILEYS_MSAA16_16    S S S S X Y X Y LOW_16bpp  ));
-    SWIZZLE(( INTEL_TILEYS_MSAA16_8     S S S S X Y X Y LOW_8bpp   ));
-
-    #define LOW_3D                                      Z Z Y Y X X X X
-
-    SWIZZLE(( INTEL_TILEYF_3D_128       o o o o Y Z X X LOW_3D ));
-    SWIZZLE(( INTEL_TILEYF_3D_64        o o o o Y Z X X LOW_3D ));
-    SWIZZLE(( INTEL_TILEYF_3D_32        o o o o Y Z X Y LOW_3D ));
-    SWIZZLE(( INTEL_TILEYF_3D_16        o o o o Y Z Y Z LOW_3D ));
-    SWIZZLE(( INTEL_TILEYF_3D_8         o o o o Y Z Y Z LOW_3D ));
-
-    SWIZZLE(( INTEL_TILEYS_3D_128       X Y Z X Y Z X X LOW_3D ));
-    SWIZZLE(( INTEL_TILEYS_3D_64        X Y Z X Y Z X X LOW_3D ));
-    SWIZZLE(( INTEL_TILEYS_3D_32        X Y Z X Y Z X Y LOW_3D ));
-    SWIZZLE(( INTEL_TILEYS_3D_16        X Y Z X Y Z Y Z LOW_3D ));
-    SWIZZLE(( INTEL_TILEYS_3D_8         X Y Z X Y Z Y Z LOW_3D ));
-
     #ifdef INTEL_TILE_W_SUPPORT
         SWIZZLE(( INTEL_TILE_W          o o o o X X X Y Y Y Y X Y X Y X ));
     #endif
+// Gen9 Swizzles...
+    SWIZZLE(( INTEL_TILE_YF_128         o o o o X Y X Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_64          o o o o X Y X Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_32          o o o o X Y X Y X Y Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_16          o o o o X Y X Y X Y Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_8           o o o o X Y X Y Y Y Y Y X X X X ));
 
-    #undef LOW_3D
-    #undef LOW_128bpp
-    #undef LOW_64bpp
-    #undef LOW_32bpp
-    #undef LOW_16bpp
-    #undef LOW_8bpp
+    SWIZZLE(( INTEL_TILE_YS_128         X Y X Y X Y X Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_64          X Y X Y X Y X Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_32          X Y X Y X Y X Y X Y Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_16          X Y X Y X Y X Y X Y Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_8           X Y X Y X Y X Y Y Y Y Y X X X X ));
+
+    SWIZZLE(( INTEL_TILE_YF_MSAA2_128   o o o o S Y X Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_MSAA2_64    o o o o S Y X Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_MSAA2_32    o o o o S Y X Y X Y Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_MSAA2_16    o o o o S Y X Y X Y Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_MSAA2_8     o o o o S Y X Y Y Y Y Y X X X X ));
+
+    SWIZZLE(( INTEL_TILE_YS_MSAA2_128   S Y X Y X Y X Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_MSAA2_64    S Y X Y X Y X Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_MSAA2_32    S Y X Y X Y X Y X Y Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_MSAA2_16    S Y X Y X Y X Y X Y Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_MSAA2_8     S Y X Y X Y X Y Y Y Y Y X X X X ));
+
+    SWIZZLE(( INTEL_TILE_YF_MSAA4_128   o o o o S S X Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_MSAA4_64    o o o o S S X Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_MSAA4_32    o o o o S S X Y X Y Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_MSAA4_16    o o o o S S X Y X Y Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_MSAA4_8     o o o o S S X Y Y Y Y Y X X X X ));
+
+    SWIZZLE(( INTEL_TILE_YS_MSAA4_128   S S X Y X Y X Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_MSAA4_64    S S X Y X Y X Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_MSAA4_32    S S X Y X Y X Y X Y Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_MSAA4_16    S S X Y X Y X Y X Y Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_MSAA4_8     S S X Y X Y X Y Y Y Y Y X X X X ));
+
+    SWIZZLE(( INTEL_TILE_YF_MSAA8_128   o o o o S S S Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_MSAA8_64    o o o o S S S Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_MSAA8_32    o o o o S S S Y X Y Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_MSAA8_16    o o o o S S S Y X Y Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_MSAA8_8     o o o o S S S Y Y Y Y Y X X X X ));
+
+    SWIZZLE(( INTEL_TILE_YS_MSAA8_128   S S S Y X Y X Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_MSAA8_64    S S S Y X Y X Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_MSAA8_32    S S S Y X Y X Y X Y Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_MSAA8_16    S S S Y X Y X Y X Y Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_MSAA8_8     S S S Y X Y X Y Y Y Y Y X X X X ));
+
+    SWIZZLE(( INTEL_TILE_YF_MSAA16_128  o o o o S S S S X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_MSAA16_64   o o o o S S S S X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_MSAA16_32   o o o o S S S S X Y Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_MSAA16_16   o o o o S S S S X Y Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_MSAA16_8    o o o o S S S S Y Y Y Y X X X X ));
+
+    SWIZZLE(( INTEL_TILE_YS_MSAA16_128  S S S S X Y X Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_MSAA16_64   S S S S X Y X Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_MSAA16_32   S S S S X Y X Y X Y Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_MSAA16_16   S S S S X Y X Y X Y Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_MSAA16_8    S S S S X Y X Y Y Y Y Y X X X X ));
+
+    SWIZZLE(( INTEL_TILE_YF_3D_128      o o o o Y Z X X Z Z Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_3D_64       o o o o Y Z X X Z Z Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_3D_32       o o o o Y Z X Y Z Z Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_3D_16       o o o o Y Z Y Z Z Z Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YF_3D_8        o o o o Y Z Y Z Z Z Y Y X X X X ));
+
+    SWIZZLE(( INTEL_TILE_YS_3D_128      X Y Z X Y Z X X Z Z Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_3D_64       X Y Z X Y Z X X Z Z Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_3D_32       X Y Z X Y Z X Y Z Z Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_3D_16       X Y Z X Y Z Y Z Z Z Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_YS_3D_8        X Y Z X Y Z Y Z Z Z Y Y X X X X ));
+
+    // XE_HP_SDV Swizzles...
+    SWIZZLE(( INTEL_TILE_4              o o o o Y Y X Y X X Y Y X X X X ));
+
+    SWIZZLE(( INTEL_TILE_64_128         Y X X X Y Y X Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_64          Y X X X Y Y X Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_32          Y Y X X Y Y X Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_16          Y Y X X Y Y X Y X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_8           Y Y Y X Y Y X Y X X Y Y X X X X ));
+
+    SWIZZLE(( INTEL_TILE_64_MSAA2_128   Y X X X Y Y X Y S X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_MSAA2_64    Y X X X Y Y X Y S X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_MSAA2_32    Y Y X X Y Y X Y S X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_MSAA2_16    Y Y X X Y Y X Y S X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_MSAA2_8     Y Y Y X Y Y X Y S X Y Y X X X X ));
+
+    SWIZZLE(( INTEL_TILE_64_MSAA_128    Y X X X Y Y X S S X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_MSAA_64     Y X X X Y Y X S S X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_MSAA_32     Y Y X X Y Y X S S X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_MSAA_16     Y Y X X Y Y X S S X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_MSAA_8      Y Y Y X Y Y X S S X Y Y X X X X ));
+
+    SWIZZLE(( INTEL_TILE_64_3D_128      Z Z Y X X X Z Y Z X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_3D_64       Z Z Y X X X Z Y Z X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_3D_32       Z Z Y X Y X Z Y Z X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_3D_16       Z Z Z Y Y X Z Y Z X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_3D_8        Z Z Z X Y Y Z Y Z X Y Y X X X X ));
+
     #undef X
     #undef Y
     #undef Z
@@ -252,7 +264,6 @@ spatial locality for 3D or MSAA sample neighbors can be controlled, also. */
     #undef o
     #undef __SWIZZLE
     #undef SWIZZLE
-
 
 // Accessing Swizzled Surface ##################################################
 
@@ -521,6 +532,7 @@ void CpuSwizzleBlt( // #########################################################
                 ((pSwizzledSurface->OffsetY + CopyHeight) <= pSwizzledSurface->Height)
             ) ||
             #endif
+
             ((pDest->OffsetX + CopyWidthBytes) <= pDest->Pitch) &&
             ((pDest->OffsetY + CopyHeight) <= pDest->Height) &&
             ((pSrc->OffsetX + CopyWidthBytes) <= pSrc->Pitch) &&

@@ -348,7 +348,8 @@ void GmmLib::GmmGen11TextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTex
 
         if(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) > IGFX_GEN11LP_CORE)
         {
-            if(pTexInfo->Flags.Gpu.CCS)
+
+            if(pTexInfo->Flags.Gpu.CCS && !pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS)
             {
                 //U/V must be aligned to AuxT granularity, for 16K AuxT- 4x pitchalign enforces it,
                 //add extra padding for 64K AuxT

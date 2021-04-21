@@ -34,6 +34,7 @@ SET (GMMLIB_COMPILER_FLAGS_COMMON
     -Wno-parentheses
     -Wno-missing-braces
     -Wno-sign-compare
+    -Wno-enum-compare
     -Werror=address
     -Werror=format-security
     -Werror=non-virtual-dtor

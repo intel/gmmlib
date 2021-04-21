@@ -149,6 +149,31 @@ typedef struct GT_CCS_INFO
 
 } GT_CCS_INFO;
 
+typedef struct GT_MULTI_TILE_ARCH_INFO
+{
+    // Total Count of Tiles enabled
+    uint8_t     TileCount;
+
+    // Mask of all enabled Tiles
+    union
+    {
+        struct
+        {
+            uint8_t     Tile0       : 1;
+            uint8_t     Tile1       : 1;
+            uint8_t     Tile2       : 1;
+            uint8_t     Tile3       : 1;
+            uint8_t     Reserved    : 4;
+        };
+
+        uint8_t TileMask;
+    };
+
+    // flag to check if MultiTileArchInfo has valid data or not
+    bool        IsValid;
+
+} GT_MULTI_TILE_ARCH_INFO;
+
 typedef struct GT_SQIDI_INFO
 {
         uint32_t        NumberofSQIDI;                        // Total no. of enabled SQIDIs.
@@ -235,6 +260,7 @@ typedef struct GT_SYSTEM_INFO
     uint32_t        ReservedCCSWays;                // Reserved CCS ways provides value of reserved L3 ways for CCS when CCS is enabled.
                                                     // This is a hardcoded value as suggested by HW. No MMIO read is needed for same.
     GT_CCS_INFO     CCSInfo;                        // CCSInfo provides details(enabled/disabled) of all CCS instances.
+    GT_MULTI_TILE_ARCH_INFO MultiTileArchInfo;      // MultiTileArchInfo provides details(enabled/disabled) of GT Tiles in case of Multi Tile Architecture SKUs
 
     uint32_t        NumThreadsPerEu;                // Number of threads per EU. 
     GT_CACHE_TYPES  CacheTypes;                     // Types of caches available on system (L3/LLC/eDRAM).                     

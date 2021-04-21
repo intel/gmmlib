@@ -48,6 +48,7 @@ namespace GmmLib
             GMM_STATUS      FillTexBlockMem(
                                 GMM_TEXTURE_INFO    *pTexInfo,
                                 __GMM_BUFFER_TYPE   *pRestrictions);
+            void           ResetRestrictions(__GMM_BUFFER_TYPE *pRestriction);
 
             void            GetTexRestrictions(
                                 GMM_TEXTURE_INFO* pTexInfo,

@@ -70,6 +70,27 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
     __GMM_ASSERTPTR(pGmmGlobalContext, GMM_ERROR);
 
+#define SET_ALIGN_FACTOR(Xxx, Bytes)                            \
+    if(!pGmmGlobalContext->GetSkuTable().FtrTileY)              \
+    {                                                           \
+        UnitAlign##Xxx =                                        \
+            (pTexInfo->BitsPerPixel == 128) ? Bytes/16 :        \
+            (pTexInfo->BitsPerPixel ==  64) ? Bytes/8 :         \
+            (pTexInfo->BitsPerPixel ==  32) ? Bytes/4 :         \
+            (pTexInfo->BitsPerPixel ==  16) ? Bytes/2 : Bytes ; \
+                                                                \
+        if(!pTexInfo->Flags.Info.Linear &&  \
+           (pTexInfo->BitsPerPixel == 24 || pTexInfo->BitsPerPixel == 48 || pTexInfo->BitsPerPixel == 96)) \
+        {                                                       \
+            UnitAlign##Xxx = 16;                                \
+        }                                                       \
+        else if (pTexInfo->Flags.Info.Linear && \
+            (pTexInfo->BitsPerPixel == 24 || pTexInfo->BitsPerPixel == 48 || pTexInfo->BitsPerPixel == 96))\
+        {                                                       \
+            UnitAlign##Xxx = 128;                               \
+        }                                                       \
+    }
+
     if (!((pTexInfo->Format > GMM_FORMAT_INVALID) &&
         (pTexInfo->Format < GMM_RESOURCE_FORMATS)))
     {
@@ -124,13 +145,27 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
                    !pTexInfo->Flags.Gpu.Depth &&
                    !pTexInfo->Flags.Gpu.SeparateStencil)
                 {
-                    switch(pTexInfo->MSAA.NumSamples)
+                    if(pGmmGlobalContext->GetSkuTable().FtrTileY)
                     {
-                        case 16: UnitAlignWidth /= 4; UnitAlignHeight /= 4; break;
-                        case 8:  UnitAlignWidth /= 4; UnitAlignHeight /= 2; break;
-                        case 4:  UnitAlignWidth /= 2; UnitAlignHeight /= 2; break;
-                        case 2:  UnitAlignWidth /= 2; break;
-                        default: __GMM_ASSERT(0);
+                        switch(pTexInfo->MSAA.NumSamples)
+                        {
+                            case 16: UnitAlignWidth /= 4; UnitAlignHeight /= 4; break;
+                            case 8:  UnitAlignWidth /= 4; UnitAlignHeight /= 2; break;
+                            case 4:  UnitAlignWidth /= 2; UnitAlignHeight /= 2; break;
+                            case 2:  UnitAlignWidth /= 2; break;
+                            default: __GMM_ASSERT(0);
+                        }
+                    }
+                    else
+                    {
+                        switch (pTexInfo->MSAA.NumSamples)
+                        {
+                            case 4:
+                            case 8:
+                            case 16: UnitAlignWidth /= 2; UnitAlignHeight /= 2; break;
+                            case 2:  UnitAlignWidth /= 2; break;
+                            default: __GMM_ASSERT(0);
+                        }
                     }
                 }
             }
@@ -166,6 +201,9 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
                 (pTexInfo->Type == RESOURCE_1D))
         {
             UnitAlignWidth = 64;
+
+            // Tile4/64
+            SET_ALIGN_FACTOR(Width, 128);
         }
         /// CCS ///////////////////////////////////////////////////////////
         else if (pTexInfo->Flags.Gpu.CCS &&
@@ -190,6 +228,9 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
         {
             UnitAlignWidth = pPlatform->TexAlign.YUV422.Width;
             UnitAlignHeight = pPlatform->TexAlign.YUV422.Height;
+
+            // For packed 8/16-bit formats alignment factor of 4 will give us < 16B so expand to 32B
+            SET_ALIGN_FACTOR(Width, 32);
         }
         else if(GmmIsCompressed(pTexInfo->Format)) /////////////////////////////
         {
@@ -233,11 +274,16 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
                     UnitAlignWidth = pPlatform->TexAlign.Depth_D16_UNORM_1x_4x_16x.Width;
                     UnitAlignHeight = pPlatform->TexAlign.Depth_D16_UNORM_1x_4x_16x.Height;
                 }
+
+                SET_ALIGN_FACTOR(Width, 16);
+
             }
             else
             {
                 UnitAlignWidth = pPlatform->TexAlign.Depth.Width;
                 UnitAlignHeight = pPlatform->TexAlign.Depth.Height;
+
+                SET_ALIGN_FACTOR(Width, 32);
             }
         }
         /// Separate Stencil //////////////////////////////////////////////
@@ -245,6 +291,9 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
         {
             UnitAlignWidth  = pPlatform->TexAlign.SeparateStencil.Width;
             UnitAlignHeight = pPlatform->TexAlign.SeparateStencil.Height;
+
+            SET_ALIGN_FACTOR(Width, 16);
+
         }
         /// Cross Adapter //////////////////////////////////////////////
         else if(pTexInfo->Flags.Info.XAdapter)
@@ -252,6 +301,10 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
             //Add cross adapter height restriction.
             UnitAlignHeight = pPlatform->TexAlign.XAdapter.Height;
             UnitAlignWidth = pPlatform->TexAlign.XAdapter.Width;
+
+            SET_ALIGN_FACTOR(Width, 128);
+
+            __GMM_ASSERT(pTexInfo->MaxLod == 0);
         }
         else if(((pTexInfo->Flags.Gpu.MCS &&
                   GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN12_CORE) ||
@@ -260,6 +313,8 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
         {
             UnitAlignWidth  = 16;
             UnitAlignHeight = 4;
+
+            SET_ALIGN_FACTOR(Width, 128);
         }
         else if(pTexInfo->Flags.Wa.__ForceOtherHVALIGN4)
         {
@@ -296,6 +351,8 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
                 {
                     UnitAlignWidth = 8;
                 }
+
+                SET_ALIGN_FACTOR(Width, 128);
             }
             else if(pTexInfo->MSAA.NumSamples <= 1)
             {

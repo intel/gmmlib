@@ -47,13 +47,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define WA              GMM_FORMAT_WA
 #define x               0
 #define NC              GMM_COMPR_FORMAT_INVALID
+#define MC(n)           n | (0x1 << 5) //GMM_FLATCCS_MIN_MC_FORMAT - 1
 
 #define FC(ver, bpc, fmtstr, bpcstr, typestr)                               \
-    (ver == 1 || SKU(FtrE2ECompression)) ?                                  \
+    (ver == 1 || (SKU(FtrE2ECompression) && !(SKU(FtrFlatPhysCCS)))) ?\
         ((bpc == 16) ? GMM_E2ECOMP_FORMAT_RGBAFLOAT16 :                     \
          (bpc == 32) ? GMM_E2ECOMP_FORMAT_R32G32B32A32_FLOAT :              \
          (bpc == 8) ? GMM_E2ECOMP_FORMAT_ARGB8b :                           \
-         (bpc == x) ? GMM_E2ECOMP_FORMAT_##fmtstr : NC) :NC
+         (bpc == x) ? GMM_E2ECOMP_FORMAT_##fmtstr : NC) :                   \
+    (ver == 2 || (SKU(FtrFlatPhysCCS))) ?\
+        (GMM_FLATCCS_FORMAT_##fmtstr##bpcstr##typestr) : NC
 
 /****************************************************************************\
   GMM FORMAT TABLE

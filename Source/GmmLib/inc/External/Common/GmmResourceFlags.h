@@ -133,6 +133,8 @@ typedef struct GMM_RESOURCE_FLAG_REC
         uint32_t XAdapter                  : 1; // For WinBlue: to support Hybrid graphics
         uint32_t __PreallocatedResInfo     : 1; // Internal GMM flag--Clients don't set.
         uint32_t __PreWddm2SVM             : 1; // Internal GMM flag--Clients don't set.
+        uint32_t Tile4                     : 1; // XE-HP 4KB tile
+        uint32_t Tile64                    : 1; // XE-HP 64KB tile
     } Info;
 
     // Wa: Any Surface specific Work Around will go in here

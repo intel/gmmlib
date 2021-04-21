@@ -76,7 +76,7 @@ GmmLib::PlatformInfoGen12::PlatformInfoGen12(PLATFORM &Platform)
     //Compression format update
     GMM_RESOURCE_FORMAT GmmFormat;
 #define GMM_FORMAT_SKU(FtrXxx) (pGmmGlobalContext->GetSkuTable().FtrXxx != 0)
-#define GMM_COMPR_FORMAT_INVALID (static_cast<uint8_t>(GMM_E2ECOMP_FORMAT_INVALID))
+#define GMM_COMPR_FORMAT_INVALID ((pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS != 0) ? static_cast<uint8_t>(GMM_FLATCCS_FORMAT_INVALID) : static_cast<uint8_t>(GMM_E2ECOMP_FORMAT_INVALID))
 #define GMM_FORMAT(Name, bpe, _Width, _Height, _Depth, IsRT, IsASTC, RcsSurfaceFormat, SSCompressionFmt, Availability) \
                                                                                                                        \
     {                                                                                                                  \
@@ -136,6 +136,44 @@ GmmLib::PlatformInfoGen12::PlatformInfoGen12(PLATFORM &Platform)
     Data.TexAlign.CCS.MaxPitchinTiles = 1024;
 
     // clang-format off
+    SET_TILE_MODE_INFO(TILE4,                        128,       32,        1,         0,         0,         0)
+
+    // TILE__64 1D
+    SET_TILE_MODE_INFO(TILE__64_1D_128bpe,       4096,        1,        1,      1024,         1,         1)
+    SET_TILE_MODE_INFO(TILE__64_1D_64bpe,        8192,        1,        1,      2048,         1,         1)
+    SET_TILE_MODE_INFO(TILE__64_1D_32bpe,       16384,        1,        1,      4096,         1,         1)
+    SET_TILE_MODE_INFO(TILE__64_1D_16bpe,       32768,        1,        1,      8192,         1,         1)
+    SET_TILE_MODE_INFO(TILE__64_1D_8bpe,        65536,        1,        1,     16384,         1,         1)
+
+    // TILE__64 2D
+    SET_TILE_MODE_INFO(TILE__64_2D_128bpe,       1024,       64,        1,        32,        64,         1)
+    SET_TILE_MODE_INFO(TILE__64_2D_64bpe,        1024,       64,        1,        64,        64,         1)
+    SET_TILE_MODE_INFO(TILE__64_2D_32bpe,         512,      128,        1,        64,       128,         1)
+    SET_TILE_MODE_INFO(TILE__64_2D_16bpe,         512,      128,        1,       128,       128,         1)
+    SET_TILE_MODE_INFO(TILE__64_2D_8bpe,          256,      256,        1,       128,       256,         1)
+
+    // TILE__64 2D 2X
+    SET_TILE_MODE_INFO(TILE__64_2D_2X_128bpe,     512,       64,        1,        32,        32,         1)
+    SET_TILE_MODE_INFO(TILE__64_2D_2X_64bpe,      512,       64,        1,        64,        32,         1)
+    SET_TILE_MODE_INFO(TILE__64_2D_2X_32bpe,      256,      128,        1,        64,        64,         1)
+    SET_TILE_MODE_INFO(TILE__64_2D_2X_16bpe,      256,      128,        1,       128,        64,         1)
+    SET_TILE_MODE_INFO(TILE__64_2D_2X_8bpe,       128,      256,        1,       128,       128,         1)
+
+    // TILE__64 2D 4X
+    SET_TILE_MODE_INFO(TILE__64_2D_4X_128bpe,     512,       32,        1,        16,        32,         1)
+    SET_TILE_MODE_INFO(TILE__64_2D_4X_64bpe,      512,       32,        1,        32,        32,         1)
+    SET_TILE_MODE_INFO(TILE__64_2D_4X_32bpe,      256,       64,        1,        32,        64,         1)
+    SET_TILE_MODE_INFO(TILE__64_2D_4X_16bpe,      256,       64,        1,        64,        64,         1)
+    SET_TILE_MODE_INFO(TILE__64_2D_4X_8bpe,       128,      128,        1,        64,       128,         1)
+
+    // TILE__64 3D
+    SET_TILE_MODE_INFO(TILE__64_3D_128bpe,        256,       16,       16,         8,        16,         16)
+    SET_TILE_MODE_INFO(TILE__64_3D_64bpe,         256,       16,       16,        16,        16,         16)
+    SET_TILE_MODE_INFO(TILE__64_3D_32bpe,         128,       32,       16,        16,        32,         16)
+    SET_TILE_MODE_INFO(TILE__64_3D_16bpe,          64,       32,       32,        16,        32,         32)
+    SET_TILE_MODE_INFO(TILE__64_3D_8bpe,           64,       32,       32,        32,        32,         32)
+    // clang-format off
+
 //Extended CCS alignment for per bpp/Tiling CCS alignment
 #define CCSRTALIGN(TileMode, HAlign, VAlign, DAlign, HDownscale, VDownscale) \
     {                                                                        \
@@ -252,13 +290,25 @@ FCRECTALIGN(TILE_YS_2D_16bpe ,  16, 128,  64,  64, 32);
 FCRECTALIGN(TILE_YS_2D_32bpe ,  32,  64,  64,  32, 32);
 FCRECTALIGN(TILE_YS_2D_64bpe ,  64,  64,  32,  32, 16);
 FCRECTALIGN(TILE_YS_2D_128bpe, 128,  32,  32,  16, 16);
+
+FCRECTALIGN(TILE4           ,   8, 1024, 16, 1024, 16);
+FCRECTALIGN(TILE4           ,  16,  512, 16,  512, 16);
+FCRECTALIGN(TILE4           ,  32,  256,  16, 256, 16);
+FCRECTALIGN(TILE4           ,  64,  128,  16, 128, 16);
+FCRECTALIGN(TILE4           , 128,   64,  16,  64, 16);
+
+FCRECTALIGN(TILE__64_2D_8bpe  ,   8, 128, 128,  128, 128);
+FCRECTALIGN(TILE__64_2D_16bpe ,  16, 128,  64,  128, 64);
+FCRECTALIGN(TILE__64_2D_32bpe ,  32,  64,  64,   64, 64);
+FCRECTALIGN(TILE__64_2D_64bpe ,  64,  64,  32,   64, 32);
+FCRECTALIGN(TILE__64_2D_128bpe, 128,  32,  32,   32, 32);
 #undef FCRECTALIGN
 
     // clang-format on
     Data.NoOfBitsSupported                = 39;
     Data.HighestAcceptablePhysicalAddress = GFX_MASK_LARGE(0, 38);
     if(GFX_GET_CURRENT_PRODUCT(Data.Platform) == IGFX_ALDERLAKE_S ||
-       (GFX_GET_CURRENT_PRODUCT(Data.Platform) == IGFX_ALDERLAKE_P))
+       (GFX_GET_CURRENT_PRODUCT(Data.Platform) == IGFX_ALDERLAKE_P) || (GFX_GET_CURRENT_PRODUCT(Data.Platform) >= IGFX_XE_HP_SDV))
     {
         Data.NoOfBitsSupported                = 46;
         Data.HighestAcceptablePhysicalAddress = GFX_MASK_LARGE(0, 45);
@@ -432,5 +482,55 @@ uint8_t GmmLib::PlatformInfoGen12::CheckFmtDisplayDecompressible(GMM_TEXTURE_INF
 //-----------------------------------------------------------------------------
 uint8_t GmmLib::PlatformInfoGen12::OverrideCompressionFormat(GMM_RESOURCE_FORMAT Format, uint8_t IsMC)
 {
-    return Data.FormatTable[Format].CompressionFormat.CompressionFormat;
+
+    uint8_t CompressionFormat = Data.FormatTable[Format].CompressionFormat.CompressionFormat;
+    if(pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS)
+    {
+        if(!IsMC &&
+           (CompressionFormat < GMM_FLATCCS_MIN_RC_FORMAT ||
+            CompressionFormat > GMM_FLATCCS_MAX_RC_FORMAT))
+        {
+            CompressionFormat = GMM_FLATCCS_FORMAT_INVALID;
+        }
+
+        if(IsMC)
+        {
+                if(CompressionFormat >= GMM_FLATCCS_MIN_MC_FORMAT && CompressionFormat <= GMM_FLATCCS_MAX_MC_FORMAT)
+                {
+                    //True MC format encodings, drop MC-identify bit (ie bit5)
+                    CompressionFormat -= (GMM_FLATCCS_MIN_MC_FORMAT - 1);
+                }
+                else
+                {
+                    // RC format encoding, needs MC format encoding for MC usage
+                    switch(CompressionFormat)
+                    {
+                        case GMM_FLATCCS_FORMAT_RGB10A2:
+                            CompressionFormat = GMM_FLATCCS_FORMAT_RGB10b;
+                            break;
+                        case GMM_FLATCCS_FORMAT_RGBA16U:
+                            CompressionFormat = GMM_FLATCCS_FORMAT_RGBA16_MEDIA;
+                            break;
+                        case GMM_FLATCCS_FORMAT_RGBA8U:
+                            CompressionFormat = GMM_FLATCCS_FORMAT_ARGB8b;
+                            break;
+                        default:
+                            if(CompressionFormat < GMM_FLATCCS_MIN_MC_FORMAT || CompressionFormat > GMM_FLATCCS_MAX_MC_FORMAT)
+                            {
+                                CompressionFormat = GMM_FLATCCS_FORMAT_INVALID;
+                            }
+                            break;
+                    }
+
+                    if(CompressionFormat != GMM_FLATCCS_FORMAT_INVALID)
+                    {
+                        //drop MC-identify bit (ie bit 5)
+                        CompressionFormat -= (GMM_FLATCCS_MIN_MC_FORMAT - 1);
+                    }
+                }
+         }
+
+    }
+
+    return CompressionFormat;
 }

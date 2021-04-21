@@ -437,9 +437,9 @@ GMM_CLIENT               ClientType)
     this->WaTable   = *pWaTable;
     this->GtSysInfo = *pGtSysInfo;
 
-    OverrideSkuWa();
-
     pGmmGlobalContext->pPlatformInfo = GmmLib::PlatformInfo::Create(Platform, false);
+
+    OverrideSkuWa();
 
     this->pGmmCachePolicy = GmmLib::GmmCachePolicyCommon::Create();
     if(this->pGmmCachePolicy == NULL)
@@ -497,7 +497,10 @@ void GMM_STDCALL GmmLib::Context::DestroyContext()
 
 void GMM_STDCALL GmmLib::Context::OverrideSkuWa()
 {
-    SkuTable.FtrTileY = true;
+    if((GFX_GET_CURRENT_PRODUCT(this->GetPlatformInfo().Platform) < IGFX_XE_HP_SDV))
+    {
+        SkuTable.FtrTileY = true;
+    }
 }
 
 #ifdef __GMM_KMD__ /*LINK CONTEXT TO GLOBAL*/

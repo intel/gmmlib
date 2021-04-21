@@ -43,6 +43,16 @@ namespace GmmLib
         private:
 
         protected:
+            virtual uint32_t GetMipTailByteOffset(
+            GMM_TEXTURE_INFO *pTexInfo,
+            uint32_t          MipLevel);
+
+            virtual void GetMipTailGeometryOffset(
+            GMM_TEXTURE_INFO *pTexInfo,
+            uint32_t          MipLevel,
+            uint32_t *        OffsetX,
+            uint32_t *        OffsetY,
+            uint32_t *        OffsetZ);
 
             virtual uint32_t           Get2DMipMapHeight(
                                         GMM_TEXTURE_INFO   *pTexInfo);

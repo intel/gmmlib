@@ -77,6 +77,7 @@ namespace GmmLib
 #else
             GmmClientContext                   *pClientContext;    ///< ClientContext of the client creating this Resource
 #endif
+            GMM_MULTI_TILE_ARCH                MultiTileArch;
 
         private:
             GMM_STATUS          ApplyExistingSysMemRestrictions();
@@ -108,6 +109,16 @@ namespace GmmLib
 
                     __GMM_ASSERT((TiledMode != 3) || (pTextureInfo->Flags.Info.TiledY || pTextureInfo->Flags.Info.TiledYf || pTextureInfo->Flags.Info.TiledYs));
                 }
+                else
+                {
+                    TiledMode =
+                        (GMM_IS_4KB_TILE(pTextureInfo->Flags)) ? 3 :
+                            (GMM_IS_64KB_TILE(pTextureInfo->Flags)) ? 1 :
+                            pTextureInfo->Flags.Info.TiledX ? 2 :
+                            /* Linear */ 0;
+
+                    __GMM_ASSERT(TiledMode || pTextureInfo->Flags.Info.Linear);
+                }
 
                 return TiledMode;
             }
@@ -125,7 +136,8 @@ namespace GmmLib
                 SvmAddress(),
                 pGmmLibContext(),
                 pPrivateData(),
-                pClientContext()
+                pClientContext(),
+                MultiTileArch()
             {
 #if (!defined(__GMM_KMD__) && !defined(GMM_UNIFIED_LIB))
                 // For clients, who derive classes from GMM class and call their derived class constructors
@@ -149,7 +161,8 @@ namespace GmmLib
                 SvmAddress(),
                 pGmmLibContext(),
                 pPrivateData(),
-                pClientContext()
+                pClientContext(),
+                MultiTileArch()
             {
                 pClientContext = pClientContextIn;
             }
@@ -166,6 +179,7 @@ namespace GmmLib
                 SvmAddress          = rhs.SvmAddress;
                 pPrivateData        = rhs.pPrivateData;
                 pGmmLibContext      = rhs.pGmmLibContext;
+                MultiTileArch       = rhs.MultiTileArch;
 
                 return *this;
             }
@@ -584,6 +598,14 @@ namespace GmmLib
                 {
                     return GMM_TILED_Y;
                 }
+                else if (Surf.Flags.Info.Tile4)
+                {
+                    return GMM_TILED_4;
+                }
+                else if (Surf.Flags.Info.Tile64)
+                {
+                    return GMM_TILED_64;
+                }
 
                 return GMM_NOT_TILED;
             }
@@ -736,7 +758,8 @@ namespace GmmLib
                 __GMM_ASSERT(ArrayIndex < Surf.ArraySize);
                 __GMM_ASSERT(GMM_IS_PLANAR(Surf.Format));
 
-                if (Surf.Flags.Gpu.UnifiedAuxSurface)
+                if (Surf.Flags.Gpu.UnifiedAuxSurface  &&
+                    !((GmmClientContext*)pClientContext)->GetSkuTable().FtrFlatPhysCCS)
                 {
                     if (GmmAuxType == GMM_AUX_Y_CCS)
                     {
@@ -976,6 +999,7 @@ namespace GmmLib
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T  GMM_STDCALL GetSizeSurface()
             {
+                    GMM_OVERRIDE_SIZE_64KB_ALLOC;
                     return (Surf.Size + AuxSurf.Size + AuxSecSurf.Size);
             }
 
@@ -1076,6 +1100,13 @@ namespace GmmLib
                     Offset = 0;
                 }
 
+                if(((GmmClientContext*)pClientContext)->GetSkuTable().FtrFlatPhysCCS && !Surf.Flags.Gpu.ProceduralTexture &&
+                    (GmmAuxType == GMM_AUX_CCS || GmmAuxType == GMM_AUX_ZCS ||
+                    GmmAuxType == GMM_AUX_Y_CCS || GmmAuxType == GMM_AUX_UV_CCS))
+                {
+                    Offset = 0;
+                }
+
                 return Offset;
             }
 
@@ -1092,6 +1123,11 @@ namespace GmmLib
                 }
                 else if (GmmAuxType == GMM_AUX_CCS || GmmAuxType == GMM_AUX_HIZ || GmmAuxType == GMM_AUX_MCS)
                 {
+                    if(GmmAuxType == GMM_AUX_CCS &&
+                       ((GmmClientContext*)pClientContext)->GetSkuTable().FtrFlatPhysCCS && !Surf.Flags.Gpu.ProceduralTexture)
+                    {
+                        return 0;
+                    }
                     if (GmmAuxType == GMM_AUX_CCS && AuxSecSurf.Type != RESOURCE_INVALID &&
                         (Surf.Flags.Gpu.CCS && (Surf.MSAA.NumSamples > 1 ||
                             Surf.Flags.Gpu.Depth)))
@@ -1323,6 +1359,24 @@ namespace GmmLib
                                 case 8:  HAlign = 2; break;
                                 case 16: HAlign = 3; break;
                                 default: HAlign = 1; // TODO(Benign): Change back to 0 + assert after packed YUV handling corrected.
+                            }
+                        }
+                        else
+                        {
+                            uint32_t Align = GetHAlign() * (GetBitsPerPixel() >> 3);
+
+                            if (Surf.BitsPerPixel == 24 || Surf.BitsPerPixel == 48 || Surf.BitsPerPixel == 96)
+                            {
+                                Align = GetHAlign();
+                            }
+
+                            switch (Align)
+                            {
+                                case  16:  HAlign = 0; break;
+                                case  32:  HAlign = 1; break;
+                                case  64:  HAlign = 2; break;
+                                case 128:  HAlign = 3; break;
+                                default:   HAlign = 0; __GMM_ASSERT(0);
                             }
                         }
                     }
@@ -1637,6 +1691,73 @@ namespace GmmLib
             GMM_VIRTUAL GMM_STATUS              GMM_STDCALL CreateCustomRes(Context& GmmLibContext, GMM_RESCREATE_CUSTOM_PARAMS& CreateParams);
             protected:
                 GMM_VIRTUAL void UpdateUnAlignedParams();
+            public:
+
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED const GMM_MULTI_TILE_ARCH& GetMultiTileArch()
+            {
+                return MultiTileArch;
+            }
+
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Returns the Flat Phys CCS Size for the resource
+            /// @return     CCS size in bytes
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T GMM_STDCALL GetFlatPhysCcsSize()
+            {
+                if((((GmmClientContext*)pClientContext)->GetSkuTable().FtrFlatPhysCCS) &&
+                    !(Surf.Flags.Info.AllowVirtualPadding ||
+                        Surf.Flags.Info.ExistingSysMem ||
+                        Surf.Flags.Info.NonLocalOnly))
+                {
+                    return GFX_CEIL_DIV(Surf.Size, 256);
+                }
+                return 0;
+            }
+			/////////////////////////////////////////////////////////////////////////////////////
+            /// Returns Tiled mode for DEPTH_BUFFER_STATE/STENCIL_BUFFER_STATE/ HIER_DEPTH_BUFFER programming.
+            /// HIZ is always 4kb tiling, XeHP+ TileMode for HIZ is Tile4 and main surface can be
+            /// Tile64 , GMM_AUX_INVALID, will return data for main depth/stencil resource ,
+            /// GMM_AUX_HiZ returns data for HIZ resource
+            /// @return     Tiled Resource Mode(PreGen12) / Tiled Mode(Gen12+)
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetTiledModeDepthStencilState( GMM_UNIFIED_AUX_TYPE  AuxType = GMM_AUX_INVALID)
+            {
+                uint32_t TiledMode = 0;
+
+                if(GMM_IS_TILEY)
+                {
+                    TiledMode =
+				Surf.Flags.Info.TiledYf ? 1 :
+				Surf.Flags.Info.TiledYs ? 2 :
+			        /*TILE_NONE*/		  0;
+                }
+                else
+                {
+                    //1 and 3 are only valid value , 0 and 2 are reserved for XeHP+
+                    if( (AuxType == GMM_AUX_HIZ) && AuxSurf.Flags.Gpu.HiZ )
+                    {
+                        TiledMode =
+                            AuxSurf.Flags.Info.Tile4    ? 3 :
+                            AuxSurf.Flags.Info.Tile64   ? 1 :
+                            /* Default */                 0;
+
+                        __GMM_ASSERT(TiledMode == 3);
+                    }
+                    else
+                    {
+                        TiledMode =
+                            Surf.Flags.Info.Tile4   ? 3 :
+                            Surf.Flags.Info.Tile64  ? 1 :
+                            /* Default */	      0;
+
+                        __GMM_ASSERT( TiledMode );
+
+                    }
+
+                }
+
+                return TiledMode;
+            }
 
     };
 

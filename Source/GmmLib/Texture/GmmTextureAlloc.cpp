@@ -103,6 +103,10 @@ void GmmLib::GmmTextureCalc::SetTileMode(GMM_TEXTURE_INFO *pTexInfo)
             {
                 GENERATE_TILE_MODE(YS, 1D, 2D, 2D_2X, 2D_4X, 2D_8X, 2D_16X, 3D);
             }
+            else
+            {
+                GENERATE_TILE_MODE(_64, 1D, 2D, 2D_2X, 2D_4X, 2D_4X, 2D_4X, 3D);
+            }
 
             pTexInfo->Flags.Info.TiledYf = 0;
             GMM_SET_64KB_TILE(pTexInfo->Flags, 1);
@@ -422,7 +426,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexPitchAndSize(GMM_TEXTURE_INFO * pTexIn
 
         if(pTexInfo->Flags.Info.RenderCompressed || pTexInfo->Flags.Info.MediaCompressed)
         {
-            if(!GMM_IS_64KB_TILE(pTexInfo->Flags)) //Ys is naturally aligned to required 4 YF pages
+            if(!GMM_IS_64KB_TILE(pTexInfo->Flags) && !pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS) //Ys is naturally aligned to required 4 YF pages
             {
                 // Align Pitch to 4-tile boundary
                 WidthBytesPhysical = GFX_ALIGN(WidthBytesPhysical,
@@ -472,7 +476,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexPitchAndSize(GMM_TEXTURE_INFO * pTexIn
 
         if(pGmmGlobalContext->GetWaTable().WaMsaa8xTileYDepthPitchAlignment &&
            (pTexInfo->MSAA.NumSamples == 8) &&
-           pTexInfo->Flags.Info.TiledY &&
+           GMM_IS_4KB_TILE(pTexInfo->Flags) &&
            pTexInfo->Flags.Gpu.Depth)
         {
             WidthBytesLock =
@@ -678,6 +682,20 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexPitchAndSize(GMM_TEXTURE_INFO * pTexIn
                 if(pGmmGlobalContext->GetSkuTable().FtrTileY)
                 {
                     Size *= pTexInfo->MSAA.NumSamples;
+                }
+                else
+                {
+                    //XeHP
+                    if((pTexInfo->MSAA.NumSamples == 8 || pTexInfo->MSAA.NumSamples == 16))
+                    {
+                        uint64_t SliceSize = pTexInfo->Pitch * Height;
+                        SliceSize *= 4; // multiple by samples per tile
+                        Size = (int64_t)SliceSize;
+                    }
+                    else
+                    {
+                        Size *= pTexInfo->MSAA.NumSamples;
+                    }
                 }
             }
 

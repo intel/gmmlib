@@ -40,7 +40,7 @@ void CTestGen12CachePolicy::SetUpTestCase()
     pGfxAdapterInfo->SystemInfo.L3CacheSizeInKb = 3072;
 
     const_cast<SKU_FEATURE_TABLE &>(pGfxAdapterInfo->SkuTable).FtrEDram     = false;
-    const_cast<SKU_FEATURE_TABLE &>(pGfxAdapterInfo->SkuTable).FtrLLCBypass = 1;
+    const_cast<SKU_FEATURE_TABLE &>(pGfxAdapterInfo->SkuTable).FtrLLCBypass = 0;
 
     CommonULT::SetUpTestCase();
 

@@ -99,6 +99,10 @@ typedef struct _SKU_FEATURE_TABLE
         unsigned int   FtrLocalMemory                   : 1;
         unsigned int   FtrCameraCaptureCaching          : 1;
         unsigned int   FtrLocalMemoryAllows4KB          : 1;
+        unsigned int   FtrPpgtt64KBWalkOptimization     : 1;  // XeHP 64KB Page table walk optimization on PPGTT.
+        unsigned int   FtrFlatPhysCCS                   : 1;  // XeHP compression ie flat physical CCS
+        unsigned int   FtrDisplayXTiling                : 1;  // Fallback to Legacy TileX Display, used for Pre-SI platforms.
+        unsigned int   FtrMultiTileArch                 : 1;
    };
 
 
@@ -120,6 +124,7 @@ typedef struct _SKU_FEATURE_TABLE
     {
         unsigned int   FtrRendComp : 1; // For Render Compression Feature on Gen9+
         unsigned int   FtrDisplayYTiling : 1; // For Y Tile Feature on Gen9+
+        unsigned int   FtrDisplayDisabled : 1;  // Server skus with Display
 
 	};
 
@@ -132,6 +137,10 @@ typedef struct _SKU_FEATURE_TABLE
     struct // Virtualization features
     {
         unsigned int    FtrVgt : 1;
+    };
+    struct // For MultiTileArch, KMD reports default tile assignment to UMD-GmmLib - via __KmQueryDriverPrivateInfo
+    {
+        unsigned int FtrAssignedGpuTile : 3;  // Indicates Gpu Tile number assigned to a process for Naive apps.
     };
 
 } SKU_FEATURE_TABLE, *PSKU_FEATURE_TABLE;
@@ -475,6 +484,12 @@ typedef struct _WA_TABLE
         WaUntypedBufferCompression,
         "WA to allow untyped raw buffer AuxTable mapping",
         WA_BUG_TYPE_FUNCTIONAL,
+        WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
+
+        WA_DECLARE(
+        WaDefaultTile4,
+        "[XeHP] Keep Tile4 as default on XeHP till B stepping",
+        WA_BUG_TYPE_UNKNOWN,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
 
 } WA_TABLE, *PWA_TABLE;
