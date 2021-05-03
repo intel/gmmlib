@@ -69,6 +69,7 @@ typedef struct _SKU_FEATURE_TABLE
         unsigned int   FtrCCSRing : 1; // To indicate if CCS hardware ring support is present.
         unsigned int   FtrCCSNode : 1; // To indicate if CCS Node support is present.
         unsigned int   FtrTileY     : 1;  // Identifies Legacy tiles TileY/Yf/Ys on the platform
+        unsigned int   FtrCCSMultiInstance : 1; // To indicate if driver supports MultiContext mode on RCS and more than 1 CCS.
     };
 
 

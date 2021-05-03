@@ -68,7 +68,9 @@ typedef struct GT_VEBOX_INFO
         {
             uint32_t    VEBox0Enabled : 1;      // To determine if VEBox0 is enabled
             uint32_t    VEBox1Enabled : 1;      // To determine if VEBox1 is enabled
-            uint32_t    Reserved      : 30;     // Reserved bits
+            uint32_t    VEBox2Enabled : 1;      // To determine if VEBox2 is enabled
+            uint32_t    VEBox3Enabled : 1;      // To determine if VEBox3 is enabled
+            uint32_t    Reserved      : 28;     // Reserved bits
         } Bits;
 
         uint32_t VEBoxEnableMask;               // Union for all VEBox instances. It can be used to know if any of the VEBOX is enabled.
@@ -80,8 +82,10 @@ typedef struct GT_VEBOX_INFO
         struct
         {
             uint32_t    VEBox0   : 1;      // Set if VEBox0 supports SFC
-            uint32_t    VEBox1   : 2;      // Set if VEBox1 supports SFC
-            uint32_t    Reserved : 30;     // Reserved bits
+            uint32_t    VEBox1   : 1;      // Set if VEBox1 supports SFC
+            uint32_t    VEBox2   : 1;      // Set if VEBox2 supports SFC
+            uint32_t    VEBox3   : 1;      // Set if VEBox3 supports SFC
+            uint32_t    Reserved : 28;     // Reserved bits
         }SfcSupportedBits;
 
         uint32_t Value;
@@ -103,7 +107,12 @@ typedef struct GT_VDBOX_INFO
             uint32_t    VDBox0Enabled : 1;      // To determine if VDBox0 is enabled
             uint32_t    VDBox1Enabled : 1;      // To determine if VDBox1 is enabled
             uint32_t    VDBox2Enabled : 1;      // To determine if VDBox2 is enabled
-            uint32_t    Reserved      : 29;     // Reserved bits
+            uint32_t    VDBox3Enabled : 1;      // To determine if VDBox3 is enabled
+            uint32_t    VDBox4Enabled : 1;      // To determine if VDBox4 is enabled
+            uint32_t    VDBox5Enabled : 1;      // To determine if VDBox5 is enabled
+            uint32_t    VDBox6Enabled : 1;      // To determine if VDBox6 is enabled
+            uint32_t    VDBox7Enabled : 1;      // To determine if VDBox7 is enabled
+            uint32_t    Reserved      : 24;     // Reserved bits
         } Bits;
 
         uint32_t VDBoxEnableMask;               // Union for all VDBox instances. It can be used to know if any of the VDBOX is enabled.
@@ -117,7 +126,12 @@ typedef struct GT_VDBOX_INFO
             uint32_t    VDBox0   : 1;      // Set if VDBox0 supports SFC
             uint32_t    VDBox1   : 1;      // Set if VDBox1 supports SFC
             uint32_t    VDBox2   : 1;      // Set if VDBox2 supports SFC
-            uint32_t    Reserved : 29;     // Reserved bits
+            uint32_t    VDBox3   : 1;      // Set if VDBox3 supports SFC
+            uint32_t    VDBox4   : 1;      // Set if VDBox4 supports SFC
+            uint32_t    VDBox5   : 1;      // Set if VDBox5 supports SFC
+            uint32_t    VDBox6   : 1;      // Set if VDBox6 supports SFC
+            uint32_t    VDBox7   : 1;      // Set if VDBox7 supports SFC
+            uint32_t    Reserved : 24;     // Reserved bits
         }SfcSupportedBits;
 
         uint32_t Value;
@@ -136,7 +150,10 @@ typedef struct GT_CCS_INFO
         struct CCSBitStruct
         {
             uint32_t    CCS0Enabled : 1;      // To determine if CCS0 is enabled
-            uint32_t    Reserved    : 31;     // Reserved bits
+            uint32_t    CCS1Enabled : 1;
+            uint32_t    CCS2Enabled : 1;
+            uint32_t    CCS3Enabled : 1;
+            uint32_t    Reserved    : 28;     // Reserved bits
         } Bits;
 
         uint32_t CCSEnableMask;               // Union for all CCS instances. It can be used to know which CCS is enabled.
