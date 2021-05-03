@@ -1279,6 +1279,12 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_46A1                             0x46A1
 #define DEV_ID_46A2                             0x46A2
 #define DEV_ID_46A3                             0x46A3
+#define DEV_ID_46A6                             0x46A6
+#define DEV_ID_46A8                             0x46A8
+#define DEV_ID_46AA                             0x46AA
+#define DEV_ID_4626                             0x4626
+#define DEV_ID_4628                             0x4628
+#define DEV_ID_462A                             0x462A
 #define DEV_ID_46B0                             0x46B0
 #define DEV_ID_46B1                             0x46B1
 #define DEV_ID_46B2                             0x46B2
