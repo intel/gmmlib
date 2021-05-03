@@ -102,6 +102,7 @@ typedef enum {
     PCH_JSP_N,          // JSL N PCH Device IDs for JSL+ Rev02
     PCH_ADL_S,          // ADL_S PCH
     PCH_ADL_P,          // ADL_P PCH
+    PCH_TGL_H,          // TGL H PCH
     PCH_PRODUCT_FAMILY_FORCE_ULONG = 0x7fffffff
 } PCH_PRODUCT_FAMILY;
 
