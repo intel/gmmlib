@@ -813,9 +813,9 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexPitchAndSize(GMM_TEXTURE_INFO * pTexIn
     }
 
     if((pTexInfo->Flags.Gpu.TilePool && (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN9_CORE)) ||
-       (pTexInfo->Flags.Info.Undefined64KBSwizzle))
+       (pTexInfo->Flags.Info.Undefined64KBSwizzle) || GMM_IS_64KB_TILE(pTexInfo->Flags))
     {
-        pTexInfo->Alignment.BaseAlignment = GMM_KBYTE(64);
+        pTexInfo->Alignment.BaseAlignment = (GFX_IS_ALIGNED(pTexInfo->Alignment.BaseAlignment, GMM_KBYTE(64))) ? pTexInfo->Alignment.BaseAlignment : GMM_KBYTE(64);
     }
 
     if(pGmmGlobalContext->GetWaTable().WaCompressedResourceRequiresConstVA21 && pTexInfo->Flags.Gpu.MMC)
