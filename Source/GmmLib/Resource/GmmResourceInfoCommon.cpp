@@ -366,6 +366,12 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
                     AuxSurf.Size += GMM_KBYTE(64);
                 }
             }
+	    
+	    if(Surf.Flags.Gpu.ProceduralTexture)
+            {
+                //Do not require main surface access either in GPUVA/physical space.
+                Surf.Size = 0;
+            }
 
             TotalSize = Surf.Size + AuxSurf.Size; //Not including AuxSecSurf size, multi-Aux surface isn't supported for displayables
             Alignment = GFX_ULONG_CAST(Surf.Pitch * pPlatform->TileInfo[Surf.TileMode].LogicalTileHeight);

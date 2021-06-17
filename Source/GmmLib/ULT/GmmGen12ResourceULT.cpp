@@ -2539,7 +2539,8 @@ TEST_F(CTestGen12Resource, Test2DTileYfAMFSResource)
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
         VerifyResourcePitch<true>(ResourceInfo, TileSize[i][0]); // As wide as 1 Tile
         VerifyResourcePitchInTiles<true>(ResourceInfo, 1);       // 1 Tile wide
-        VerifyResourceSize<true>(ResourceInfo, GMM_KBYTE(4));    // 1 Tile Big
+        //VerifyResourceSize<true>(ResourceInfo, GMM_KBYTE(4));    // 1 Tile Big,  old behaviour consuming bytes for main-surface (paired Texture dimensions) only used to obtain GPUVA for indirect (Auxtable mapped) CCS access by sampler.
+	VerifyResourceSize<true>(ResourceInfo, 0);    // New behaviour, optimized SFT size, sampler doesn't access CCS via main.. kernels refer the CCS-via its GPUVA (w/o main).
         VerifyResourceQPitch<false>(ResourceInfo, 0);            // Not Tested
 
         //test main surface base alignment is 4KB, since AMFS PT isn't compressed
@@ -2586,7 +2587,8 @@ TEST_F(CTestGen12Resource, Test2DTileYfAMFSResource)
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
         VerifyResourcePitch<true>(ResourceInfo, TileSize[i][0] * 2); // As wide as 2 tile
         VerifyResourcePitchInTiles<true>(ResourceInfo, 2);           // 2 tile wide
-        VerifyResourceSize<true>(ResourceInfo, GMM_KBYTE(4) * 2);    // 2 tile big
+        //VerifyResourceSize<true>(ResourceInfo, GMM_KBYTE(4) * 2);    // 2 tile big, old behaviour consuming bytes for main-surface (paired Texture dimensions) only used to obtain GPUVA for indirect (Auxtable mapped) CCS access by sampler.
+        VerifyResourceSize<true>(ResourceInfo, 0); // New behaviour, optimized SFT size, sampler doesn't access CCS via main.. kernels refer the CCS-via its GPUVA (w/o main).
 
         VerifyResourceQPitch<false>(ResourceInfo, 0); // Not tested
 
@@ -2632,7 +2634,8 @@ TEST_F(CTestGen12Resource, Test2DTileYfAMFSResource)
         VerifyResourceVAlign<true>(ResourceInfo, VAlign[i]);
         VerifyResourcePitch<true>(ResourceInfo, TileSize[i][0] * 2);  // As wide as 2 tile
         VerifyResourcePitchInTiles<true>(ResourceInfo, 2);            // 2 tile wide
-        VerifyResourceSize<true>(ResourceInfo, GMM_KBYTE(4) * 2 * 2); // 2 tile wide; and 2-tile high
+        //VerifyResourceSize<true>(ResourceInfo, GMM_KBYTE(4) * 2 * 2); // 2 tile wide; and 2-tile high, old behaviour consuming bytes for main-surface (paired Texture dimensions) only used to obtain GPUVA for indirect (Auxtable mapped) CCS access by sampler.
+        VerifyResourceSize<true>(ResourceInfo, 0); // New behaviour, optimized SFT size, sampler doesn't access CCS via main.. kernels refer the CCS-via its GPUVA (w/o main).
 
         VerifyResourceQPitch<false>(ResourceInfo, 0); // Not tested
                                                       //test main surface base alignment is 4KB
