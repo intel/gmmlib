@@ -478,7 +478,15 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
         GMM_ASSERTDPF(0, "Overlay and FlipChain flags set. S3D logic may fail.");
         goto ERROR_CASE;
     }
-
+    
+    // Displayable surfaces must remain Tile4
+    if(((!pGmmGlobalContext->GetSkuTable().FtrDisplayDisabled) &&
+        (Surf.Flags.Gpu.Overlay || Surf.Flags.Gpu.FlipChain)) &&
+       (!(Surf.Flags.Info.Linear || Surf.Flags.Info.TiledX || GMM_IS_4KB_TILE(Surf.Flags))))
+    {
+        GMM_ASSERTDPF(0, "Unsupported tiling format for displayable resource.");
+        goto ERROR_CASE;
+    }
 
     if(pGmmGlobalContext->GetSkuTable().FtrLocalMemory)
     {
