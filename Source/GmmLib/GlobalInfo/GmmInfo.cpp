@@ -437,11 +437,12 @@ GMM_CLIENT               ClientType)
     this->WaTable   = *pWaTable;
     this->GtSysInfo = *pGtSysInfo;
 
-    pGmmGlobalContext->pPlatformInfo = GmmLib::PlatformInfo::Create(Platform, false);
+    this->pPlatformInfo = CreatePlatformInfo(Platform, false);
 
     OverrideSkuWa();
 
-    this->pGmmCachePolicy = GmmLib::GmmCachePolicyCommon::Create();
+
+    this->pGmmCachePolicy = CreateCachePolicyCommon();
     if(this->pGmmCachePolicy == NULL)
     {
         return GMM_ERROR;
@@ -449,7 +450,7 @@ GMM_CLIENT               ClientType)
 
     this->pGmmCachePolicy->InitCachePolicy();
 
-    this->pTextureCalc = GmmLib::GmmTextureCalc::Create(Platform, false);
+    this->pTextureCalc = CreateTextureCalc(Platform, false);
     if(this->pTextureCalc == NULL)
     {
         return GMM_ERROR;
@@ -466,32 +467,20 @@ void GMM_STDCALL GmmLib::Context::DestroyContext()
 {
     if(this->pGmmCachePolicy)
     {
-        int32_t CachePolicyObjRefCount = GmmLib::GmmCachePolicyCommon::DecrementRefCount();
-        if(!CachePolicyObjRefCount)
-        {
             delete this->pGmmCachePolicy;
             this->pGmmCachePolicy = NULL;
-        }
     }
 
     if(this->pTextureCalc)
     {
-        int32_t TextureCalcObjRefCount = GmmLib::GmmTextureCalc::DecrementRefCount();
-        if(!TextureCalcObjRefCount)
-        {
             delete this->pTextureCalc;
             this->pTextureCalc = NULL;
-        }
     }
 
     if(pGmmGlobalContext->pPlatformInfo)
     {
-        int32_t PlatformInfoRefCount = GmmLib::PlatformInfo::DecrementRefCount();
-        if(!PlatformInfoRefCount)
-        {
             delete pGmmGlobalContext->pPlatformInfo;
             pGmmGlobalContext->pPlatformInfo = NULL;
-        }
     }
 }
 
@@ -505,6 +494,123 @@ void GMM_STDCALL GmmLib::Context::OverrideSkuWa()
     if(GFX_GET_CURRENT_PRODUCT(this->GetPlatformInfo().Platform) == IGFX_PVC)
     {
         SkuTable.Ftr57bGPUAddressing = true;
+    }
+}
+
+GMM_CACHE_POLICY *GMM_STDCALL GmmLib::Context::CreateCachePolicyCommon()
+{
+    GMM_CACHE_POLICY *        pGmmCachePolicy = NULL;
+    GMM_CACHE_POLICY_ELEMENT *CachePolicy     = NULL;
+    CachePolicy                               = GetCachePolicyUsage();
+
+    if(GetCachePolicyObj())
+    {
+        return GetCachePolicyObj();
+    }
+
+    switch(GFX_GET_CURRENT_RENDERCORE(this->GetPlatformInfo().Platform))
+    {
+        case IGFX_GEN12LP_CORE:
+        case IGFX_GEN12_CORE:
+        case IGFX_XE_HP_CORE:
+            if(GetSkuTable().FtrLocalMemory)
+            {
+                pGmmCachePolicy = new GmmLib::GmmGen12dGPUCachePolicy(CachePolicy, this);
+            }
+            else
+            {
+                pGmmCachePolicy = new GmmLib::GmmGen12CachePolicy(CachePolicy, this);
+            }
+            break;
+        case IGFX_GEN11_CORE:
+            pGmmCachePolicy = new GmmLib::GmmGen11CachePolicy(CachePolicy, this);
+            break;
+        case IGFX_GEN10_CORE:
+            pGmmCachePolicy = new GmmLib::GmmGen10CachePolicy(CachePolicy, this);
+            break;
+        case IGFX_GEN9_CORE:
+            pGmmCachePolicy = new GmmLib::GmmGen9CachePolicy(CachePolicy, this);
+            break;
+        default:
+            pGmmCachePolicy = new GmmLib::GmmGen8CachePolicy(CachePolicy, this);
+            break;
+    }
+
+    if(!pGmmCachePolicy)
+    {
+        GMM_DPF_CRITICAL("unable to allocate memory for CachePolicy Object");
+    }
+
+    return pGmmCachePolicy;
+}
+
+GMM_TEXTURE_CALC *GMM_STDCALL GmmLib::Context::CreateTextureCalc(PLATFORM Platform, bool Override)
+{
+    if(!Override)
+    {
+        if(GetTextureCalc())
+        {
+            return GetTextureCalc();
+        }
+    }
+
+    switch(GFX_GET_CURRENT_RENDERCORE(Platform))
+    {
+        case IGFX_GEN7_CORE:
+        case IGFX_GEN7_5_CORE:
+            return new GmmGen7TextureCalc(this);
+            break;
+        case IGFX_GEN8_CORE:
+            return new GmmGen8TextureCalc(this);
+            break;
+        case IGFX_GEN9_CORE:
+            return new GmmGen9TextureCalc(this);
+            break;
+        case IGFX_GEN10_CORE:
+            return new GmmGen10TextureCalc(this);
+            break;
+        case IGFX_GEN11_CORE:
+            return new GmmGen11TextureCalc(this);
+            break;
+        case IGFX_GEN12LP_CORE:
+        case IGFX_GEN12_CORE:
+        case IGFX_XE_HP_CORE:
+        default:
+            return new GmmGen12TextureCalc(this);
+            break;
+    }
+}
+
+GMM_PLATFORM_INFO_CLASS *GMM_STDCALL GmmLib::Context::CreatePlatformInfo(PLATFORM Platform, bool Override)
+{
+    GMM_DPF_ENTER;
+
+    if(Override == false)
+    {
+        if(pPlatformInfo != NULL)
+        {
+            return pPlatformInfo;
+        }
+    }
+   switch(GFX_GET_CURRENT_RENDERCORE(Platform))
+    {
+        case IGFX_GEN12LP_CORE:
+        case IGFX_GEN12_CORE:
+        case IGFX_XE_HP_CORE:
+            return new GmmLib::PlatformInfoGen12(Platform, (GMM_LIB_CONTEXT *)this);
+            break;
+        case IGFX_GEN11_CORE:
+            return new GmmLib::PlatformInfoGen11(Platform, (GMM_LIB_CONTEXT *)this);
+            break;
+        case IGFX_GEN10_CORE:
+            return new GmmLib::PlatformInfoGen10(Platform, (GMM_LIB_CONTEXT *)this);
+            break;
+        case IGFX_GEN9_CORE:
+            return new GmmLib::PlatformInfoGen9(Platform, (GMM_LIB_CONTEXT *)this);
+            break;
+        default:
+            return new GmmLib::PlatformInfoGen8(Platform, (GMM_LIB_CONTEXT *)this);
+            break;
     }
 }
 

@@ -28,8 +28,8 @@ namespace GmmLib
     class NON_PAGED_SECTION PlatformInfoGen11 : public PlatformInfoGen10
     {
     public:
-        PlatformInfoGen11(PLATFORM &Platform);
-        ~PlatformInfoGen11() {};
+        PlatformInfoGen11(PLATFORM &Platform, Context *pGmmLibContext);
+	~PlatformInfoGen11() {};
         virtual uint8_t ValidateMMC(GMM_TEXTURE_INFO &Surf);
         virtual uint8_t ValidateUnifiedAuxSurface(GMM_TEXTURE_INFO &Surf);
         virtual uint8_t CheckFmtDisplayDecompressible(GMM_TEXTURE_INFO &Surf,

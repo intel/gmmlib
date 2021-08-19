@@ -58,8 +58,8 @@ namespace GmmLib
                                         uint32_t            MipLevel);
         public:
             /* Constructors */
-
-            GmmGen7TextureCalc()
+            GmmGen7TextureCalc(Context *pGmmLibContext)
+                : GmmTextureCalc(pGmmLibContext)
             {
 
             }

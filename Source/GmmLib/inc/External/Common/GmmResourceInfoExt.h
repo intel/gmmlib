@@ -149,6 +149,15 @@ typedef struct GMM_RESOURCE_ALIGNMENT_REC
     typedef struct GmmPageTableMgr GMM_PAGETABLE_MGR;
 #endif
 
+#ifdef __cplusplus
+    namespace GmmLib
+    {
+        class Context;
+    } // namespace GmmLib
+    typedef GmmLib::Context GMM_LIB_CONTEXT;
+#else
+typedef struct GmmLibContext GMM_LIB_CONTEXT;
+#endif
 //===========================================================================
 // typedef:
 //        GMM_RESOURCE_INFO

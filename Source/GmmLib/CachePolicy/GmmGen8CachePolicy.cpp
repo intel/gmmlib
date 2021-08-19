@@ -148,9 +148,9 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetupPAT()
     uint8_t              ServiceClass               = 0;
     int32_t *            pPrivatePATTableMemoryType = NULL;
 
-    pPrivatePATTableMemoryType = pGmmGlobalContext->GetPrivatePATTableMemoryType();
+    pPrivatePATTableMemoryType = pGmmLibContext->GetPrivatePATTableMemoryType();
 
-    __GMM_ASSERT(pGmmGlobalContext->GetSkuTable().FtrIA32eGfxPTEs);
+    __GMM_ASSERT(pGmmLibContext->GetSkuTable().FtrIA32eGfxPTEs);
 
     for(i = 0; i < GMM_NUM_GFX_PAT_TYPES; i++)
     {
@@ -162,7 +162,7 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetupPAT()
     {
         GMM_PRIVATE_PAT PAT = {0};
 
-        if(pGmmGlobalContext->GetWaTable().FtrMemTypeMocsDeferPAT)
+        if(pGmmLibContext->GetWaTable().WaNoMocsEllcOnly)
         {
             GfxTargetCache = GMM_GFX_TC_ELLC_ONLY;
         }
@@ -174,9 +174,9 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetupPAT()
         switch(i)
         {
             case PAT0:
-                if(pGmmGlobalContext->GetWaTable().WaGttPat0)
+                if(pGmmLibContext->GetWaTable().WaGttPat0)
                 {
-                    if(pGmmGlobalContext->GetWaTable().WaGttPat0WB)
+                    if(pGmmLibContext->GetWaTable().WaGttPat0WB)
                     {
                         GfxMemType = GMM_GFX_WB;
                         if(GFX_IS_ATOM_PLATFORM)
@@ -203,8 +203,8 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetupPAT()
                 break;
 
             case PAT1:
-                if(pGmmGlobalContext->GetWaTable().WaGttPat0 && !pGmmGlobalContext->GetWaTable().WaGttPat0WB)
-                {
+                if(pGmmLibContext->GetWaTable().WaGttPat0 && !pGmmLibContext->GetWaTable().WaGttPat0WB)
+		{
                     GfxMemType = GMM_GFX_WB;
                     if(GFX_IS_ATOM_PLATFORM)
                     {
@@ -225,7 +225,7 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetupPAT()
                 // For BDW-H, due to Perf issue, TC has to be eLLC only for Page Tables when eDRAM is present.
                 GfxMemType = GMM_GFX_WB;
 
-                if(pGmmGlobalContext->GetWaTable().FtrMemTypeMocsDeferPAT)
+		if(pGmmLibContext->GetWaTable().WaNoMocsEllcOnly)
                 {
                     GfxTargetCache = GMM_GFX_TC_ELLC_ONLY;
                 }
@@ -282,7 +282,7 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetupPAT()
 GMM_STATUS GmmLib::GmmGen8CachePolicy::SetPATInitWA()
 {
     GMM_STATUS Status   = GMM_SUCCESS;
-    WA_TABLE * pWaTable = &const_cast<WA_TABLE &>(pGmmGlobalContext->GetWaTable());
+    WA_TABLE * pWaTable = &const_cast<WA_TABLE &>(pGmmLibContext->GetWaTable());
 
 #if(defined(__GMM_KMD__))
 
@@ -291,7 +291,7 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetPATInitWA()
     pWaTable->WaGttPat0GttWbOverOsIommuEllcOnly = 1;
 
     // Platforms which support OS-IOMMU.
-    if(pGmmGlobalContext->GetSkuTable().FtrWddm2Svm)
+    if(pGmmLibContext->GetSkuTable().FtrWddm2Svm)
     {
         pWaTable->WaGttPat0GttWbOverOsIommuEllcOnly = 0;
         pWaTable->WaGttPat0WB                       = 0;
@@ -377,7 +377,7 @@ bool GmmLib::GmmGen8CachePolicy::SetPrivatePATEntry(uint32_t PATIdx, GMM_PRIVATE
     GMM_ASSERTDPF(false, "Should only be called from KMD");
     return false;
 #else
-    pGmmGlobalContext->GetPrivatePATTable()[PATIdx] = Entry;
+    pGmmLibContext->GetPrivatePATTable()[PATIdx] = Entry;
     return true;
 #endif
 }
@@ -402,7 +402,7 @@ GMM_PRIVATE_PAT GmmLib::GmmGen8CachePolicy::GetPrivatePATEntry(uint32_t PATIdx)
 #if(!defined(__GMM_KMD__))
     return NullPAT;
 #else
-    return pGmmGlobalContext->GetPrivatePATTable()[PATIdx];
+    return pGmmLibContext->GetPrivatePATTable()[PATIdx];
 #endif
 }
 

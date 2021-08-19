@@ -391,8 +391,8 @@ void GmmLib::GmmGen11TextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTex
        pTexInfo->Flags.Gpu.UnifiedAuxSurface &&
        pTexInfo->Flags.Info.TiledY)
     {
-        GMM_GFX_SIZE_T TileHeight = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
-        GMM_GFX_SIZE_T TileWidth  = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileWidth;
+        GMM_GFX_SIZE_T TileHeight = pGmmLibContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
+        GMM_GFX_SIZE_T TileWidth  = pGmmLibContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileWidth;
 
         *pUOffsetX = GFX_ALIGN(*pUOffsetX, TileWidth);
         *pUOffsetY = GFX_ALIGN(*pUOffsetY, TileHeight);
@@ -421,7 +421,7 @@ uint32_t GmmLib::GmmGen11TextureCalc::GetMipTailByteOffset(GMM_TEXTURE_INFO *pTe
     GMM_DPF_ENTER;
 
     // 3D textures follow the Gen10 mip tail format
-    if(!pGmmGlobalContext->GetSkuTable().FtrStandardMipTailFormat)
+    if(!pGmmLibContext->GetSkuTable().FtrStandardMipTailFormat)
     {
         return GmmGen9TextureCalc::GetMipTailByteOffset(pTexInfo, MipLevel);
     }
@@ -1083,7 +1083,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen11TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
        pTexInfo->Flags.Gpu.UnifiedAuxSurface &&
        pTexInfo->Flags.Info.TiledY)
     {
-        uint32_t TileHeight = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
+        uint32_t TileHeight = pGmmLibContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
 
         Height = GFX_ALIGN(YHeight, TileHeight) + GFX_ALIGN(AdjustedVHeight, TileHeight);
     }

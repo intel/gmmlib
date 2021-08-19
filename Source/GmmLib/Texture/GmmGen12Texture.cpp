@@ -149,7 +149,7 @@ uint32_t GmmLib::GmmGen12TextureCalc::Get2DMipMapHeight(GMM_TEXTURE_INFO *pTexIn
 GMM_STATUS GmmLib::GmmGen12TextureCalc::FillTexCCS(GMM_TEXTURE_INFO *pSurf,
                                                    GMM_TEXTURE_INFO *pAuxTexInfo)
 {
-    if(pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS && !pSurf->Flags.Gpu.ProceduralTexture)
+    if(pGmmLibContext->GetSkuTable().FtrFlatPhysCCS && !pSurf->Flags.Gpu.ProceduralTexture)
     {
         //No CCS allocation for lossless compression (exclude AMFS CCS).
         return GMM_SUCCESS;
@@ -374,7 +374,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTex2D(GMM_TEXTURE_INFO *
     {
         uint32_t Alignment = VAlign;
         if((pTexInfo->Type == RESOURCE_3D && !pTexInfo->Flags.Info.Linear) ||
-           (pTexInfo->Flags.Gpu.S3dDx && pGmmGlobalContext->GetSkuTable().FtrDisplayEngineS3d))
+           (pTexInfo->Flags.Gpu.S3dDx && pGmmLibContext->GetSkuTable().FtrDisplayEngineS3d))
         {
             Alignment = pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileHeight;
         }
@@ -474,7 +474,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTex2D(GMM_TEXTURE_INFO *
     }
 
     // For Non-planar surfaces, the alignment is done on the entire height of the allocation
-    if(pGmmGlobalContext->GetWaTable().WaAlignYUVResourceToLCU &&
+    if(pGmmLibContext->GetWaTable().WaAlignYUVResourceToLCU &&
        GmmIsYUVFormatLCUAligned(pTexInfo->Format) &&
        !GmmIsPlanar(pTexInfo->Format))
     {
@@ -856,7 +856,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
     FindMipTailStartLod(pTexInfo);
 
     // In case of Planar surfaces, only the last Plane has to be aligned to 64 for LCU access
-    if(pGmmGlobalContext->GetWaTable().WaAlignYUVResourceToLCU && GmmIsYUVFormatLCUAligned(pTexInfo->Format) && VHeight > 0)
+    if(pGmmLibContext->GetWaTable().WaAlignYUVResourceToLCU && GmmIsYUVFormatLCUAligned(pTexInfo->Format) && VHeight > 0)
     {
         AdjustedVHeight = GFX_ALIGN(VHeight, GMM_SCANLINES(GMM_MAX_LCU_SIZE));
         Height += AdjustedVHeight - VHeight;
@@ -869,8 +869,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
     if(GMM_IS_TILED(pPlatform->TileInfo[pTexInfo->TileMode]) &&
        !pTexInfo->Flags.Gpu.__NonMsaaTileYCcs)
     {
-        uint32_t TileHeight = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
-        uint32_t TileWidth  = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileWidth;
+        uint32_t TileHeight = pGmmLibContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
+        uint32_t TileWidth  = pGmmLibContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileWidth;
 
         pTexInfo->OffsetInfo.Plane.IsTileAlignedPlanes = true;
 
@@ -905,7 +905,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
     }
     else if(pTexInfo->Flags.Gpu.__NonMsaaTileYCcs)
     {
-        uint32_t TileHeight = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
+        uint32_t TileHeight = pGmmLibContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
 
         BitsPerPixel = 8;
 
@@ -986,7 +986,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::GetCCSScaleFactor(GMM_TEXTUR
                                                                       CCS_UNIT &        ScaleFactor)
 {
     GMM_STATUS           Status     = GMM_SUCCESS;
-    GMM_TEXTURE_ALIGN_EX TexAlignEx = static_cast<PlatformInfoGen12 *>(pGmmGlobalContext->GetPlatformInfoObj())->GetExTextureAlign();
+    GMM_TEXTURE_ALIGN_EX TexAlignEx = static_cast<PlatformInfoGen12 *>(pGmmLibContext->GetPlatformInfoObj())->GetExTextureAlign();
     uint32_t             CCSModeIdx = 0;
 
     if(pTexInfo->Flags.Info.TiledYf || GMM_IS_64KB_TILE(pTexInfo->Flags)) //pTexInfo is RT Surf
@@ -1014,8 +1014,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::GetCCSExMode(GMM_TEXTURE_INF
 {
     if(GMM_IS_4KB_TILE(AuxSurf->Flags) || GMM_IS_64KB_TILE(AuxSurf->Flags) || AuxSurf->Flags.Info.Linear)
     {
-        if(pGmmGlobalContext->GetSkuTable().FtrLinearCCS)
-        {
+        if(pGmmLibContext->GetSkuTable().FtrLinearCCS)
+	{
             AuxSurf->Flags.Gpu.__NonMsaaLinearCCS = 1;
         }
         else
@@ -1099,8 +1099,8 @@ uint32_t GMM_STDCALL GmmLib::GmmGen12TextureCalc::ScaleFCRectHeight(GMM_TEXTURE_
     uint32_t ScaledHeight = Height;
     if(pTexInfo->Flags.Gpu.CCS)
     {
-        CCS_UNIT *FCRectAlign = static_cast<PlatformInfoGen12 *>(pGmmGlobalContext->GetPlatformInfoObj())->GetFCRectAlign();
-        uint8_t   index       = FCMaxModes;
+        CCS_UNIT *FCRectAlign = static_cast<PlatformInfoGen12 *>(pGmmLibContext->GetPlatformInfoObj())->GetFCRectAlign();
+	uint8_t   index       = FCMaxModes;
         if((index = FCMode(pTexInfo->TileMode, pTexInfo->BitsPerPixel)) < FCMaxModes)
         {
             ScaledHeight = GFX_ALIGN(ScaledHeight, FCRectAlign[index].Align.Height);
@@ -1120,7 +1120,7 @@ uint64_t GMM_STDCALL GmmLib::GmmGen12TextureCalc::ScaleFCRectWidth(GMM_TEXTURE_I
     uint64_t ScaledWidth = Width;
     if(pTexInfo->Flags.Gpu.CCS)
     {
-        CCS_UNIT *FCRectAlign = static_cast<PlatformInfoGen12 *>(pGmmGlobalContext->GetPlatformInfoObj())->GetFCRectAlign();
+        CCS_UNIT *FCRectAlign = static_cast<PlatformInfoGen12 *>(pGmmLibContext->GetPlatformInfoObj())->GetFCRectAlign();
         uint8_t   index       = FCMaxModes;
         if((index = FCMode(pTexInfo->TileMode, pTexInfo->BitsPerPixel)) < FCMaxModes)
         {

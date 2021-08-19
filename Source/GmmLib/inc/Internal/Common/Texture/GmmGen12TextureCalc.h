@@ -61,8 +61,8 @@ namespace GmmLib
                                         GMM_TEXTURE_INFO  *pAuxTexInfo);
         public:
             /* Constructors */
-
-            GmmGen12TextureCalc()
+            GmmGen12TextureCalc(Context *pGmmLibContext)
+                : GmmGen11TextureCalc(pGmmLibContext)
             {
 
             }

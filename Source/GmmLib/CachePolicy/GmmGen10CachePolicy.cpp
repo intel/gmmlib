@@ -67,7 +67,7 @@ GMM_STATUS GmmLib::GmmGen10CachePolicy::InitCachePolicy()
 
         uint32_t                      CurrentMaxIndex        = 0;
         uint32_t                      CurrentMaxHDCL1Index   = GMM_GEN10_HDCL1_MOCS_INDEX_START - 1; // define constant
-        GMM_CACHE_POLICY_TBL_ELEMENT *pCachePolicyTlbElement = pGmmGlobalContext->GetCachePolicyTlbElement();
+        GMM_CACHE_POLICY_TBL_ELEMENT *pCachePolicyTlbElement = pGmmLibContext->GetCachePolicyTlbElement();
 
         // index 0 is uncached.
         {
@@ -254,7 +254,10 @@ GMM_STATUS GmmLib::GmmGen10CachePolicy::SetPATInitWA()
     GMM_STATUS Status = GMM_SUCCESS;
 
 #if(defined(__GMM_KMD__))
-    
+    if(pGmmLibContext->GetGtSysInfoPtr()->EdramSizeInKb)
+    {
+        const_cast<WA_TABLE &>(pGmmLibContext->GetWaTable()).WaNoMocsEllcOnly = 1;
+    }
 #else
     Status = GMM_ERROR;
 #endif
@@ -346,10 +349,9 @@ GMM_STATUS GmmLib::GmmGen10CachePolicy::SetupPAT()
     uint8_t              Age                        = 1;
     uint8_t              ServiceClass               = 0;
     int32_t *            pPrivatePATTableMemoryType = NULL;
-    pPrivatePATTableMemoryType                      = pGmmGlobalContext->GetPrivatePATTableMemoryType();
+    pPrivatePATTableMemoryType                      = pGmmLibContext->GetPrivatePATTableMemoryType();
 
-    __GMM_ASSERT(pGmmGlobalContext->GetSkuTable().FtrIA32eGfxPTEs);
-
+    __GMM_ASSERT(pGmmLibContext->GetSkuTable().FtrIA32eGfxPTEs);
     for(i = 0; i < GMM_NUM_GFX_PAT_TYPES; i++)
     {
         pPrivatePATTableMemoryType[i] = -1;
@@ -360,7 +362,7 @@ GMM_STATUS GmmLib::GmmGen10CachePolicy::SetupPAT()
     {
         GMM_PRIVATE_PAT PAT = {0};
 
-        if(pGmmGlobalContext->GetWaTable().FtrMemTypeMocsDeferPAT)
+	if(pGmmLibContext->GetWaTable().WaNoMocsEllcOnly)
         {
             GfxTargetCache = GMM_GFX_TC_ELLC_ONLY;
         }
@@ -372,10 +374,10 @@ GMM_STATUS GmmLib::GmmGen10CachePolicy::SetupPAT()
         switch(i)
         {
             case PAT0:
-                if(pGmmGlobalContext->GetWaTable().WaGttPat0)
-                {
-                    if(pGmmGlobalContext->GetWaTable().WaGttPat0WB)
-                    {
+                if(pGmmLibContext->GetWaTable().WaGttPat0)
+		{
+                    if(pGmmLibContext->GetWaTable().WaGttPat0WB)
+	            {
                         GfxMemType = GMM_GFX_WB;
                         if(GFX_IS_ATOM_PLATFORM)
                         {
@@ -401,7 +403,7 @@ GMM_STATUS GmmLib::GmmGen10CachePolicy::SetupPAT()
                 break;
 
             case PAT1:
-                if(pGmmGlobalContext->GetWaTable().WaGttPat0 && !pGmmGlobalContext->GetWaTable().WaGttPat0WB)
+                if(pGmmLibContext->GetWaTable().WaGttPat0 && !pGmmLibContext->GetWaTable().WaGttPat0WB)
                 {
                     GfxMemType = GMM_GFX_WB;
                     if(GFX_IS_ATOM_PLATFORM)

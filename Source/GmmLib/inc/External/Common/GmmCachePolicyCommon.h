@@ -41,38 +41,19 @@ namespace GmmLib
     /// implementation.  This class is inherited by gen specific class so
     /// so clients shouldn't have to ever interact  with this class directly.
     /////////////////////////////////////////////////////////////////////////
+
+    class Context;
     class  NON_PAGED_SECTION GmmCachePolicyCommon :
         public GmmMemAllocator
     {
-        private:
-            static int32_t RefCount;
+        protected:
+            Context *         pGmmLibContext;
 
         public:
             GMM_CACHE_POLICY_ELEMENT *pCachePolicy;
 
             /* Constructor */
-            GmmCachePolicyCommon(GMM_CACHE_POLICY_ELEMENT *pCachePolicy);
-            static GMM_CACHE_POLICY* Create();
-
-            static void IncrementRefCount()
-            {
-                #if defined(__GMM_KMD__) || _WIN32
-                    InterlockedIncrement((LONG *)&RefCount);
-                #elif defined(__linux__)
-                    __sync_fetch_and_add(&RefCount, 1);
-                #endif
-                //TODO[Android]
-            }
-
-            static int32_t DecrementRefCount()
-            {
-                #if defined(__GMM_KMD__) || _WIN32
-                    return(InterlockedDecrement((LONG *)&RefCount));
-                #elif defined(__linux__)
-                    return(__sync_sub_and_fetch(&RefCount, 1));
-                #endif
-                //TODO[Android]
-            }
+            GmmCachePolicyCommon(GMM_CACHE_POLICY_ELEMENT *pCachePolicy, Context *pGmmLibContext);
 
             /* Function prototypes */
             #if _WIN32

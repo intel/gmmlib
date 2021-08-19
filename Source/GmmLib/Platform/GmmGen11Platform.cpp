@@ -24,8 +24,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Internal/Common/Platform/GmmGen10Platform.h"
 #include "Internal/Common/Platform/GmmGen11Platform.h"
 
-GmmLib::PlatformInfoGen11::PlatformInfoGen11(PLATFORM &Platform)
-    : PlatformInfoGen10(Platform)
+GmmLib::PlatformInfoGen11::PlatformInfoGen11(PLATFORM &Platform, Context *pGmmLibContext)
+    : PlatformInfoGen10(Platform, pGmmLibContext)
 {
 
     Data.SurfaceMaxSize                      = GMM_GBYTE(16384);

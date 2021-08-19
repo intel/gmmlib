@@ -110,7 +110,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen8TextureCalc::FillTex2D(GMM_TEXTURE_INFO * 
                                         Height0;
         BlockHeight -= (pTexInfo->Flags.Wa.CHVAstcSkipVirtualMips) ? Height0 : 0;
 
-        if(pTexInfo->Flags.Gpu.S3dDx && pGmmGlobalContext->GetSkuTable().FtrDisplayEngineS3d)
+        if(pTexInfo->Flags.Gpu.S3dDx && pGmmLibContext->GetSkuTable().FtrDisplayEngineS3d)
         {
             BlockHeight = GFX_ALIGN(BlockHeight, pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileHeight);
         }
@@ -173,7 +173,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen8TextureCalc::FillTex2D(GMM_TEXTURE_INFO * 
         AlignedWidthLod1 = __GMM_EXPAND_WIDTH(this, Width >> 1, HAlign, pTexInfo);
         AlignedWidthLod2 = __GMM_EXPAND_WIDTH(this, Width >> 2, HAlign, pTexInfo);
 
-        if((pGmmGlobalContext->GetWaTable().WaAstcCorruptionForOddCompressedBlockSizeX || pTexInfo->Flags.Wa.CHVAstcSkipVirtualMips) && pPlatform->FormatTable[pTexInfo->Format].ASTC && CompressWidth == 5)
+	if((pGmmLibContext->GetWaTable().WaAstcCorruptionForOddCompressedBlockSizeX || pTexInfo->Flags.Wa.CHVAstcSkipVirtualMips) && pPlatform->FormatTable[pTexInfo->Format].ASTC && CompressWidth == 5)
         {
             uint32_t Width1   = (Width == 1) ? 1 : (Width >> 1);
             uint32_t Modulo10 = Width1 % 10;

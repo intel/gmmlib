@@ -87,8 +87,8 @@ namespace GmmLib
         GMM_TEXTURE_ALIGN_EX    TexAlignEx;
         CCS_UNIT                FCTileMode[FCMaxModes];
     public:
-        PlatformInfoGen12(PLATFORM &Platform);
-        ~PlatformInfoGen12(){};
+        PlatformInfoGen12(PLATFORM &Platform, Context *pGmmLibContext);
+	~PlatformInfoGen12(){};
         virtual GMM_TEXTURE_ALIGN_EX GetExTextureAlign() { return TexAlignEx; }
         virtual void ApplyExtendedTexAlign(uint32_t CCSMode, ALIGNMENT& UnitAlign);
         virtual CCS_UNIT* GetFCRectAlign() { return FCTileMode; }

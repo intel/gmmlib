@@ -28,7 +28,7 @@ namespace GmmLib
     class NON_PAGED_SECTION PlatformInfoGen9 : public PlatformInfo
     {
     public:
-        PlatformInfoGen9(PLATFORM &Platform);
+        PlatformInfoGen9(PLATFORM &Platform, Context *pGmmLibContext);
         ~PlatformInfoGen9(){};
     };
 }

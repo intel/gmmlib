@@ -385,7 +385,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
         __GMM_ASSERT(GFX_GET_CURRENT_RENDERCORE(Surf.Platform) >
                      GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform));
 
-        pGmmGlobalContext->SetOverridePlatformInfoObj(GmmLib::PlatformInfo::Create(Surf.Platform, true));
+        pGmmGlobalContext->SetOverridePlatformInfoObj(pGmmGlobalContext->CreatePlatformInfo(Surf.Platform, true));
 
         if(pGmmGlobalContext->GetOverrideTextureCalc())
         {
@@ -393,7 +393,8 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
             pGmmGlobalContext->SetOverrideTextureCalc(NULL);
         }
 
-        pGmmGlobalContext->SetOverrideTextureCalc(GmmLib::GmmTextureCalc::Create(Surf.Platform, true));
+	pGmmGlobalContext->SetOverrideTextureCalc(pGmmGlobalContext->CreateTextureCalc(Surf.Platform, true));
+
     }
 #endif
 

@@ -537,8 +537,12 @@ namespace GmmLib
         }
     #endif
 
-
     #endif
+
+    GMM_CACHE_POLICY* GMM_STDCALL CreateCachePolicyCommon();
+    GMM_TEXTURE_CALC* GMM_STDCALL CreateTextureCalc(PLATFORM Platform, bool Override);
+    GMM_PLATFORM_INFO_CLASS *GMM_STDCALL CreatePlatformInfo(PLATFORM Platform, bool Override);
+
     private: 
         void GMM_STDCALL OverrideSkuWa();
     };

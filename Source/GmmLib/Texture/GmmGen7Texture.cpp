@@ -293,7 +293,7 @@ GMM_GFX_SIZE_T GmmLib::GmmGen7TextureCalc::Get2DTexOffsetAddressPerMip(GMM_TEXTU
         {
             Mip1Width /= CompressWidth;
 
-            if((pGmmGlobalContext->GetWaTable().WaAstcCorruptionForOddCompressedBlockSizeX || pTexInfo->Flags.Wa.CHVAstcSkipVirtualMips) && pPlatform->FormatTable[pTexInfo->Format].ASTC && CompressWidth == 5)
+	    if((pGmmLibContext->GetWaTable().WaAstcCorruptionForOddCompressedBlockSizeX || pTexInfo->Flags.Wa.CHVAstcSkipVirtualMips) && pPlatform->FormatTable[pTexInfo->Format].ASTC && CompressWidth == 5)
             {
                 uint32_t Width1   = (pTexInfo->BaseWidth == 1) ? 1 : (GFX_ULONG_CAST(pTexInfo->BaseWidth) >> 1);
                 uint32_t Modulo10 = Width1 % 10;

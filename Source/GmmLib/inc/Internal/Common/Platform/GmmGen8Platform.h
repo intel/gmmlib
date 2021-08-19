@@ -28,8 +28,8 @@ namespace GmmLib
     class NON_PAGED_SECTION PlatformInfoGen8 : public PlatformInfo
     {
     public:
-        PlatformInfoGen8(PLATFORM &Platform);
-        ~PlatformInfoGen8(){};
+        PlatformInfoGen8(PLATFORM &Platform, Context *pGmmLibContext);
+	~PlatformInfoGen8(){};
     };
 }
 

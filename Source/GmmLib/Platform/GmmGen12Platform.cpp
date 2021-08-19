@@ -67,11 +67,10 @@ eg:
 ///
 /// @param[in]  Platform: Contains information about platform to initialize an object
 /////////////////////////////////////////////////////////////////////////////////////
-GmmLib::PlatformInfoGen12::PlatformInfoGen12(PLATFORM &Platform)
-    : PlatformInfoGen11(Platform)
-
+GmmLib::PlatformInfoGen12::PlatformInfoGen12(PLATFORM &Platform, Context *pGmmLibContext)
+    : PlatformInfoGen11(Platform, pGmmLibContext)
 {
-    __GMM_ASSERTPTR(pGmmGlobalContext, VOIDRETURN);
+    __GMM_ASSERTPTR(pGmmLibContext, VOIDRETURN);
 
     //Compression format update
     GMM_RESOURCE_FORMAT GmmFormat;
@@ -397,7 +396,7 @@ uint8_t GmmLib::PlatformInfoGen12::ValidateCCS(GMM_TEXTURE_INFO &Surf)
         return 0;
     }
 
-    if(!pGmmGlobalContext->GetSkuTable().FtrLinearCCS &&
+    if(!pGmmLibContext->GetSkuTable().FtrLinearCCS &&
        (Surf.Type == RESOURCE_3D || Surf.MaxLod > 0 || Surf.MSAA.NumSamples > 1 ||
         !(Surf.Flags.Info.TiledYf || GMM_IS_64KB_TILE(Surf.Flags))))
     {
@@ -489,7 +488,7 @@ uint8_t GmmLib::PlatformInfoGen12::OverrideCompressionFormat(GMM_RESOURCE_FORMAT
 {
 
     uint8_t CompressionFormat = Data.FormatTable[Format].CompressionFormat.CompressionFormat;
-    if(pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS)
+    if(pGmmLibContext->GetSkuTable().FtrFlatPhysCCS)
     {
         if(!IsMC &&
            (CompressionFormat < GMM_FLATCCS_MIN_RC_FORMAT ||

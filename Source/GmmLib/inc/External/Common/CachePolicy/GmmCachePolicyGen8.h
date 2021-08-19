@@ -45,8 +45,9 @@ namespace GmmLib
 
         public:
             /* Constructors */
-            GmmGen8CachePolicy(GMM_CACHE_POLICY_ELEMENT *pCachePolicy) :GmmCachePolicyCommon(pCachePolicy)
-            {
+            GmmGen8CachePolicy(GMM_CACHE_POLICY_ELEMENT *pCachePolicyContext, Context *pGmmLibContext)
+                : GmmCachePolicyCommon(pCachePolicyContext, pGmmLibContext)
+	    {
                 #if(defined(__GMM_KMD__))
                 //if (GFX_IS_SKU(pGmmGlobalContext, FtrIA32eGfxPTEs))
                 {

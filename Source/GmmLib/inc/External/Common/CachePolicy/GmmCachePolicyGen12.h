@@ -35,8 +35,9 @@ namespace GmmLib
         public:
 
             /* Constructors */
-            GmmGen12CachePolicy(GMM_CACHE_POLICY_ELEMENT *pCachePolicy) :GmmGen11CachePolicy(pCachePolicy)
-            {
+            GmmGen12CachePolicy(GMM_CACHE_POLICY_ELEMENT *pCachePolicyContext, Context *pGmmLibContext)
+                : GmmGen11CachePolicy(pCachePolicyContext, pGmmLibContext)
+	    {
 #if(defined(__GMM_KMD__))
             {
                 // Set the WA's needed for Private PAT initialization

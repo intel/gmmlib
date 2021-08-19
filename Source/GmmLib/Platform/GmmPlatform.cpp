@@ -24,14 +24,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 extern GMM_GLOBAL_CONTEXT *pGmmGlobalContext;
 
-int32_t GmmLib::PlatformInfo::RefCount = 0;
-
-GmmLib::PlatformInfo::PlatformInfo(PLATFORM &Platform)
+GmmLib::PlatformInfo::PlatformInfo(PLATFORM &Platform, Context *pGmmLibContext)
 {
     GMM_DPF_ENTER;
 
     memset(&Data, 0, sizeof(Data));
     Data.Platform = Platform;
+
+    this->pGmmLibContext = pGmmLibContext;
 
     GMM_RESOURCE_FORMAT GmmFormat;
 #define GMM_FORMAT_GEN(X) (GFX_GET_CURRENT_RENDERCORE(Data.Platform) >= IGFX_GEN##X##_CORE)

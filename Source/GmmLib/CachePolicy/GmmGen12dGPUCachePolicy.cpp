@@ -192,7 +192,7 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
             //Special-case MOCS handling for MOCS Table Index 60-63
             if(CPTblIdx >= GMM_GEN12_MAX_NUMBER_MOCS_INDEXES)
             {
-                GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &pGmmGlobalContext->GetCachePolicyTlbElement()[CPTblIdx];
+                GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &pGmmLibContext->GetCachePolicyTlbElement()[CPTblIdx];
 
                 if(SpecialMOCS &&
                    !(TblEle->L3.UshortValue == UsageEle.L3.UshortValue))
@@ -207,8 +207,8 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
             {
                 for(j = GMM_GEN10_HDCL1_MOCS_INDEX_START; j <= CurrentMaxL1HdcMocsIndex; j++)
                 {
-                    GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &pGmmGlobalContext->GetCachePolicyTlbElement()[j];
-                    if(TblEle->L3.UshortValue == UsageEle.L3.UshortValue &&
+                    GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &pGmmLibContext->GetCachePolicyTlbElement()[j];
+		    if(TblEle->L3.UshortValue == UsageEle.L3.UshortValue &&
                        TblEle->HDCL1 == UsageEle.HDCL1)
                     {
                         CPTblIdx = j;
@@ -229,7 +229,8 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
                     }
                     else
                     {
-                        GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &pGmmGlobalContext->GetCachePolicyTlbElement()[j];
+                        GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &pGmmLibContext->GetCachePolicyTlbElement()[j];
+
                         if(TblEle->L3.UshortValue == UsageEle.L3.UshortValue)
                         {
                             CPTblIdx = j;
@@ -294,7 +295,7 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
 //-----------------------------------------------------------------------------
 void GmmLib::GmmGen12dGPUCachePolicy::SetUpMOCSTable()
 {
-    GMM_CACHE_POLICY_TBL_ELEMENT *pCachePolicyTlbElement = &(pGmmGlobalContext->GetCachePolicyTlbElement()[0]);
+    GMM_CACHE_POLICY_TBL_ELEMENT *pCachePolicyTlbElement = &(pGmmLibContext->GetCachePolicyTlbElement()[0]);
     CurrentMaxL1HdcMocsIndex                             = 0;
     CurrentMaxSpecialMocsIndex                           = 0;
 

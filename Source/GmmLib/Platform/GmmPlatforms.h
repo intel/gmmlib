@@ -27,6 +27,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "../inc/External/Common/GmmTextureExt.h"
 
 namespace GmmLib {
+
+    class Context;
     class NON_PAGED_SECTION PlatformInfo : public GmmMemAllocator
     {
     public:
@@ -35,9 +37,10 @@ namespace GmmLib {
 
     protected:
         GMM_PLATFORM_INFO Data;
+        Context *         pGmmLibContext;
 
     public:
-        PlatformInfo(PLATFORM &Platform);
+        PlatformInfo(PLATFORM &Platform, Context* pGmmLibContext);
         virtual ~PlatformInfo()
         {
         }
@@ -82,27 +85,6 @@ namespace GmmLib {
                                                       bool IsSupportedRGB32_2_10_10_10,
                                                       bool IsSupportedMediaFormats);
 
-        static void IncrementRefCount()
-        {
-#if defined(__GMM_KMD__) || _WIN32
-            InterlockedIncrement((LONG *)&RefCount);
-#elif defined(__linux__)
-            __sync_fetch_and_add(&RefCount, 1);
-#endif
-            //TODO[Android]
-        }
-
-        static int32_t DecrementRefCount()
-        {
-#if defined(__GMM_KMD__) || _WIN32
-            return(InterlockedDecrement((LONG *)&RefCount));
-#elif defined(__linux__)
-            return(__sync_sub_and_fetch(&RefCount, 1));
-#endif
-            //TODO[Android]
-        }
-
-        static PlatformInfo* Create(PLATFORM Platform, bool Override);
     };
 }
 #define GMM_PLATFORM_INFO_CLASS GmmLib::PlatformInfo
