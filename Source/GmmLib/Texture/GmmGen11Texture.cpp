@@ -369,6 +369,21 @@ void GmmLib::GmmGen11TextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTex
             *pUOffsetY += pTexInfo->OffsetInfo.Plane.Y[GMM_PLANE_Y];
             *pVOffsetY = *pUOffsetY;
         }
+
+	// This is needed for FtrDisplayPageTables
+        if(pGmmGlobalContext->GetSkuTable().FtrDisplayPageTables)
+        {
+            pTexInfo->OffsetInfo.Plane.Aligned.Height[GMM_PLANE_Y] = GFX_ALIGN(YHeight, TileHeight);
+            if(pTexInfo->OffsetInfo.Plane.NoOfPlanes == 2)
+            {
+                pTexInfo->OffsetInfo.Plane.Aligned.Height[GMM_PLANE_U] = GFX_ALIGN(VHeight, TileHeight);
+            }
+            else if(pTexInfo->OffsetInfo.Plane.NoOfPlanes == 3)
+            {
+                pTexInfo->OffsetInfo.Plane.Aligned.Height[GMM_PLANE_U] =
+                pTexInfo->OffsetInfo.Plane.Aligned.Height[GMM_PLANE_V] = GFX_ALIGN(VHeight, TileHeight);
+            }
+	}
     }
 
     //Special case LKF MMC compressed surfaces

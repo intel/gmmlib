@@ -282,6 +282,8 @@ typedef struct GT_SYSTEM_INFO
     uint32_t        NumThreadsPerEu;                // Number of threads per EU. 
     GT_CACHE_TYPES  CacheTypes;                     // Types of caches available on system (L3/LLC/eDRAM).                     
     uint32_t        MaxVECS;                        // Max VECS instances.
+    uint32_t        MemoryType;                     // GT_MEMORY_TYPES - type of memory supported in current platform
+
 } GT_SYSTEM_INFO, *PGT_SYSTEM_INFO;
 
 #pragma pack(pop)

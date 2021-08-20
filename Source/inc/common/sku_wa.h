@@ -104,6 +104,7 @@ typedef struct _SKU_FEATURE_TABLE
         unsigned int   FtrFlatPhysCCS                   : 1;  // XeHP compression ie flat physical CCS
         unsigned int   FtrDisplayXTiling                : 1;  // Fallback to Legacy TileX Display, used for Pre-SI platforms.
         unsigned int   FtrMultiTileArch                 : 1;
+	unsigned int   FtrDisplayPageTables             : 1;  // Display Page Tables: 2-Level Page walk for Displayable Frame buffers in GGTT.
    };
 
 

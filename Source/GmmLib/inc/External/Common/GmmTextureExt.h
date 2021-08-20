@@ -47,7 +47,7 @@ typedef struct GMM_PLANAR_OFFSET_INFO_REC
     struct
     {
         GMM_GFX_SIZE_T     Height[GMM_MAX_PLANE];
-    } UnAligned;
+    } UnAligned, Aligned;
     uint32_t            NoOfPlanes;
     bool                IsTileAlignedPlanes;
 }GMM_PLANAR_OFFSET_INFO;
