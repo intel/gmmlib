@@ -2114,7 +2114,7 @@ TEST_F(CTestGen12Resource, TestLinearCompressedResource)
         gmmParams.Format                         = SetResourceFormat(bpp);
         gmmParams.BaseWidth64                    = 0x1;
         gmmParams.BaseHeight                     = 1;
-        gmmParams.Flags.Info.AllowVirtualPadding = (bpp != 8); //OCL uses 8bpp buffers. doc doesn't comment if Linear buffer compr allowed or not on bpp!=8.
+        gmmParams.Flags.Info.AllowVirtualPadding = (bpp != TEST_BPP_8); //OCL uses 8bpp buffers. doc doesn't comment if Linear buffer compr allowed or not on bpp!=8.
 
         GMM_RESOURCE_INFO *ResourceInfo;
         ResourceInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
@@ -2159,7 +2159,7 @@ TEST_F(CTestGen12Resource, TestLinearCompressedResource)
         gmmParams.Format                         = SetResourceFormat(bpp);
         gmmParams.BaseWidth64                    = 0x1001;
         gmmParams.BaseHeight                     = 1;
-        gmmParams.Flags.Info.AllowVirtualPadding = (bpp != 8); //OCL uses 8bpp buffers. document doesn't comment if Linear buffer compr allowed or not on bpp!=8.
+        gmmParams.Flags.Info.AllowVirtualPadding = (bpp != TEST_BPP_8); //OCL uses 8bpp buffers. document doesn't comment if Linear buffer compr allowed or not on bpp!=8.
         gmmParams.Flags.Gpu.UnifiedAuxSurface    = 1;          //Turn off for separate aux creation
         gmmParams.Flags.Gpu.CCS                  = 1;
 
