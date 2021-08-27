@@ -45,7 +45,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen7TextureCalc::FillTex2D(GMM_TEXTURE_INFO * 
 
     GMM_DPF_ENTER;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     BitsPerPixel = pTexInfo->BitsPerPixel;
     Height       = pTexInfo->BaseHeight;
@@ -266,7 +266,7 @@ GMM_GFX_SIZE_T GmmLib::GmmGen7TextureCalc::Get2DTexOffsetAddressPerMip(GMM_TEXTU
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
     GMM_DPF_ENTER;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     HAlign = pTexInfo->Alignment.HAlign;
     VAlign = pTexInfo->Alignment.VAlign;
@@ -353,7 +353,7 @@ uint32_t GmmLib::GmmGen7TextureCalc::Get2DMipMapHeight(GMM_TEXTURE_INFO *pTexInf
 
     GMM_DPF_ENTER;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     // Mip 0 height is needed later
     Height      = pTexInfo->BaseHeight;
@@ -524,7 +524,7 @@ uint32_t GmmLib::GmmGen7TextureCalc::GetTotal3DHeight(GMM_TEXTURE_INFO *pTexInfo
 
     GMM_DPF_ENTER;
 
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo, pGmmLibContext);
 
     BlockHeight     = pTexInfo->BaseHeight;
     Depth           = pTexInfo->Depth;
@@ -599,7 +599,7 @@ void GmmLib::GmmGen7TextureCalc::Fill3DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
 
     __GMM_ASSERT(pTexInfo);
 
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo, pGmmLibContext);
 
     // Assign directly to unaligned MipMap dimension variables
     // There isn't a need to save original dimensions
@@ -742,7 +742,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen7TextureCalc::FillTex3D(GMM_TEXTURE_INFO * 
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
     __GMM_ASSERTPTR(pRestrictions, GMM_ERROR);
 
-    const __GMM_PLATFORM_RESOURCE *pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const __GMM_PLATFORM_RESOURCE *pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     BitsPerPixel = pTexInfo->BitsPerPixel;
     Height       = pTexInfo->BaseHeight;

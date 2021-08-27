@@ -1696,7 +1696,7 @@ GMM_GFX_SIZE_T GMM_STDCALL GmmResGetPlanarAuxOffset(GMM_RESOURCE_INFO *pGmmResou
 //-----------------------------------------------------------------------------
 uint8_t __CanSupportStdTiling(GMM_TEXTURE_INFO Surf)
 {
-    const __GMM_PLATFORM_RESOURCE *pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
+    const __GMM_PLATFORM_RESOURCE *pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(&Surf, pGmmGlobalContext);
 
     // SKL+ Tiled Resource Mode Restrictions
     if((Surf.Flags.Info.TiledYf || Surf.Flags.Info.TiledYs) &&

@@ -56,7 +56,7 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
     __GMM_ASSERTPTR(((pTexInfo->TileMode < GMM_TILE_MODES) && (pTexInfo->TileMode >= TILE_NONE)), VOIDRETURN);
     GMM_DPF_ENTER;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmGlobalContext);
 
     // GMM_PLANE_Y always at (0, 0)...
     pTexInfo->OffsetInfo.Plane.X[GMM_PLANE_Y] = 0;
@@ -464,7 +464,7 @@ void GmmLib::GmmTextureCalc::FindMipTailStartLod(GMM_TEXTURE_INFO *pTexInfo)
     {
         uint32_t                 MipDepth, MipHeight, MipWidth, CompressWidth, CompressHeight, CompressDepth;
         uint32_t                 Level     = 0;
-        const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+        const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
         MipDepth  = pTexInfo->Depth;
         MipHeight = pTexInfo->BaseHeight;
@@ -639,7 +639,7 @@ bool GmmLib::GmmTextureCalc::RedescribeTexturePlanes(GMM_TEXTURE_INFO *pTexInfo,
 {
     GMM_STATUS               Status = GMM_SUCCESS;
     GMM_TEXTURE_INFO         TexInfoUVPlane;
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     __GMM_ASSERT(pTexInfo);
     __GMM_ASSERT(pTexInfo->Flags.Info.RedecribedPlanes);
@@ -700,7 +700,7 @@ bool GmmLib::GmmTextureCalc::GetRedescribedPlaneParams(GMM_TEXTURE_INFO *pTexInf
 {
     GMM_STATUS               Status = GMM_SUCCESS;
     GMM_TEXTURE_INFO         TexInfoUVPlane;
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     __GMM_ASSERT(pTexInfo);
     __GMM_ASSERT(pTexInfo->Flags.Info.RedecribedPlanes);

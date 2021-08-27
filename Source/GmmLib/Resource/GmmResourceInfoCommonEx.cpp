@@ -258,7 +258,7 @@ Surf.BitsPerPixel = BitsPerPixel;
     }
 
     // Convert Any Pseudo Creation Params to Actual...
-    GMM_TEXTURE_CALC *pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    GMM_TEXTURE_CALC *pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, pGmmGlobalContext);
     if(Surf.Flags.Gpu.UnifiedAuxSurface)
     {
         AuxSurf = Surf;
@@ -398,8 +398,8 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
     }
 #endif
 
-    pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
-    pTextureCalc      = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(&Surf, pGmmGlobalContext);
+    pTextureCalc      = GMM_OVERRIDE_TEXTURE_CALC(&Surf, pGmmGlobalContext);
 
     __GMM_ASSERT(!(
     Surf.Flags.Gpu.Query &&

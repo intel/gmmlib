@@ -57,7 +57,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 //
 //-----------------------------------------------------------------------------
 // Gmmlib 2.0 TODO[Low] Move to Class and Inline function handling.
-GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
+GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo,GMM_LIB_CONTEXT* pGmmLibContext)
 {
     uint32_t                   UnitAlignWidth = 0;
     uint32_t                   UnitAlignHeight = 0;
@@ -66,6 +66,7 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
     GMM_TEXTURE_CALC        *pTextureCalc;
 
     GMM_DPF_ENTER;
+    __GMM_ASSERTPTR(pGmmLibContext,GMM_ERROR);
 
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
     __GMM_ASSERTPTR(pGmmGlobalContext, GMM_ERROR);
@@ -101,8 +102,8 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
     if( !pTexInfo->Alignment.HAlign &&
         !pTexInfo->Alignment.VAlign)
     {
-        pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
-        pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo);
+        pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo,pGmmLibContext);
+        pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo,pGmmLibContext);
 
         /// SKL TiledYf/Ys Surfaces //////////////////////////////////////////
         if( ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN9_CORE) &&

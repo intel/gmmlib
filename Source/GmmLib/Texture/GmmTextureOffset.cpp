@@ -43,7 +43,7 @@ GMM_STATUS GmmTexGetMipMapOffset(GMM_TEXTURE_INFO *   pTexInfo,
     __GMM_ASSERTPTR(pReqInfo, GMM_ERROR);
     __GMM_ASSERT(pReqInfo->CubeFace <= __GMM_NO_CUBE_MAP);
 
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo, pGmmGlobalContext);
 
     if((pReqInfo->Plane >= GMM_MAX_PLANE) ||
        (pReqInfo->Plane < GMM_NO_PLANE) ||
@@ -149,7 +149,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexStdLayoutOffset(GMM_TEXTURE_INFO *   pT
             TileSize = GMM_KBYTE(4);
         }
 
-        const GMM_PLATFORM_INFO *pPlatform       = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+        const GMM_PLATFORM_INFO *pPlatform       = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
         uint32_t                 BytesPerElement = pTexInfo->BitsPerPixel / CHAR_BIT;
         GMM_TILE_MODE            TileMode        = pTexInfo->TileMode;
         struct
@@ -271,7 +271,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexLockOffset(GMM_TEXTURE_INFO *   pTexInf
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
     __GMM_ASSERTPTR(pReqInfo, GMM_ERROR);
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     // set default value
     AddressOffset = 0;
@@ -450,7 +450,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::GetTexRenderOffset(GMM_TEXTURE_INFO *   pTexI
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
     __GMM_ASSERTPTR(pReqInfo, GMM_ERROR);
 
-    pPlatform     = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    pPlatform     = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
     pTileInfo     = &pPlatform->TileInfo[pTexInfo->TileMode];
     AddressOffset = GetMipMapByteAddress(pTexInfo, pReqInfo);
 
@@ -601,7 +601,7 @@ GMM_GFX_SIZE_T GmmLib::GmmTextureCalc::GetMipMapByteAddress(GMM_TEXTURE_INFO *  
                   pTexInfo->OffsetInfo.Texture2DOffsetInfo.ArrayQPitchRender :
                   pTexInfo->OffsetInfo.Texture2DOffsetInfo.ArrayQPitchLock;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     if(pTexInfo->Type == RESOURCE_3D && !pTexInfo->Flags.Info.Linear)
     {

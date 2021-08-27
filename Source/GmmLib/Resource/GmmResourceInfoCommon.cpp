@@ -147,8 +147,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::CreateCustomRes(Context &G
         goto ERROR_CASE;
     }
 
-    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf, pGmmGlobalContext);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, pGmmGlobalContext);
 
     Surf.Type                    = CreateParams.Type;
     Surf.Format                  = CreateParams.Format;
@@ -294,8 +294,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
         goto ERROR_CASE;
     }
 
-    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf, pGmmGlobalContext);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, pGmmGlobalContext);
 
 #if defined(__GMM_KMD__) || !defined(_WIN32)
     if(!CreateParams.Flags.Info.ExistingSysMem)
@@ -736,8 +736,8 @@ bool GmmLib::GmmResourceInfoCommon::RedescribePlanes()
     GMM_STATUS               Status       = GMM_SUCCESS;
     int                      MaxPlanes    = 1;
 
-    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf, pGmmGlobalContext);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, pGmmGlobalContext);
 
     __GMM_ASSERT(Surf.Flags.Info.RedecribedPlanes);
 
@@ -869,7 +869,7 @@ uint64_t GmmLib::GmmResourceInfoCommon::GetFastClearWidth(uint32_t MipLevel)
     uint32_t numSamples = GetNumSamples();
 
     GMM_TEXTURE_CALC *pTextureCalc;
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, pGmmGlobalContext);
 
     if(numSamples == 1)
     {
@@ -904,7 +904,7 @@ uint32_t GmmLib::GmmResourceInfoCommon::GetFastClearHeight(uint32_t MipLevel)
     uint32_t numSamples = GetNumSamples();
 
     GMM_TEXTURE_CALC *pTextureCalc;
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, pGmmGlobalContext);
 
     if(numSamples == 1)
     {
@@ -928,7 +928,7 @@ uint32_t GmmLib::GmmResourceInfoCommon::GetFastClearHeight(uint32_t MipLevel)
 /////////////////////////////////////////////////////////////////////////////////////
 bool GmmLib::GmmResourceInfoCommon::ReAdjustPlaneProperties(bool IsAuxSurf)
 {
-    const GMM_PLATFORM_INFO *pPlatform     = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
+    const GMM_PLATFORM_INFO *pPlatform     = GMM_OVERRIDE_PLATFORM_INFO(&Surf, pGmmGlobalContext);
     GMM_TEXTURE_INFO *       pTexInfo      = &Surf;
     GMM_TEXTURE_INFO *       pPlaneTexInfo = PlaneSurf;
 
@@ -1023,7 +1023,7 @@ uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetPaddedWidth(uint32_t MipL
 
     __GMM_ASSERT(MipLevel <= Surf.MaxLod);
 
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, pGmmGlobalContext);
 
     // This shall be called for Depth and Separate Stencil main surface resource
     // This shall be called for the Aux surfaces (MCS, CCS and Hiz) too.
@@ -1108,7 +1108,7 @@ uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetPaddedHeight(uint32_t Mip
                  AuxSurf.Flags.Gpu.__MsaaTileMcs ||
                  AuxSurf.Flags.Gpu.CCS || AuxSurf.Flags.Gpu.__NonMsaaTileYCcs);
 
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, pGmmGlobalContext);
 
     MipHeight = pTextureCalc->GmmTexGetMipHeight(&Surf, MipLevel);
 
@@ -1198,7 +1198,7 @@ uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetQPitch()
     const GMM_PLATFORM_INFO *pPlatform;
     uint32_t                 QPitch;
 
-    pPlatform = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
+    pPlatform = GMM_OVERRIDE_PLATFORM_INFO(&Surf, pGmmGlobalContext);
 
     __GMM_ASSERT(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE);
     __GMM_ASSERT((Surf.Type != RESOURCE_3D) ||
@@ -1245,7 +1245,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetOffset(GMM_REQ_OFFSET_I
 {
     GMM_TEXTURE_CALC *pTextureCalc;
 
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, pGmmGlobalContext);
 
     __GMM_ASSERT((pTextureCalc != NULL))
 
@@ -1364,8 +1364,8 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::CpuBlt(GMM_RES_COPY_BLT *pBlt
 
     __GMM_ASSERTPTR(pBlt, 0);
 
-    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf, pGmmGlobalContext);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, pGmmGlobalContext);
 
     __GMM_ASSERT(
     Surf.Type == RESOURCE_1D ||
@@ -1915,8 +1915,8 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetMappingSpanDesc(GMM_GET_MA
 
     __GMM_ASSERT(Surf.Flags.Info.StdSwizzle);
 
-    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf, pGmmGlobalContext);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, pGmmGlobalContext);
 
     __GMM_ASSERT(pTextureCalc != NULL);
     pTexInfo = &Surf;
@@ -2255,7 +2255,7 @@ uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetPackedMipTailStartLod()
 {
     uint32_t NumPackedMips = 0, NumTilesForPackedMips = 0;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(&Surf, pGmmGlobalContext);
 
     GetTiledResourceMipPacking(&NumPackedMips,
                                &NumTilesForPackedMips);
@@ -2389,7 +2389,7 @@ MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetMOCS()
 /////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetStdTilingModeExtSurfaceState()
 {
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(&Surf, pGmmGlobalContext);
     GMM_UNREFERENCED_LOCAL_VARIABLE(pPlatform); // Only used for debug
     __GMM_ASSERT(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) > IGFX_GEN10_CORE);
 
@@ -2422,7 +2422,7 @@ GMM_SURFACESTATE_FORMAT GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetResourceFo
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_GFX_SIZE_T GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetMipWidth(uint32_t MipLevel)
 {
-    GMM_TEXTURE_CALC *pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    GMM_TEXTURE_CALC *pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, pGmmGlobalContext);
     return pTextureCalc->GmmTexGetMipWidth(&Surf, MipLevel);
 }
 
@@ -2433,7 +2433,7 @@ GMM_GFX_SIZE_T GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetMipWidth(uint32_t M
 /////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetMipHeight(uint32_t MipLevel)
 {
-    GMM_TEXTURE_CALC *pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    GMM_TEXTURE_CALC *pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, pGmmGlobalContext);
     return pTextureCalc->GmmTexGetMipHeight(&Surf, MipLevel);
 }
 
@@ -2444,6 +2444,6 @@ uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetMipHeight(uint32_t MipLev
 /////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetMipDepth(uint32_t MipLevel)
 {
-    GMM_TEXTURE_CALC *pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    GMM_TEXTURE_CALC *pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, pGmmGlobalContext);
     return pTextureCalc->GmmTexGetMipDepth(&Surf, MipLevel);
 }

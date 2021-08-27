@@ -595,14 +595,14 @@ extern "C" {
 }
 #endif /*__cplusplus*/
 
-    #define GMM_OVERRIDE_PLATFORM_INFO(pTexInfo)    (GmmGetPlatformInfo(pGmmGlobalContext))
-    #define GMM_OVERRIDE_TEXTURE_CALC(pTexInfo)     (GmmGetTextureCalc(pGmmGlobalContext))
+    #define GMM_OVERRIDE_PLATFORM_INFO(pTexInfo,pGmmLibContext)    (GmmGetPlatformInfo(pGmmLibContext))
+    #define GMM_OVERRIDE_TEXTURE_CALC(pTexInfo,pGmmLibContext)     (GmmGetTextureCalc(pGmmLibContext))
 
 #ifdef __GMM_KMD__
     #define GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(pTexInfo)    GMM_OVERRIDE_PLATFORM_INFO(pTexInfo)
     #define GMM_IS_PLANAR(Format)                            GmmIsPlanar(Format)
 #else
-    #define GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(pTexInfo)    (&pClientContext->GetPlatformInfo())
+    #define GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(pTexInfo,pGmmLibContext)    (&((GmmClientContext*)pClientContext)->GetPlatformInfo())
     #define GMM_IS_PLANAR(Format)                            (pClientContext->IsPlanar(Format))
 #endif
 

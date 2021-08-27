@@ -45,7 +45,7 @@ uint32_t GmmLib::GmmGen12TextureCalc::Get2DMipMapHeight(GMM_TEXTURE_INFO *pTexIn
     uint8_t  Compressed;
     GMM_DPF_ENTER;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     Compressed = GmmIsCompressed(pTexInfo->Format);
     MipHeight  = pTexInfo->BaseHeight;
@@ -157,13 +157,13 @@ GMM_STATUS GmmLib::GmmGen12TextureCalc::FillTexCCS(GMM_TEXTURE_INFO *pSurf,
     else if(pAuxTexInfo->Flags.Gpu.__NonMsaaLinearCCS)
     {
         GMM_TEXTURE_INFO         Surf      = *pSurf;
-        const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pSurf);
+        const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pSurf, pGmmLibContext);
         pAuxTexInfo->Flags.Info.TiledW     = 0;
         pAuxTexInfo->Flags.Info.TiledYf    = 0;
         pAuxTexInfo->Flags.Info.TiledX     = 0;
         pAuxTexInfo->Flags.Info.Linear     = 1;
-        GMM_SET_64KB_TILE(pAuxTexInfo->Flags, 0);
-        GMM_SET_4KB_TILE(pAuxTexInfo->Flags, 0);
+        GMM_SET_64KB_TILE(pAuxTexInfo->Flags, 0, pGmmLibContext);
+        GMM_SET_4KB_TILE(pAuxTexInfo->Flags, 0, pGmmLibContext);
 
         pAuxTexInfo->ArraySize    = Surf.ArraySize;
         pAuxTexInfo->BitsPerPixel = 8;
@@ -295,7 +295,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTex2D(GMM_TEXTURE_INFO *
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
     __GMM_ASSERTPTR(pRestrictions, GMM_ERROR);
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     BitsPerPixel = pTexInfo->BitsPerPixel;
     //TODO: Deprecate TileY usage
@@ -518,7 +518,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
     __GMM_ASSERTPTR(pRestrictions, GMM_ERROR);
     __GMM_ASSERT(!pTexInfo->Flags.Info.TiledW);
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     BitsPerPixel = pTexInfo->BitsPerPixel;
     AlignedWidth = GFX_ULONG_CAST(pTexInfo->BaseWidth);
@@ -730,8 +730,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
                 pTexInfo->Flags.Info.TiledYf = 0;
                 pTexInfo->Flags.Info.TiledX  = 0;
                 pTexInfo->Flags.Info.Linear  = 1;
-                GMM_SET_64KB_TILE(pTexInfo->Flags, 0);
-                GMM_SET_4KB_TILE(pTexInfo->Flags, 0);
+                GMM_SET_64KB_TILE(pTexInfo->Flags, 0, pGmmLibContext);
+                GMM_SET_4KB_TILE(pTexInfo->Flags, 0, pGmmLibContext);
             }
 
             UVPacked = true;
@@ -781,8 +781,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
             pTexInfo->Flags.Info.TiledX           = 0;
             pTexInfo->Flags.Info.Linear           = 1;
             pTexInfo->OffsetInfo.Plane.NoOfPlanes = 1;
-            GMM_SET_64KB_TILE(pTexInfo->Flags, 0);
-            GMM_SET_4KB_TILE(pTexInfo->Flags, 0);
+            GMM_SET_64KB_TILE(pTexInfo->Flags, 0, pGmmLibContext);
+            GMM_SET_4KB_TILE(pTexInfo->Flags, 0, pGmmLibContext);
 
             break;
         }
@@ -878,7 +878,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
         {
             //U/V must be aligned to AuxT granularity, 4x pitchalign enforces 16K-align,
             //add extra padding for 64K AuxT
-            TileHeight *= (!GMM_IS_64KB_TILE(pTexInfo->Flags) && !WA16K) ? 4 : 1;
+            TileHeight *= (!GMM_IS_64KB_TILE(pTexInfo->Flags) && !WA16K(pGmmLibContext)) ? 4 : 1;
         }
 
         if(pTexInfo->Format == GMM_FORMAT_IMC2 || // IMC2, IMC4 needs even tile columns

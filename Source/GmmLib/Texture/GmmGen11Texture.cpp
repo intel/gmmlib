@@ -57,7 +57,7 @@ void GmmLib::GmmGen11TextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTex
     __GMM_ASSERTPTR(((pTexInfo->TileMode < GMM_TILE_MODES) && (pTexInfo->TileMode >= TILE_NONE)), VOIDRETURN);
     GMM_DPF_ENTER;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     // GMM_PLANE_Y always at (0, 0)...
     pTexInfo->OffsetInfo.Plane.X[GMM_PLANE_Y] = 0;
@@ -353,7 +353,7 @@ void GmmLib::GmmGen11TextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTex
             {
                 //U/V must be aligned to AuxT granularity, for 16K AuxT- 4x pitchalign enforces it,
                 //add extra padding for 64K AuxT
-                TileHeight *= (!GMM_IS_64KB_TILE(pTexInfo->Flags) && !WA16K) ? 4 : 1;
+                TileHeight *= (!GMM_IS_64KB_TILE(pTexInfo->Flags) && !WA16K(pGmmLibContext)) ? 4 : 1;
             }
         }
 
@@ -606,7 +606,7 @@ GMM_STATUS GmmLib::GmmGen11TextureCalc::FillLinearCCS(GMM_TEXTURE_INFO * pTexInf
     GMM_GFX_SIZE_T           YCcsSize    = 0;
     GMM_GFX_SIZE_T           UVCcsSize   = 0;
     GMM_GFX_SIZE_T           TotalHeight = 0;
-    const GMM_PLATFORM_INFO *pPlatform   = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform   = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
     GMM_DPF_ENTER;
 
 
@@ -689,7 +689,7 @@ GMM_STATUS GmmLib::GmmGen11TextureCalc::FillLinearCCS(GMM_TEXTURE_INFO * pTexInf
 GMM_STATUS GMM_STDCALL GmmLib::GmmGen11TextureCalc::FillTexPlanar(GMM_TEXTURE_INFO * pTexInfo,
                                                                   __GMM_BUFFER_TYPE *pRestrictions)
 {
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     GMM_DPF_ENTER;
     uint32_t   WidthBytesPhysical, Height, YHeight, VHeight;

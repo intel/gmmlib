@@ -143,7 +143,7 @@ typedef enum GMM_GFX_PAT_IDX_REC
     PAT7            // Will be tied to GMM_GFX_PAT_WC
 }GMM_GFX_PAT_IDX;
 
-#define GFX_IS_ATOM_PLATFORM (GmmGetSkuTable(pGmmGlobalContext)->FtrLCIA)
+#define GFX_IS_ATOM_PLATFORM(pGmmLibContext) (GmmGetSkuTable(pGmmLibContext)->FtrLCIA)
 
 typedef enum GMM_GFX_TARGET_CACHE_REC
 {

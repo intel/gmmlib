@@ -134,9 +134,9 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex1D(GMM_TEXTURE_INFO * 
     pTexInfo->Flags.Info.Linear = 1;
     pTexInfo->Flags.Info.TiledW = 0;
     pTexInfo->Flags.Info.TiledX = 0;
-    GMM_SET_4KB_TILE(pTexInfo->Flags, 0);
+    GMM_SET_4KB_TILE(pTexInfo->Flags, 0, pGmmLibContext);
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     ArraySize    = GFX_MAX(pTexInfo->ArraySize, 1);
     BitsPerPixel = pTexInfo->BitsPerPixel;
@@ -255,7 +255,7 @@ uint32_t GmmLib::GmmGen9TextureCalc::Get2DMipMapHeight(GMM_TEXTURE_INFO *pTexInf
     uint8_t  Compressed;
     GMM_DPF_ENTER;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     Compressed = GmmIsCompressed(pTexInfo->Format);
     MipHeight  = pTexInfo->BaseHeight;
@@ -450,7 +450,7 @@ GMM_GFX_SIZE_T GmmLib::GmmGen9TextureCalc::Get2DTexOffsetAddressPerMip(GMM_TEXTU
 
     GMM_DPF_ENTER;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     HAlign     = pTexInfo->Alignment.HAlign;
     VAlign     = pTexInfo->Alignment.VAlign;
@@ -558,7 +558,7 @@ void GmmLib::GmmGen9TextureCalc::Fill2DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
     uint32_t i;
     GMM_DPF_ENTER;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     // QPitch: Array Element-to-Element, or Cube Face-to-Face Pitch...
     if((pTexInfo->ArraySize <= 1) &&
@@ -656,7 +656,7 @@ uint32_t GmmLib::GmmGen9TextureCalc::GetAligned3DBlockHeight(GMM_TEXTURE_INFO *p
     GMM_UNREFERENCED_PARAMETER(ExpandedArraySize);
     __GMM_ASSERTPTR(pTexInfo, 0);
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     if((pTexInfo->Type == RESOURCE_3D) && !pTexInfo->Flags.Info.Linear)
     {
@@ -690,7 +690,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex2D(GMM_TEXTURE_INFO * 
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
     __GMM_ASSERTPTR(pRestrictions, GMM_ERROR);
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     BitsPerPixel = pTexInfo->BitsPerPixel;
     if(pTexInfo->Flags.Gpu.CCS && pTexInfo->Flags.Gpu.__NonMsaaTileYCcs)

@@ -35,7 +35,7 @@ void GmmLib::GmmTextureCalc::SetTileMode(GMM_TEXTURE_INFO *pTexInfo)
 {
     const GMM_PLATFORM_INFO *pPlatform;
 
-    pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     if(pTexInfo->Flags.Info.TiledYf || GMM_IS_64KB_TILE(pTexInfo->Flags))
     {
@@ -109,11 +109,11 @@ void GmmLib::GmmTextureCalc::SetTileMode(GMM_TEXTURE_INFO *pTexInfo)
             }
 
             pTexInfo->Flags.Info.TiledYf = 0;
-            GMM_SET_64KB_TILE(pTexInfo->Flags, 1);
+            GMM_SET_64KB_TILE(pTexInfo->Flags, 1, pGmmLibContext);
         }
 
 
-        GMM_SET_4KB_TILE(pTexInfo->Flags, pGmmGlobalContext->GetSkuTable().FtrTileY ? 1 : 0);
+        GMM_SET_4KB_TILE(pTexInfo->Flags, pGmmGlobalContext->GetSkuTable().FtrTileY ? 1 : 0, pGmmLibContext);
 
         pTexInfo->Flags.Info.TiledX = 0;
         pTexInfo->Flags.Info.TiledW = 0;
@@ -122,13 +122,13 @@ void GmmLib::GmmTextureCalc::SetTileMode(GMM_TEXTURE_INFO *pTexInfo)
     }
     else if(GMM_IS_4KB_TILE(pTexInfo->Flags))
     {
-        GMM_SET_4KB_TILE(pTexInfo->Flags, 1);
+        GMM_SET_4KB_TILE(pTexInfo->Flags, 1, pGmmLibContext);
         pTexInfo->Flags.Info.TiledYf = 0;
         pTexInfo->Flags.Info.TiledYs = 0;
         pTexInfo->Flags.Info.TiledX  = 0;
         pTexInfo->Flags.Info.TiledW  = 0;
         pTexInfo->Flags.Info.Linear  = 0;
-        GMM_SET_4KB_TILE_MODE(pTexInfo->TileMode);
+        GMM_SET_4KB_TILE_MODE(pTexInfo->TileMode, pGmmLibContext);
     }
     else if(pTexInfo->Flags.Info.TiledX)
     {
@@ -210,7 +210,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::AllocateTexture(GMM_TEXTURE_INFO *pTexInfo)
 
     GetTexRestrictions(pTexInfo, &Restrictions);
 
-    if((Status = __GmmTexFillHAlignVAlign(pTexInfo)) != GMM_SUCCESS)
+    if((Status = __GmmTexFillHAlignVAlign(pTexInfo, pGmmLibContext)) != GMM_SUCCESS)
     {
         return Status;
     }
@@ -377,7 +377,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexPitchAndSize(GMM_TEXTURE_INFO * pTexIn
 
     GMM_DPF_ENTER;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     // Make sure that we meet the minimum HW requirment for that buffer type
     WidthBytesPhysical = GFX_MAX(WidthBytesPhysical, pBufferType->MinPitch);
@@ -856,7 +856,7 @@ uint32_t VHeight, bool VHeightAlignmentNeeded)
     };
     int32_t TileType;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     // First try Tile-Y, then Tile-X (then fallback to linear if necessary)...
     for(TileType = Ys; TileType >= X; TileType--)
@@ -1000,7 +1000,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmTextureCalc::FillTexPlanar(GMM_TEXTURE_INFO * 
     __GMM_ASSERT(!pTexInfo->Flags.Info.TiledW);
     pTexInfo->TileMode = TILE_NONE;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     WidthBytesPhysical = GFX_ULONG_CAST(pTexInfo->BaseWidth) * pTexInfo->BitsPerPixel >> 3;
     Height = VHeight = 0;
@@ -1612,7 +1612,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::MSAACompression(GMM_TEXTURE_INFO *pTexInfo)
         pTexInfo->Format       = GMM_FORMAT_GENERIC_64BIT;
     }
 
-    if((Status = __GmmTexFillHAlignVAlign(pTexInfo)) != GMM_SUCCESS) // Need to get our alignment (matching RT) before overwriting our RT's MSAA setting.
+    if((Status = __GmmTexFillHAlignVAlign(pTexInfo, pGmmLibContext)) != GMM_SUCCESS) // Need to get our alignment (matching RT) before overwriting our RT's MSAA setting.
     {
         return Status;
     }
@@ -1634,7 +1634,7 @@ void GMM_STDCALL GmmLib::GmmTextureCalc::AllocateOneTileThanRequied(GMM_TEXTURE_
                                                                     GMM_GFX_SIZE_T &  WidthBytesPhysical,
                                                                     GMM_GFX_SIZE_T &  WidthBytesLock)
 {
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     if(pTexInfo->Flags.Gpu.MMC && !pTexInfo->Flags.Gpu.UnifiedAuxSurface)
     {

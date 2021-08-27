@@ -307,7 +307,7 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::SetupPAT()
                     if(pGmmGlobalContext->GetWaTable().WaGttPat0WB)
                     {
                         GfxMemType = GMM_GFX_WB;
-                        if(GFX_IS_ATOM_PLATFORM)
+                        if(GFX_IS_ATOM_PLATFORM(pGmmLibContext))
                         {
                             PAT.PreGen10.Snoop = 1;
                         }
@@ -322,7 +322,7 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::SetupPAT()
                 else // if GTT is not tied to PAT0 then WaGttPat0WB is NA
                 {
                     GfxMemType = GMM_GFX_WB;
-                    if(GFX_IS_ATOM_PLATFORM)
+                    if(GFX_IS_ATOM_PLATFORM(pGmmLibContext))
                     {
                         PAT.PreGen10.Snoop = 1;
                     }
@@ -334,7 +334,7 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::SetupPAT()
                 if(pGmmGlobalContext->GetWaTable().WaGttPat0 && !pGmmGlobalContext->GetWaTable().WaGttPat0WB)
                 {
                     GfxMemType = GMM_GFX_WB;
-                    if(GFX_IS_ATOM_PLATFORM)
+                    if(GFX_IS_ATOM_PLATFORM(pGmmLibContext))
                     {
                         PAT.PreGen10.Snoop = 1;
                     }

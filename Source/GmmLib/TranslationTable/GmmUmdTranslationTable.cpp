@@ -194,7 +194,7 @@ void GmmLib::PageTable::AllocateL1L2Table(GMM_GFX_ADDRESS TileAddr, GMM_GFX_ADDR
         PoolElem = PageTableMgr->__GetFreePoolNode(&PoolNodeIdx, PoolType); //Recognize if Aux-L1 being allocated
         if(PoolElem)
         {
-            pL1Tbl = new GmmLib::LastLevelTable(PoolElem, PoolNodeIdx, GMM_L1_SIZE_DWORD(TTType, pGmmGlobalContext), L2eIdx); //use Aux L1_Size_DWORD
+            pL1Tbl = new GmmLib::LastLevelTable(PoolElem, PoolNodeIdx, GMM_L1_SIZE_DWORD(TTType, pGmmGlobalContext), L2eIdx); //TBD: use TR vs Aux L1_Size_DWORD
 
             if(pL1Tbl)
             {
@@ -260,7 +260,7 @@ void GmmLib::PageTable::AllocateDummyTables(GmmLib::Table **L2Table, GmmLib::Tab
         PoolElem = PageTableMgr->__GetFreePoolNode(&PoolNodeIdx, PoolType); //Recognize if Aux-L1 being allocated
         if(PoolElem)
         {
-            *L1Table = new GmmLib::LastLevelTable(PoolElem, PoolNodeIdx, GMM_L1_SIZE_DWORD(TTType, pGmmGlobalContext), 0); //use Aux L1_Size_DWORD
+            *L1Table = new GmmLib::LastLevelTable(PoolElem, PoolNodeIdx, GMM_L1_SIZE_DWORD(TTType, pGmmGlobalContext), 0); //TBD: use TR vs Aux L1_Size_DWORD
 
             if(*L1Table)
             {
@@ -356,7 +356,7 @@ uint8_t GmmLib::PageTable::GetMappingType(GMM_GFX_ADDRESS GfxVA, GMM_GFX_SIZE_T 
     L3eIdx      = GMM_L3_ENTRY_IDX(TTType, GfxVA);
     L2eIdx      = GMM_L2_ENTRY_IDX(TTType, GfxVA);
     L1eIdx      = GMM_L1_ENTRY_IDX(TTType, GfxVA, pGmmGlobalContext);
-    L1EntrySize = !WA16K ? GMM_KBYTE(64) : GMM_KBYTE(16);
+    L1EntrySize = (!WA16K(pGmmGlobalContext)) ? GMM_KBYTE(64) : GMM_KBYTE(16);
 
     EnterCriticalSection(&TTLock);
     __GMM_ASSERT(TTL3.L3Handle);

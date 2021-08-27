@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *pTexInfo)
 {
     GMM_STATUS               Status    = GMM_SUCCESS;
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     if(!pTexInfo->Flags.Gpu.CCS &&
        !pTexInfo->Flags.Gpu.MCS &&
@@ -181,9 +181,9 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
             pTexInfo->Flags.Info.TiledW  = 0;
             pTexInfo->Flags.Info.TiledX  = 0;
             pTexInfo->Flags.Info.TiledYf = 0;
+            GMM_SET_64KB_TILE(pTexInfo->Flags, 0, pGmmLibContext);
+            GMM_SET_4KB_TILE(pTexInfo->Flags, 1, pGmmLibContext);
 
-            GMM_SET_64KB_TILE(pTexInfo->Flags, 0);
-            GMM_SET_4KB_TILE(pTexInfo->Flags, 1);
         }
         else
         {
@@ -215,8 +215,8 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
             pTexInfo->Flags.Info.TiledX  = 0;
             pTexInfo->Flags.Info.TiledYf = 0;
 
-            GMM_SET_64KB_TILE(pTexInfo->Flags, 0);
-            GMM_SET_4KB_TILE(pTexInfo->Flags, 1);
+            GMM_SET_64KB_TILE(pTexInfo->Flags, 0, pGmmLibContext);
+            GMM_SET_4KB_TILE(pTexInfo->Flags, 1, pGmmLibContext);
 
             //Clear compression request in CCS
             pTexInfo->Flags.Info.RenderCompressed = 0;
@@ -248,8 +248,8 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
                 pTexInfo->Flags.Info.TiledX  = 0;
                 pTexInfo->Flags.Info.TiledYf = 0;
                 pTexInfo->Flags.Info.TiledW  = 0;
-                GMM_SET_4KB_TILE(pTexInfo->Flags, 0);
-                GMM_SET_64KB_TILE(pTexInfo->Flags, 0);
+                GMM_SET_4KB_TILE(pTexInfo->Flags, 0, pGmmLibContext);
+                GMM_SET_64KB_TILE(pTexInfo->Flags, 0, pGmmLibContext);
 
                 if(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE &&
                    GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN11_CORE)
@@ -258,7 +258,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
                 }
                 else
                 {
-                    GMM_SET_4KB_TILE(pTexInfo->Flags, 1);
+                    GMM_SET_4KB_TILE(pTexInfo->Flags, 1, pGmmLibContext);
                 }
             }
             else

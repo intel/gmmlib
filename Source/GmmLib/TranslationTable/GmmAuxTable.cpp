@@ -49,7 +49,7 @@ Description: AUX-Table management functions
 GMM_STATUS GmmLib::AuxTable::MapNullCCS(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX_ADDRESS BaseAdr, GMM_GFX_SIZE_T Size, uint64_t PartialL1e, uint8_t DoNotWait)
 {
     GMM_STATUS      Status       = GMM_SUCCESS;
-    GMM_GFX_SIZE_T  L1TableSize  = (GMM_L1_SIZE(AUXTT, pGmmGlobalContext)) * (!WA16K ? GMM_KBYTE(64) : GMM_KBYTE(16)); //Each AuxTable entry maps 16K main-surface
+    GMM_GFX_SIZE_T  L1TableSize  = (GMM_L1_SIZE(AUXTT, pGmmGlobalContext)) * (!WA16K(pGmmGlobalContext) ? GMM_KBYTE(64) : GMM_KBYTE(16)); //Each AuxTable entry maps 16K main-surface
     GMM_GFX_ADDRESS Addr         = 0;
     GMM_GFX_ADDRESS L3GfxAddress = 0;
     GMM_CLIENT      ClientType;
@@ -218,7 +218,7 @@ GMM_STATUS GmmLib::AuxTable::MapNullCCS(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX
         // For each 64KB or 16KB of main surface (entry) in L1 table
         for(TileAddr = StartAddress;
             TileAddr < EndAddress;
-            TileAddr += (!WA16K ? GMM_KBYTE(64) : GMM_KBYTE(16)))
+            TileAddr += (!WA16K(pGmmGlobalContext) ? GMM_KBYTE(64) : GMM_KBYTE(16)))
         {
             uint64_t                Data   = PartialL1e | NullCCSTile | __BIT(0);
             GMM_GFX_SIZE_T          L1eIdx = GMM_L1_ENTRY_IDX(AUXTT, TileAddr, pGmmGlobalContext);
@@ -320,7 +320,7 @@ GMM_STATUS GmmLib::AuxTable::MapNullCCS(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX
 GMM_STATUS GmmLib::AuxTable::InvalidateTable(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX_ADDRESS BaseAdr, GMM_GFX_SIZE_T Size, uint8_t DoNotWait)
 {
     GMM_STATUS      Status       = GMM_SUCCESS;
-    GMM_GFX_SIZE_T  L1TableSize  = (GMM_L1_SIZE(AUXTT, pGmmGlobalContext)) * (!WA16K ? GMM_KBYTE(64) : GMM_KBYTE(16)); //Each AuxTable entry maps 16K main-surface
+    GMM_GFX_SIZE_T  L1TableSize  = (GMM_L1_SIZE(AUXTT, pGmmGlobalContext)) * (!WA16K(pGmmGlobalContext) ? GMM_KBYTE(64) : GMM_KBYTE(16)); //Each AuxTable entry maps 16K main-surface
     GMM_GFX_ADDRESS Addr         = 0;
     GMM_GFX_ADDRESS L3GfxAddress = 0;
     uint8_t         isTRVA       = 0; 
@@ -468,7 +468,7 @@ GMM_STATUS GmmLib::AuxTable::InvalidateTable(GMM_UMD_SYNCCONTEXT *UmdContext, GM
         // For each 64KB or 16KB of main surface (entry) in L1 table
         for(TileAddr = StartAddress;
             TileAddr < EndAddress;
-            TileAddr += (!WA16K ? GMM_KBYTE(64) : GMM_KBYTE(16)))
+            TileAddr += (!WA16K(pGmmGlobalContext) ? GMM_KBYTE(64) : GMM_KBYTE(16)))
         {
             //Invalidation of requested range irrespective of TRVA
             uint64_t                Data   = GMM_INVALID_AUX_ENTRY;
@@ -591,7 +591,7 @@ GMM_STATUS GmmLib::AuxTable::MapValidEntry(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_
 {
     GMM_STATUS      Status = GMM_SUCCESS;
     GMM_GFX_ADDRESS Addr = 0, L3TableAdr = GMM_NO_TABLE;
-    GMM_GFX_SIZE_T  L1TableSize = GMM_AUX_L1_SIZE(pGmmGlobalContext) * (!WA16K ? GMM_KBYTE(64) : GMM_KBYTE(16));
+    GMM_GFX_SIZE_T  L1TableSize = GMM_AUX_L1_SIZE(pGmmGlobalContext) * (!WA16K(pGmmGlobalContext) ? GMM_KBYTE(64) : GMM_KBYTE(16));
     GMM_GFX_SIZE_T  CCS$Adr     = AuxVA;
     uint8_t         isTRVA    =0  ;
 
@@ -734,9 +734,9 @@ GMM_STATUS GmmLib::AuxTable::MapValidEntry(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_
 
             GMM_DPF(GFXDBG_CRITICAL, "Mapping surface: GPUVA=0x%016llx Size=0x%08x Aux_GPUVA=0x%016llx", StartAdr, BaseSize, CCS$Adr);
 
-            for(TileAdr = StartAdr; TileAdr < EndAdr; TileAdr += (!WA16K ? GMM_KBYTE(64) : GMM_KBYTE(16)),
+            for(TileAdr = StartAdr; TileAdr < EndAdr; TileAdr += (!WA16K(pGmmGlobalContext) ? GMM_KBYTE(64) : GMM_KBYTE(16)),
             CCS$Adr += (pGmmGlobalContext->GetSkuTable().FtrLinearCCS ?
-                        (!WA16K ? GMM_BYTES(256) : GMM_BYTES(64)) :
+                        (!WA16K(pGmmGlobalContext) ? GMM_BYTES(256) : GMM_BYTES(64)) :
                         0))
             {
                 GMM_GFX_SIZE_T L1eIdx = GMM_L1_ENTRY_IDX(AUXTT, TileAdr, pGmmGlobalContext);
@@ -747,7 +747,7 @@ GMM_STATUS GmmLib::AuxTable::MapValidEntry(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_
                 CCS$Adr = (pGmmGlobalContext->GetSkuTable().FtrLinearCCS ? CCS$Adr :
                                                                                          __GetCCSCacheline(BaseResInfo, BaseAdr, AuxResInfo, AuxVA, TileAdr - BaseAdr));
 
-                if(!WA16K)
+                if(!WA16K(pGmmGlobalContext))
                 {
                     __GMM_ASSERT((CCS$Adr & 0xFF) == 0x0);
                     __GMM_ASSERT(GFX_IS_ALIGNED(CCS$Adr, GMM_BYTES(256)));

@@ -36,7 +36,7 @@ bool GmmLib::GmmResourceInfoCommon::IsPresentableformat()
     GMM_DPF_ENTER;
     __GMM_ASSERTPTR(pGmmGlobalContext, false);
 
-    pPlatform   = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
+    pPlatform   = GMM_OVERRIDE_PLATFORM_INFO(&Surf, pGmmGlobalContext);
     FormatTable = &(pPlatform->FormatTable[0]);
 
     if(Surf.Flags.Gpu.Presentable == false)
@@ -75,7 +75,7 @@ void GmmLib::GmmResourceInfoCommon::GetRestrictions(__GMM_BUFFER_TYPE &Restricti
     GMM_DPF_ENTER;
 
     GMM_TEXTURE_CALC *pTextureCalc = NULL;
-    pTextureCalc                   = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pTextureCalc                   = GMM_OVERRIDE_TEXTURE_CALC(&Surf, pGmmGlobalContext);
     pTextureCalc->GetResRestrictions(&Surf, Restrictions);
 
     GMM_DPF_EXIT;
@@ -175,7 +175,7 @@ __GMM_BUFFER_TYPE *GmmLib::GmmTextureCalc::GetBestRestrictions(__GMM_BUFFER_TYPE
 void GmmLib::GmmTextureCalc::GetGenericRestrictions(GMM_TEXTURE_INFO *pTexInfo, __GMM_BUFFER_TYPE *pBuff)
 {
     GMM_DPF_ENTER;
-    const GMM_PLATFORM_INFO *pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     if(pTexInfo->Flags.Gpu.NoRestriction)
     {
@@ -447,8 +447,9 @@ void GmmLib::GmmTextureCalc::GetResRestrictions(GMM_TEXTURE_INFO * pTexinfo,
     GMM_RESOURCE_FLAG        ZeroGpuFlags;
 
     __GMM_ASSERTPTR(pGmmGlobalContext, VOIDRETURN);
+    __GMM_ASSERTPTR(pGmmLibContext, VOIDRETURN);
 
-    pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexinfo);
+    pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexinfo, pGmmGlobalContext);
 
     // Check that at least one usage flag is set for allocations other than
     // Primary/Shadow/Staging.
@@ -595,7 +596,7 @@ void GmmLib::GmmTextureCalc::GetResRestrictions(GMM_TEXTURE_INFO * pTexinfo,
         }
         else // only for platforms having auxtable
         {
-            Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, (!WA16K ? GMM_KBYTE(64) : GMM_KBYTE(16)));
+            Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, (!WA16K(pGmmLibContext) ? GMM_KBYTE(64) : GMM_KBYTE(16)));
         }
     }
 
@@ -624,8 +625,8 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
 
     GMM_DPF_ENTER;
 
-    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo);
+    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmGlobalContext);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo, pGmmGlobalContext);
 
     Height = pTexInfo->BaseHeight;
     Width  = pTexInfo->BaseWidth;

@@ -99,7 +99,7 @@ namespace GmmLib
             {
                 uint32_t TiledMode = 0;
 
-                if(GMM_IS_TILEY)
+                if(GMM_IS_TILEY(pGmmGlobalContext))
                 {
                     TiledMode =
                         pTextureInfo->Flags.Info.Linear ? 0 :
@@ -394,9 +394,9 @@ namespace GmmLib
             {
                 const GMM_PLATFORM_INFO   *pPlatform;
 
-                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf);
+                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf,pGmmGlobalContext);
 
-                if (Surf.Flags.Gpu.UnifiedAuxSurface)
+		if (Surf.Flags.Gpu.UnifiedAuxSurface)
                 {
                     if (GMM_IS_PLANAR(Surf.Format))
                     {
@@ -430,8 +430,9 @@ namespace GmmLib
                 __GMM_ASSERT(GMM_IS_PLANAR(Surf.Format));
                 GMM_UNREFERENCED_LOCAL_VARIABLE(Plane);
 
-                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf);
-                __GMM_ASSERT(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE);
+                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf,pGmmGlobalContext);
+
+	        __GMM_ASSERT(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE);
 
                 QPitch = static_cast<uint32_t>(Surf.OffsetInfo.Plane.ArrayQPitch / Surf.Pitch);
 
@@ -472,7 +473,7 @@ namespace GmmLib
                 TileMode = Surf.TileMode;
                 __GMM_ASSERT(TileMode < GMM_TILE_MODES);
 
-                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf);
+                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf,pGmmGlobalContext);
                 if (pPlatform->TileInfo[TileMode].LogicalTileWidth != 0)
                 {
                     // In case of Depth/Stencil buffer MSAA TileYs surface, the LogicalTileWidth/Height is smaller than non-MSAA ones
@@ -530,7 +531,7 @@ namespace GmmLib
 
                 __GMM_ASSERT(!AuxSurf.Flags.Info.Linear);
 
-                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&AuxSurf);
+                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&AuxSurf,pGmmGlobalContext);
 
                 if (Surf.Flags.Gpu.UnifiedAuxSurface)
                 {
@@ -801,7 +802,8 @@ namespace GmmLib
             {
                 const __GMM_PLATFORM_RESOURCE   *pPlatformResource;
                 uint32_t HAlign;
-                pPlatformResource = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf);
+
+                pPlatformResource = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf,pGmmGlobalContext);
 
                 if ((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) >= IGFX_GEN9_CORE) &&
                     !(Surf.Flags.Info.TiledYf || GMM_IS_64KB_TILE(Surf.Flags)))
@@ -824,7 +826,7 @@ namespace GmmLib
             {
                 const __GMM_PLATFORM_RESOURCE   *pPlatformResource;
                 uint32_t VAlign;
-                pPlatformResource = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf);
+                pPlatformResource = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf,pGmmGlobalContext);
 
                 if ((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) >= IGFX_GEN9_CORE) &&
                     !(GetResFlags().Info.TiledYf || GMM_IS_64KB_TILE(GetResFlags())))
@@ -999,8 +1001,8 @@ namespace GmmLib
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T  GMM_STDCALL GetSizeSurface()
             {
-                    GMM_OVERRIDE_SIZE_64KB_ALLOC;
-                    return (Surf.Size + AuxSurf.Size + AuxSecSurf.Size);
+                GMM_OVERRIDE_SIZE_64KB_ALLOC(pGmmGlobalContext);
+                return (Surf.Size + AuxSurf.Size + AuxSecSurf.Size);
             }
 
             /////////////////////////////////////////////////////////////////////////////////////
@@ -1025,7 +1027,7 @@ namespace GmmLib
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t  GMM_STDCALL GetMaxGpuVirtualAddressBits()
             {
-                const GMM_PLATFORM_INFO *pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf);
+                const GMM_PLATFORM_INFO *pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf,pGmmGlobalContext);
                 __GMM_ASSERTPTR(pPlatform, 0);
 
                 return pPlatform->MaxGpuVirtualAddressBitsPerResource;
@@ -1040,7 +1042,7 @@ namespace GmmLib
             {
                 GMM_GFX_SIZE_T Offset = 0;
                 const GMM_PLATFORM_INFO *pPlatform;
-                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf);
+                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf,pGmmGlobalContext);
                 if (Surf.Flags.Gpu.UnifiedAuxSurface)
                 {
                     if ((GmmAuxType == GMM_AUX_CCS) || (GmmAuxType == GMM_AUX_SURF) || (GmmAuxType == GMM_AUX_Y_CCS)
@@ -1341,7 +1343,7 @@ namespace GmmLib
                 uint32_t               HAlign = 0;
                 const GMM_PLATFORM_INFO   *pPlatform;
 
-                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf);
+                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf,pGmmGlobalContext);
 
                 if (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE)
                 {
@@ -1351,7 +1353,7 @@ namespace GmmLib
                     }
                     else
                     {
-                        if(GMM_IS_TILEY)
+                        if(GMM_IS_TILEY(pGmmGlobalContext))
                         {
                             switch (GetHAlign())
                             {
@@ -1403,7 +1405,7 @@ namespace GmmLib
                 uint32_t               VAlign;
                 const GMM_PLATFORM_INFO   *pPlatform;
 
-                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf);
+                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf,pGmmGlobalContext);
 
                 if (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE)
                 {
@@ -1443,9 +1445,9 @@ namespace GmmLib
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetTileModeSurfaceState()
             {
                 return GetTileModeSurfaceState(&Surf);
-			}
+	    }
 			
-			/////////////////////////////////////////////////////////////////////////////////////
+	    /////////////////////////////////////////////////////////////////////////////////////
             /// Returns tile mode for AUX SURFACE_STATE programming.
             /// @return     Tiled Mode
             /////////////////////////////////////////////////////////////////////////////////////
@@ -1462,7 +1464,7 @@ namespace GmmLib
             {
                 uint32_t   TiledResourceMode = 0;
 
-                if(GMM_IS_TILEY)
+                if(GMM_IS_TILEY(pGmmGlobalContext))
                 {
                     if (Surf.Flags.Info.TiledYf)
                     {
@@ -1724,7 +1726,7 @@ namespace GmmLib
             {
                 uint32_t TiledMode = 0;
 
-                if(GMM_IS_TILEY)
+                if(GMM_IS_TILEY(pGmmGlobalContext))
                 {
                     TiledMode =
 				Surf.Flags.Info.TiledYf ? 1 :

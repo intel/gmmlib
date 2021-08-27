@@ -46,7 +46,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen8TextureCalc::FillTex2D(GMM_TEXTURE_INFO * 
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
     __GMM_ASSERTPTR(pRestrictions, GMM_ERROR);
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     BitsPerPixel = pTexInfo->BitsPerPixel;
     Height       = pTexInfo->BaseHeight;

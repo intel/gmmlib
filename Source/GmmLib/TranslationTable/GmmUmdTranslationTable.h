@@ -76,7 +76,7 @@ static inline int _BitScanForward(uint32_t *index, uint32_t mask)
 #endif
 #endif
 
-#define GMM_L1_SIZE(TTType, pGmmLibContext)       GMM_AUX_L1_SIZE(pGmmLibContext) 
+#define GMM_L1_SIZE(TTType, pGmmLibContext)  GMM_AUX_L1_SIZE(pGmmLibContext)
 #define GMM_L1_SIZE_DWORD(TTType, pGmmLibContext) GMM_AUX_L1_SIZE_DWORD(pGmmLibContext)
 #define GMM_L2_SIZE(TTType)                       GMM_AUX_L2_SIZE
 #define GMM_L2_SIZE_DWORD(TTType)                 GMM_AUX_L2_SIZE_DWORD 
