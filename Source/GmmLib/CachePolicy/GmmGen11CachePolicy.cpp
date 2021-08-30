@@ -132,7 +132,7 @@ GMM_STATUS GmmLib::GmmGen11CachePolicy::InitCachePolicy()
             UsageEle.LeCC.SCC       = 0;
             UsageEle.LeCC.ESC       = 0;
 
-            if(pCachePolicy[Usage].SCF && pGmmGlobalContext->GetSkuTable().FtrLLCBypass)
+            if(pCachePolicy[Usage].SCF && pGmmLibContext->GetSkuTable().FtrLLCBypass)
             {
                 UsageEle.LeCC.SCF = pCachePolicy[Usage].SCF;
             }
@@ -178,7 +178,7 @@ GMM_STATUS GmmLib::GmmGen11CachePolicy::InitCachePolicy()
 
             if(CPTblIdx >= GMM_GEN9_MAX_NUMBER_MOCS_INDEXES)
             {
-                GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &pGmmGlobalContext->GetCachePolicyTlbElement()[CPTblIdx];
+                GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &pGmmLibContext->GetCachePolicyTlbElement()[CPTblIdx];
                 CurrentMaxSpecialIndex               = ((uint32_t)CPTblIdx > CurrentMaxSpecialIndex) ? (uint32_t)CPTblIdx : CurrentMaxSpecialIndex;
 
                 if(SpecialMOCS && //Update if one of special MOCS enums
@@ -194,7 +194,7 @@ GMM_STATUS GmmLib::GmmGen11CachePolicy::InitCachePolicy()
             {
                 for(j = 1; j <= CurrentMaxMocsIndex; j++)
                 {
-                    GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &pGmmGlobalContext->GetCachePolicyTlbElement()[j];
+                    GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &pGmmLibContext->GetCachePolicyTlbElement()[j];
                     if(TblEle->LeCC.DwordValue == UsageEle.LeCC.DwordValue &&
                        TblEle->L3.UshortValue == UsageEle.L3.UshortValue)
                     {
@@ -215,7 +215,7 @@ GMM_STATUS GmmLib::GmmGen11CachePolicy::InitCachePolicy()
                 {
                     if(CurrentMaxMocsIndex < GMM_GEN9_MAX_NUMBER_MOCS_INDEXES - 1)
                     {
-                        GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &(pGmmGlobalContext->GetCachePolicyTlbElement()[++CurrentMaxMocsIndex]);
+                        GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &(pGmmLibContext->GetCachePolicyTlbElement()[++CurrentMaxMocsIndex]);
                         CPTblIdx                             = CurrentMaxMocsIndex;
 
                         TblEle->LeCC.DwordValue = UsageEle.LeCC.DwordValue;
@@ -293,7 +293,7 @@ GMM_STATUS GmmLib::GmmGen11CachePolicy::InitCachePolicy()
 //-----------------------------------------------------------------------------
 void GmmLib::GmmGen11CachePolicy::SetUpMOCSTable()
 {
-    GMM_CACHE_POLICY_TBL_ELEMENT *pCachePolicyTlbElement = &(pGmmGlobalContext->GetCachePolicyTlbElement()[0]);
+    GMM_CACHE_POLICY_TBL_ELEMENT *pCachePolicyTlbElement = &(pGmmLibContext->GetCachePolicyTlbElement()[0]);
 
 #define GMM_DEFINE_MOCS(Index, L3_ESC, L3_SCC, L3_CC, LeCC_CC, LeCC_TC, LeCC_LRUM, LeCC_AOM, LeCC_ESC, LeCC_SCC, LeCC_PFM, LeCC_SCF, LeCC_CoS, LeCC_SelfSnoop) \
     {                                                                                                                                                          \
@@ -347,7 +347,7 @@ void GmmLib::GmmGen11CachePolicy::SetUpMOCSTable()
     GMM_DEFINE_MOCS( 62     , 0     , 0     , 1     , 3     , 1     , 3     , 0     , 0     , 0     , 0     , 0     , 0     , 0 )
     GMM_DEFINE_MOCS( 63     , 0     , 0     , 1     , 3     , 1     , 3     , 0     , 0     , 0     , 0     , 0     , 0     , 0 )
 
-    if (pGmmGlobalContext->GetSkuTable().FtrLLCBypass)
+    if(pGmmLibContext->GetSkuTable().FtrLLCBypass)
     {
         GMM_DEFINE_MOCS( 16     , 0     , 0     , 1     , 1     , 1     , 0     , 0     , 0     , 0     , 0     , 1     , 0     , 0 )
         GMM_DEFINE_MOCS( 17     , 0     , 0     , 3     , 1     , 1     , 0     , 0     , 0     , 0     , 0     , 1     , 0     , 0 )

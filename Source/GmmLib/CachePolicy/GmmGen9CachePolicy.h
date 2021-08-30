@@ -35,13 +35,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define KBL_GT3e  (PRODUCT(KABYLAKE) && GT3e)
 
 //eDRAM caching of displayables not supported on certain SKL CPUs
-#define DISP_IN_EDRAM    (EDRAM && !pGmmGlobalContext->GetWaTable().WaDisableEdramForDisplayRT)
+#define DISP_IN_EDRAM    (EDRAM && !pGmmLibContext->GetWaTable().WaDisableEdramForDisplayRT)
 
 //eDRAM-Only caching, for a usage that might be encrypted, must use ENCRYPTED_PARTIALS_EDRAM
-#define ENCRYPTED_PARTIALS_EDRAM (DISP_IN_EDRAM && !pGmmGlobalContext->GetWaTable().WaEncryptedEdramOnlyPartials)
+#define ENCRYPTED_PARTIALS_EDRAM (DISP_IN_EDRAM && !pGmmLibContext->GetWaTable().WaEncryptedEdramOnlyPartials)
 
 //eDRAM-only caching of unencrypted flip chains on SKL GT4
-#define UNENCRYPTED_RT_EDRAM (DISP_IN_EDRAM && (!pGmmGlobalContext->GetWaTable().WaEncryptedEdramOnlyPartials || !GT3e))
+#define UNENCRYPTED_RT_EDRAM (DISP_IN_EDRAM && (!pGmmLibContext->GetWaTable().WaEncryptedEdramOnlyPartials || !GT3e))
 
 // for SKL 3e we generally want EDRAM_ONLY mode (LLC=0,ELLC=1) = (!GT3e, EDRAM)
 // for SKL 4e we generally want "both" mode (LLC=1,ELLC=1) = (!GT3e, EDRAM)

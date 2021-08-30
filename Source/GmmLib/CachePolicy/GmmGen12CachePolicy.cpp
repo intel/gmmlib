@@ -166,7 +166,7 @@ GMM_STATUS GmmLib::GmmGen12CachePolicy::InitCachePolicy()
 #if(_WIN32 && (_DEBUG || _RELEASE_INTERNAL))
         void *pKmdGmmContext = NULL;
 #if(defined(__GMM_KMD__))
-        pKmdGmmContext = pGmmGlobalContext->GetGmmKmdContext();
+        pKmdGmmContext = pGmmLibContext->GetGmmKmdContext();
 #endif
 
         OverrideCachePolicy(pKmdGmmContext);
@@ -190,7 +190,7 @@ GMM_STATUS GmmLib::GmmGen12CachePolicy::InitCachePolicy()
             UsageEle.LeCC.SCC       = 0;
             UsageEle.LeCC.ESC       = 0;
 
-            if(pCachePolicy[Usage].SCF && pGmmGlobalContext->GetSkuTable().FtrLLCBypass)
+            if(pCachePolicy[Usage].SCF && pGmmLibContext->GetSkuTable().FtrLLCBypass)
             {
                 UsageEle.LeCC.SCF = pCachePolicy[Usage].SCF;
                 __GMM_ASSERT(pCachePolicy[Usage].LLC == 0); //LLC and ByPassLLC are mutually-exclusive
@@ -245,7 +245,7 @@ GMM_STATUS GmmLib::GmmGen12CachePolicy::InitCachePolicy()
             //Special-case MOCS handling for MOCS Table Index 60-63
             if(CPTblIdx >= GMM_GEN12_MAX_NUMBER_MOCS_INDEXES)
             {
-                GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &pGmmGlobalContext->GetCachePolicyTlbElement()[CPTblIdx];
+                GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &pGmmLibContext->GetCachePolicyTlbElement()[CPTblIdx];
 
                 if(SpecialMOCS &&
                    !(TblEle->LeCC.DwordValue == UsageEle.LeCC.DwordValue &&
@@ -272,7 +272,7 @@ GMM_STATUS GmmLib::GmmGen12CachePolicy::InitCachePolicy()
             {
                 for(j = GMM_GEN10_HDCL1_MOCS_INDEX_START; j <= CurrentMaxL1HdcMocsIndex; j++)
                 {
-                    GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &pGmmGlobalContext->GetCachePolicyTlbElement()[j];
+                    GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &pGmmLibContext->GetCachePolicyTlbElement()[j];
                     if(TblEle->LeCC.DwordValue == UsageEle.LeCC.DwordValue &&
                        TblEle->L3.UshortValue == UsageEle.L3.UshortValue &&
                        TblEle->HDCL1 == UsageEle.HDCL1)
@@ -289,7 +289,7 @@ GMM_STATUS GmmLib::GmmGen12CachePolicy::InitCachePolicy()
                 // Hence Gmmlib will opt out from the MOCS#0 usage and Lookup into MOCS table and MOCS index assigment must start from Index 1.
                 for(j = 1; j <= CurrentMaxMocsIndex; j++)
                 {
-                    GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &pGmmGlobalContext->GetCachePolicyTlbElement()[j];
+                    GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &pGmmLibContext->GetCachePolicyTlbElement()[j];
                     if(TblEle->LeCC.DwordValue == UsageEle.LeCC.DwordValue &&
                        TblEle->L3.UshortValue == UsageEle.L3.UshortValue &&
                        TblEle->HDCL1 == UsageEle.HDCL1)
@@ -312,7 +312,7 @@ GMM_STATUS GmmLib::GmmGen12CachePolicy::InitCachePolicy()
                 {
                     if(UsageEle.HDCL1 && CurrentMaxL1HdcMocsIndex < GMM_GEN12_MAX_NUMBER_MOCS_INDEXES - 1)
                     {
-                        GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &(pGmmGlobalContext->GetCachePolicyTlbElement()[++CurrentMaxL1HdcMocsIndex]);
+                        GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &(pGmmLibContext->GetCachePolicyTlbElement()[++CurrentMaxL1HdcMocsIndex]);
                         CPTblIdx                             = CurrentMaxL1HdcMocsIndex;
 
                         TblEle->LeCC.DwordValue = UsageEle.LeCC.DwordValue;
@@ -321,7 +321,7 @@ GMM_STATUS GmmLib::GmmGen12CachePolicy::InitCachePolicy()
                     }
                     else if(CurrentMaxMocsIndex < GMM_GEN10_HDCL1_MOCS_INDEX_START)
                     {
-                        GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &(pGmmGlobalContext->GetCachePolicyTlbElement()[++CurrentMaxMocsIndex]);
+                        GMM_CACHE_POLICY_TBL_ELEMENT *TblEle = &(pGmmLibContext->GetCachePolicyTlbElement()[++CurrentMaxMocsIndex]);
                         CPTblIdx                             = CurrentMaxMocsIndex;
 
                         TblEle->LeCC.DwordValue = UsageEle.LeCC.DwordValue;
@@ -427,7 +427,7 @@ uint32_t GmmLib::GmmGen12CachePolicy::BestMatchingPATIdx(GMM_CACHE_POLICY_ELEMEN
     uint32_t            i;
     uint32_t            PATIdx           = 0;
     GMM_GFX_MEMORY_TYPE WantedMemoryType = GMM_GFX_UC_WITH_FENCE, MemoryType;
-    WA_TABLE *          pWaTable         = &const_cast<WA_TABLE &>(pGmmGlobalContext->GetWaTable());
+    WA_TABLE *          pWaTable         = &const_cast<WA_TABLE &>(pGmmLibContext->GetWaTable());
 
     WantedMemoryType = GetWantedMemoryType(CachePolicy);
 
@@ -472,10 +472,10 @@ uint32_t GmmLib::GmmGen12CachePolicy::BestMatchingPATIdx(GMM_CACHE_POLICY_ELEMEN
 GMM_STATUS GmmLib::GmmGen12CachePolicy::SetPATInitWA()
 {
     GMM_STATUS Status   = GMM_SUCCESS;
-    WA_TABLE * pWaTable = &const_cast<WA_TABLE &>(pGmmGlobalContext->GetWaTable());
+    WA_TABLE * pWaTable = &const_cast<WA_TABLE &>(pGmmLibContext->GetWaTable());
 
 #if(defined(__GMM_KMD__))
-    __GMM_ASSERT(pGmmGlobalContext->GetSkuTable().FtrMemTypeMocsDeferPAT == 0x0); //MOCS.TargetCache supports eLLC only, PAT.TC -> reserved bits.
+    __GMM_ASSERT(pGmmLibContext->GetSkuTable().FtrMemTypeMocsDeferPAT == 0x0); //MOCS.TargetCache supports eLLC only, PAT.TC -> reserved bits.
     pWaTable->WaGttPat0WB = 0;                                                 //Override PAT #0
 #else
     Status = GMM_ERROR;
@@ -508,9 +508,9 @@ GMM_STATUS GmmLib::GmmGen12CachePolicy::SetupPAT()
 
     GMM_GFX_MEMORY_TYPE GfxMemType                 = GMM_GFX_UC_WITH_FENCE;
     int32_t *           pPrivatePATTableMemoryType = NULL;
-    pPrivatePATTableMemoryType                     = pGmmGlobalContext->GetPrivatePATTableMemoryType();
+    pPrivatePATTableMemoryType                     = pGmmLibContext->GetPrivatePATTableMemoryType();
 
-    __GMM_ASSERT(pGmmGlobalContext->GetSkuTable().FtrIA32eGfxPTEs);
+    __GMM_ASSERT(pGmmLibContext->GetSkuTable().FtrIA32eGfxPTEs);
 
     for(i = 0; i < GMM_NUM_GFX_PAT_TYPES; i++)
     {
@@ -525,9 +525,9 @@ GMM_STATUS GmmLib::GmmGen12CachePolicy::SetupPAT()
         switch(i)
         {
             case PAT0:
-                if(pGmmGlobalContext->GetWaTable().WaGttPat0)
+                if(pGmmLibContext->GetWaTable().WaGttPat0)
                 {
-                    if(pGmmGlobalContext->GetWaTable().WaGttPat0WB)
+                    if(pGmmLibContext->GetWaTable().WaGttPat0WB)
                     {
                         GfxMemType                                          = GMM_GFX_WB;
                         pPrivatePATTableMemoryType[GMM_GFX_PAT_WB_COHERENT] = PAT0;
@@ -546,7 +546,7 @@ GMM_STATUS GmmLib::GmmGen12CachePolicy::SetupPAT()
                 break;
 
             case PAT1:
-                if(pGmmGlobalContext->GetWaTable().WaGttPat0 && !pGmmGlobalContext->GetWaTable().WaGttPat0WB)
+                if(pGmmLibContext->GetWaTable().WaGttPat0 && !pGmmLibContext->GetWaTable().WaGttPat0WB)
                 {
                     GfxMemType                                          = GMM_GFX_WB;
                     pPrivatePATTableMemoryType[GMM_GFX_PAT_WB_COHERENT] = PAT1;
@@ -612,7 +612,7 @@ GMM_STATUS GmmLib::GmmGen12CachePolicy::SetupPAT()
 //-----------------------------------------------------------------------------
 void GmmLib::GmmGen12CachePolicy::SetUpMOCSTable()
 {
-    GMM_CACHE_POLICY_TBL_ELEMENT *pCachePolicyTlbElement = &(pGmmGlobalContext->GetCachePolicyTlbElement()[0]);
+    GMM_CACHE_POLICY_TBL_ELEMENT *pCachePolicyTlbElement = &(pGmmLibContext->GetCachePolicyTlbElement()[0]);
 
 #define GMM_DEFINE_MOCS(Index, L3_ESC, L3_SCC, L3_CC, LeCC_CC, LeCC_TC, LeCC_LRUM, LeCC_AOM, LeCC_ESC, LeCC_SCC, LeCC_PFM, LeCC_SCF, LeCC_CoS, LeCC_SelfSnoop, _HDCL1) \
     {                                                                                                                                                                  \
@@ -675,8 +675,8 @@ void GmmLib::GmmGen12CachePolicy::SetUpMOCSTable()
     GMM_DEFINE_MOCS( 63     , 0     , 0     , 1     , 3     , 1     , 3     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0 )
 
 
-    if(!pGmmGlobalContext->GetSkuTable().FtrLLCBypass ||
-        GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_ROCKETLAKE)
+    if(!pGmmLibContext->GetSkuTable().FtrLLCBypass ||
+        GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) == IGFX_ROCKETLAKE)
     {
         GMM_DEFINE_MOCS( 16     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0 )
         GMM_DEFINE_MOCS( 17     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0 )

@@ -113,7 +113,7 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
 #if(_WIN32 && (_DEBUG || _RELEASE_INTERNAL))
         void *pKmdGmmContext = NULL;
 #if(defined(__GMM_KMD__))
-        pKmdGmmContext = pGmmGlobalContext->GetGmmKmdContext();
+        pKmdGmmContext = pGmmLibContext->GetGmmKmdContext();
 #endif
 
         OverrideCachePolicy(pKmdGmmContext);
@@ -130,7 +130,8 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
             GMM_CACHE_POLICY_TBL_ELEMENT UsageEle         = {0};
             uint32_t                     StartMocsIdx     = 0;
 
-            switch(GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform))
+
+            switch(GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform))
             {
                 case IGFX_DG1:
                 case IGFX_XE_HP_SDV:
@@ -143,14 +144,14 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
             }
 
             // No Special MOCS handling for next platform
-            if(GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) <= IGFX_XE_HP_SDV)
+            if(GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) <= IGFX_XE_HP_SDV)
             {
                 CPTblIdx = IsSpecialMOCSUsage((GMM_RESOURCE_USAGE_TYPE)Usage, SpecialMOCS);
             }
 
             // Applicable upto Xe_HP only
             if(pCachePolicy[Usage].HDCL1 &&
-               (GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) <= IGFX_XE_HP_SDV))
+               (GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) <= IGFX_XE_HP_SDV))
             {
                 UsageEle.HDCL1 = 1;
             }
@@ -321,7 +322,7 @@ void GmmLib::GmmGen12dGPUCachePolicy::SetUpMOCSTable()
 
     // clang-format off
 
-    if (GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_DG1)
+    if (GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) == IGFX_DG1)
     {
         //Default MOCS Table
         for(int index = 0; index < GMM_MAX_NUMBER_MOCS_INDEXES; index++)
@@ -351,7 +352,7 @@ void GmmLib::GmmGen12dGPUCachePolicy::SetUpMOCSTable()
         CurrentMaxSpecialMocsIndex  = 63;
 
     }
-    else if (GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_XE_HP_SDV)
+    else if (GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) == IGFX_XE_HP_SDV)
      {
         //Default MOCS Table
         for(int index = 0; index < GMM_MAX_NUMBER_MOCS_INDEXES; index++)

@@ -689,14 +689,14 @@ void                GMM_STDCALL GmmResOverrideAllocationMaxLod(GMM_RESOURCE_INFO
 //////////////////////////////////////////////////////////////////////////////////////
 MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmCachePolicyGetMemoryObject(GMM_RESOURCE_INFO *pResInfo ,
                                                                     GMM_RESOURCE_USAGE_TYPE Usage);
-GMM_PTE_CACHE_CONTROL_BITS  GMM_STDCALL GmmCachePolicyGetPteType(GMM_RESOURCE_USAGE_TYPE Usage);
+GMM_PTE_CACHE_CONTROL_BITS GMM_STDCALL GmmCachePolicyGetPteType(void *pLibContext, GMM_RESOURCE_USAGE_TYPE Usage);
 GMM_RESOURCE_USAGE_TYPE     GMM_STDCALL GmmCachePolicyGetResourceUsage(GMM_RESOURCE_INFO *pResInfo );
-MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmCachePolicyGetOriginalMemoryObject(GMM_RESOURCE_INFO *pResInfo);
-uint8_t                     GMM_STDCALL GmmCachePolicyIsUsagePTECached(GMM_RESOURCE_USAGE_TYPE Usage);
+MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmCachePolicyGetOriginalMemoryObject(void *pLibContext, GMM_RESOURCE_INFO *pResInfo);
+uint8_t                     GMM_STDCALL GmmCachePolicyIsUsagePTECached(void *pLibContext, GMM_RESOURCE_USAGE_TYPE Usage);
 void                        GMM_STDCALL GmmCachePolicyOverrideResourceUsage(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage);
-uint32_t                    GMM_STDCALL GmmCachePolicyGetMaxMocsIndex();
-uint32_t                    GMM_STDCALL GmmCachePolicyGetMaxL1HdcMocsIndex();
-uint32_t                    GMM_STDCALL GmmCachePolicyGetMaxSpecialMocsIndex();
+uint32_t                    GMM_STDCALL GmmCachePolicyGetMaxMocsIndex(void *pLibContext);
+uint32_t                    GMM_STDCALL GmmCachePolicyGetMaxL1HdcMocsIndex(void *pLibContext);
+uint32_t                    GMM_STDCALL GmmCachePolicyGetMaxSpecialMocsIndex(void *pLibContext);
 
 
 void                        GMM_STDCALL GmmResSetPrivateData(GMM_RESOURCE_INFO *pGmmResource, void *pPrivateData);

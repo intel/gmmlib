@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define FBLLC (SKU(FtrFrameBufferLLC))
 
 //eDRAM-Only caching, for a usage that might be encrypted, must use ENCRYPTED_PARTIALS_EDRAM
-#define ENCRYPTED_PARTIALS_EDRAM (EDRAM && !(pGmmGlobalContext->GetWaTable().WaEncryptedEdramOnlyPartials))
+#define ENCRYPTED_PARTIALS_EDRAM (EDRAM && !(pGmmLibContext->GetWaTable().WaEncryptedEdramOnlyPartials))
 
 // Cache Policy Definition
 // AOM = Do not allocate on miss (0 = allocate on miss [normal cache behavior], 1 = don't allocate on miss)
