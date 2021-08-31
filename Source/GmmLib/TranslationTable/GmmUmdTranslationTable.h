@@ -467,6 +467,11 @@ namespace GmmLib
 
             DeleteCriticalSection(&TTLock);
         }
+
+	inline GMM_LIB_CONTEXT* GetGmmLibContext()
+        {
+            return pClientContext->GetLibContext();
+        }
        
         GMM_GFX_ADDRESS GetL3Address() { return TTL3.GfxAddress; }
         bool &GetRegisterStatus() { return TTL3.NeedRegisterUpdate; }

@@ -195,8 +195,8 @@ typedef struct GMM_TEXTURE_INFO_REC
 //
 //***************************************************************************
 #if(defined(__GMM_KMD__))
-GMM_STATUS GmmTexAlloc(GMM_TEXTURE_INFO* pTexInfo);
-GMM_STATUS GmmTexLinearCCS(GMM_TEXTURE_INFO* pTexInfo, GMM_TEXTURE_INFO *pAuxTexInfo);
+GMM_STATUS GmmTexAlloc(GMM_LIB_CONTEXT *pGmmLibContext, GMM_TEXTURE_INFO* pTexInfo);
+GMM_STATUS GmmTexLinearCCS(GMM_LIB_CONTEXT *pGmmLibContext, GMM_TEXTURE_INFO* pTexInfo, GMM_TEXTURE_INFO *pAuxTexInfo);
 #endif
 GMM_STATUS GmmTexGetMipMapOffset(GMM_TEXTURE_INFO* pTexInfo, GMM_REQ_OFFSET_INFO* pReqInfo);
 

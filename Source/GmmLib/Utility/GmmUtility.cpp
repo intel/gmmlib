@@ -80,50 +80,22 @@ uint8_t GMM_STDCALL GmmIsRedecribedPlanes(GMM_RESOURCE_INFO *pGmmResource)
 
 //=============================================================================
 // Function:
-//    GmmIsStdTilingSupported
+//    GmmGetLosslessCompressionType
 //
 // Description:
-//     Checks if the given ResCreateParams is supported for TileYf/Ys
+//     Returns the format's E2E compression format.
 //
 // Arguments: <Look at Function Header)
 //
 // Return:
-//    1 or 0
+//    GMM_E2ECOMP_FORMAT
 //-----------------------------------------------------------------------------
-uint8_t GMM_STDCALL GmmIsStdTilingSupported(GMM_RESCREATE_PARAMS *pCreateParams)
+uint8_t GMM_STDCALL GmmGetLosslessCompressionType(void *pLibContext, GMM_RESOURCE_FORMAT Format)
 {
-    GMM_TEXTURE_INFO Surface;
-    Surface.Type                      = pCreateParams->Type;
-    Surface.Format                    = pCreateParams->Format;
-    Surface.BaseWidth                 = pCreateParams->BaseWidth64;
-    Surface.BaseHeight                = pCreateParams->BaseHeight;
-    Surface.Depth                     = pCreateParams->Depth;
-    Surface.MaxLod                    = pCreateParams->MaxLod;
-    Surface.ArraySize                 = pCreateParams->ArraySize;
-    Surface.Flags                     = pCreateParams->Flags;
-    Surface.MSAA                      = pCreateParams->MSAA;
-    Surface.Alignment.BaseAlignment   = pCreateParams->BaseAlignment;
-    Surface.CachePolicy.Usage         = pCreateParams->Usage;
-    Surface.MSAA.NumSamples           = GFX_MAX(Surface.MSAA.NumSamples, 1);
-    Surface.MaximumRenamingListLength = pCreateParams->MaximumRenamingListLength;
-    Surface.OverridePitch             = pCreateParams->OverridePitch;
+    GMM_LIB_CONTEXT *pGmmLibContext = (GMM_LIB_CONTEXT *)pLibContext;
+    __GMM_ASSERT((Format > GMM_FORMAT_INVALID) && (Format < GMM_RESOURCE_FORMATS));
 
-#if(_DEBUG || _RELEASE_INTERNAL)
-    Surface.Platform = pGmmGlobalContext->GetPlatformInfo().Platform;
-#endif
-
-    if((pCreateParams->Format > GMM_FORMAT_INVALID) &&
-       (pCreateParams->Format < GMM_RESOURCE_FORMATS))
-    {
-        Surface.BitsPerPixel = pGmmGlobalContext->GetPlatformInfo().FormatTable[pCreateParams->Format].Element.BitsPer;
-    }
-    else
-    {
-        GMM_ASSERTDPF(0, "Format Error");
-        return 0;
-    }
-
-    return __CanSupportStdTiling(Surface);
+    return pGmmLibContext->GetPlatformInfo().FormatTable[Format].CompressionFormat.AuxL1eFormat;
 }
 
 //=============================================================================
@@ -371,11 +343,13 @@ uint8_t GMM_STDCALL GmmIsP0xx(GMM_RESOURCE_FORMAT Format)
 // Return:
 //    1 or 0
 //-----------------------------------------------------------------------------
-uint8_t GMM_STDCALL GmmIsCompressed(GMM_RESOURCE_FORMAT Format)
+uint8_t GMM_STDCALL GmmIsCompressed(void *pLibContext, GMM_RESOURCE_FORMAT Format)
 {
+    GMM_LIB_CONTEXT *pGmmLibContext = (GMM_LIB_CONTEXT *)pLibContext;
+
     return (Format > GMM_FORMAT_INVALID) &&
            (Format < GMM_RESOURCE_FORMATS) &&
-           pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].Compressed;
+           pGmmLibContext->GetPlatformInfo().FormatTable[Format].Compressed;
 }
 
 //=============================================================================
@@ -392,14 +366,14 @@ uint8_t GMM_STDCALL GmmIsCompressed(GMM_RESOURCE_FORMAT Format)
 //    void
 //
 //-----------------------------------------------------------------------------
-void GMM_STDCALL GmmGetCacheSizes(GMM_CACHE_SIZES *pCacheSizes)
+void GMM_STDCALL GmmGetCacheSizes(GMM_LIB_CONTEXT *pGmmLibContext, GMM_CACHE_SIZES *pCacheSizes)
 {
     const GT_SYSTEM_INFO *pGtSysInfo;
     __GMM_ASSERT(pCacheSizes != NULL);
-    __GMM_ASSERT(pGmmGlobalContext != NULL);
+    __GMM_ASSERT(pGmmLibContext != NULL);
 
     GMM_DPF_ENTER;
-    pGtSysInfo                 = pGmmGlobalContext->GetGtSysInfoPtr();
+    pGtSysInfo                 = pGmmLibContext->GetGtSysInfoPtr();
     pCacheSizes->TotalEDRAM    = GMM_KBYTE(pGtSysInfo->EdramSizeInKb);
     pCacheSizes->TotalLLCCache = GMM_KBYTE(pGtSysInfo->LLCCacheSizeInKb);
     pCacheSizes->TotalL3Cache  = GMM_KBYTE(pGtSysInfo->L3CacheSizeInKb);

@@ -87,9 +87,10 @@ void GMM_STDCALL GmmCachePolicyOverrideResourceUsage(GMM_RESOURCE_INFO *pResInfo
 /// @return        MEMORY_OBJECT_CONTROL_STATE: Gen adjusted MOCS structure (cache
 ///                                             policy) for the given buffer use.
 /////////////////////////////////////////////////////////////////////////////////////
-MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmCachePolicyGetMemoryObject(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage)
+MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmCachePolicyGetMemoryObject(void *pLibContext, GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage)
 {
-    return pGmmGlobalContext->GetCachePolicyObj()->CachePolicyGetMemoryObject(pResInfo, Usage);
+    GMM_LIB_CONTEXT *pGmmLibContext = (GMM_LIB_CONTEXT *)pLibContext;
+    return pGmmLibContext->GetCachePolicyObj()->CachePolicyGetMemoryObject(pResInfo, Usage);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

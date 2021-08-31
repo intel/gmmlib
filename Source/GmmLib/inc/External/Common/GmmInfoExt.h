@@ -47,7 +47,7 @@ extern GMM_GLOBAL_CONTEXT *pGmmGlobalContext;
 //                      GMM_GLOBAL_CONTEXT API
 //
 //***************************************************************************
-void GMM_STDCALL GmmGetCacheSizes( GMM_CACHE_SIZES* CacheSizes);
+void GMM_STDCALL GmmGetCacheSizes(GMM_LIB_CONTEXT *pGmmLibContext, GMM_CACHE_SIZES *CacheSizes);
 
 #if defined(LINUX)
 GMM_STATUS GMM_STDCALL GmmInitGlobalContext(const PLATFORM Platform,

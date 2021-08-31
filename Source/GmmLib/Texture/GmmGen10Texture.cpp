@@ -341,7 +341,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTex2D(GMM_TEXTURE_INFO *
     DAlign = pTexInfo->Alignment.DAlign;
     GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
-    Compress = GmmIsCompressed(pTexInfo->Format);
+    Compress = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
 
     /////////////////////////////////
     // Calculate Block Surface Height

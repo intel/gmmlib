@@ -1706,14 +1706,14 @@ uint8_t __CanSupportStdTiling(GMM_TEXTURE_INFO Surf)
           (Surf.Flags.Info.Linear && (Surf.Type == RESOURCE_1D ||
                                       Surf.Type == RESOURCE_BUFFER))) &&
          // 8, 16, 32, 64, or 128 bpp
-         ((!GmmIsCompressed(Surf.Format) &&
+         ((!GmmIsCompressed(pGmmGlobalContext, Surf.Format) &&
            ((Surf.BitsPerPixel == 8) ||
             (Surf.BitsPerPixel == 16) ||
             (Surf.BitsPerPixel == 32) ||
             (Surf.BitsPerPixel == 64) ||
             (Surf.BitsPerPixel == 128))) ||
           // Compressed Modes: BC*, ETC*, EAC*, ASTC*
-          (GmmIsCompressed(Surf.Format) && (Surf.Format != GMM_FORMAT_FXT1)))))
+          (GmmIsCompressed(pGmmGlobalContext, Surf.Format) && (Surf.Format != GMM_FORMAT_FXT1)))))
     /* Not currently supported...
         // YCRCB* Formats
         GmmIsYUVPacked(Surf.Format) */

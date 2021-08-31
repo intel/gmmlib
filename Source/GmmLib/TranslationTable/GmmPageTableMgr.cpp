@@ -429,7 +429,7 @@ GMM_STATUS GmmLib::GmmPageTableMgr::InitContextAuxTableRegister(HANDLE CmdQHandl
     GMM_UNREFERENCED_PARAMETER(engType);
 
     //Check FtrE2ECompression = 1
-    if(pGmmGlobalContext->GetSkuTable().FtrE2ECompression && AuxTTObj != NULL)
+    if(GetLibContext()->GetSkuTable().FtrE2ECompression && AuxTTObj != NULL)
     {
         EnterCriticalSection(&AuxTTObj->TTLock);
         if(CmdQHandle)

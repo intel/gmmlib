@@ -91,7 +91,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen7TextureCalc::FillTex2D(GMM_TEXTURE_INFO * 
     VAlign = pTexInfo->Alignment.VAlign;
     GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
-    Compress = GmmIsCompressed(pTexInfo->Format);
+    Compress = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
 
     /////////////////////////////////
     // Calculate Block Surface Height
@@ -273,7 +273,7 @@ GMM_GFX_SIZE_T GmmLib::GmmGen7TextureCalc::Get2DTexOffsetAddressPerMip(GMM_TEXTU
 
     GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
-    Compress = GmmIsCompressed(pTexInfo->Format);
+    Compress = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
 
     MipHeight    = pTexInfo->BaseHeight;
     OffsetHeight = 0;
@@ -357,7 +357,7 @@ uint32_t GmmLib::GmmGen7TextureCalc::Get2DMipMapHeight(GMM_TEXTURE_INFO *pTexInf
 
     // Mip 0 height is needed later
     Height      = pTexInfo->BaseHeight;
-    Compress    = GmmIsCompressed(pTexInfo->Format);
+    Compress    = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
     NumLevels   = pTexInfo->MaxLod;
     HeightLines = Height;
     VAlign      = pTexInfo->Alignment.VAlign;
@@ -473,7 +473,7 @@ void GmmLib::GmmGen7TextureCalc::Fill2DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
             ArrayQPitch = Height0;
         }
 
-        if(GmmIsCompressed(pTexInfo->Format))
+        if(GmmIsCompressed(pGmmLibContext, pTexInfo->Format))
         {
             uint32_t CompressHeight, CompressWidth, CompressDepth;
 
@@ -531,7 +531,7 @@ uint32_t GmmLib::GmmGen7TextureCalc::GetTotal3DHeight(GMM_TEXTURE_INFO *pTexInfo
     MipLevel        = pTexInfo->MaxLod;
     UnitAlignHeight = pTexInfo->Alignment.VAlign;
 
-    Compressed = GmmIsCompressed(pTexInfo->Format);
+    Compressed = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
     pTextureCalc->GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
     // All mip0s of all planes are stacked together, then mip1s and so on...
@@ -609,7 +609,7 @@ void GmmLib::GmmGen7TextureCalc::Fill3DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
     // Align before we compress
     UnitAlignWidth  = pTexInfo->Alignment.HAlign;
     UnitAlignHeight = pTexInfo->Alignment.VAlign;
-    Compress        = GmmIsCompressed(pTexInfo->Format);
+    Compress        = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
     pTextureCalc->GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
     // Aligned MipMap Dimensions
@@ -751,7 +751,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen7TextureCalc::FillTex3D(GMM_TEXTURE_INFO * 
 
     // Align before we compress
     UnitAlignWidth = pTexInfo->Alignment.HAlign;
-    Compress       = GmmIsCompressed(pTexInfo->Format);
+    Compress       = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
     GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
     SeparateStencil = pTexInfo->Flags.Gpu.SeparateStencil ? true : false;
 

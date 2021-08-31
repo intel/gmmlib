@@ -75,6 +75,7 @@ namespace GmmLib
     /// Windows implementation.  This class members will hold data that
     /// are specific to each client.
     /////////////////////////////////////////////////////////////////////////
+    class Context;
     class GMM_LIB_API NON_PAGED_SECTION GmmClientContext : public GmmMemAllocator
     {
     protected:
@@ -85,6 +86,8 @@ namespace GmmLib
         GMM_DEVICE_CALLBACKS_INT          DeviceCB;       //OS-specific defn: Will be used by Clients to send as input arguments.
         // Flag to indicate Device_callbacks received.
         uint8_t             IsDeviceCbReceived;
+        Context *pGmmLibContext;
+
     public:
         /* Constructor */
         GmmClientContext(GMM_CLIENT ClientType);
@@ -100,6 +103,11 @@ namespace GmmLib
         GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_CLIENT GMM_STDCALL  GetClientType()
         {
             return (ClientType);
+        }
+
+	GMM_INLINE GMM_LIB_CONTEXT *GetLibContext()
+        {
+            return pGmmLibContext;
         }
 
         /* Function prototypes */

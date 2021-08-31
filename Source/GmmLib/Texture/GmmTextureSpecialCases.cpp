@@ -205,7 +205,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
         __GMM_ASSERT((pTexInfo->MSAA.NumSamples == 1) || (pTexInfo->MSAA.NumSamples == 2) || (pTexInfo->MSAA.NumSamples == 4) ||
                      (pTexInfo->MSAA.NumSamples == 8) || (pTexInfo->MSAA.NumSamples == 16));
 
-        Status = pGmmGlobalContext->GetTextureCalc()->MSAACCSUsage(pTexInfo);
+        Status = pGmmLibContext->GetTextureCalc()->MSAACCSUsage(pTexInfo);
 
         if(!pTexInfo->Flags.Gpu.__NonMsaaLinearCCS)
         {
@@ -241,7 +241,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
                 GMM_ASSERTDPF((pTexInfo->MaxLod == 0), "Stencil Buffer LOD's not supported!");
             }
 
-            if(pGmmGlobalContext->GetSkuTable().FtrTileY)
+            if(pGmmLibContext->GetSkuTable().FtrTileY)
             {
                 // Separate Stencil Tile-W Gen8-Gen11, otherwise Tile-Y
                 pTexInfo->Flags.Info.Linear  = 0;

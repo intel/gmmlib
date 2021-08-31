@@ -1037,7 +1037,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen11TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
 
     AdjustedVHeight = VHeight;
     // In case of Planar surfaces, only the last Plane has to be aligned to 64 for LCU access
-    if(pGmmGlobalContext->GetWaTable().WaAlignYUVResourceToLCU && GmmIsYUVFormatLCUAligned(pTexInfo->Format) && VHeight > 0)
+    if(pGmmLibContext->GetWaTable().WaAlignYUVResourceToLCU && GmmIsYUVFormatLCUAligned(pTexInfo->Format) && VHeight > 0)
     {
         AdjustedVHeight = GFX_ALIGN(VHeight, GMM_SCANLINES(GMM_MAX_LCU_SIZE));
         Height += AdjustedVHeight - VHeight;

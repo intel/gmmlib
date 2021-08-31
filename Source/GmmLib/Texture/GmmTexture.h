@@ -187,7 +187,7 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo,GMM_LI
             }
 
             #undef SET_ALIGN_INFO
-            if (GmmIsCompressed(pTexInfo->Format))
+            if(GmmIsCompressed(pGmmLibContext, pTexInfo->Format))
             {
                 uint32_t   ElementWidth, ElementHeight, ElementDepth;
                 pTextureCalc->GetCompressionBlockDimensions(pTexInfo->Format, &ElementWidth, &ElementHeight, &ElementDepth);
@@ -233,7 +233,7 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo,GMM_LI
             // For packed 8/16-bit formats alignment factor of 4 will give us < 16B so expand to 32B
             SET_ALIGN_FACTOR(Width, 32);
         }
-        else if(GmmIsCompressed(pTexInfo->Format)) /////////////////////////////
+        else if(GmmIsCompressed(pGmmLibContext, pTexInfo->Format)) /////////////////////////////
         {
             uint32_t   ElementWidth, ElementHeight, ElementDepth;
 

@@ -394,14 +394,14 @@ void GmmLib::GmmTextureCalc::AlignTexHeightWidth(GMM_TEXTURE_INFO *pTexInfo,
     __GMM_ASSERTPTR(pTexInfo, VOIDRETURN);
     __GMM_ASSERTPTR(pWidth, VOIDRETURN);
     __GMM_ASSERTPTR(pHeight, VOIDRETURN);
-    __GMM_ASSERTPTR(pGmmGlobalContext, VOIDRETURN);
+    __GMM_ASSERTPTR(pGmmLibContext, VOIDRETURN);
 
     MipWidth  = *pWidth;
     MipHeight = *pHeight;
 
     UnitAlignWidth  = pTexInfo->Alignment.HAlign;
     UnitAlignHeight = pTexInfo->Alignment.VAlign;
-    Compress        = GmmIsCompressed(pTexInfo->Format);
+    Compress        = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
 
     MipWidth  = GFX_MAX(MipWidth, UnitAlignWidth);
     MipHeight = GFX_MAX(MipHeight, UnitAlignHeight);
@@ -720,7 +720,7 @@ GMM_GFX_SIZE_T GmmLib::GmmTextureCalc::Get3DMipByteAddress(GMM_TEXTURE_INFO *   
     GMM_RESOURCE_FORMAT GenericFormat;
     uint32_t            CompressHeight, CompressWidth, CompressDepth;
 
-    __GMM_ASSERTPTR(pGmmGlobalContext, 0);
+    __GMM_ASSERTPTR(pGmmLibContext, 0);
 
     GenericFormat = pTexInfo->Format;
     Slice         = pReqInfo->Slice;
@@ -751,7 +751,7 @@ GMM_GFX_SIZE_T GmmLib::GmmTextureCalc::Get3DMipByteAddress(GMM_TEXTURE_INFO *   
 
         UnitAlignWidth  = pTexInfo->Alignment.HAlign;
         UnitAlignHeight = pTexInfo->Alignment.VAlign;
-        Compress        = GmmIsCompressed(pTexInfo->Format);
+        Compress        = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
         GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
         // clamp such that mip height is at least min height

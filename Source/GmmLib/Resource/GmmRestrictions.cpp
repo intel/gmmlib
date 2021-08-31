@@ -446,7 +446,6 @@ void GmmLib::GmmTextureCalc::GetResRestrictions(GMM_TEXTURE_INFO * pTexinfo,
     const GMM_PLATFORM_INFO *pPlatform = NULL;
     GMM_RESOURCE_FLAG        ZeroGpuFlags;
 
-    __GMM_ASSERTPTR(pGmmGlobalContext, VOIDRETURN);
     __GMM_ASSERTPTR(pGmmLibContext, VOIDRETURN);
 
     pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexinfo, pGmmGlobalContext);
@@ -548,14 +547,14 @@ void GmmLib::GmmTextureCalc::GetResRestrictions(GMM_TEXTURE_INFO * pTexinfo,
         Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, GMM_KBYTE(32));
     }
 
-    if(pGmmGlobalContext->GetWaTable().WaAlignContextImage && (pTexinfo->Type == RESOURCE_HW_CONTEXT))
+    if(pGmmLibContext->GetWaTable().WaAlignContextImage && (pTexinfo->Type == RESOURCE_HW_CONTEXT))
     {
         Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, GMM_KBYTE(64));
     }
 
     if(pTexinfo->Flags.Gpu.S3d &&
        pTexinfo->Flags.Info.Linear &&
-       !pGmmGlobalContext->GetSkuTable().FtrDisplayEngineS3d)
+       !pGmmLibContext->GetSkuTable().FtrDisplayEngineS3d)
     {
         Restrictions.Alignment      = PAGE_SIZE;
         Restrictions.PitchAlignment = PAGE_SIZE;
@@ -574,7 +573,7 @@ void GmmLib::GmmTextureCalc::GetResRestrictions(GMM_TEXTURE_INFO * pTexinfo,
 
         if(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN9_CORE)
         {
-            pGmmGlobalContext->GetPlatformInfo().SurfaceMaxSize = GMM_TBYTE(1);
+            pGmmLibContext->GetPlatformInfo().SurfaceMaxSize = GMM_TBYTE(1);
         }
     }
 
@@ -684,7 +683,7 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
     !((pTexInfo->Type == RESOURCE_BUFFER) && GmmIsYUVPacked(pTexInfo->Format)));
 
     // Convert to compression blocks, if applicable...
-    if(GmmIsCompressed(pTexInfo->Format))
+    if(GmmIsCompressed(pGmmGlobalContext, pTexInfo->Format))
     {
         pTextureCalc->GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
@@ -775,7 +774,7 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
 
                     __GMM_ASSERT((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN8_CORE));
 
-                    if(GmmIsCompressed(pTexInfo->Format))
+                    if(GmmIsCompressed(pGmmGlobalContext, pTexInfo->Format))
                     {
                         // "For compressed textures...padding at the bottom of the surface is to an even compressed row."
                         UPDATE_PADDING(pTexInfo->Pitch * 2); // (Sampler arch confirmed that even-row is sufficient on BDW despite BDW's 4x4 sampling, since this req is from L2 instead of L1.)

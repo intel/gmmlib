@@ -1211,7 +1211,7 @@ uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetQPitch()
     // Stencil    ==> logical, i.e. not halved
 
     if((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN9_CORE) &&
-       GmmIsCompressed(Surf.Format))
+       GmmIsCompressed(pGmmGlobalContext, Surf.Format))
     {
         QPitch = Surf.Alignment.QPitch / GetCompressionBlockHeight();
 

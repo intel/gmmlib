@@ -548,11 +548,11 @@ uint8_t             GMM_STDCALL GmmIsUVPacked(GMM_RESOURCE_FORMAT Format);
 bool                GMM_STDCALL GmmIsYUVFormatLCUAligned(GMM_RESOURCE_FORMAT Format);
 #define                         GmmIsYUVPlanar GmmIsPlanar // TODO(Benign): Support old name until we have a chance to correct in UMD(s) using this. No longer YUV since there are now RGB planar formats.
 uint8_t             GMM_STDCALL GmmIsReconstructableSurface(GMM_RESOURCE_FORMAT Format);
-uint8_t             GMM_STDCALL GmmIsCompressed(GMM_RESOURCE_FORMAT Format);
+uint8_t             GMM_STDCALL GmmIsCompressed(void *pLibContext, GMM_RESOURCE_FORMAT Format);
 uint8_t             GMM_STDCALL GmmIsYUVPacked(GMM_RESOURCE_FORMAT Format);
 uint8_t             GMM_STDCALL GmmIsRedecribedPlanes(GMM_RESOURCE_INFO *pGmmResource);
 uint8_t             GMM_STDCALL GmmResApplyExistingSysMem(GMM_RESOURCE_INFO *pGmmResource, void *pExistingSysMem, GMM_GFX_SIZE_T ExistingSysMemSize);
-uint8_t             GMM_STDCALL GmmIsStdTilingSupported(GMM_RESCREATE_PARAMS *pCreateParams);
+uint8_t             GMM_STDCALL GmmGetLosslessCompressionType(void *pLibContext, GMM_RESOURCE_FORMAT Format);
 GMM_RESOURCE_INFO*  GMM_STDCALL GmmResCopy(GMM_RESOURCE_INFO *pGmmResource);
 void                GMM_STDCALL GmmResMemcpy(void *pDst, void *pSrc);
 uint8_t             GMM_STDCALL GmmResCpuBlt(GMM_RESOURCE_INFO *pGmmResource, GMM_RES_COPY_BLT *pBlt);
@@ -687,7 +687,8 @@ void                GMM_STDCALL GmmResOverrideAllocationMaxLod(GMM_RESOURCE_INFO
 //////////////////////////////////////////////////////////////////////////////////////
 // GmmCachePolicy.c
 //////////////////////////////////////////////////////////////////////////////////////
-MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmCachePolicyGetMemoryObject(GMM_RESOURCE_INFO *pResInfo ,
+MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmCachePolicyGetMemoryObject(void *pLibContext,
+                                                                    GMM_RESOURCE_INFO *pResInfo,
                                                                     GMM_RESOURCE_USAGE_TYPE Usage);
 GMM_PTE_CACHE_CONTROL_BITS GMM_STDCALL GmmCachePolicyGetPteType(void *pLibContext, GMM_RESOURCE_USAGE_TYPE Usage);
 GMM_RESOURCE_USAGE_TYPE     GMM_STDCALL GmmCachePolicyGetResourceUsage(GMM_RESOURCE_INFO *pResInfo );

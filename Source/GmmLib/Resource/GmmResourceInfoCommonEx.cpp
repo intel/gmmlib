@@ -744,7 +744,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
        (pGmmGlobalContext->GetSkuTable().FtrTileY ||
         !GMM_IS_4KB_TILE(Surf.Flags)) &&
        // Non-Compressed/YUV...
-       !GmmIsCompressed(Surf.Format) &&
+       !GmmIsCompressed(pGmmGlobalContext, Surf.Format) &&
        !GmmIsYUVPacked(Surf.Format) &&
        !GmmIsPlanar(Surf.Format) &&
        // Supported Sample Count for Platform...

@@ -47,7 +47,7 @@ uint32_t GmmLib::GmmGen12TextureCalc::Get2DMipMapHeight(GMM_TEXTURE_INFO *pTexIn
 
     const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
-    Compressed = GmmIsCompressed(pTexInfo->Format);
+    Compressed = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
     MipHeight  = pTexInfo->BaseHeight;
     MipLevel   = pTexInfo->MaxLod;
     VAlign     = pTexInfo->Alignment.VAlign;
@@ -364,7 +364,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTex2D(GMM_TEXTURE_INFO *
 
     GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
-    Compress = GmmIsCompressed(pTexInfo->Format);
+    Compress = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
 
     /////////////////////////////////
     // Calculate Block Surface Height

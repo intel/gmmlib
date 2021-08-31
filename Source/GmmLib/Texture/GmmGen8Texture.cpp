@@ -92,9 +92,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen8TextureCalc::FillTex2D(GMM_TEXTURE_INFO * 
     VAlign = pTexInfo->Alignment.VAlign;
     GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
-    Compress = GmmIsCompressed(pTexInfo->Format);
+    Compress = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
 
-    /////////////////////////////////
     // Calculate Block Surface Height
     /////////////////////////////////
 
@@ -355,7 +354,7 @@ void GmmLib::GmmGen8TextureCalc::Fill2DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
 
         ArrayQPitch = pTexInfo->Alignment.QPitch;
 
-        if(GmmIsCompressed(pTexInfo->Format))
+        if(GmmIsCompressed(pGmmLibContext, pTexInfo->Format))
         {
             ArrayQPitch /= CompressHeight;
         }

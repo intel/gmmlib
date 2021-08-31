@@ -477,10 +477,10 @@ void GMM_STDCALL GmmLib::Context::DestroyContext()
             this->pTextureCalc = NULL;
     }
 
-    if(pGmmGlobalContext->pPlatformInfo)
+    if(this->pPlatformInfo)
     {
-            delete pGmmGlobalContext->pPlatformInfo;
-            pGmmGlobalContext->pPlatformInfo = NULL;
+            delete this->pPlatformInfo;
+            this->pPlatformInfo = NULL;
     }
 }
 

@@ -362,8 +362,8 @@ void GmmLib::GmmTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTexInfo)
        pTexInfo->Flags.Gpu.UnifiedAuxSurface &&
        GMM_IS_4KB_TILE(pTexInfo->Flags))
     {
-        GMM_GFX_SIZE_T TileHeight = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
-        GMM_GFX_SIZE_T TileWidth  = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileWidth;
+        GMM_GFX_SIZE_T TileHeight = pGmmLibContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
+        GMM_GFX_SIZE_T TileWidth  = pGmmLibContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileWidth;
 
         *pUOffsetX = GFX_ALIGN(*pUOffsetX, TileWidth);
         *pUOffsetY = GFX_ALIGN(*pUOffsetY, TileHeight);
@@ -473,7 +473,7 @@ void GmmLib::GmmTextureCalc::FindMipTailStartLod(GMM_TEXTURE_INFO *pTexInfo)
         //if compressed texture format, use compressed height, width
         GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
-        if(GmmIsCompressed(pTexInfo->Format))
+        if(GmmIsCompressed(pGmmLibContext, pTexInfo->Format))
         {
             MipWidth  = GFX_CEIL_DIV(MipWidth, CompressWidth);
             MipHeight = GFX_CEIL_DIV(MipHeight, CompressHeight);
@@ -547,9 +547,9 @@ void GmmLib::GmmTextureCalc::GetCompressionBlockDimensions(GMM_RESOURCE_FORMAT F
     {
         if((Format > GMM_FORMAT_INVALID) && (Format < GMM_RESOURCE_FORMATS))
         {
-            *pWidth  = pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].Element.Width;
-            *pHeight = pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].Element.Height;
-            *pDepth  = pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].Element.Depth;
+            *pWidth  = pGmmLibContext->GetPlatformInfo().FormatTable[Format].Element.Width;
+            *pHeight = pGmmLibContext->GetPlatformInfo().FormatTable[Format].Element.Height;
+            *pDepth  = pGmmLibContext->GetPlatformInfo().FormatTable[Format].Element.Depth;
         }
         else
         {

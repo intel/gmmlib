@@ -734,9 +734,9 @@ GMM_STATUS GmmLib::AuxTable::MapValidEntry(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_
 
             GMM_DPF(GFXDBG_CRITICAL, "Mapping surface: GPUVA=0x%016llx Size=0x%08x Aux_GPUVA=0x%016llx", StartAdr, BaseSize, CCS$Adr);
 
-            for(TileAdr = StartAdr; TileAdr < EndAdr; TileAdr += (!WA16K(pGmmGlobalContext) ? GMM_KBYTE(64) : GMM_KBYTE(16)),
-            CCS$Adr += (pGmmGlobalContext->GetSkuTable().FtrLinearCCS ?
-                        (!WA16K(pGmmGlobalContext) ? GMM_BYTES(256) : GMM_BYTES(64)) :
+            for(TileAdr = StartAdr; TileAdr < EndAdr; TileAdr += (!WA16K(pClientContext->GetLibContext()) ? GMM_KBYTE(64) : GMM_KBYTE(16)),
+            CCS$Adr += (pClientContext->GetLibContext()->GetSkuTable().FtrLinearCCS ?
+                        (!WA16K(pClientContext->GetLibContext()) ? GMM_BYTES(256) : GMM_BYTES(64)) :
                         0))
             {
                 GMM_GFX_SIZE_T L1eIdx = GMM_L1_ENTRY_IDX(AUXTT, TileAdr, pGmmGlobalContext);
@@ -801,7 +801,7 @@ GMM_STATUS GmmLib::AuxTable::MapValidEntry(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_
 
 GMM_AUXTTL1e GmmLib::AuxTable::CreateAuxL1Data(GMM_RESOURCE_INFO *BaseResInfo)
 {
-    GMM_FORMAT_ENTRY FormatInfo = pGmmGlobalContext->GetPlatformInfo().FormatTable[BaseResInfo->GetResourceFormat()];
+    GMM_FORMAT_ENTRY FormatInfo = pClientContext->GetLibContext()->GetPlatformInfo().FormatTable[BaseResInfo->GetResourceFormat()];
     GMM_AUXTTL1e     L1ePartial = {0};
 #define GMM_REGISTRY_UMD_PATH "SOFTWARE\\Intel\\IGFX\\GMM\\"
 #define GMM_E2EC_OVERRIDEDEPTH16BPPTO12 "ForceYUV16To12BPP"
@@ -809,7 +809,7 @@ GMM_AUXTTL1e GmmLib::AuxTable::CreateAuxL1Data(GMM_RESOURCE_INFO *BaseResInfo)
     L1ePartial.Mode = BaseResInfo->GetResFlags().Info.RenderCompressed ? 0x1 : 0x0; //MC on VCS supports all compression modes,
                                                                                     //MC on Render pipe only 128B compr (until B-step)
     //Recognize which .MC surfaces needs Render pipe access
-    if(pGmmGlobalContext->GetWaTable().WaLimit128BMediaCompr)
+    if(pClientContext->GetLibContext()->GetWaTable().WaLimit128BMediaCompr)
     {
         L1ePartial.Mode = 0x1; //Limit media compression to 128B (same as RC) on gen12LP A0
     }
