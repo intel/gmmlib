@@ -74,8 +74,8 @@ GmmLib::PlatformInfoGen12::PlatformInfoGen12(PLATFORM &Platform, Context *pGmmLi
 
     //Compression format update
     GMM_RESOURCE_FORMAT GmmFormat;
-#define GMM_FORMAT_SKU(FtrXxx) (pGmmGlobalContext->GetSkuTable().FtrXxx != 0)
-#define GMM_COMPR_FORMAT_INVALID ((pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS != 0) ? static_cast<uint8_t>(GMM_FLATCCS_FORMAT_INVALID) : static_cast<uint8_t>(GMM_E2ECOMP_FORMAT_INVALID))
+#define GMM_FORMAT_SKU(FtrXxx) (pGmmLibContext->GetSkuTable().FtrXxx != 0)
+#define GMM_COMPR_FORMAT_INVALID ((pGmmLibContext->GetSkuTable().FtrFlatPhysCCS != 0) ? static_cast<uint8_t>(GMM_FLATCCS_FORMAT_INVALID) : static_cast<uint8_t>(GMM_E2ECOMP_FORMAT_INVALID))
 #define GMM_FORMAT(Name, bpe, _Width, _Height, _Depth, IsRT, IsASTC, RcsSurfaceFormat, SSCompressionFmt, Availability) \
                                                                                                                        \
     {                                                                                                                  \

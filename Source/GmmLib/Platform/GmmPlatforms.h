@@ -114,13 +114,8 @@ typedef struct PlatformInfo PlatformInfo;
 extern "C" {
 #endif
 
-    const GMM_PLATFORM_INFO* GMM_STDCALL __GmmGetPlatformInfo();
-    void GMM_STDCALL __SetFBCRequiredStolenMemorySize(uint32_t Size);
-    void GMM_STDCALL __SetNumberFenceRegisters(uint32_t Number);
-
-#if(defined(__GMM_KMD__) && (_DEBUG || _RELEASE_INTERNAL))
-    const GMM_PLATFORM_INFO* GMM_STDCALL __GmmGetOverridePlatformInfo();
-#endif
+    const GMM_PLATFORM_INFO *GMM_STDCALL __GmmGetPlatformInfo(void *pLibContext);
+    void GMM_STDCALL __SetNumberFenceRegisters(void *pLibContext, uint32_t Number);
 
 #if __cplusplus
 }
