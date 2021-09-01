@@ -94,7 +94,7 @@ static inline int _BitScanForward(uint32_t *index, uint32_t mask)
 
 //HW provides single-set of TR/Aux-TT registers for non-privileged programming
 //Engine-specific offsets are HW-updated with programmed values.
-#define GET_L3ADROFFSET(TRTT, L3AdrOffset) \
+#define GET_L3ADROFFSET(TRTT, L3AdrOffset, pGmmLibContext) \
            L3AdrOffset = 0x4200;            
 
 
@@ -275,8 +275,8 @@ namespace GmmLib
         GMM_GFX_ADDRESS GetCPUAddress() { return (PoolElem->GetCPUAddress() + (PoolNodeIdx * PAGE_SIZE)); }
         SyncInfo& GetBBInfo() { return BBInfo; }
         uint32_t* &GetUsedEntries() { return UsedEntries; }
-        bool TrackTableUsage(TT_TYPE Type, bool IsL1, GMM_GFX_ADDRESS TileAdr, bool NullMapped);
-        bool IsTableNullMapped(TT_TYPE Type, bool IsL1, GMM_GFX_ADDRESS TileAdr);
+        bool TrackTableUsage(TT_TYPE Type, bool IsL1, GMM_GFX_ADDRESS TileAdr, bool NullMapped,GMM_LIB_CONTEXT* pGmmLibContext);
+        bool IsTableNullMapped(TT_TYPE Type, bool IsL1, GMM_GFX_ADDRESS TileAdr,GMM_LIB_CONTEXT *pGmmLibContext);
         void UpdatePoolFence(GMM_UMD_SYNCCONTEXT * UmdContext, bool ClearNode);
     };
 
@@ -539,8 +539,8 @@ GMM_STATUS __GmmDeviceAlloc(GmmClientContext            *pClientContext,
 
 GMM_STATUS __GmmDeviceDealloc(GMM_CLIENT                ClientType,
                               GMM_DEVICE_CALLBACKS_INT  *DeviceCb,
-                              GMM_DEVICE_DEALLOC        *pDealloc);
-
+                              GMM_DEVICE_DEALLOC        *pDealloc,
+                              GmmClientContext *pClientContext);
 }
 #endif  // #ifdef __cplusplus
 

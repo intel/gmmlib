@@ -24,21 +24,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "stdafx.h"
 
-typedef GMM_CLIENT_CONTEXT *(GMM_STDCALL * PFNGMMINIT)
-#ifdef _WIN32
-    (const PLATFORM,
-    const SKU_FEATURE_TABLE *,
-    const WA_TABLE *,
-    const GT_SYSTEM_INFO *,
-    GMM_CLIENT);
-#else
-    (const PLATFORM Platform,
-    const void *   pSkuTable,
-    const void *   pWaTable,
-    const void *   pGtSysInfo,
-    GMM_CLIENT ClientType);
-#endif
-typedef void(GMM_STDCALL *PFNGMMDESTROY)(GMM_CLIENT_CONTEXT *);
+typedef GMM_STATUS (GMM_STDCALL *PFNGMMINIT)(GMM_INIT_IN_ARGS *pInArgs, GMM_INIT_OUT_ARGS *pOutArgs);
+typedef void(GMM_STDCALL *PFNGMMDESTROY)(GMM_INIT_OUT_ARGS *pInArgs);
 
 class CommonULT : public testing::Test
 {

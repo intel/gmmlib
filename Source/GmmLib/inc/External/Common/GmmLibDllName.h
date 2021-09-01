@@ -23,7 +23,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #if defined(_WIN64 ) || defined(__x86_64__) || defined(__LP64__)
     #define GMM_ENTRY_NAME            "OpenGmm"
-    #define GMM_INIT_NAME             "GmmInit"
+    #define GMM_INIT_NAME             "InitializeGmm"
     #define GMM_ADAPTER_INIT_NAME     "InitializeGmm"
     #define GMM_DESTROY_NAME          "GmmDestroy"
     #define GMM_ADAPTER_DESTROY_NAME  "GmmAdapterDestroy"

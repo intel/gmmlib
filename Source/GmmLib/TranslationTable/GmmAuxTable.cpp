@@ -49,7 +49,7 @@ Description: AUX-Table management functions
 GMM_STATUS GmmLib::AuxTable::MapNullCCS(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX_ADDRESS BaseAdr, GMM_GFX_SIZE_T Size, uint64_t PartialL1e, uint8_t DoNotWait)
 {
     GMM_STATUS      Status       = GMM_SUCCESS;
-    GMM_GFX_SIZE_T  L1TableSize  = (GMM_L1_SIZE(AUXTT, pGmmGlobalContext)) * (!WA16K(pGmmGlobalContext) ? GMM_KBYTE(64) : GMM_KBYTE(16)); //Each AuxTable entry maps 16K main-surface
+    GMM_GFX_SIZE_T  L1TableSize  = (GMM_L1_SIZE(AUXTT, GetGmmLibContext())) * (!WA16K(GetGmmLibContext()) ? GMM_KBYTE(64) : GMM_KBYTE(16)); //Each AuxTable entry maps 16K main-surface
     GMM_GFX_ADDRESS Addr         = 0;
     GMM_GFX_ADDRESS L3GfxAddress = 0;
     GMM_CLIENT      ClientType;
@@ -138,7 +138,7 @@ GMM_STATUS GmmLib::AuxTable::MapNullCCS(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX
                     GMM_AUXTTL1e L1e = {0};
                     L1e.Valid        = 1;
                     L1e.GfxAddress   = (NullCCSTile >> 8);
-                    for(int i = 0; i < GMM_AUX_L1_SIZE(pGmmGlobalContext); i++)
+                    for(int i = 0; i < GMM_AUX_L1_SIZE(GetGmmLibContext()); i++)
                     {
                         //initialize L1e with null ccs tile
                         ((GMM_AUXTTL1e *)TableAddr)[i].Value = L1e.Value;
@@ -218,10 +218,10 @@ GMM_STATUS GmmLib::AuxTable::MapNullCCS(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX
         // For each 64KB or 16KB of main surface (entry) in L1 table
         for(TileAddr = StartAddress;
             TileAddr < EndAddress;
-            TileAddr += (!WA16K(pGmmGlobalContext) ? GMM_KBYTE(64) : GMM_KBYTE(16)))
+            TileAddr += (!WA16K(GetGmmLibContext()) ? GMM_KBYTE(64) : GMM_KBYTE(16)))
         {
             uint64_t                Data   = PartialL1e | NullCCSTile | __BIT(0);
-            GMM_GFX_SIZE_T          L1eIdx = GMM_L1_ENTRY_IDX(AUXTT, TileAddr, pGmmGlobalContext);
+            GMM_GFX_SIZE_T          L1eIdx = GMM_L1_ENTRY_IDX(AUXTT, TileAddr, GetGmmLibContext());
             GmmLib::LastLevelTable *pL1Tbl = NULL;
 
             pL1Tbl       = pTTL2[GMM_AUX_L3_ENTRY_IDX(TileAddr)].GetL1Table(L2eIdx, NULL);
@@ -248,7 +248,7 @@ GMM_STATUS GmmLib::AuxTable::MapNullCCS(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX
                 Data);
             }
 
-            if(pL1Tbl->TrackTableUsage(AUXTT, true, TileAddr, true))
+            if(pL1Tbl->TrackTableUsage(AUXTT, true, TileAddr, true, GetGmmLibContext()))
             { // L1 Table is not being used anymore
                 GMM_AUXTTL2e               L2e      = {0};
                 GmmLib::GMM_PAGETABLEPool *PoolElem = NULL;
@@ -320,7 +320,7 @@ GMM_STATUS GmmLib::AuxTable::MapNullCCS(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX
 GMM_STATUS GmmLib::AuxTable::InvalidateTable(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX_ADDRESS BaseAdr, GMM_GFX_SIZE_T Size, uint8_t DoNotWait)
 {
     GMM_STATUS      Status       = GMM_SUCCESS;
-    GMM_GFX_SIZE_T  L1TableSize  = (GMM_L1_SIZE(AUXTT, pGmmGlobalContext)) * (!WA16K(pGmmGlobalContext) ? GMM_KBYTE(64) : GMM_KBYTE(16)); //Each AuxTable entry maps 16K main-surface
+    GMM_GFX_SIZE_T  L1TableSize  = (GMM_L1_SIZE(AUXTT, GetGmmLibContext())) * (!WA16K(GetGmmLibContext()) ? GMM_KBYTE(64) : GMM_KBYTE(16)); //Each AuxTable entry maps 16K main-surface
     GMM_GFX_ADDRESS Addr         = 0;
     GMM_GFX_ADDRESS L3GfxAddress = 0;
     uint8_t         isTRVA       = 0; 
@@ -468,11 +468,11 @@ GMM_STATUS GmmLib::AuxTable::InvalidateTable(GMM_UMD_SYNCCONTEXT *UmdContext, GM
         // For each 64KB or 16KB of main surface (entry) in L1 table
         for(TileAddr = StartAddress;
             TileAddr < EndAddress;
-            TileAddr += (!WA16K(pGmmGlobalContext) ? GMM_KBYTE(64) : GMM_KBYTE(16)))
+            TileAddr += (!WA16K(GetGmmLibContext()) ? GMM_KBYTE(64) : GMM_KBYTE(16)))
         {
             //Invalidation of requested range irrespective of TRVA
             uint64_t                Data   = GMM_INVALID_AUX_ENTRY;
-            GMM_GFX_SIZE_T          L1eIdx = GMM_L1_ENTRY_IDX(AUXTT, TileAddr, pGmmGlobalContext);
+            GMM_GFX_SIZE_T          L1eIdx = GMM_L1_ENTRY_IDX(AUXTT, TileAddr, GetGmmLibContext());
             GmmLib::LastLevelTable *pL1Tbl = NULL;
 
             pL1Tbl       = pTTL2[GMM_AUX_L3_ENTRY_IDX(TileAddr)].GetL1Table(L2eIdx, NULL);
@@ -499,7 +499,7 @@ GMM_STATUS GmmLib::AuxTable::InvalidateTable(GMM_UMD_SYNCCONTEXT *UmdContext, GM
                 Data);
             }
 
-            if(pL1Tbl->TrackTableUsage(AUXTT, true, TileAddr, true))
+            if(pL1Tbl->TrackTableUsage(AUXTT, true, TileAddr, true, GetGmmLibContext()))
             { // L1 Table is not being used anymore
                 GMM_AUXTTL2e               L2e      = {0};
                 GmmLib::GMM_PAGETABLEPool *PoolElem = NULL;
@@ -591,7 +591,7 @@ GMM_STATUS GmmLib::AuxTable::MapValidEntry(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_
 {
     GMM_STATUS      Status = GMM_SUCCESS;
     GMM_GFX_ADDRESS Addr = 0, L3TableAdr = GMM_NO_TABLE;
-    GMM_GFX_SIZE_T  L1TableSize = GMM_AUX_L1_SIZE(pGmmGlobalContext) * (!WA16K(pGmmGlobalContext) ? GMM_KBYTE(64) : GMM_KBYTE(16));
+    GMM_GFX_SIZE_T  L1TableSize = GMM_AUX_L1_SIZE(GetGmmLibContext()) * (!WA16K(GetGmmLibContext()) ? GMM_KBYTE(64) : GMM_KBYTE(16));
     GMM_GFX_SIZE_T  CCS$Adr     = AuxVA;
     uint8_t         isTRVA    =0  ;
 
@@ -705,7 +705,7 @@ GMM_STATUS GmmLib::AuxTable::MapValidEntry(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_
                         ((GMM_AUXTTL2e *)L2TableCPUAdr)[L2eIdx].Value     = 0;
                         ((GMM_AUXTTL2e *)L2TableCPUAdr)[L2eIdx].L1GfxAddr = L1TableAdr >> 13;
                         ((GMM_AUXTTL2e *)L2TableCPUAdr)[L2eIdx].Valid     = 1;
-                        for(i = 0; i < (uint32_t)GMM_AUX_L1_SIZE(pGmmGlobalContext); i++)
+                        for(i = 0; i < (uint32_t)GMM_AUX_L1_SIZE(GetGmmLibContext()); i++)
                         {
                             //initialize L1e ie mark all entries with Null tile value
                             ((GMM_AUXTTL1e *)L1TableCPUAdr)[i].Value = InvalidEntry;
@@ -722,7 +722,7 @@ GMM_STATUS GmmLib::AuxTable::MapValidEntry(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_
                                                             L2e.Value);
 
                         //initialize all L1e with invalid entries
-                        for(i = 0; i < (uint32_t)GMM_AUX_L1_SIZE(pGmmGlobalContext); i++)
+                        for(i = 0; i < (uint32_t)GMM_AUX_L1_SIZE(GetGmmLibContext()); i++)
                         {
                             PageTableMgr->TTCb.pfWriteL2L3Entry(UmdContext->pCommandQueueHandle,
                                                                 L1TableAdr + i * sizeof(uint64_t),
@@ -739,15 +739,15 @@ GMM_STATUS GmmLib::AuxTable::MapValidEntry(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_
                         (!WA16K(pClientContext->GetLibContext()) ? GMM_BYTES(256) : GMM_BYTES(64)) :
                         0))
             {
-                GMM_GFX_SIZE_T L1eIdx = GMM_L1_ENTRY_IDX(AUXTT, TileAdr, pGmmGlobalContext);
+                GMM_GFX_SIZE_T L1eIdx = GMM_L1_ENTRY_IDX(AUXTT, TileAdr, GetGmmLibContext());
                 GMM_AUXTTL1e   L1e    = {0};
                 L1e.Value             = PartialData;
                 L1e.Valid             = 1;
 
-                CCS$Adr = (pGmmGlobalContext->GetSkuTable().FtrLinearCCS ? CCS$Adr :
-                                                                                         __GetCCSCacheline(BaseResInfo, BaseAdr, AuxResInfo, AuxVA, TileAdr - BaseAdr));
+                CCS$Adr = (pClientContext->GetLibContext()->GetSkuTable().FtrLinearCCS ? CCS$Adr :
+				__GetCCSCacheline(BaseResInfo, BaseAdr, AuxResInfo, AuxVA, TileAdr - BaseAdr));
 
-                if(!WA16K(pGmmGlobalContext))
+                if(!WA16K(GetGmmLibContext()))
                 {
                     __GMM_ASSERT((CCS$Adr & 0xFF) == 0x0);
                     __GMM_ASSERT(GFX_IS_ALIGNED(CCS$Adr, GMM_BYTES(256)));
@@ -783,7 +783,7 @@ GMM_STATUS GmmLib::AuxTable::MapValidEntry(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_
 
                 // Since we are mapping a non-null entry, no need to check whether
                 // L1 table is unused.
-                pL1Tbl->TrackTableUsage(AUXTT, true, TileAdr, false);
+                pL1Tbl->TrackTableUsage(AUXTT, true, TileAdr, false, GetGmmLibContext());
             }
         }
         if(!DoNotWait)
@@ -820,7 +820,7 @@ GMM_AUXTTL1e GmmLib::AuxTable::CreateAuxL1Data(GMM_RESOURCE_INFO *BaseResInfo)
     L1ePartial.Format     = FormatInfo.CompressionFormat.AuxL1eFormat;
     L1ePartial.LumaChroma = GmmIsPlanar(BaseResInfo->GetResourceFormat());
 
-    if(pGmmGlobalContext->GetWaTable().WaUntypedBufferCompression && BaseResInfo->GetResourceType() == RESOURCE_BUFFER)
+    if(pClientContext->GetLibContext()->GetWaTable().WaUntypedBufferCompression && BaseResInfo->GetResourceType() == RESOURCE_BUFFER)
     {
         //Gen12LP WA to support untyped raw buffer compression on HDC ie MLC(machine-learning compression)
         L1ePartial.TileMode = 0;
