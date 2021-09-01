@@ -649,6 +649,7 @@ uint32_t               GMM_STDCALL GmmResGetMaximumRenamingListLength(GMM_RESOUR
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetPlanarGetXOffset(GMM_RESOURCE_INFO *pGmmResource, GMM_YUV_PLANE Plane);
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetPlanarGetYOffset(GMM_RESOURCE_INFO *pGmmResource, GMM_YUV_PLANE Plane);
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetPlanarAuxOffset(GMM_RESOURCE_INFO *pGmmResource, uint32_t ArrayIndex, GMM_UNIFIED_AUX_TYPE Plane);
+void                GMM_STDCALL GmmResSetLibContext(GMM_RESOURCE_INFO *pGmmResource, void *pLibContext);
 
 // Remove when client moves to new interface
 uint32_t            GMM_STDCALL GmmResGetRenderSize(GMM_RESOURCE_INFO *pResourceInfo);

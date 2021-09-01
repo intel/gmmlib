@@ -407,7 +407,7 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmLib::GmmClientContext::CreateResInfoObject(GMM
         }
     }
 
-    if(pRes->Create(*pCreateParams) != GMM_SUCCESS)
+    if(pRes->Create(*pGmmLibContext, *pCreateParams) != GMM_SUCCESS)
     {
         goto ERROR_CASE;
     }
@@ -451,7 +451,13 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmLib::GmmClientContext::CopyResInfoObject(GMM_R
         return NULL;
     }
 
+    // Set the GmmLibContext for newly created DestResInfo object
+    pResCopy->SetGmmLibContext(pGmmLibContext);
+
     *pResCopy = *pSrcRes;
+
+    // Set the client type to the client for which this resinfo is created
+    pResCopy->SetClientType(GetClientType());
 
     // We are allocating new class, flag must be false to avoid leak at DestroyResource
     pResCopy->GetResFlags().Info.__PreallocatedResInfo = 0;
@@ -472,7 +478,7 @@ void GMM_STDCALL GmmLib::GmmClientContext::ResMemcpy(void *pDst, void *pSrc)
     GmmClientContext *pClientContextIn = NULL;
 
 #if(!defined(GMM_UNIFIED_LIB))
-    pClientContextIn = pGmmGlobalContext->pGmmGlobalClientContext;
+    pClientContextIn = pGmmLibContext->pGmmGlobalClientContext;
 #else
     pClientContextIn = this;
 #endif
@@ -481,7 +487,13 @@ void GMM_STDCALL GmmLib::GmmClientContext::ResMemcpy(void *pDst, void *pSrc)
     // Init memory correctly, in case the pointer is a raw memory pointer
     GMM_RESOURCE_INFO *pResDst = new(pDst) GMM_RESOURCE_INFO(pClientContextIn);
 
+    // Set the GmmLibContext for newly created DestResInfo object
+    pResDst->SetGmmLibContext(pGmmLibContext);
+
     *pResDst = *pResSrc;
+
+    // Set the client type to the client for which this resinfo is created
+    pResDst->SetClientType(GetClientType());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -599,7 +611,7 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmLib::GmmClientContext::CreateResInfoObject(GMM
             }
         }
 
-        if(pRes->Create(*pCreateParams) != GMM_SUCCESS)
+        if(pRes->Create(*pGmmLibContext, *pCreateParams) != GMM_SUCCESS)
         {
             goto ERROR_CASE;
         }

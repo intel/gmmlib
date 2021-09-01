@@ -70,7 +70,8 @@ namespace GmmLib
             GMM_EXISTING_SYS_MEM                ExistingSysMem;     ///< Info about resources initialized with existing system memory
             GMM_GFX_ADDRESS                     SvmAddress;         ///< Driver managed SVM address
 
-            uint64_t                            pGmmLibContext;     ///< Pointer to GmmLib context passed in during Create()
+            uint64_t                            pGmmUmdLibContext;     ///< Pointer to GmmLib context created in DLL passed in during Create()
+            uint64_t                            pGmmKmdLibContext;     ///< Pointer to GmmLib context created in KMD passed in during Create()
             uint64_t                            pPrivateData;       ///< Allows clients to attach any private data to GmmResourceInfo
 #ifdef __GMM_KMD__
             void                               *pClientContext;    ///< void * in oreder to of same size for the ResInfo Object across KMD and UMD
@@ -95,11 +96,11 @@ namespace GmmLib
             /// Returns tile mode for SURFACE_STATE programming.
             /// @return     Tiled Mode
             /////////////////////////////////////////////////////////////////////////////////////
-            GMM_INLINE uint32_t GetTileModeSurfaceState(const GMM_TEXTURE_INFO *pTextureInfo) const
+            GMM_INLINE uint32_t GetTileModeSurfaceState(const GMM_TEXTURE_INFO *pTextureInfo)
             {
                 uint32_t TiledMode = 0;
 
-                if(GMM_IS_TILEY(pGmmGlobalContext))
+                if(GMM_IS_TILEY(GetGmmLibContext()))
                 {
                     TiledMode =
                         pTextureInfo->Flags.Info.Linear ? 0 :
@@ -134,7 +135,8 @@ namespace GmmLib
                 RotateInfo(),
                 ExistingSysMem(),
                 SvmAddress(),
-                pGmmLibContext(),
+                pGmmUmdLibContext(),
+                pGmmKmdLibContext(),
                 pPrivateData(),
                 pClientContext(),
                 MultiTileArch()
@@ -159,7 +161,8 @@ namespace GmmLib
                 RotateInfo(),
                 ExistingSysMem(),
                 SvmAddress(),
-                pGmmLibContext(),
+                pGmmUmdLibContext(),
+                pGmmKmdLibContext(),
                 pPrivateData(),
                 pClientContext(),
                 MultiTileArch()
@@ -178,7 +181,6 @@ namespace GmmLib
                 ExistingSysMem      = rhs.ExistingSysMem;
                 SvmAddress          = rhs.SvmAddress;
                 pPrivateData        = rhs.pPrivateData;
-                pGmmLibContext      = rhs.pGmmLibContext;
                 MultiTileArch       = rhs.MultiTileArch;
 
                 return *this;
@@ -249,6 +251,50 @@ namespace GmmLib
                 GET_GMM_CLIENT_TYPE(pGmmClientContext, ClientType);
             }
 #endif
+
+
+
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// This function Sets GmmLibContext in GmmResInfo.
+            /// GMMResInfo gets passed as private data from UMDs to KMD during
+            //  GMMCreateAllocation and GmmOpenAllocation
+            /// Member functions of ResInfo class need to access the LibContext object. But since
+            /// the LibContext object present in ResInfo is created by UMDs in UMD space,
+            /// and this UMD space object cant be used in KMD space,
+            /// we need this API to set the KMD LibContext in ResInfo object.
+            /// @return ::void
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void SetGmmLibContext(void *pLibContext)
+            {
+#if(defined(__GMM_KMD__))
+                pGmmKmdLibContext = reinterpret_cast<uint64_t>(pLibContext);
+#else
+                pGmmUmdLibContext = reinterpret_cast<uint64_t>(pLibContext);
+#endif
+            }
+
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Returns either UMD or KMD GMMLibContext that needs to be used when the ResInfo
+            /// Member functions are executed at KMD or UMD level
+            /// @return ::Context
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED Context *GetGmmLibContext()
+            {
+#if(defined(__GMM_KMD__))
+                return ((Context *)pGmmKmdLibContext);
+#else
+                return ((Context *)pGmmUmdLibContext);
+#endif
+            }
+
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Returns GMM_CLIENT Type that has created this resource
+            /// @return ::GMM_CLIENT
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void SetClientType(GMM_CLIENT Client)
+            {
+                ClientType = Client;
+            }
 
             /////////////////////////////////////////////////////////////////////////////////////
             /// Returns GMM_CLIENT Type that has created this resource
@@ -394,7 +440,7 @@ namespace GmmLib
             {
                 const GMM_PLATFORM_INFO   *pPlatform;
 
-                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf,pGmmGlobalContext);
+                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf, GetGmmLibContext());
 
 		if (Surf.Flags.Gpu.UnifiedAuxSurface)
                 {
@@ -430,7 +476,7 @@ namespace GmmLib
                 __GMM_ASSERT(GMM_IS_PLANAR(Surf.Format));
                 GMM_UNREFERENCED_LOCAL_VARIABLE(Plane);
 
-                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf,pGmmGlobalContext);
+                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf, GetGmmLibContext());
 
 	        __GMM_ASSERT(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE);
 
@@ -473,7 +519,7 @@ namespace GmmLib
                 TileMode = Surf.TileMode;
                 __GMM_ASSERT(TileMode < GMM_TILE_MODES);
 
-                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf,pGmmGlobalContext);
+                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf, GetGmmLibContext());
                 if (pPlatform->TileInfo[TileMode].LogicalTileWidth != 0)
                 {
                     // In case of Depth/Stencil buffer MSAA TileYs surface, the LogicalTileWidth/Height is smaller than non-MSAA ones
@@ -531,7 +577,7 @@ namespace GmmLib
 
                 __GMM_ASSERT(!AuxSurf.Flags.Info.Linear);
 
-                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&AuxSurf,pGmmGlobalContext);
+                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&AuxSurf, GetGmmLibContext());
 
                 if (Surf.Flags.Gpu.UnifiedAuxSurface)
                 {
@@ -803,7 +849,7 @@ namespace GmmLib
                 const __GMM_PLATFORM_RESOURCE   *pPlatformResource;
                 uint32_t HAlign;
 
-                pPlatformResource = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf,pGmmGlobalContext);
+                pPlatformResource = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf, GetGmmLibContext());
 
                 if ((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) >= IGFX_GEN9_CORE) &&
                     !(Surf.Flags.Info.TiledYf || GMM_IS_64KB_TILE(Surf.Flags)))
@@ -826,7 +872,7 @@ namespace GmmLib
             {
                 const __GMM_PLATFORM_RESOURCE   *pPlatformResource;
                 uint32_t VAlign;
-                pPlatformResource = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf,pGmmGlobalContext);
+                pPlatformResource = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf, GetGmmLibContext());
 
                 if ((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) >= IGFX_GEN9_CORE) &&
                     !(GetResFlags().Info.TiledYf || GMM_IS_64KB_TILE(GetResFlags())))
@@ -1001,7 +1047,7 @@ namespace GmmLib
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T  GMM_STDCALL GetSizeSurface()
             {
-                GMM_OVERRIDE_SIZE_64KB_ALLOC(pGmmGlobalContext);
+                GMM_OVERRIDE_SIZE_64KB_ALLOC(GetGmmLibContext());
                 return (Surf.Size + AuxSurf.Size + AuxSecSurf.Size);
             }
 
@@ -1027,7 +1073,7 @@ namespace GmmLib
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t  GMM_STDCALL GetMaxGpuVirtualAddressBits()
             {
-                const GMM_PLATFORM_INFO *pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf,pGmmGlobalContext);
+                const GMM_PLATFORM_INFO *pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf, GetGmmLibContext());
                 __GMM_ASSERTPTR(pPlatform, 0);
 
                 return pPlatform->MaxGpuVirtualAddressBitsPerResource;
@@ -1042,7 +1088,7 @@ namespace GmmLib
             {
                 GMM_GFX_SIZE_T Offset = 0;
                 const GMM_PLATFORM_INFO *pPlatform;
-                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf,pGmmGlobalContext);
+                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf, GetGmmLibContext());
                 if (Surf.Flags.Gpu.UnifiedAuxSurface)
                 {
                     if ((GmmAuxType == GMM_AUX_CCS) || (GmmAuxType == GMM_AUX_SURF) || (GmmAuxType == GMM_AUX_Y_CCS)
@@ -1343,7 +1389,7 @@ namespace GmmLib
                 uint32_t               HAlign = 0;
                 const GMM_PLATFORM_INFO   *pPlatform;
 
-                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf,pGmmGlobalContext);
+                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf, GetGmmLibContext());
 
                 if (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE)
                 {
@@ -1353,7 +1399,7 @@ namespace GmmLib
                     }
                     else
                     {
-                        if(GMM_IS_TILEY(pGmmGlobalContext))
+                        if(GMM_IS_TILEY(GetGmmLibContext()))
                         {
                             switch (GetHAlign())
                             {
@@ -1405,7 +1451,7 @@ namespace GmmLib
                 uint32_t               VAlign;
                 const GMM_PLATFORM_INFO   *pPlatform;
 
-                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf,pGmmGlobalContext);
+                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf, GetGmmLibContext());
 
                 if (GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE)
                 {
@@ -1464,7 +1510,7 @@ namespace GmmLib
             {
                 uint32_t   TiledResourceMode = 0;
 
-                if(GMM_IS_TILEY(pGmmGlobalContext))
+                if(GMM_IS_TILEY(GetGmmLibContext()))
                 {
                     if (Surf.Flags.Info.TiledYf)
                     {
@@ -1665,8 +1711,12 @@ namespace GmmLib
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverrideGmmLibContext(Context *pNewGmmLibContext)
             {
-                this->pGmmLibContext = reinterpret_cast<uint64_t>(pNewGmmLibContext);
-            }
+#if(defined(__GMM_KMD__))
+                this->pGmmKmdLibContext = reinterpret_cast<uint64_t>(pNewGmmLibContext);
+#else
+                this->pGmmUmdLibContext = reinterpret_cast<uint64_t>(pNewGmmLibContext);
+#endif
+             }
 
             /////////////////////////////////////////////////////////////////////////////////////
             /// Overrides the X offset of planar surface
@@ -1726,7 +1776,7 @@ namespace GmmLib
             {
                 uint32_t TiledMode = 0;
 
-                if(GMM_IS_TILEY(pGmmGlobalContext))
+                if(GMM_IS_TILEY(GetGmmLibContext()))
                 {
                     TiledMode =
 				Surf.Flags.Info.TiledYf ? 1 :

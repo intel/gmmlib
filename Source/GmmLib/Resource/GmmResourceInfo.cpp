@@ -1682,6 +1682,21 @@ GMM_GFX_SIZE_T GMM_STDCALL GmmResGetPlanarAuxOffset(GMM_RESOURCE_INFO *pGmmResou
     return pGmmResource->GetPlanarAuxOffset(ArrayIndex, AuxType);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+/// C wrapper for GmmResourceInfoCommon::SetGmmLibContext
+/// @see    GmmLib::GmmResourceInfoCommon::SetGmmLibContext()
+///
+/// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
+/// @param[in]  pLibContext: Pointer to GmmLibContext
+/////////////////////////////////////////////////////////////////////////////////////
+void GMM_STDCALL GmmResSetLibContext(GMM_RESOURCE_INFO *pGmmResource, void *pLibContext)
+{
+    if(pGmmResource)
+    {
+        pGmmResource->SetGmmLibContext(pLibContext);
+    }
+}
+
 //=============================================================================
 //
 // Function: __CanSupportStdTiling
