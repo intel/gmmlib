@@ -198,7 +198,7 @@ typedef struct GMM_TEXTURE_INFO_REC
 GMM_STATUS GmmTexAlloc(GMM_LIB_CONTEXT *pGmmLibContext, GMM_TEXTURE_INFO* pTexInfo);
 GMM_STATUS GmmTexLinearCCS(GMM_LIB_CONTEXT *pGmmLibContext, GMM_TEXTURE_INFO* pTexInfo, GMM_TEXTURE_INFO *pAuxTexInfo);
 #endif
-GMM_STATUS GmmTexGetMipMapOffset(GMM_TEXTURE_INFO* pTexInfo, GMM_REQ_OFFSET_INFO* pReqInfo);
+GMM_STATUS GmmTexGetMipMapOffset(GMM_TEXTURE_INFO* pTexInfo, GMM_REQ_OFFSET_INFO* pReqInfo , GMM_LIB_CONTEXT* pGmmLibContext);
 
 #define GMM_ISNOT_TILED(TileInfo) ((TileInfo).LogicalSize == 0)
 #define GMM_IS_TILED(TileInfo)    ((TileInfo).LogicalSize > 0)

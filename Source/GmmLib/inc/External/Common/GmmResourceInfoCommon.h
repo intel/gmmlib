@@ -806,7 +806,7 @@ namespace GmmLib
                 __GMM_ASSERT(GMM_IS_PLANAR(Surf.Format));
 
                 if (Surf.Flags.Gpu.UnifiedAuxSurface  &&
-                    !((GmmClientContext*)pClientContext)->GetSkuTable().FtrFlatPhysCCS)
+                    !(GetGmmLibContext()->GetSkuTable().FtrFlatPhysCCS))
                 {
                     if (GmmAuxType == GMM_AUX_Y_CCS)
                     {
@@ -1148,7 +1148,7 @@ namespace GmmLib
                     Offset = 0;
                 }
 
-                if(((GmmClientContext*)pClientContext)->GetSkuTable().FtrFlatPhysCCS && !Surf.Flags.Gpu.ProceduralTexture &&
+                if((GetGmmLibContext()->GetSkuTable().FtrFlatPhysCCS) && !Surf.Flags.Gpu.ProceduralTexture &&
                     (GmmAuxType == GMM_AUX_CCS || GmmAuxType == GMM_AUX_ZCS ||
                     GmmAuxType == GMM_AUX_Y_CCS || GmmAuxType == GMM_AUX_UV_CCS))
                 {
@@ -1172,7 +1172,7 @@ namespace GmmLib
                 else if (GmmAuxType == GMM_AUX_CCS || GmmAuxType == GMM_AUX_HIZ || GmmAuxType == GMM_AUX_MCS)
                 {
                     if(GmmAuxType == GMM_AUX_CCS &&
-                       ((GmmClientContext*)pClientContext)->GetSkuTable().FtrFlatPhysCCS && !Surf.Flags.Gpu.ProceduralTexture)
+                       GetGmmLibContext()->GetSkuTable().FtrFlatPhysCCS && !Surf.Flags.Gpu.ProceduralTexture)
                     {
                         return 0;
                     }
@@ -1756,7 +1756,7 @@ namespace GmmLib
             /////////////////////////////////////////////////////////////////////////////////////
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T GMM_STDCALL GetFlatPhysCcsSize()
             {
-                if((((GmmClientContext*)pClientContext)->GetSkuTable().FtrFlatPhysCCS) &&
+                if((GetGmmLibContext()->GetSkuTable().FtrFlatPhysCCS) &&
                     !(Surf.Flags.Info.AllowVirtualPadding ||
                         Surf.Flags.Info.ExistingSysMem ||
                         Surf.Flags.Info.NonLocalOnly))

@@ -49,7 +49,7 @@ namespace GmmLib
                 : GmmCachePolicyCommon(pCachePolicyContext, pGmmLibContext)
 	    {
                 #if(defined(__GMM_KMD__))
-                //if (GFX_IS_SKU(pGmmGlobalContext, FtrIA32eGfxPTEs))
+                //if (GFX_IS_SKU(pGmmLibContext, FtrIA32eGfxPTEs))
                 {
                     // Set the WA's needed for Private PAT initialization
                     SetPATInitWA();

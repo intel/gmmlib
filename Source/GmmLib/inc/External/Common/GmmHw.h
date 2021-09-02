@@ -119,8 +119,8 @@ C_ASSERT(sizeof(GMM_AUXTTL1e) == 8);
 // #L1 entries, i.e. 1024; 16K-granular ie 4 consequtive pages share Aux-cacheline;
 // HW only tracks the distinct entries;
 // Handle WA where HW chicken bit forces 64K-granularity
-#define GMM_AUX_L1_SIZE(pGmmGlobalContext)         ((1 << (GMM_AUX_L1_HIGH_BIT - GMM_AUX_L1_LOW_BIT + 1)) / (!(WA16K(pGmmGlobalContext)) ? 4 : 1))
-#define GMM_AUX_L1_SIZE_DWORD(pGmmGlobalContext)   (GFX_CEIL_DIV(GMM_AUX_L1_SIZE(pGmmGlobalContext), 32))
+#define GMM_AUX_L1_SIZE(pGmmLibContext)         ((1 << (GMM_AUX_L1_HIGH_BIT - GMM_AUX_L1_LOW_BIT + 1)) / (!(WA16K(pGmmLibContext)) ? 4 : 1))
+#define GMM_AUX_L1_SIZE_DWORD(pGmmLibContext)   (GFX_CEIL_DIV(GMM_AUX_L1_SIZE(pGmmLibContext), 32))
 
 // #L2 entries, i.e. 4096
 #define GMM_AUX_L2_SIZE         (1 << (GMM_AUX_L2_HIGH_BIT - GMM_AUX_L2_LOW_BIT + 1))
@@ -129,9 +129,9 @@ C_ASSERT(sizeof(GMM_AUXTTL1e) == 8);
 // #L3 entries, i.e. 4096
 #define GMM_AUX_L3_SIZE         (1 << (GMM_AUX_L3_HIGH_BIT - GMM_AUX_L3_LOW_BIT + 1))
 
-#define GMM_AUX_L1_ENTRY_IDX(GfxAddress,pGmmGlobalContext)                                         \
+#define GMM_AUX_L1_ENTRY_IDX(GfxAddress,pGmmLibContext)                                         \
     ((((GfxAddress) & GFX_MASK_LARGE(GMM_AUX_L1_LOW_BIT, GMM_AUX_L1_HIGH_BIT)) >> \
-     (uint64_t)GMM_AUX_L1_LOW_BIT) / (!(WA16K(pGmmGlobalContext)) ? 4 : 1))
+     (uint64_t)GMM_AUX_L1_LOW_BIT) / (!(WA16K(pGmmLibContext)) ? 4 : 1))
 
 
 #define GMM_AUX_L1_ENTRY_IDX_EXPORTED(GfxAddress,WA64KEx)                         \

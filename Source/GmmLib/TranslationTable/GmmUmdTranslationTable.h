@@ -456,6 +456,8 @@ namespace GmmLib
             TTType(flag),
 	    NodesPerTable(Size / PAGE_SIZE)
         {
+            PageTableMgr = NULL;
+            pClientContext = NULL;
             InitializeCriticalSection(&TTLock);
 
             pTTL2 = new MidLevelTable[NumL3e];

@@ -556,7 +556,7 @@ uint8_t             GMM_STDCALL GmmGetLosslessCompressionType(void *pLibContext,
 GMM_RESOURCE_INFO*  GMM_STDCALL GmmResCopy(GMM_RESOURCE_INFO *pGmmResource);
 void                GMM_STDCALL GmmResMemcpy(void *pDst, void *pSrc);
 uint8_t             GMM_STDCALL GmmResCpuBlt(GMM_RESOURCE_INFO *pGmmResource, GMM_RES_COPY_BLT *pBlt);
-GMM_RESOURCE_INFO*  GMM_STDCALL GmmResCreate(GMM_RESCREATE_PARAMS *pCreateParams);
+GMM_RESOURCE_INFO   *GMM_STDCALL GmmResCreate(GMM_RESCREATE_PARAMS *pCreateParams, GMM_LIB_CONTEXT *pLibContext);
 void                GMM_STDCALL GmmResFree(GMM_RESOURCE_INFO *pGmmResource);
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetSizeMainSurface(const GMM_RESOURCE_INFO *pResourceInfo);
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetSizeSurface(GMM_RESOURCE_INFO *pResourceInfo);
@@ -615,7 +615,7 @@ uint32_t                GMM_STDCALL GmmResGetRotateInfo(GMM_RESOURCE_INFO *pGmmR
 GMM_MSAA_SAMPLE_PATTERN GMM_STDCALL GmmResGetSamplePattern(GMM_RESOURCE_INFO *pGmmResource);
 uint32_t                GMM_STDCALL GmmResGetSizeOfStruct(void);
 GMM_SURFACESTATE_FORMAT GMM_STDCALL GmmResGetSurfaceStateFormat(GMM_RESOURCE_INFO *pGmmResource);
-GMM_SURFACESTATE_FORMAT GMM_STDCALL GmmGetSurfaceStateFormat(GMM_RESOURCE_FORMAT Format);
+GMM_SURFACESTATE_FORMAT GMM_STDCALL GmmGetSurfaceStateFormat(GMM_RESOURCE_FORMAT Format,GMM_LIB_CONTEXT* pGmmLibContext);
 uint32_t               GMM_STDCALL GmmResGetSurfaceStateHAlign(GMM_RESOURCE_INFO *pGmmResource);
 uint32_t               GMM_STDCALL GmmResGetSurfaceStateVAlign(GMM_RESOURCE_INFO *pGmmResource);
 uint32_t               GMM_STDCALL GmmResGetSurfaceStateTiledResourceMode(GMM_RESOURCE_INFO *pGmmResource);
@@ -643,7 +643,7 @@ uint32_t               GMM_STDCALL GmmResTranslateColorSeparationX(GMM_RESOURCE_
 uint32_t               GMM_STDCALL GmmResGetColorSeparationArraySize(GMM_RESOURCE_INFO *pGmmResource);
 uint32_t               GMM_STDCALL GmmResGetColorSeparationPhysicalWidth(GMM_RESOURCE_INFO *pGmmResource);
 uint8_t                GMM_STDCALL GmmResGetSetHardwareProtection(GMM_RESOURCE_INFO *pGmmResource, uint8_t GetIsEncrypted, uint8_t SetIsEncrypted);
-uint32_t               GMM_STDCALL GmmResGetMaxGpuVirtualAddressBits(GMM_RESOURCE_INFO *pGmmResource);
+uint32_t               GMM_STDCALL GmmResGetMaxGpuVirtualAddressBits(GMM_RESOURCE_INFO *pGmmResource, GMM_LIB_CONTEXT* pGmmLibContext);
 uint8_t                GMM_STDCALL GmmIsSurfaceFaultable(GMM_RESOURCE_INFO *pGmmResource);
 uint32_t               GMM_STDCALL GmmResGetMaximumRenamingListLength(GMM_RESOURCE_INFO* pGmmResource);
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetPlanarGetXOffset(GMM_RESOURCE_INFO *pGmmResource, GMM_YUV_PLANE Plane);

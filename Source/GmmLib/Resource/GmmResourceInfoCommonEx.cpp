@@ -442,7 +442,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
         }
     }
 
-    if(!__CanSupportStdTiling(Surf))
+    if(!__CanSupportStdTiling(Surf, GetGmmLibContext()))
     {
         GMM_ASSERTDPF(0, "Invalid TileYf/TileYs usage!");
         goto ERROR_CASE;

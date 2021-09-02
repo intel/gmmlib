@@ -32,7 +32,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 /// @return     ::GMM_STATUS
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_STATUS GmmTexGetMipMapOffset(GMM_TEXTURE_INFO *   pTexInfo,
-                                 GMM_REQ_OFFSET_INFO *pReqInfo)
+                                 GMM_REQ_OFFSET_INFO *pReqInfo,
+                                 GMM_LIB_CONTEXT *    pGmmLibContext)
 {
     GMM_STATUS        Status           = GMM_SUCCESS;
     bool              RestoreRenderReq = false;
@@ -43,7 +44,7 @@ GMM_STATUS GmmTexGetMipMapOffset(GMM_TEXTURE_INFO *   pTexInfo,
     __GMM_ASSERTPTR(pReqInfo, GMM_ERROR);
     __GMM_ASSERT(pReqInfo->CubeFace <= __GMM_NO_CUBE_MAP);
 
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo, pGmmGlobalContext);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo, pGmmLibContext);
 
     if((pReqInfo->Plane >= GMM_MAX_PLANE) ||
        (pReqInfo->Plane < GMM_NO_PLANE) ||

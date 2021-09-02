@@ -101,7 +101,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(GMM_RESCREATE_PARAM
     GMM_STATUS Status = GMM_ERROR;
     // ToDo: Only Vk is using this Create API directly. Derive the GmmLibCOntext from the ClientContext stored in
     // ResInfo object.
-    Status = Create(*pGmmGlobalContext, CreateParams);
+    Status = Create(*(reinterpret_cast<GMM_CLIENT_CONTEXT *>(pClientContext)->GetLibContext()), CreateParams);
 
     return Status;
 }
@@ -1254,7 +1254,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetOffset(GMM_REQ_OFFSET_I
         if(ReqInfo.ReqLock || ReqInfo.ReqRender)
         {
             ReqInfo.ReqStdLayout = 0;
-            GmmTexGetMipMapOffset(&Surf, &ReqInfo);
+            GmmTexGetMipMapOffset(&Surf, &ReqInfo, GetGmmLibContext());
             ReqInfo.ReqStdLayout = RestoreReqStdLayout;
         }
 
@@ -1283,11 +1283,11 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetOffset(GMM_REQ_OFFSET_I
             pTextureCalc->GetRedescribedPlaneParams(&Surf, GMM_PLANE_U, &TexInfo[GMM_PLANE_U]);
             pTextureCalc->GetRedescribedPlaneParams(&Surf, GMM_PLANE_V, &TexInfo[GMM_PLANE_V]);
 
-            if(GMM_SUCCESS != GmmTexGetMipMapOffset(&TexInfo[GMM_PLANE_Y], &TempReqInfo[GMM_PLANE_Y]) ||
-               GMM_SUCCESS != GmmTexGetMipMapOffset(&TexInfo[GMM_PLANE_U], &TempReqInfo[GMM_PLANE_U]) ||
-               GMM_SUCCESS != GmmTexGetMipMapOffset(&TexInfo[GMM_PLANE_V], &TempReqInfo[GMM_PLANE_V]))
+            if(GMM_SUCCESS != GmmTexGetMipMapOffset(&TexInfo[GMM_PLANE_Y], &TempReqInfo[GMM_PLANE_Y], GetGmmLibContext()) ||
+               GMM_SUCCESS != GmmTexGetMipMapOffset(&TexInfo[GMM_PLANE_U], &TempReqInfo[GMM_PLANE_U], GetGmmLibContext()) ||
+               GMM_SUCCESS != GmmTexGetMipMapOffset(&TexInfo[GMM_PLANE_V], &TempReqInfo[GMM_PLANE_V], GetGmmLibContext()))
 	    {
-                __GMM_ASSERT(0);
+		    __GMM_ASSERT(0);
                 return GMM_ERROR;
             }
 
@@ -1316,7 +1316,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetOffset(GMM_REQ_OFFSET_I
                     // Find the size of the previous planes and add it to the offset
                     TempReqInfo[Plane].StdLayout.Offset = -1;
                 
-		    if(GMM_SUCCESS != GmmTexGetMipMapOffset(&TexInfo[Plane], &TempReqInfo[Plane]))
+                    if(GMM_SUCCESS != GmmTexGetMipMapOffset(&PlaneSurf[Plane], &TempReqInfo[Plane], GetGmmLibContext()))
                     {
                  
                         __GMM_ASSERT(0);
@@ -1332,7 +1332,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetOffset(GMM_REQ_OFFSET_I
     }
     else
     {
-        return GmmTexGetMipMapOffset(&Surf, &ReqInfo);
+        return GmmTexGetMipMapOffset(&Surf, &ReqInfo, GetGmmLibContext());
     }
 }
 

@@ -37,6 +37,8 @@ namespace GmmLib
 		    : GmmGen8CachePolicy(pCachePolicy, pGmmLibContext)
 
 	    {
+                CurrentMaxMocsIndex      = 0;
+                CurrentMaxL1HdcMocsIndex = 0;
             }
             virtual ~GmmGen9CachePolicy()
             {
