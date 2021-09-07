@@ -75,8 +75,9 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
                     CreateParams.Flags.Info.TiledX = true;
                 }
             }
-            else
-            {
+            //Auto-tiling selection if not Linear already
+            else if(CreateParams.Flags.Info.Linear == 0)
+             {
                 // Xe_HP onwards.
                 if((CreateParams.Flags.Info.TiledYs +
                     CreateParams.Flags.Info.TiledYf +
@@ -119,8 +120,9 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
                 }
             }
         }
-        else
-        {
+        //Convert non linear & non-tiledX tiling selection by client to proper tiling.
+        else if(CreateParams.Flags.Info.Linear + CreateParams.Flags.Info.TiledX == 0)
+         {
             if(!pGmmGlobalContext->GetSkuTable().FtrTileY)
             {
                 __GMM_ASSERT(!(CreateParams.Flags.Info.TiledYs ||
