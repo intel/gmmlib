@@ -30,6 +30,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "../TranslationTable/GmmUmdTranslationTable.h"
 #endif
 
+extern GMM_MA_LIB_CONTEXT *pGmmMALibContext;
+
 /////////////////////////////////////////////////////////////////////////////////////
 /// Constructor to zero initialize the GmmLib::GmmClientContext object and create
 /// Utility class object
@@ -46,6 +48,21 @@ GmmLib::GmmClientContext::GmmClientContext(GMM_CLIENT ClientType)
 
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+/// Overloaded Constructor to zero initialize the GmmLib::GmmClientContext object
+/// This Construtor takes pointer to GmmLibCOntext as input argumnet and initiaizes
+/// ClientContext's GmmLibContext with this value
+/////////////////////////////////////////////////////////////////////////////////////
+GmmLib::GmmClientContext::GmmClientContext(GMM_CLIENT ClientType, Context *pLibContext)
+    : ClientType(),
+      pUmdAdapter(),
+      pGmmUmdContext(),
+      DeviceCB(),
+      IsDeviceCbReceived(0)
+{
+    this->ClientType     = ClientType;
+    this->pGmmLibContext = pLibContext;
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /// Destructor to free  GmmLib::GmmClientContext object memory
 /////////////////////////////////////////////////////////////////////////////////////
@@ -358,7 +375,7 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmLib::GmmClientContext::CreateCustomResInfoObje
         goto ERROR_CASE;
     }
 
-    if(pRes->CreateCustomRes(*pGmmGlobalContext, *pCreateParams) != GMM_SUCCESS)
+    if(pRes->CreateCustomRes(*pGmmLibContext, *pCreateParams) != GMM_SUCCESS)
     {
         goto ERROR_CASE;
     }
@@ -768,11 +785,39 @@ extern "C" GMM_CLIENT_CONTEXT *GMM_STDCALL GmmCreateClientContext(GMM_CLIENT Cli
 {
     GMM_CLIENT_CONTEXT *pGmmClientContext = nullptr;
 
+#if GMM_LIB_DLL_MA
+    // To be backward compatible and to use new Multi-Adapter API defined for creation of
+    // Clientcontext, hardcoding BDF to {020}
+    ADAPTER_BDF sBdf  = {0, 2, 0, 0};
+    pGmmClientContext = GmmCreateClientContextForAdapter(ClientType, sBdf);
+#else
     pGmmClientContext = new GMM_CLIENT_CONTEXT(ClientType);
-
+#endif
     return pGmmClientContext;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+/// Gmm lib DLL C wrapper for creating GmmLib::GmmClientContext object
+/// This C wrapper is used for Multi-Adapter scenarios to take in Adapter's BDF as
+/// additional input argument to derive its correspodning GmmLibContext
+///
+/// @see        Class GmmLib::GmmClientContext
+///
+/// @param[in]  ClientType : describles the UMD clients such as OCL, DX, OGL, Vulkan etc
+/// @param[in]  sBDF: Adapter's BDF info
+///
+/// @return     Pointer to GmmClientContext, if Context is created
+/////////////////////////////////////////////////////////////////////////////////////
+extern "C" GMM_CLIENT_CONTEXT *GMM_STDCALL GmmCreateClientContextForAdapter(GMM_CLIENT  ClientType,
+                                                                            ADAPTER_BDF sBdf)
+{
+    GMM_CLIENT_CONTEXT *pGmmClientContext = nullptr;
+    GMM_LIB_CONTEXT *   pLibContext       = pGmmMALibContext->GetAdapterLibContext(sBdf);
+
+    pGmmClientContext = new GMM_CLIENT_CONTEXT(ClientType, pLibContext);
+
+    return pGmmClientContext;
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /// Gmm lib DLL exported C wrapper for deleting GmmLib::GmmClientContext object
 /// @see        Class GmmLib::GmmClientContext

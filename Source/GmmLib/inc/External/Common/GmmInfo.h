@@ -25,13 +25,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "GmmConst.h"
 #include "../../../Platform/GmmPlatforms.h"
 
-#ifdef GMM_LIB_DLL
 #ifdef _WIN32
 #define GMM_MUTEX_HANDLE    HANDLE
 #else
 #include <pthread.h>
 #define GMM_MUTEX_HANDLE    pthread_mutex_t
-#endif
 #endif
 
 // Set packing alignment
@@ -293,6 +291,7 @@ namespace GmmLib
         }
 
     #ifdef GMM_LIB_DLL
+        ADAPTER_BDF             sBdf;
         #ifdef _WIN32
             // ProcessHeapVA Singleton HeapObj
             GMM_HEAP            *pHeapObj;
@@ -546,13 +545,64 @@ namespace GmmLib
     private: 
         void GMM_STDCALL OverrideSkuWa();
     };
+
+// Max number of Multi-Adapters allowed in the system
+// ToDO: Make this dynamic allocation instead of static Array
+#define MAX_NUM_ADAPTERS      3
+//===========================================================================
+// typedef:
+//      _GMM_ADAPTER_INFO_
+//
+// Description:
+//      Struct holds Adapter level information.
+//----------------------------------------------------------------------------
+typedef struct _GMM_ADAPTER_INFO_
+{
+    Context             *pGmmLibContext;                    // Gmm UMD Lib Context which is process Singleton
+    int32_t             RefCount;                           // Ref Count for the number of Gmm UMD Lib process Singleton Context created per Process
+    GMM_MUTEX_HANDLE    SyncMutex;                          // SyncMutex to protect access of Gmm UMD Lib process Singleton Context
+    ADAPTER_BDF         sBdf;                               // Adpater's Bus, Device and Function info for which Gmm UMD Lib process Singleton Context is created
+}GMM_ADAPTER_INFO;
+
+////////////////////////////////////////////////////////////////////////////////////
+/// Multi Adpater Context to hold data related to Multiple Adapters in the system
+/// Contains functions and members that are needed to support Multi-Adapter.
+///////////////////////////////////////////////////////////////////////////////////
+    class NON_PAGED_SECTION GmmMultiAdapterContext : public GmmMemAllocator
+    {
+    private:
+        GMM_ADAPTER_INFO                AdapterInfo[MAX_NUM_ADAPTERS];
+        GMM_MUTEX_HANDLE                MAContextSyncMutex;         // SyncMutex to protect access of GmmMultiAdpaterContext
+        uint32_t                        NumAdapters;
+    public:
+        //Constructors and destructors
+        GmmMultiAdapterContext();
+        ~GmmMultiAdapterContext();
+        /* Function prototypes */
+        /* Fucntions that update MultiAdapterContext members*/
+        uint32_t GMM_STDCALL            GetAdapterIndex(ADAPTER_BDF sBdf);
+        GMM_STATUS GMM_STDCALL          IntializeAdapterInfo(ADAPTER_BDF sBdf);
+        void GMM_STDCALL                ReleaseAdapterInfo(ADAPTER_BDF sBdf);
+        Context* GMM_STDCALL            GetAdapterLibContext(ADAPTER_BDF sBdf);
+        void GMM_STDCALL                SetAdapterLibContext(ADAPTER_BDF sBdf, Context* pGmmLibContext);
+        GMM_STATUS GMM_STDCALL          LockMAContextSyncMutex();
+        GMM_STATUS GMM_STDCALL          UnLockMAContextSyncMutex();
+        uint32_t GMM_STDCALL            GetNumAdapters();
+        /* Fucntions that update AdapterInfo*/
+        int32_t GMM_STDCALL             IncrementRefCount(ADAPTER_BDF sBdf);
+        int32_t GMM_STDCALL             DecrementRefCount(ADAPTER_BDF sBdf);
+        GMM_STATUS GMM_STDCALL          LockSingletonContextSyncMutex(ADAPTER_BDF sBdf);
+        GMM_STATUS GMM_STDCALL          UnlockSingletonContextSyncMutex(ADAPTER_BDF sBdf);
+    }; // GmmMultiAdapterContext
+
 } //namespace
 
-typedef GmmLib::Context GMM_GLOBAL_CONTEXT;
+typedef GmmLib::Context GMM_GLOBAL_CONTEXT, GMM_LIB_CONTEXT;
+typedef GmmLib::GmmMultiAdapterContext GMM_MA_LIB_CONTEXT;
 
 #else
 struct GmmLibContext;
-typedef struct GmmLibContext GMM_GLOBAL_CONTEXT;
+typedef struct GmmLibContext GMM_GLOBAL_CONTEXT, GMM_LIB_CONTEXT;
 #endif
 
 

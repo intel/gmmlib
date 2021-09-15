@@ -72,6 +72,15 @@ extern "C" GMM_STATUS GMM_STDCALL GmmCreateSingletonContext(const PLATFORM Platf
                                                             const void *   pGtSysInfo)
 #endif
 {
+#if GMM_LIB_DLL_MA
+
+    // To be backward compatible and to use new Multi-Adapter API defined for creation of
+    // Adapter Singletoncontext, hardcoding BDF to {020}
+    ADAPTER_BDF sBdf = {0, 2, 0, 0};
+    return GmmCreateLibContext(Platform, pSkuTable, pWaTable, pGtSysInfo, sBdf);
+
+#else
+
     __GMM_ASSERTPTR(pSkuTable, GMM_ERROR);
     __GMM_ASSERTPTR(pWaTable, GMM_ERROR);
     __GMM_ASSERTPTR(pGtSysInfo, GMM_ERROR);
@@ -130,6 +139,7 @@ extern "C" GMM_STATUS GMM_STDCALL GmmCreateSingletonContext(const PLATFORM Platf
     {
         return GMM_ERROR;
     }
+#endif
 }
 
 
@@ -140,6 +150,12 @@ extern "C" GMM_STATUS GMM_STDCALL GmmCreateSingletonContext(const PLATFORM Platf
 /////////////////////////////////////////////////////////////////////////////////////
 extern "C" void GMM_STDCALL GmmDestroySingletonContext(void)
 {
+#if GMM_LIB_DLL_MA
+    // To be backward compatible and to use new Multi-Adapter API defined for destroy of
+    // Adapter Singletoncontext, hardcoding BDF to {020}
+    ADAPTER_BDF sBdf = {0, 2, 0, 0};
+    GmmLibContextFree(sBdf);
+#else
     GMM_STATUS SyncLockStatus = GmmLib::Context::LockSingletonContextSyncMutex();
     if(SyncLockStatus == GMM_SUCCESS)
     {
@@ -152,6 +168,604 @@ extern "C" void GMM_STDCALL GmmDestroySingletonContext(void)
         }
         GmmLib::Context::UnlockSingletonContextSyncMutex();
     }
+#endif
+}
+/////////////////////////////////////////////////////////////////////////////////////
+/// GMM lib DLL Multi Adapter Functions
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_MA_LIB_CONTEXT *pGmmMALibContext = NULL;
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Function to create GmmMultiAdapterContext Object
+/// Since Linux doesnt have DLL Main equivalent, adding __attribute__((constructor))
+/// for this GmmCreateMultiAdapterContext()
+/////////////////////////////////////////////////////////////////////////////////////
+extern "C" GMM_LIB_API_CONSTRUCTOR void GmmCreateMultiAdapterContext()
+{
+    if(!pGmmMALibContext)
+    {
+        pGmmMALibContext = new GMM_MA_LIB_CONTEXT();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Function to Destroy GmmMultiAdapterContext Object
+/// Since Linux doesnt have DLL Main equivalent, adding __attribute__((destructor))
+/// for this GmmDestroyMultiAdapterContext()
+/////////////////////////////////////////////////////////////////////////////////////
+extern "C" GMM_LIB_API_DESTRUCTOR void GmmDestroyMultiAdapterContext()
+{
+    if(pGmmMALibContext)
+    {
+        // Before destroying GmmMultiAdapterContext, check if all the Adapters have
+        // their GmmLibContext destroyed.
+        if(!pGmmMALibContext->GetNumAdapters())
+        {
+            delete pGmmMALibContext;
+            pGmmMALibContext = NULL;
+        }
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// GMM lib DLL function for creating Singleton Context (GmmLib::Context)
+/// object which shall be process singleton across all UMD clients within a process.
+/// @see        Class GmmLib::Context
+///
+/// @param[in]  Platform: platform variable. Includes product family (Haswell, Cherryview,
+///                       Broxton) with related render and display core revision (GEN3,
+//                        ..., GEN10)
+/// @param[in]  pSkuTable: Pointer to the sku feature table. Set of capabilities to
+///                        allow code paths to be feature based and GEN agnostic.
+/// @param[in]  pWaTable:  Pointer to the work around table. A set of anti-features,
+///                        often in early/prototype silicon that require work-arounds
+///                        until they are resolved to allow code paths to be GEN agnostic.
+/// @param[in]  pGtSysInfo: Pointer to the GT system info. Contains various GT System
+///                        Information such as EU counts, Thread Counts, Cache Sizes etc.
+/// @param[in]  sBDF: Adapter's BDF info for which SingletonContext has to be created
+/// @return     GMM_SUCCESS if Context is created, GMM_ERROR otherwise
+/////////////////////////////////////////////////////////////////////////////////////
+#ifdef _WIN32
+extern "C" GMM_STATUS GMM_STDCALL GmmCreateLibContext(const PLATFORM           Platform,
+                                                      const SKU_FEATURE_TABLE *pSkuTable,
+                                                      const WA_TABLE *         pWaTable,
+                                                      const GT_SYSTEM_INFO *   pGtSysInfo,
+                                                      ADAPTER_BDF              sBdf)
+#else
+extern "C" GMM_STATUS GMM_STDCALL GmmCreateLibContext(const PLATFORM Platform,
+                                                      const void *   pSkuTable,
+                                                      const void *   pWaTable,
+                                                      const void *   pGtSysInfo,
+                                                      ADAPTER_BDF    sBdf)
+#endif
+{
+    __GMM_ASSERTPTR(pSkuTable, GMM_ERROR);
+    __GMM_ASSERTPTR(pWaTable, GMM_ERROR);
+    __GMM_ASSERTPTR(pGtSysInfo, GMM_ERROR);
+
+    GMM_STATUS         Status = GMM_SUCCESS;
+    SKU_FEATURE_TABLE *skuTable;
+    WA_TABLE *         waTable;
+    GT_SYSTEM_INFO *   sysInfo;
+    GMM_LIB_CONTEXT *  pGmmLibContext = NULL;
+
+    skuTable = (SKU_FEATURE_TABLE *)pSkuTable;
+    waTable  = (WA_TABLE *)pWaTable;
+    sysInfo  = (GT_SYSTEM_INFO *)pGtSysInfo;
+
+    // If pGmmMALibContext object is NULL, return error as DLL load would have failed
+    if(!pGmmMALibContext)
+    {
+        return GMM_ERROR;
+    }
+
+    GMM_STATUS SyncLockStatus = pGmmMALibContext->LockMAContextSyncMutex();
+    if(SyncLockStatus == GMM_SUCCESS)
+    {
+        Status = pGmmMALibContext->IntializeAdapterInfo(sBdf);
+        if(GMM_SUCCESS != Status)
+        {
+            pGmmMALibContext->UnLockMAContextSyncMutex();
+            return GMM_ERROR;
+        }
+
+        int32_t ContextRefCount = pGmmMALibContext->IncrementRefCount(sBdf);
+        if(ContextRefCount)
+        {
+            pGmmMALibContext->UnLockMAContextSyncMutex();
+            return GMM_SUCCESS;
+        }
+
+        pGmmLibContext = new GMM_LIB_CONTEXT();
+        if(!pGmmLibContext)
+        {
+            pGmmMALibContext->DecrementRefCount(sBdf);
+            pGmmMALibContext->ReleaseAdapterInfo(sBdf);
+            pGmmMALibContext->UnLockMAContextSyncMutex();
+            return GMM_ERROR;
+        }
+
+        Status = (pGmmLibContext->InitContext(Platform, skuTable, waTable, sysInfo, GMM_KMD_VISTA));
+
+#if LHDM
+        // Intialize SingletonContext Data.
+        // TBD: ProcessHeap creation requires size and GfxAddress parameters. These parameters are contants
+        // and are given by GMM lib internally by PageTableMgr. Hence pHeapObj should be created here at the
+        // time of SingletonContext creation. But untill all UMD clients have moved to GMM DLL, then we will
+        // create this here.
+        pGmmLibContext->pHeapObj           = NULL;
+        pGmmLibContext->ProcessHeapCounter = 0;
+
+        // TBD: ProcessVA Gfx partition should be created here using VirtualAlloc at the time of SingletonContext
+        // creation. But untill all UMD clients have moved to GMM DLL, then we will
+        // create this here.
+        pGmmLibContext->ProcessVA        = {0};
+        pGmmLibContext->ProcessVACounter = 0;
+
+        pGmmLibContext->IsSVMReserved = 0;
+#endif
+
+        pGmmLibContext->sBdf = sBdf;
+
+        pGmmMALibContext->SetAdapterLibContext(sBdf, pGmmLibContext);
+
+        pGmmMALibContext->UnLockMAContextSyncMutex();
+
+        return Status;
+    }
+    else
+    {
+        return GMM_ERROR;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// GMM lib DLL function for deleting the Singleton Context.
+/// Reference Count will be decremented and once the reference count reaches 0,
+/// Singleton Context will be freeed in memory
+///
+/// @param[in] sbdf: Adapter's BDF info that needs its SingletonContext to be freed
+/////////////////////////////////////////////////////////////////////////////////////
+extern "C" void GMM_STDCALL GmmLibContextFree(ADAPTER_BDF sBdf)
+{
+    if(pGmmMALibContext)
+    {
+        __GMM_ASSERTPTR(pGmmMALibContext->GetAdapterLibContext(sBdf), VOIDRETURN);
+
+        GMM_STATUS SyncLockStatus = pGmmMALibContext->LockMAContextSyncMutex();
+        if(SyncLockStatus == GMM_SUCCESS)
+        {
+            int32_t ContextRefCount = pGmmMALibContext->DecrementRefCount(sBdf);
+            if(!ContextRefCount && pGmmMALibContext->GetAdapterLibContext(sBdf))
+            {
+                pGmmMALibContext->GetAdapterLibContext(sBdf)->DestroyContext();
+                delete pGmmMALibContext->GetAdapterLibContext(sBdf);
+                pGmmMALibContext->ReleaseAdapterInfo(sBdf);
+            }
+
+            pGmmMALibContext->UnLockMAContextSyncMutex();
+        }
+    }
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Constructor to zero initialize the GmmLib::GmmMultiAdapterContext object and create
+/// GmmMultiAdapterContext class object
+/////////////////////////////////////////////////////////////////////////////////////
+GmmLib::GmmMultiAdapterContext::GmmMultiAdapterContext()
+{
+    uint32_t i = 0;
+
+    memset(AdapterInfo, 0, sizeof(AdapterInfo));
+    NumAdapters = 0;
+
+    for(i = 0; i < MAX_NUM_ADAPTERS; i++)
+    {
+        // Initiaze bdf to 0xFF, as {0,0,0} can be valid bdf
+        AdapterInfo[i].sBdf = {0xFF, 0xFF, 0xFF, 0};
+#ifdef _WIN32
+        AdapterInfo[i].SyncMutex = ::CreateMutex(NULL, FALSE, NULL);
+#else
+        AdapterInfo[i].SyncMutex = PTHREAD_MUTEX_INITIALIZER;
+#endif // _WIN32
+    }
+
+#ifdef _WIN32
+    MAContextSyncMutex = ::CreateMutex(NULL, FALSE, NULL);
+#else
+    MAContextSyncMutex           = PTHREAD_MUTEX_INITIALIZER;
+#endif // _WIN32
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Destructor to free  GmmLib::GmmMultiAdapterContext object memory
+/////////////////////////////////////////////////////////////////////////////////////
+GmmLib::GmmMultiAdapterContext::~GmmMultiAdapterContext()
+{
+    uint32_t i = 0;
+
+    for(i = 0; i < MAX_NUM_ADAPTERS; i++)
+    {
+#ifdef _WIN32
+        if(AdapterInfo[i].SyncMutex)
+        {
+            ::CloseHandle(AdapterInfo[i].SyncMutex);
+            AdapterInfo[i].SyncMutex = NULL;
+        }
+#else
+        pthread_mutex_destroy(&AdapterInfo[i].SyncMutex);
+#endif // _WIN32
+    }
+
+#ifdef _WIN32
+    if(MAContextSyncMutex)
+    {
+        ::CloseHandle(MAContextSyncMutex);
+        MAContextSyncMutex = NULL;
+    }
+#else
+    pthread_mutex_destroy(&MAContextSyncMutex);
+#endif // _WIN32
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of GmmMultiAdapterContext class for initializing Adapter details
+///
+/// @param[in]  sBdf       : Adpater Bus, Device and Function details
+/// @return     GMM_STATUS
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::IntializeAdapterInfo(ADAPTER_BDF sBdf)
+{
+    GMM_STATUS Status = GMM_SUCCESS;
+    uint32_t   i      = 0;
+
+    for(i = 0; i < MAX_NUM_ADAPTERS; i++)
+    {
+        if((sBdf.Bus == AdapterInfo[i].sBdf.Bus) &&
+           (sBdf.Device == AdapterInfo[i].sBdf.Device) &&
+           (sBdf.Function == AdapterInfo[i].sBdf.Function))
+        {
+            break;
+        }
+    }
+
+    if(i < MAX_NUM_ADAPTERS)
+    {
+        // Already intialized, do nothing
+    }
+    else
+    {
+        // error check if NumAdapters is greater than MAX_NUM_ADAPTERS, then fail this call
+        if(NumAdapters == MAX_NUM_ADAPTERS)
+        {
+            Status = GMM_ERROR;
+        }
+        else
+        {
+            // Search for a free slot in the AdapterInfo Array to add this BDF
+            ADAPTER_BDF FreeSlotBdf = {0xFF, 0xFF, 0xFF, 0};
+            uint32_t    AdapterIdx  = GetAdapterIndex(FreeSlotBdf);
+
+            AdapterInfo[AdapterIdx].sBdf.Bus      = sBdf.Bus;
+            AdapterInfo[AdapterIdx].sBdf.Device   = sBdf.Device;
+            AdapterInfo[AdapterIdx].sBdf.Function = sBdf.Function;
+            NumAdapters++;
+        }
+    }
+
+    return Status;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of GmmMultiAdapterContext class for releasing Adapter details
+///
+/// @param[in]  sBdf       : Adpater Bus, Device and Fucntion details
+/// @return     GMM_STATUS
+/////////////////////////////////////////////////////////////////////////////////////
+void GMM_STDCALL GmmLib::GmmMultiAdapterContext::ReleaseAdapterInfo(ADAPTER_BDF sBdf)
+{
+    uint32_t AdapterIdx = GetAdapterIndex(sBdf);
+    if(AdapterIdx < MAX_NUM_ADAPTERS)
+    {
+        AdapterInfo[AdapterIdx].sBdf           = {0xFF, 0xFF, 0xFF, 0};
+        AdapterInfo[AdapterIdx].pGmmLibContext = NULL;
+        NumAdapters--;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of GmmMultiAdapterContext class for returning the AdapterIdx
+///
+/// @param[in]  sBdf       : Adpater Bus, Device and Fucntion details
+/// @return     Adpater Idx corresponding the given BDF.
+/////////////////////////////////////////////////////////////////////////////////////
+uint32_t GMM_STDCALL GmmLib::GmmMultiAdapterContext::GetAdapterIndex(ADAPTER_BDF sBdf)
+{
+    uint32_t AdapterIdx = 0;
+    for(AdapterIdx = 0; AdapterIdx < MAX_NUM_ADAPTERS; AdapterIdx++)
+    {
+        if((sBdf.Bus == AdapterInfo[AdapterIdx].sBdf.Bus) &&
+           (sBdf.Device == AdapterInfo[AdapterIdx].sBdf.Device) &&
+           (sBdf.Function == AdapterInfo[AdapterIdx].sBdf.Function))
+        {
+            break;
+        }
+    }
+
+    return AdapterIdx;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+/// Member function of GmmMultiAdapterContext class for returning the GmmLibContext
+///
+/// @param[in]  sBdf       : Adpater Bus, Device and Fucntion details
+/// @return     GmmLibContext corresponding the given BDF.
+//////////////////////////////////////////////////////////////////////////////////////
+GmmLib::Context *GMM_STDCALL GmmLib::GmmMultiAdapterContext::GetAdapterLibContext(ADAPTER_BDF sBdf)
+{
+    uint32_t AdapterIdx = GetAdapterIndex(sBdf);
+    if(AdapterIdx < MAX_NUM_ADAPTERS)
+    {
+        return AdapterInfo[AdapterIdx].pGmmLibContext;
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of GmmMultiAdapterContext class for setting the GmmLibContext
+///
+/// @param[in]  sBdf       : Adpater Bus, Device and Fucntion details
+/// @param[in]  pointer to GmmLibCOntext corresponding to the given BDF
+/// @return     void.
+/////////////////////////////////////////////////////////////////////////////////////
+void GMM_STDCALL GmmLib::GmmMultiAdapterContext::SetAdapterLibContext(ADAPTER_BDF sBdf, GmmLib::Context *pGmmLibContext)
+{
+    uint32_t AdapterIdx = GetAdapterIndex(sBdf);
+    if(AdapterIdx < MAX_NUM_ADAPTERS)
+    {
+        AdapterInfo[AdapterIdx].pGmmLibContext = pGmmLibContext;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of GmmMultiAdapterContext class for returning the NumAdapters
+/// that are intialized within a process
+///
+/// @return     Number of Adpaters that are opened and initialized within a process.
+/////////////////////////////////////////////////////////////////////////////////////
+uint32_t GMM_STDCALL GmmLib::GmmMultiAdapterContext::GetNumAdapters()
+{
+    return NumAdapters;
+}
+
+#ifdef _WIN32
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of GmmMultiAdapterContext class for Locking MultiAdapter Mutex
+/// SyncMutex to protect access of GmmMultiAdpaterContext object
+///
+/// @return     GMM_STATUS.
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::LockMAContextSyncMutex()
+{
+    if(MAContextSyncMutex)
+    {
+        while(WAIT_OBJECT_0 != ::WaitForSingleObject(MAContextSyncMutex, INFINITE))
+            ;
+        return GMM_SUCCESS;
+    }
+    else
+    {
+        return GMM_ERROR;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of GmmMultiAdapterContext class for UnLocking MultiAdapter Mutex
+/// SyncMutex to protect access of GmmMultiAdpaterContext
+///
+/// @return     GMM_STATUS.
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::UnLockMAContextSyncMutex()
+{
+    if(MAContextSyncMutex)
+    {
+        ::ReleaseMutex(MAContextSyncMutex);
+        return GMM_SUCCESS;
+    }
+    else
+    {
+        return GMM_ERROR;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of GmmMultiAdapterContext class for Locking Adpater's Mutex
+/// SyncMutex to protect access of GmmLibContext
+///
+/// @return     GMM_STATUS.
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::LockSingletonContextSyncMutex(ADAPTER_BDF sBdf)
+{
+    uint32_t AdapterIdx = GetAdapterIndex(sBdf);
+    if(AdapterIdx < MAX_NUM_ADAPTERS)
+    {
+        GMM_MUTEX_HANDLE SyncMutex = AdapterInfo[AdapterIdx].SyncMutex;
+
+        if(SyncMutex)
+        {
+            while(WAIT_OBJECT_0 != ::WaitForSingleObject(SyncMutex, INFINITE))
+                ;
+            return GMM_SUCCESS;
+        }
+        else
+        {
+            return GMM_ERROR;
+        }
+    }
+    else
+    {
+        return GMM_ERROR;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of GmmMultiAdapterContext class for UnLocking Adpater's Mutex
+/// SyncMutex to protect access of GmmLibContext
+///
+/// @return     GMM_STATUS.
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::UnlockSingletonContextSyncMutex(ADAPTER_BDF sBdf)
+{
+    uint32_t AdapterIdx = GetAdapterIndex(sBdf);
+    if(AdapterIdx < MAX_NUM_ADAPTERS)
+    {
+        GMM_MUTEX_HANDLE SyncMutex = AdapterInfo[AdapterIdx].SyncMutex;
+        if(SyncMutex)
+        {
+            ::ReleaseMutex(SyncMutex);
+            return GMM_SUCCESS;
+        }
+        else
+        {
+            return GMM_ERROR;
+        }
+    }
+    else
+    {
+        return GMM_ERROR;
+    }
+}
+
+#else // Non Win OS
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of GmmMultiAdapterContext class for Locking MultiAdapter Mutex
+///
+/// @return     GMM_STATUS.
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::LockMAContextSyncMutex()
+{
+    pthread_mutex_lock(&MAContextSyncMutex);
+    return GMM_SUCCESS;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of GmmMultiAdapterContext class for UnLocking MultiAdapter Mutex
+///
+/// @return     GMM_STATUS.
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::UnLockMAContextSyncMutex()
+{
+    pthread_mutex_unlock(&MAContextSyncMutex);
+    return GMM_SUCCESS;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of GmmMultiAdapterContext class for Locking Adpater's Mutex
+///
+/// @return     GMM_STATUS.
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::LockSingletonContextSyncMutex(ADAPTER_BDF sBdf)
+{
+    uint32_t AdapterIdx = GetAdapterIndex(sBdf);
+    if(AdapterIdx < MAX_NUM_ADAPTERS)
+    {
+        pthread_mutex_lock(&AdapterInfo[AdapterIdx].SyncMutex);
+        return GMM_SUCCESS;
+    }
+    else
+    {
+        return GMM_ERROR;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of GmmMultiAdapterContext class for UnLocking Adpater's Mutex
+///
+/// @return     GMM_STATUS.
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::UnlockSingletonContextSyncMutex(ADAPTER_BDF sBdf)
+{
+    uint32_t AdapterIdx = GetAdapterIndex(sBdf);
+    if(AdapterIdx < MAX_NUM_ADAPTERS)
+    {
+        pthread_mutex_unlock(&AdapterInfo[AdapterIdx].SyncMutex);
+        return GMM_SUCCESS;
+    }
+    else
+    {
+        return GMM_ERROR;
+    }
+}
+
+#endif //#ifdef _WIN32
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of GmmMultiAdapterContext class for Incrementing Adpater's Ref
+/// Count
+/// @param1     sBdf        Adpater's Bus, Device and Fucntion
+/// @return     Current value of the ref count.
+/////////////////////////////////////////////////////////////////////////////////////
+int32_t GMM_STDCALL GmmLib::GmmMultiAdapterContext::IncrementRefCount(ADAPTER_BDF sBdf)
+{
+    uint32_t AdapterIdx = GetAdapterIndex(sBdf);
+    if(AdapterIdx < MAX_NUM_ADAPTERS)
+    {
+        int32_t *Ref = &AdapterInfo[AdapterIdx].RefCount;
+
+#if defined(_WIN32)
+        return (InterlockedIncrement((LONG *)Ref) - 1); //InterLockedIncrement() returns incremented value
+#elif defined(__linux__) || defined(__QNX__)
+        return (__sync_fetch_and_add(Ref, 1));
+#endif
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of GmmMultiAdapterContext class for Decrementing Adpater's Ref
+/// Count
+/// @param1     sBdf        Adpater's Bus, Device and Fucntion
+/// @return     Current value of the ref count.
+/////////////////////////////////////////////////////////////////////////////////////
+int32_t GMM_STDCALL GmmLib::GmmMultiAdapterContext::DecrementRefCount(ADAPTER_BDF sBdf)
+{
+    uint32_t AdapterIdx = GetAdapterIndex(sBdf);
+    if(AdapterIdx < MAX_NUM_ADAPTERS)
+    {
+        int32_t *Ref          = &AdapterInfo[AdapterIdx].RefCount;
+        int      CurrentValue = 0;
+        int      TargetValue  = 0;
+        do
+        {
+            CurrentValue = *Ref;
+            if(CurrentValue > 0)
+            {
+                TargetValue = CurrentValue - 1;
+            }
+            else
+            {
+                break;
+            }
+#if defined(_WIN32)
+        } while(!(InterlockedCompareExchange((LONG *)Ref, TargetValue, CurrentValue) == CurrentValue));
+#elif defined(__linux__) || defined(__QNX__)
+        } while(!__sync_bool_compare_and_swap(Ref, CurrentValue, TargetValue));
+#endif
+
+        return TargetValue;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 #ifdef _WIN32
@@ -162,7 +776,11 @@ GMM_HEAP *GmmLib::Context::GetSharedHeapObject()
 {
     GMM_HEAP *pHeapObjOut = NULL;
     // Obtain ProcessSingleton Lock
+#if GMM_LIB_DLL_MA
+    pGmmMALibContext->LockSingletonContextSyncMutex(sBdf);
+#else
     GmmLib::Context::LockSingletonContextSyncMutex();
+#endif
 
     //Check if the ProcessHeapCounter is 0 or not, if not 0 increment the counter and return the heapObj
     // that is stored in the DLL Singleton context
@@ -173,7 +791,11 @@ GMM_HEAP *GmmLib::Context::GetSharedHeapObject()
     }
 
     // Unlock ProcessSingleton Lock
+#if GMM_LIB_DLL_MA
+    pGmmMALibContext->UnlockSingletonContextSyncMutex(sBdf);
+#else
     GmmLib::Context::UnlockSingletonContextSyncMutex();
+#endif
 
     return pHeapObjOut;
 }
@@ -184,7 +806,11 @@ uint32_t GmmLib::Context::SetSharedHeapObject(GMM_HEAP **pProcessHeapObj)
 {
     uint32_t DllClientsCount = 0;
     // Obtain ProcessSingleton Lock
+#if GMM_LIB_DLL_MA
+    pGmmMALibContext->LockSingletonContextSyncMutex(sBdf);
+#else
     GmmLib::Context::LockSingletonContextSyncMutex();
+#endif
 
     if(pProcessHeapObj)
     {
@@ -213,7 +839,11 @@ uint32_t GmmLib::Context::SetSharedHeapObject(GMM_HEAP **pProcessHeapObj)
     DllClientsCount = ProcessHeapCounter;
 
     // Unlock ProcessSingleton Lock
+#if GMM_LIB_DLL_MA
+    pGmmMALibContext->UnlockSingletonContextSyncMutex(sBdf);
+#else
     GmmLib::Context::UnlockSingletonContextSyncMutex();
+#endif
 
     return DllClientsCount;
 }
@@ -224,7 +854,11 @@ uint32_t GmmLib::Context::SetSharedHeapObject(GMM_HEAP **pProcessHeapObj)
 void GmmLib::Context::GetProcessGfxPartition(GMM_GFX_PARTITIONING *pProcessVA)
 {
     // Obtain ProcessSingleton Lock
+#if GMM_LIB_DLL_MA
+    pGmmMALibContext->LockSingletonContextSyncMutex(sBdf);
+#else
     GmmLib::Context::LockSingletonContextSyncMutex();
+#endif
 
     //Check if the ProcessVACounter is 0 or not, if not 0 increment the counter and return the ProcessVA
     // that is stored in the DLL Singleton context
@@ -238,7 +872,11 @@ void GmmLib::Context::GetProcessGfxPartition(GMM_GFX_PARTITIONING *pProcessVA)
     }
 
     // Unlock ProcessSingleton Lock
+#if GMM_LIB_DLL_MA
+    pGmmMALibContext->UnlockSingletonContextSyncMutex(sBdf);
+#else
     GmmLib::Context::UnlockSingletonContextSyncMutex();
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -247,7 +885,11 @@ void GmmLib::Context::GetProcessGfxPartition(GMM_GFX_PARTITIONING *pProcessVA)
 void GmmLib::Context::SetProcessGfxPartition(GMM_GFX_PARTITIONING *pProcessVA)
 {
     // Obtain ProcessSingleton Lock
+#if GMM_LIB_DLL_MA
+    pGmmMALibContext->LockSingletonContextSyncMutex(sBdf);
+#else
     GmmLib::Context::LockSingletonContextSyncMutex();
+#endif
 
     if(pProcessVA)
     {
@@ -274,7 +916,11 @@ void GmmLib::Context::SetProcessGfxPartition(GMM_GFX_PARTITIONING *pProcessVA)
     }
 
     // Unlock ProcessSingleton Lock
+#if GMM_LIB_DLL_MA
+    pGmmMALibContext->UnlockSingletonContextSyncMutex(sBdf);
+#else
     GmmLib::Context::UnlockSingletonContextSyncMutex();
+#endif
 }
 
 #endif // _WIN32

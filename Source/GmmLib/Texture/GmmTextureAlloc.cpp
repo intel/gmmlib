@@ -901,7 +901,7 @@ uint32_t VHeight, bool VHeightAlignmentNeeded)
             pPlatform->SurfaceStateYOffsetGranularity;
 
             // WA for PLANAR_420_* Formats...
-            if(pGmmGlobalContext->GetWaTable().WaSurfaceStatePlanarYOffsetAlignBy2 &&
+            if(pGmmLibContext->GetWaTable().WaSurfaceStatePlanarYOffsetAlignBy2 &&
                ((pTexInfo->Format == GMM_FORMAT_IMC1) ||
                 (pTexInfo->Format == GMM_FORMAT_IMC2) ||
                 (pTexInfo->Format == GMM_FORMAT_IMC3) ||
@@ -1322,8 +1322,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmTextureCalc::FillTexPlanar(GMM_TEXTURE_INFO * 
     // and width must be adjusted for correct size calculation
     if(GMM_IS_TILED(pPlatform->TileInfo[pTexInfo->TileMode]))
     {
-        uint32_t TileHeight = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
-        uint32_t TileWidth  = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileWidth;
+        uint32_t TileHeight = pGmmLibContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
+        uint32_t TileWidth  = pGmmLibContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileWidth;
 
         pTexInfo->OffsetInfo.Plane.IsTileAlignedPlanes = true;
 

@@ -49,12 +49,14 @@ BOOL APIENTRY DllMain(HINSTANCE hInst, DWORD Reason, LPVOID Reserved)
     switch(Reason)
     {
         case DLL_PROCESS_ATTACH:
+            GmmCreateMultiAdapterContext();
             break;
         case DLL_THREAD_ATTACH:
             break;
         case DLL_THREAD_DETACH:
             break;
         case DLL_PROCESS_DETACH:
+            GmmDestroyMultiAdapterContext();
             break;
     }
 
@@ -88,18 +90,29 @@ extern "C" GMM_LIB_API GMM_STATUS GMM_STDCALL OpenGmm(GmmExportEntries *pm_GmmFu
 // First Call to GMM Lib DLL/so to initialize singleton global context
 // and create client context
 /////////////////////////////////////////////////////////////////////////////////////
-extern "C" GMM_LIB_API GMM_STATUS GMM_STDCALL InitializeGmm(GMM_INIT_IN_ARGS *pInArgs, GMM_INIT_OUT_ARGS *pOutArgs)
+extern "C" GMM_LIB_API GMM_STATUS GMM_STDCALL InitializeGmm(GMM_INIT_IN_ARGS *pInArgs,
+		                                              GMM_INIT_OUT_ARGS *pOutArgs)
 {
     GMM_STATUS Status = GMM_ERROR;
+    ADAPTER_BDF stAdapterBDF;
 
     if(pInArgs && pOutArgs)
     {
+#ifdef _WIN32
+        stAdapterBDF = pInArgs->stAdapterBDF;
+#else
+    //ToDO: For Linux, Add the code to Get the Adapter BDF from Adapter FileDescriptor
+    //Hardcoding for now to 0 2 0
+        stAdapterBDF = {0, 2, 0, 0};
+#endif
 
-        Status = GmmCreateSingletonContext(pInArgs->Platform, pInArgs->pSkuTable, pInArgs->pWaTable, pInArgs->pGtSysInfo);
+        Status = GmmCreateLibContext(pInArgs->Platform, pInArgs->pSkuTable, pInArgs->pWaTable,
+			                                   pInArgs->pGtSysInfo, stAdapterBDF);
 
         if(Status == GMM_SUCCESS)
         {
-            pOutArgs->pGmmClientContext = GmmCreateClientContext(pInArgs->ClientType);
+            pOutArgs->pGmmClientContext = GmmCreateClientContextForAdapter(pInArgs->ClientType,
+			                                                          stAdapterBDF);
         }
     }
 
@@ -112,7 +125,7 @@ extern "C" GMM_LIB_API GMM_STATUS GMM_STDCALL InitializeGmm(GMM_INIT_IN_ARGS *pI
 /////////////////////////////////////////////////////////////////////////////////////
 extern "C" GMM_LIB_API void GMM_STDCALL GmmDestroy(GMM_INIT_OUT_ARGS *pInArgs)
 {
-    GmmDestroySingletonContext();
+    GmmLibContextFree(pInArgs->pGmmClientContext->GetLibContext()->sBdf);
     GmmDeleteClientContext(pInArgs->pGmmClientContext);
 }
 /////////////////////////////////////////////////////////////////////////////////////

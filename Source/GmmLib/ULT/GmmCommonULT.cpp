@@ -75,6 +75,9 @@ void CommonULT::SetUpTestCase()
     InArgs.pSkuTable  = &pGfxAdapterInfo->SkuTable;
     InArgs.pWaTable   = &pGfxAdapterInfo->WaTable;
     InArgs.Platform   = GfxPlatform;
+#ifdef _WIN32
+    InArgs.stAdapterBDF = {0, 2, 0, 0};
+#endif
 
     hGmmLib = dlopen(GMM_UMD_DLL, RTLD_LAZY);
     ASSERT_TRUE(hGmmLib);

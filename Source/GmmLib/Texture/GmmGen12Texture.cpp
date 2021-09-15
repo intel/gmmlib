@@ -175,8 +175,8 @@ GMM_STATUS GmmLib::GmmGen12TextureCalc::FillTexCCS(GMM_TEXTURE_INFO *pSurf,
           GMM_IS_64KB_TILE(Surf.Flags) || Surf.Flags.Info.TiledYf) ?
          1 :
          Surf.MSAA.NumSamples) *                                                                                         // MSAA (non-Depth/Stencil) RT samples stored as array planes.
-        ((GMM_IS_64KB_TILE(Surf.Flags) && !pGmmGlobalContext->GetSkuTable().FtrTileY && (Surf.MSAA.NumSamples == 16)) ? 4 : // MSAA x8/x16 stored as pseudo array planes each with 4x samples
-         (GMM_IS_64KB_TILE(Surf.Flags) && !pGmmGlobalContext->GetSkuTable().FtrTileY && (Surf.MSAA.NumSamples == 8)) ? 2 : 1);
+        ((GMM_IS_64KB_TILE(Surf.Flags) && !pGmmLibContext->GetSkuTable().FtrTileY && (Surf.MSAA.NumSamples == 16)) ? 4 : // MSAA x8/x16 stored as pseudo array planes each with 4x samples
+         (GMM_IS_64KB_TILE(Surf.Flags) && !pGmmLibContext->GetSkuTable().FtrTileY && (Surf.MSAA.NumSamples == 8)) ? 2 : 1);
 
         if(GMM_IS_64KB_TILE(Surf.Flags) || Surf.Flags.Info.TiledYf)
         {
@@ -236,7 +236,7 @@ GMM_STATUS GmmLib::GmmGen12TextureCalc::FillTexCCS(GMM_TEXTURE_INFO *pSurf,
                 pAuxTexInfo->Alignment.QPitch = GFX_ULONG_CAST(pAuxTexInfo->Size); //HW doesn't use QPitch for Aux except MCS, how'd AMFS get sw-filled non-zero QPitch?
 
                 pAuxTexInfo->Size *= ExpandedArraySize;
-                if(Surf.MSAA.NumSamples && !pGmmGlobalContext->GetSkuTable().FtrTileY)
+                if(Surf.MSAA.NumSamples && !pGmmLibContext->GetSkuTable().FtrTileY)
                 {
                     //MSAA Qpitch is sample-distance, multiply NumSamples in a tile
                     pAuxTexInfo->Size *= GFX_MIN(Surf.MSAA.NumSamples, 4);
@@ -323,8 +323,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTex2D(GMM_TEXTURE_INFO *
       (GMM_IS_64KB_TILE(pTexInfo->Flags) || pTexInfo->Flags.Info.TiledYf)) ? // MSAA Ys/Yf samples are ALSO stored as array planes, calculate size for single sample and expand it later.
      1 :
      pTexInfo->MSAA.NumSamples) *                                                                                              // MSAA (non-Depth/Stencil) RT samples stored as array planes.
-    ((GMM_IS_64KB_TILE(pTexInfo->Flags) && !pGmmGlobalContext->GetSkuTable().FtrTileY && (pTexInfo->MSAA.NumSamples == 16)) ? 4 : // MSAA x8/x16 stored as pseudo array planes each with 4x samples
-     (GMM_IS_64KB_TILE(pTexInfo->Flags) && !pGmmGlobalContext->GetSkuTable().FtrTileY && (pTexInfo->MSAA.NumSamples == 8)) ? 2 : 1);
+    ((GMM_IS_64KB_TILE(pTexInfo->Flags) && !pGmmLibContext->GetSkuTable().FtrTileY && (pTexInfo->MSAA.NumSamples == 16)) ? 4 : // MSAA x8/x16 stored as pseudo array planes each with 4x samples
+     (GMM_IS_64KB_TILE(pTexInfo->Flags) && !pGmmLibContext->GetSkuTable().FtrTileY && (pTexInfo->MSAA.NumSamples == 8)) ? 2 : 1);
 
     if(GMM_IS_64KB_TILE(pTexInfo->Flags) || pTexInfo->Flags.Info.TiledYf)
     {
@@ -874,7 +874,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
 
         pTexInfo->OffsetInfo.Plane.IsTileAlignedPlanes = true;
 
-        if(pTexInfo->Flags.Gpu.CCS && !pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS)
+        if(pTexInfo->Flags.Gpu.CCS && !pGmmLibContext->GetSkuTable().FtrFlatPhysCCS)
         {
             //U/V must be aligned to AuxT granularity, 4x pitchalign enforces 16K-align,
             //add extra padding for 64K AuxT
@@ -1232,12 +1232,12 @@ uint32_t GmmLib::GmmGen12TextureCalc::GetMipTailByteOffset(GMM_TEXTURE_INFO *pTe
 
     GMM_DPF_ENTER;
 
-    if(pGmmGlobalContext->GetSkuTable().FtrTileY)
+    if(pGmmLibContext->GetSkuTable().FtrTileY)
     {
         return GmmGen11TextureCalc::GetMipTailByteOffset(pTexInfo, MipLevel);
     }
     // 3D textures follow the Gen10 mip tail format
-    if(!pGmmGlobalContext->GetSkuTable().FtrStandardMipTailFormat)
+    if(!pGmmLibContext->GetSkuTable().FtrStandardMipTailFormat)
     {
         return GmmGen9TextureCalc::GetMipTailByteOffset(pTexInfo, MipLevel);
     }
@@ -1274,7 +1274,7 @@ void GmmLib::GmmGen12TextureCalc::GetMipTailGeometryOffset(GMM_TEXTURE_INFO *pTe
 
     GMM_DPF_ENTER;
 
-    if(pGmmGlobalContext->GetSkuTable().FtrTileY)
+    if(pGmmLibContext->GetSkuTable().FtrTileY)
     {
         return GmmGen11TextureCalc::GetMipTailGeometryOffset(pTexInfo, MipLevel, OffsetX, OffsetY, OffsetZ);
     }

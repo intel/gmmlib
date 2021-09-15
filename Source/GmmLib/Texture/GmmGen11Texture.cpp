@@ -349,7 +349,7 @@ void GmmLib::GmmGen11TextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTex
         if(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) > IGFX_GEN11LP_CORE)
         {
 
-            if(pTexInfo->Flags.Gpu.CCS && !pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS)
+            if(pTexInfo->Flags.Gpu.CCS && !pGmmLibContext->GetSkuTable().FtrFlatPhysCCS)
             {
                 //U/V must be aligned to AuxT granularity, for 16K AuxT- 4x pitchalign enforces it,
                 //add extra padding for 64K AuxT
@@ -371,7 +371,7 @@ void GmmLib::GmmGen11TextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTex
         }
 
 	// This is needed for FtrDisplayPageTables
-        if(pGmmGlobalContext->GetSkuTable().FtrDisplayPageTables)
+        if(pGmmLibContext->GetSkuTable().FtrDisplayPageTables)
         {
             pTexInfo->OffsetInfo.Plane.Aligned.Height[GMM_PLANE_Y] = GFX_ALIGN(YHeight, TileHeight);
             if(pTexInfo->OffsetInfo.Plane.NoOfPlanes == 2)

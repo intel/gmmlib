@@ -589,7 +589,7 @@ void GmmLib::GmmTextureCalc::GetResRestrictions(GMM_TEXTURE_INFO * pTexinfo,
     if(pTexinfo->Flags.Info.RenderCompressed ||
        pTexinfo->Flags.Info.MediaCompressed)
     {
-      if(pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS)
+      if(pGmmLibContext->GetSkuTable().FtrFlatPhysCCS)
         {
             Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, GMM_KBYTE(64));
         }

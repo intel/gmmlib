@@ -33,6 +33,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #define GMM_INLINE_EXPORTED                                            /* Macro To avoid inlining of exported member functions in Clients code in DLL mode*/
 
+#define GMM_LIB_DLL_MA                  0               // Macro to indicate whether GMM Lib DLL is Multi-Adapter capable. Todo: Make this a build macro
+
 #ifdef _WIN32
 
     #ifdef GMM_LIB_DLL_EXPORTS
@@ -41,12 +43,19 @@ OTHER DEALINGS IN THE SOFTWARE.
         #define GMM_LIB_API                     __declspec(dllimport)       /* Macro to define GMM Lib DLL imports */
     #endif  /* GMM_LIB_DLL_EXPORTS */
 
+#define GMM_LIB_API_CONSTRUCTOR
+#define GMM_LIB_API_DESTRUCTOR
+
 #else // Linux
     #ifdef GMM_LIB_DLL_EXPORTS
         #define GMM_LIB_API                     __attribute__ ((visibility ("default")))
     #else
         #define GMM_LIB_API
     #endif
+
+#define GMM_LIB_API_CONSTRUCTOR             __attribute__((constructor))
+#define GMM_LIB_API_DESTRUCTOR              __attribute__((destructor))
+
 #endif
 
 #else // !GMM_LIB_DLL
