@@ -106,7 +106,7 @@ namespace GmmLib
             return (ClientType);
         }
 
-	GMM_INLINE GMM_LIB_CONTEXT *GetLibContext()
+	GMM_INLINE_VIRTUAL GMM_LIB_CONTEXT *GetLibContext()
         {
             return pGmmLibContext;
         }

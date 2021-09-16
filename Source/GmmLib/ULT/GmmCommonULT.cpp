@@ -83,7 +83,7 @@ void CommonULT::SetUpTestCase()
     ASSERT_TRUE(hGmmLib);
 
     *(void **)(&pfnGmmInit)    = dlsym(hGmmLib, "InitializeGmm");
-    *(void **)(&pfnGmmDestroy) = dlsym(hGmmLib, "GmmDestroy");
+    *(void **)(&pfnGmmDestroy) = dlsym(hGmmLib, "GmmAdapterDestroy");
 
     ASSERT_TRUE(pfnGmmInit);
     ASSERT_TRUE(pfnGmmDestroy);

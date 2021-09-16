@@ -37,12 +37,13 @@ int32_t GmmLib::Context::RefCount = 0;
 #ifdef GMM_LIB_DLL
 
 // Create Mutex Object used for syncronization of ProcessSingleton Context
+#if !GMM_LIB_DLL_MA
 #ifdef _WIN32
 GMM_MUTEX_HANDLE GmmLib::Context::SingletonContextSyncMutex = ::CreateMutex(NULL, FALSE, NULL);
 #else
 GMM_MUTEX_HANDLE      GmmLib::Context::SingletonContextSyncMutex = PTHREAD_MUTEX_INITIALIZER;
 #endif // _WIN32
-
+#endif
 /////////////////////////////////////////////////////////////////////////////////////
 /// GMM lib DLL exported functions for creating Singleton Context (GmmLib::Context)
 /// object which shall be process singleton across all UMD clients within a process.
@@ -1199,7 +1200,7 @@ void GMM_STDCALL GmmLinkKmdContextToGlobalInfo(GMM_GLOBAL_CONTEXT *pGmmLibContex
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   const PlatformInfo ptr
 /////////////////////////////////////////////////////////////////////////
-const GMM_PLATFORM_INFO *GMM_STDCALL GmmGetPlatformInfo(GMM_GLOBAL_CONTEXT *pGmmLibContext)
+const GMM_PLATFORM_INFO *GMM_STDCALL GmmGetPlatformInfo(GMM_LIB_CONTEXT *pGmmLibContext)
 {
     return (&pGmmLibContext->GetPlatformInfo());
 }
@@ -1209,7 +1210,7 @@ const GMM_PLATFORM_INFO *GMM_STDCALL GmmGetPlatformInfo(GMM_GLOBAL_CONTEXT *pGmm
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   const cache policy elment ptr
 /////////////////////////////////////////////////////////////////////////
-const GMM_CACHE_POLICY_ELEMENT *GmmGetCachePolicyUsage(GMM_GLOBAL_CONTEXT *pGmmLibContext)
+const GMM_CACHE_POLICY_ELEMENT *GmmGetCachePolicyUsage(GMM_LIB_CONTEXT *pGmmLibContext)
 {
     return (pGmmLibContext->GetCachePolicyUsage());
 }
@@ -1219,7 +1220,7 @@ const GMM_CACHE_POLICY_ELEMENT *GmmGetCachePolicyUsage(GMM_GLOBAL_CONTEXT *pGmmL
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   TextureCalc ptr
 /////////////////////////////////////////////////////////////////////////
-GMM_TEXTURE_CALC *GmmGetTextureCalc(GMM_GLOBAL_CONTEXT *pGmmLibContext)
+GMM_TEXTURE_CALC *GmmGetTextureCalc(GMM_LIB_CONTEXT *pGmmLibContext)
 {
     return (pGmmLibContext->GetTextureCalc());
 }
@@ -1229,7 +1230,7 @@ GMM_TEXTURE_CALC *GmmGetTextureCalc(GMM_GLOBAL_CONTEXT *pGmmLibContext)
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   const SkuTable ptr
 /////////////////////////////////////////////////////////////////////////
-const SKU_FEATURE_TABLE *GmmGetSkuTable(GMM_GLOBAL_CONTEXT *pGmmLibContext)
+const SKU_FEATURE_TABLE *GmmGetSkuTable(GMM_LIB_CONTEXT *pGmmLibContext)
 {
     return (&pGmmLibContext->GetSkuTable());
 }
@@ -1239,7 +1240,7 @@ const SKU_FEATURE_TABLE *GmmGetSkuTable(GMM_GLOBAL_CONTEXT *pGmmLibContext)
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   const WaTable ptr
 /////////////////////////////////////////////////////////////////////////
-const WA_TABLE *GmmGetWaTable(GMM_GLOBAL_CONTEXT *pGmmLibContext)
+const WA_TABLE *GmmGetWaTable(GMM_LIB_CONTEXT *pGmmLibContext)
 {
     return (&pGmmLibContext->GetWaTable());
 }
@@ -1249,7 +1250,7 @@ const WA_TABLE *GmmGetWaTable(GMM_GLOBAL_CONTEXT *pGmmLibContext)
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   const GtSysInfo ptr
 /////////////////////////////////////////////////////////////////////////
-const GT_SYSTEM_INFO *GmmGetGtSysInfo(GMM_GLOBAL_CONTEXT *pGmmLibContext)
+const GT_SYSTEM_INFO *GmmGetGtSysInfo(GMM_LIB_CONTEXT *pGmmLibContext)
 {
     return (pGmmLibContext->GetGtSysInfoPtr());
 }
@@ -1262,7 +1263,7 @@ const GT_SYSTEM_INFO *GmmGetGtSysInfo(GMM_GLOBAL_CONTEXT *pGmmLibContext)
 /// @param[in]  PatIndex: PAT index
 /// @return   PAT Memory type
 /////////////////////////////////////////////////////////////////////////
-int32_t GmmGetPrivatePATTableMemoryType(GMM_GLOBAL_CONTEXT *pGmmLibContext, GMM_GFX_PAT_TYPE PatType)
+int32_t GmmGetPrivatePATTableMemoryType(GMM_LIB_CONTEXT *pGmmLibContext, GMM_GFX_PAT_TYPE PatType)
 {
     return (pGmmLibContext->GetPrivatePATTableMemoryType(PatType));
 }
@@ -1273,7 +1274,7 @@ int32_t GmmGetPrivatePATTableMemoryType(GMM_GLOBAL_CONTEXT *pGmmLibContext, GMM_
 /// @param[in]  PatIndex: PAT index
 /// @return   PAT entry
 /////////////////////////////////////////////////////////////////////////
-GMM_PRIVATE_PAT GmmGetPrivatePATEntry(GMM_GLOBAL_CONTEXT *pGmmLibContext, uint32_t PatIndex)
+GMM_PRIVATE_PAT GmmGetPrivatePATEntry(GMM_LIB_CONTEXT *pGmmLibContext, uint32_t PatIndex)
 {
     GMM_PRIVATE_PAT NullPAT = {0};
 
@@ -1291,7 +1292,7 @@ GMM_PRIVATE_PAT GmmGetPrivatePATEntry(GMM_GLOBAL_CONTEXT *pGmmLibContext, uint32
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   GmmKmdContext ptr
 /////////////////////////////////////////////////////////////////////////
-GMM_CONTEXT *GmmGetGmmKmdContext(GMM_GLOBAL_CONTEXT *pGmmLibContext)
+GMM_CONTEXT *GmmGetGmmKmdContext(GMM_LIB_CONTEXT *pGmmLibContext)
 {
     return (pGmmLibContext->GetGmmKmdContext());
 }
@@ -1301,7 +1302,7 @@ GMM_CONTEXT *GmmGetGmmKmdContext(GMM_GLOBAL_CONTEXT *pGmmLibContext)
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   GttContext ptr
 /////////////////////////////////////////////////////////////////////////
-GMM_GTT_CONTEXT *GmmGetGttContext(GMM_GLOBAL_CONTEXT *pGmmLibContext)
+GMM_GTT_CONTEXT *GmmGetGttContext(GMM_LIB_CONTEXT *pGmmLibContext)
 {
     return (pGmmLibContext->GetGttContext());
 }
@@ -1312,7 +1313,7 @@ GMM_GTT_CONTEXT *GmmGetGttContext(GMM_GLOBAL_CONTEXT *pGmmLibContext)
 /// @param[in]  Usage: cache policy resource usage type
 /// @return   cache policy tbl element
 ////////////////////////////////////////////////////////////////////////
-GMM_CACHE_POLICY_TBL_ELEMENT GmmGetCachePolicyTblElement(GMM_GLOBAL_CONTEXT *pGmmLibContext, GMM_RESOURCE_USAGE_TYPE Usage)
+GMM_CACHE_POLICY_TBL_ELEMENT GmmGetCachePolicyTblElement(GMM_LIB_CONTEXT *pGmmLibContext, GMM_RESOURCE_USAGE_TYPE Usage)
 {
     return (pGmmLibContext->GetCachePolicyTblElement(Usage));
 }
@@ -1323,7 +1324,7 @@ GMM_CACHE_POLICY_TBL_ELEMENT GmmGetCachePolicyTblElement(GMM_GLOBAL_CONTEXT *pGm
 /// @param[in]  Usage: cache policy resource usage type
 /// @return   cache policy element
 ////////////////////////////////////////////////////////////////////////
-GMM_CACHE_POLICY_ELEMENT GmmGetCachePolicyElement(GMM_GLOBAL_CONTEXT *pGmmLibContext, GMM_RESOURCE_USAGE_TYPE Usage)
+GMM_CACHE_POLICY_ELEMENT GmmGetCachePolicyElement(GMM_LIB_CONTEXT *pGmmLibContext, GMM_RESOURCE_USAGE_TYPE Usage)
 {
     return (pGmmLibContext->GetCachePolicyElement(Usage));
 }
@@ -1334,7 +1335,7 @@ GMM_CACHE_POLICY_ELEMENT GmmGetCachePolicyElement(GMM_GLOBAL_CONTEXT *pGmmLibCon
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @param[in]  SkuTable: platform based sku feature table
 ////////////////////////////////////////////////////////////////////////
-void GmmSetSkuTable(GMM_GLOBAL_CONTEXT *pGmmLibContext, SKU_FEATURE_TABLE SkuTable)
+void GmmSetSkuTable(GMM_LIB_CONTEXT *pGmmLibContext, SKU_FEATURE_TABLE SkuTable)
 {
     pGmmLibContext->SetSkuTable(SkuTable);
 }
@@ -1345,7 +1346,7 @@ void GmmSetSkuTable(GMM_GLOBAL_CONTEXT *pGmmLibContext, SKU_FEATURE_TABLE SkuTab
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @param[in]  WaTable: platform based workaround table
 ////////////////////////////////////////////////////////////////////////
-void GmmSetWaTable(GMM_GLOBAL_CONTEXT *pGmmLibContext, WA_TABLE WaTable)
+void GmmSetWaTable(GMM_LIB_CONTEXT *pGmmLibContext, WA_TABLE WaTable)
 {
     pGmmLibContext->SetWaTable(WaTable);
 }
@@ -1355,7 +1356,7 @@ void GmmSetWaTable(GMM_GLOBAL_CONTEXT *pGmmLibContext, WA_TABLE WaTable)
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   PlatformInfo ptr
 ////////////////////////////////////////////////////////////////////////
-GMM_PLATFORM_INFO *GmmKmdGetPlatformInfo(GMM_GLOBAL_CONTEXT *pGmmLibContext)
+GMM_PLATFORM_INFO *GmmKmdGetPlatformInfo(GMM_LIB_CONTEXT *pGmmLibContext)
 {
     return (&pGmmLibContext->GetPlatformInfo());
 }
@@ -1366,7 +1367,7 @@ GMM_PLATFORM_INFO *GmmKmdGetPlatformInfo(GMM_GLOBAL_CONTEXT *pGmmLibContext)
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   override PlatformInfo ptr
 ////////////////////////////////////////////////////////////////////////
-const GMM_PLATFORM_INFO *GmmGetOverridePlatformInfo(GMM_GLOBAL_CONTEXT *pGmmLibContext)
+const GMM_PLATFORM_INFO *GmmGetOverridePlatformInfo(GMM_LIB_CONTEXT *pGmmLibContext)
 {
     return (&pGmmLibContext->GetOverridePlatformInfo());
 }
@@ -1376,7 +1377,7 @@ const GMM_PLATFORM_INFO *GmmGetOverridePlatformInfo(GMM_GLOBAL_CONTEXT *pGmmLibC
 /// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
 /// @return   override Texture calc ptr
 ////////////////////////////////////////////////////////////////////////
-GMM_TEXTURE_CALC *GmmGetOverrideTextureCalc(GMM_GLOBAL_CONTEXT *pGmmLibContext)
+GMM_TEXTURE_CALC *GmmGetOverrideTextureCalc(GMM_LIB_CONTEXT *pGmmLibContext)
 {
     return (pGmmLibContext->GetOverrideTextureCalc());
 }
