@@ -359,6 +359,9 @@ GmmLib::GmmMultiAdapterContext::GmmMultiAdapterContext()
 
     memset(AdapterInfo, 0, sizeof(AdapterInfo));
     NumAdapters = 0;
+    pCpuReserveBase = NULL;
+    CpuReserveSize  = 0;
+
 
     for(i = 0; i < MAX_NUM_ADAPTERS; i++)
     {
@@ -719,7 +722,7 @@ int32_t GMM_STDCALL GmmLib::GmmMultiAdapterContext::IncrementRefCount(ADAPTER_BD
 
 #if defined(_WIN32)
         return (InterlockedIncrement((LONG *)Ref) - 1); //InterLockedIncrement() returns incremented value
-#elif defined(__linux__) || defined(__QNX__)
+#elif defined(__linux__)
         return (__sync_fetch_and_add(Ref, 1));
 #endif
     }
@@ -756,7 +759,7 @@ int32_t GMM_STDCALL GmmLib::GmmMultiAdapterContext::DecrementRefCount(ADAPTER_BD
             }
 #if defined(_WIN32)
         } while(!(InterlockedCompareExchange((LONG *)Ref, TargetValue, CurrentValue) == CurrentValue));
-#elif defined(__linux__) || defined(__QNX__)
+#elif defined(__linux__)
         } while(!__sync_bool_compare_and_swap(Ref, CurrentValue, TargetValue));
 #endif
 

@@ -574,6 +574,9 @@ typedef struct _GMM_ADAPTER_INFO_
         GMM_ADAPTER_INFO                AdapterInfo[MAX_NUM_ADAPTERS];
         GMM_MUTEX_HANDLE                MAContextSyncMutex;         // SyncMutex to protect access of GmmMultiAdpaterContext
         uint32_t                        NumAdapters;
+	void*                           pCpuReserveBase;
+	uint64_t                        CpuReserveSize;
+
     public:
         //Constructors and destructors
         GmmMultiAdapterContext();

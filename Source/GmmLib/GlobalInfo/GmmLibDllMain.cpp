@@ -98,6 +98,9 @@ extern "C" GMM_LIB_API GMM_STATUS GMM_STDCALL InitializeGmm(GMM_INIT_IN_ARGS *pI
 
     if(pInArgs && pOutArgs)
     {
+#if GMM_LIB_DLL_MA
+        ADAPTER_BDF stAdapterBDF;
+
 #ifdef _WIN32
         stAdapterBDF = pInArgs->stAdapterBDF;
 #else
@@ -114,6 +117,16 @@ extern "C" GMM_LIB_API GMM_STATUS GMM_STDCALL InitializeGmm(GMM_INIT_IN_ARGS *pI
             pOutArgs->pGmmClientContext = GmmCreateClientContextForAdapter(pInArgs->ClientType,
 			                                                          stAdapterBDF);
         }
+#else
+
+        Status = GmmCreateSingletonContext(pInArgs->Platform, pInArgs->pSkuTable, pInArgs->pWaTable, pInArgs->pGtSysInfo);
+
+        if(Status == GMM_SUCCESS)
+        {
+            pOutArgs->pGmmClientContext = GmmCreateClientContext(pInArgs->ClientType);
+        }
+
+#endif
     }
 
     return Status;
@@ -125,8 +138,18 @@ extern "C" GMM_LIB_API GMM_STATUS GMM_STDCALL InitializeGmm(GMM_INIT_IN_ARGS *pI
 /////////////////////////////////////////////////////////////////////////////////////
 extern "C" GMM_LIB_API void GMM_STDCALL GmmDestroy(GMM_INIT_OUT_ARGS *pInArgs)
 {
-    GmmLibContextFree(pInArgs->pGmmClientContext->GetLibContext()->sBdf);
-    GmmDeleteClientContext(pInArgs->pGmmClientContext);
+    if(pInArgs && pInArgs->pGmmClientContext)
+    {
+#if GMM_LIB_DLL_MA
+    ADAPTER_BDF stAdapterBDF = pInArgs->pGmmClientContext->GetLibContext()->sBdf;
+
+        GmmDeleteClientContext(pInArgs->pGmmClientContext);
+        GmmLibContextFree(stAdapterBDF);
+#else
+        GmmDeleteClientContext(pInArgs->pGmmClientContext);
+        GmmDestroySingletonContext();
+#endif
+    }
 }
 /////////////////////////////////////////////////////////////////////////////////////
 // Destroys singleton global context and client context
