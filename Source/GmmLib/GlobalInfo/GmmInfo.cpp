@@ -501,6 +501,11 @@ void GMM_STDCALL GmmLib::Context::OverrideSkuWa()
     {
         SkuTable.FtrTileY = true;
     }
+
+    if(GFX_GET_CURRENT_PRODUCT(this->GetPlatformInfo().Platform) == IGFX_PVC)
+    {
+        SkuTable.Ftr57bGPUAddressing = true;
+    }
 }
 
 #ifdef __GMM_KMD__ /*LINK CONTEXT TO GLOBAL*/

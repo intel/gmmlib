@@ -176,3 +176,36 @@ void CTestGen12dGPUCachePolicy::CheckL3Gen12dGPUCachePolicy()
         }
     }
 }
+
+void CTestXe_HP_CachePolicy::SetUpPlatformVariant(PRODUCT_FAMILY platform)
+{
+    printf("%s\n", __FUNCTION__);
+    CTestGen12dGPUCachePolicy::SetUpGen12dGPUVariant(platform);
+}
+
+void CTestXe_HP_CachePolicy::TearDownPlatformVariant()
+{
+    printf("%s\n", __FUNCTION__);
+    CTestGen12dGPUCachePolicy::TearDownGen12dGPUVariant();
+}
+
+void CTestXe_HP_CachePolicy::CheckL3CachePolicy()
+{
+    printf("%s\n", __FUNCTION__);
+    CTestGen12dGPUCachePolicy::CheckL3Gen12dGPUCachePolicy();
+}
+
+void CTestXe_HP_CachePolicy::SetUpTestCase()
+{
+}
+
+void CTestXe_HP_CachePolicy::TearDownTestCase()
+{
+}
+
+TEST_F(CTestXe_HP_CachePolicy, Test_PVC_CachePolicy)
+{
+    SetUpPlatformVariant(IGFX_PVC);
+    CheckL3CachePolicy();
+    TearDownPlatformVariant();
+}

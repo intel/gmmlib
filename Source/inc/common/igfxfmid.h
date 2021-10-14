@@ -73,6 +73,7 @@ typedef enum {
 
     IGFX_DG1  = 1210,
     IGFX_XE_HP_SDV = 1250,
+    IGFX_PVC = 1271,
 
     IGFX_MAX_PRODUCT,
     IGFX_GENNEXT               = 0x7ffffffe,
@@ -1602,6 +1603,13 @@ typedef enum __NATIVEGTTYPE
 #define PCH_DEV_ID_519D         0x519D
 #define PCH_DEV_ID_519E         0x519E
 #define PCH_DEV_ID_519F         0x519F
+
+//PVC Device ID
+#define DEV_ID_0BD0                            0x0BD0
+#define DEV_ID_0BD5                            0x0BD5
+
+// Macro to identify PVC device ID
+#define GFX_IS_XT_CONFIG(d) (d == DEV_ID_0BD5)
 
 #define MGM_HAS     0
 

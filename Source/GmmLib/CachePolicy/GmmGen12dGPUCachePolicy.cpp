@@ -134,6 +134,7 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
             {
                 case IGFX_DG1:
                 case IGFX_XE_HP_SDV:
+	        case IGFX_PVC:
                     StartMocsIdx = 1; // Index 0 is reserved for Error
                     break;
                 default:
@@ -147,7 +148,7 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
                 CPTblIdx = IsSpecialMOCSUsage((GMM_RESOURCE_USAGE_TYPE)Usage, SpecialMOCS);
             }
 
-            // Applicable upto only
+            // Applicable upto Xe_HP only
             if(pCachePolicy[Usage].HDCL1 &&
                (GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) <= IGFX_XE_HP_SDV))
             {
@@ -166,12 +167,18 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
                 UsageEle.L3.SCC = (uint16_t)pCachePolicy[Usage].L3_SCC;
             }
 
+	    if(GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_PVC)
+            {
+                pCachePolicy[Usage].GlbGo    = 0;
+                pCachePolicy[Usage].UcLookup = 0;
+            }
             // Go/Lookup
             // N/A for SpecialMOCS
-            // N/A for DG1, RKL
+            // N/A for DG1, RKL, PVC
             // Applicable for IGFX_XE_HP_SDV only
             if(!SpecialMOCS &&
-               (FROMPRODUCT(XE_HP_SDV)))
+               (FROMPRODUCT(XE_HP_SDV)) &&
+               (GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) != IGFX_PVC))
             {
                 if(pCachePolicy[Usage].L3 == 0)
                 {
@@ -369,7 +376,20 @@ void GmmLib::GmmGen12dGPUCachePolicy::SetUpMOCSTable()
         CurrentMaxSpecialMocsIndex  = 63;
 
     }
+    else if (GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_PVC) 
+     {
+         //Default MOCS Table
+        for(int index = 0; index < GMM_MAX_NUMBER_MOCS_INDEXES; index++)
+        {     //             Index     ESC	  SCC	  L3CC    Go      LookUp    HDCL1
+             GMM_DEFINE_MOCS( index  , 0     , 0     , 3     , 0     , 0       , 0 )
+        }
+         // Fixed MOCS Table
+        //              Index     ESC	  SCC	  L3CC    Go      LookUp    HDCL1
+        GMM_DEFINE_MOCS( 1      , 0     , 0     , 1     , 0     , 0       , 0 )
+        GMM_DEFINE_MOCS( 2      , 0     , 0     , 3     , 0     , 0       , 0 )
 
+        CurrentMaxMocsIndex         = 2;
+     }
 // clang-format on
 
 

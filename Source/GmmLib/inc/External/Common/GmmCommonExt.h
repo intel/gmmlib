@@ -117,6 +117,9 @@ typedef uint32_t GMM_GLOBAL_GFX_ADDRESS, GMM_GLOBAL_GFX_SIZE_T;
 #define GMM_GFX_ADDRESS_CANONIZE(a)     (((int64_t)(a) << (64 - 48)) >> (64 - 48)) // TODO(Minor): When GMM adds platform-dependent VA size caps, change from 48.
 #define GMM_GFX_ADDRESS_DECANONIZE(a)   ((uint64_t)(a) & (((uint64_t) 1 << 48) - 1)) // "
 
+#define GMM_GFX_PLATFORM_VA_SIZE(pClientContext)        (((pClientContext)->GetLibContext()->GetSkuTable().Ftr57bGPUAddressing) ? 57 : 48)
+#define VASize(pCC)                                     GMM_GFX_PLATFORM_VA_SIZE(pCC)
+
 #define GMM_BIT_RANGE(endbit, startbit)     ((endbit)-(startbit)+1)
 #define GMM_BIT(bit)                        (1)
 

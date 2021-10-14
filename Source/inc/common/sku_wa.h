@@ -105,7 +105,8 @@ typedef struct _SKU_FEATURE_TABLE
         unsigned int   FtrDisplayXTiling                : 1;  // Fallback to Legacy TileX Display, used for Pre-SI platforms.
         unsigned int   FtrMultiTileArch                 : 1;
 	unsigned int   FtrDisplayPageTables             : 1;  // Display Page Tables: 2-Level Page walk for Displayable Frame buffers in GGTT.
-   };
+        unsigned int   Ftr57bGPUAddressing              : 1;  // 57b GPUVA support eg: PVC
+    };
 
 
     struct //_sku_3d

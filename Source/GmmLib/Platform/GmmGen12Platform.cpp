@@ -313,6 +313,11 @@ FCRECTALIGN(TILE__64_2D_128bpe, 128,  32,  32,   32, 32);
         Data.NoOfBitsSupported                = 46;
         Data.HighestAcceptablePhysicalAddress = GFX_MASK_LARGE(0, 45);
     }
+    else if(GFX_GET_CURRENT_PRODUCT(Data.Platform) == IGFX_PVC)
+    {
+        Data.NoOfBitsSupported                = 52;
+        Data.HighestAcceptablePhysicalAddress = GFX_MASK_LARGE(0, 51);
+    }
 }
 
 void GmmLib::PlatformInfoGen12::ApplyExtendedTexAlign(uint32_t CCSMode, ALIGNMENT &UnitAlign)

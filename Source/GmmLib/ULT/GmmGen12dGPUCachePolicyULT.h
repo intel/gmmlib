@@ -42,4 +42,16 @@ public:
     static void SetUpTestCase();
     static void TearDownTestCase();
 };
+
+class CTestXe_HP_CachePolicy : public CTestGen12dGPUCachePolicy
+{
+protected:
+    virtual void SetUpPlatformVariant(PRODUCT_FAMILY);
+    virtual void TearDownPlatformVariant();
+    virtual void CheckL3CachePolicy();
+
+public:
+    static void SetUpTestCase();
+    static void TearDownTestCase();
+};
 #pragma once
