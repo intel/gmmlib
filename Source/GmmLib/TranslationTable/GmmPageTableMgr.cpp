@@ -43,7 +43,7 @@ Description: UMD-TT manager (manages both TR-TT and AUX-TT in user mode space)
     {                                    \
         LeaveCriticalSection(&PoolLock); \
     }
-
+extern GMM_MA_LIB_CONTEXT *pGmmMALibContext;
 #if defined(__linux__)
 GMM_STATUS GmmLib::__GmmDeviceAlloc(GmmClientContext *        pClientContext,
                                     GMM_DEVICE_CALLBACKS_INT *pDeviceCbInt,

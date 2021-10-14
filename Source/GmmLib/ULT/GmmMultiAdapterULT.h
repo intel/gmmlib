@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "stdafx.h"
 #include "GmmCommonULT.h"
 
-#define MAX_COUNT_PER_ADAPTER       3
+#define MAX_COUNT_PER_ADAPTER       5
 
 #ifdef _WIN32
 #define GMM_DLL_HANDLE      HINSTANCE
@@ -57,7 +57,7 @@ public:
     {
         switch (AdapterIdx)
         {
-        case 0:    return IGFX_COFFEELAKE;
+        case 0:   return IGFX_DG1;
         case 1:   return IGFX_ICELAKE;
         case 2:   return IGFX_TIGERLAKE_LP;
         default: break;
@@ -69,7 +69,7 @@ public:
     {
         switch (AdapterIdx)
         {
-        case 0:    return IGFX_GEN9_CORE;
+        case 0:   return IGFX_XE_HP_CORE;
         case 1:   return IGFX_GEN11LP_CORE;
         case 2:   return IGFX_GEN12LP_CORE;
         default: break;
@@ -81,9 +81,11 @@ public:
     {
         switch (CountIdx)
         {
-        case 0:    return GMM_D3D9_VISTA;
+        case 0:   return GMM_D3D9_VISTA;
         case 1:   return GMM_D3D10_VISTA;
         case 2:   return GMM_D3D12_VISTA;
+	case 3:   return GMM_EXCITE_VISTA;
+	case 4:   return GMM_OCL_VISTA;
         default: break;
         }
         return GMM_D3D9_VISTA;
@@ -93,7 +95,7 @@ public:
     {
         switch (AdapterIdx)
         {
-        case 0:   return { 0, 2, 0, 0 };
+        case 0:   return { 2, 0, 2, 0 };
         case 1:   return { 1, 0, 0, 0 };
         case 2:   return { 2, 0, 1, 0 };
         default: break;

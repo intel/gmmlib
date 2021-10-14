@@ -65,7 +65,7 @@ void MACommonULT::LoadGmmDll(uint32_t AdapterIdx, uint32_t CountIdx)
     ASSERT_TRUE(hGmmLib[AdapterIdx][CountIdx]);
 
     *(void **)(&pfnGmmInit[AdapterIdx][CountIdx])    = dlsym(hGmmLib[AdapterIdx][CountIdx], "InitializeGmm");
-    *(void **)(&pfnGmmDestroy[AdapterIdx][CountIdx]) = dlsym(hGmmLib[AdapterIdx][CountIdx], "GmmDestroy");
+    *(void **)(&pfnGmmDestroy[AdapterIdx][CountIdx]) = dlsym(hGmmLib[AdapterIdx][CountIdx], "GmmAdapterDestroy");
 
     ASSERT_TRUE(pfnGmmInit[AdapterIdx][CountIdx]);
     ASSERT_TRUE(pfnGmmDestroy[AdapterIdx][CountIdx]);
@@ -96,8 +96,29 @@ void MACommonULT::GmmInitModule(uint32_t AdapterIdx, uint32_t CountIdx)
         }
         memset(pGfxAdapterInfo[AdapterIdx][CountIdx], 0, sizeof(ADAPTER_INFO));
         pGfxAdapterInfo[AdapterIdx][CountIdx]->SkuTable.FtrTileY = 1; // Legacy TileY
-    }
 
+	if(GfxPlatform[AdapterIdx][CountIdx].eRenderCoreFamily >= IGFX_GEN12_CORE)
+        {
+
+            pGfxAdapterInfo[AdapterIdx][CountIdx]->SkuTable.FtrWddm2GpuMmu              = 1;
+            pGfxAdapterInfo[AdapterIdx][CountIdx]->SkuTable.FtrUserModeTranslationTable = 1;
+            pGfxAdapterInfo[AdapterIdx][CountIdx]->SkuTable.FtrE2ECompression           = 1;
+            pGfxAdapterInfo[AdapterIdx][CountIdx]->SkuTable.FtrLinearCCS                = 1;
+            pGfxAdapterInfo[AdapterIdx][CountIdx]->SkuTable.FtrTileY                    = 1;
+            pGfxAdapterInfo[AdapterIdx][CountIdx]->SkuTable.FtrLLCBypass                = 0;
+	    pGfxAdapterInfo[AdapterIdx][CountIdx]->SkuTable.FtrWddm2Svm                 = 0;
+        }
+
+        if(IGFX_DG1 == GfxPlatform[AdapterIdx][CountIdx].eProductFamily)
+        {
+            pGfxAdapterInfo[AdapterIdx][CountIdx]->SkuTable.FtrLinearCCS             = 1;
+            pGfxAdapterInfo[AdapterIdx][CountIdx]->SkuTable.FtrStandardMipTailFormat = 1;
+            pGfxAdapterInfo[AdapterIdx][CountIdx]->SkuTable.FtrTileY                 = 0;
+            pGfxAdapterInfo[AdapterIdx][CountIdx]->SkuTable.FtrLocalMemory           = 1;
+            pGfxAdapterInfo[AdapterIdx][CountIdx]->SkuTable.FtrWddm2_1_64kbPages     = 1;
+        }
+
+    }
 
     InArgs[AdapterIdx][CountIdx].ClientType = GetClientType(CountIdx);
     InArgs[AdapterIdx][CountIdx].pGtSysInfo = &pGfxAdapterInfo[AdapterIdx][CountIdx]->SystemInfo;

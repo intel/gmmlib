@@ -136,7 +136,7 @@ extern "C" GMM_LIB_API GMM_STATUS GMM_STDCALL InitializeGmm(GMM_INIT_IN_ARGS *pI
 /// Destroys singleton global context and client context
 ///
 /////////////////////////////////////////////////////////////////////////////////////
-extern "C" GMM_LIB_API void GMM_STDCALL GmmDestroy(GMM_INIT_OUT_ARGS *pInArgs)
+extern "C" GMM_LIB_API void GMM_STDCALL GmmAdapterDestroy(GMM_INIT_OUT_ARGS *pInArgs)
 {
     if(pInArgs && pInArgs->pGmmClientContext)
     {
@@ -154,7 +154,7 @@ extern "C" GMM_LIB_API void GMM_STDCALL GmmDestroy(GMM_INIT_OUT_ARGS *pInArgs)
 /////////////////////////////////////////////////////////////////////////////////////
 // Destroys singleton global context and client context
 /////////////////////////////////////////////////////////////////////////////////////
-extern "C" GMM_LIB_API void GMM_STDCALL GmmAdapterDestroy(GMM_INIT_OUT_ARGS *pInArgs)
+extern "C" GMM_LIB_API void GMM_STDCALL GmmDestroy(GMM_INIT_OUT_ARGS *pInArgs)
 {
     if(pInArgs && pInArgs->pGmmClientContext)
     {
