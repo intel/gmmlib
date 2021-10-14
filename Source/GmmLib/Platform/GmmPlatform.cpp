@@ -22,8 +22,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Internal/Common/GmmLibInc.h"
 
-extern GMM_GLOBAL_CONTEXT *pGmmGlobalContext;
-
 GmmLib::PlatformInfo::PlatformInfo(PLATFORM &Platform, Context *pGmmLibContext)
 {
     GMM_DPF_ENTER;

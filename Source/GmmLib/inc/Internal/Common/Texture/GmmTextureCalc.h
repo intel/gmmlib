@@ -43,9 +43,6 @@ namespace GmmLib
     {
         private:
 
-            static int32_t RefCount;
-            static int32_t OverrideRefCount;
-
             GMM_STATUS      FillTexBlockMem(
                                 GMM_TEXTURE_INFO    *pTexInfo,
                                 __GMM_BUFFER_TYPE   *pRestrictions);

@@ -141,14 +141,6 @@ namespace GmmLib
                 pClientContext(),
                 MultiTileArch()
             {
-#if (!defined(__GMM_KMD__) && !defined(GMM_UNIFIED_LIB))
-                // For clients, who derive classes from GMM class and call their derived class constructors
-                if (pGmmGlobalContext) // Client ULT does new on ResInfo without calling GmmInitGlobalContext.
-                {
-                    pClientContext = pGmmGlobalContext->pGmmGlobalClientContext;
-                    GET_GMM_CLIENT_TYPE(pClientContext, ClientType);
-                }
-#endif
             }
 
 #ifndef __GMM_KMD__

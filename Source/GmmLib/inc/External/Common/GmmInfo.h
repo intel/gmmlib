@@ -79,7 +79,9 @@ namespace GmmLib
     class NON_PAGED_SECTION Context : public GmmMemAllocator
     {
     private:
-        static int32_t                   RefCount;
+#if(!defined(__GMM_KMD__) && !GMM_LIB_DLL_MA)
+	static int32_t                   RefCount;
+#endif
         GMM_CLIENT                       ClientType;
         GMM_PLATFORM_INFO_CLASS*         pPlatformInfo;
 
@@ -121,6 +123,7 @@ namespace GmmLib
         Context();
         ~Context();
 
+#if(!defined(__GMM_KMD__) && (!GMM_LIB_DLL_MA))
         static int32_t IncrementRefCount()  // Returns the current RefCount and then increment it
         {
 #if defined(_WIN32)
@@ -153,7 +156,7 @@ namespace GmmLib
 
             return TargetValue;
         }
-
+#endif
         GMM_STATUS GMM_STDCALL InitContext(
                                     const PLATFORM& Platform,
                                     const SKU_FEATURE_TABLE* pSkuTable,

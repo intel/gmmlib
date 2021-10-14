@@ -22,9 +22,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Internal/Common/GmmLibInc.h"
 
-int32_t GmmLib::GmmTextureCalc::RefCount = 0;
-
-
 /////////////////////////////////////////////////////////////////////////////////////
 /// This functions sets the Tile Mode of the graphics surface
 ///

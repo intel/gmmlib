@@ -254,16 +254,6 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
 
     GMM_DPF_ENTER;
 
-#if(!defined(__GMM_KMD__) && !defined(GMM_UNIFIED_LIB))
-    // Client ULT does new on ResInfo without calling GmmInitGlobalContext. If they call create later, on the previously created
-    // ResInfo object set the clientContext for them, since clientContext wouldnt have been set
-    if(!pClientContext)
-    {
-        pClientContext = pGmmGlobalContext->pGmmGlobalClientContext;
-        GET_GMM_CLIENT_TYPE(pClientContext, ClientType);
-    }
-#endif
-
 #if defined(__GMM_KMD__)
     ClientType = GMM_KMD_VISTA;
     pGmmKmdLibContext = reinterpret_cast<uint64_t>(&GmmLibContext);

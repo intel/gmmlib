@@ -359,7 +359,7 @@ int SwizzleOffset( // ##########################################################
 
 { // ###########################################################################
 
-    static char PDepSupported = -1; // AVX2/BMI2 PDEP (Parallel Deposit) Instruction
+    char PDepSupported = -1; // AVX2/BMI2 PDEP (Parallel Deposit) Instruction
 
     int SwizzledOffset; // Return value being computed.
 
@@ -668,7 +668,7 @@ void CpuSwizzleBlt( // #########################################################
             #define MAX_XFER_WIDTH  16  // See "Compute Transfer Dimensions".
             #define MAX_XFER_HEIGHT 4   // "
 
-            static char StreamingLoadSupported = -1; // SSE4.1: MOVNTDQA
+            char StreamingLoadSupported = -1; // SSE4.1: MOVNTDQA
 
             int TileWidthBits = POPCNT16(pSwizzledSurface->pSwizzle->Mask.x);   // Log2(Tile Width in Bytes)
             int TileHeightBits = POPCNT16(pSwizzledSurface->pSwizzle->Mask.y);  // Log2(Tile Height)

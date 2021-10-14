@@ -43,9 +43,6 @@ GmmLib::GmmClientContext::GmmClientContext(GMM_CLIENT ClientType)
       DeviceCB(),
       IsDeviceCbReceived(0)
 {
-    this->ClientType = ClientType;
-    this->pGmmLibContext = pGmmGlobalContext;
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

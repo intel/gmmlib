@@ -31,17 +31,6 @@ extern "C" {
 // Set packing alignment
 #pragma pack(push, 8)
 
-//===========================================================================
-// Global Variable:
-//      pGmmGlobalContext
-//
-// Description:
-//     Handle to global GMM structure containing GMM context and platform info.
-//
-//----------------------------------------------------------------------------
-
-extern GMM_GLOBAL_CONTEXT *pGmmGlobalContext;
-
 //***************************************************************************
 //
 //                      GMM_GLOBAL_CONTEXT API

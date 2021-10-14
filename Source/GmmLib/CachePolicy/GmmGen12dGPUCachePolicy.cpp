@@ -168,7 +168,7 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
                 UsageEle.L3.SCC = (uint16_t)pCachePolicy[Usage].L3_SCC;
             }
 
-	    if(GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_PVC)
+	    if(GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) == IGFX_PVC)
             {
                 pCachePolicy[Usage].GlbGo    = 0;
                 pCachePolicy[Usage].UcLookup = 0;
@@ -179,7 +179,7 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
             // Applicable for IGFX_XE_HP_SDV only
             if(!SpecialMOCS &&
                (FROMPRODUCT(XE_HP_SDV)) &&
-               (GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) != IGFX_PVC))
+               (GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) != IGFX_PVC))
             {
                 if(pCachePolicy[Usage].L3 == 0)
                 {
@@ -378,7 +378,7 @@ void GmmLib::GmmGen12dGPUCachePolicy::SetUpMOCSTable()
         CurrentMaxSpecialMocsIndex  = 63;
 
     }
-    else if (GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_PVC) 
+    else if (GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) == IGFX_PVC)
      {
          //Default MOCS Table
         for(int index = 0; index < GMM_MAX_NUMBER_MOCS_INDEXES; index++)

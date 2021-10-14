@@ -22,17 +22,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Internal/Common/GmmLibInc.h"
 
-//===========================================================================
-// Global Variable:
-//      pGmmGlobalContext
-//
-// Description:
-//     Handle to global GMM structure containing GMM context and platform info.
-//
-//----------------------------------------------------------------------------
-GMM_GLOBAL_CONTEXT *pGmmGlobalContext = NULL;
-
+#if(!defined(__GMM_KMD__) && !GMM_LIB_DLL_MA)
 int32_t GmmLib::Context::RefCount = 0;
+#endif
 
 #ifdef GMM_LIB_DLL
 
@@ -80,66 +72,6 @@ extern "C" GMM_STATUS GMM_STDCALL GmmCreateSingletonContext(const PLATFORM Platf
     ADAPTER_BDF sBdf = {0, 2, 0, 0};
     return GmmCreateLibContext(Platform, pSkuTable, pWaTable, pGtSysInfo, sBdf);
 
-#else
-
-    __GMM_ASSERTPTR(pSkuTable, GMM_ERROR);
-    __GMM_ASSERTPTR(pWaTable, GMM_ERROR);
-    __GMM_ASSERTPTR(pGtSysInfo, GMM_ERROR);
-
-    GMM_STATUS         Status = GMM_SUCCESS;
-    SKU_FEATURE_TABLE *skuTable;
-    WA_TABLE *         waTable;
-    GT_SYSTEM_INFO *   sysInfo;
-
-    skuTable = (SKU_FEATURE_TABLE *)pSkuTable;
-    waTable  = (WA_TABLE *)pWaTable;
-    sysInfo  = (GT_SYSTEM_INFO *)pGtSysInfo;
-
-
-    GMM_STATUS SyncLockStatus = GmmLib::Context::LockSingletonContextSyncMutex();
-    if(SyncLockStatus == GMM_SUCCESS)
-    {
-        int32_t ContextRefCount = GmmLib::Context::IncrementRefCount();
-        if(ContextRefCount)
-        {
-            GmmLib::Context::UnlockSingletonContextSyncMutex();
-            return GMM_SUCCESS;
-        }
-
-        pGmmGlobalContext = new GMM_GLOBAL_CONTEXT();
-        if(!pGmmGlobalContext)
-        {
-            GmmLib::Context::DecrementRefCount();
-            GmmLib::Context::UnlockSingletonContextSyncMutex();
-            return GMM_ERROR;
-        }
-
-        Status = (pGmmGlobalContext->InitContext(Platform, skuTable, waTable, sysInfo, GMM_KMD_VISTA));
-
-#ifdef _WIN32
-        // Intialize SingletonContext Data.
-        // TBD: ProcessHeap creation requires size and GfxAddress parameters. These parameters are contants
-        // and are given by GMM lib internally by PageTableMgr. Hence pHeapObj should be created here at the
-        // time of SingletonContext creation. But untill all UMD clients have moved to GMM DLL, then we will
-        // create this here.
-        pGmmGlobalContext->pHeapObj           = NULL;
-        pGmmGlobalContext->ProcessHeapCounter = 0;
-
-        // TBD: ProcessVA Gfx partition should be created here using VirtualAlloc at the time of SingletonContext
-        // creation. But untill all UMD clients have moved to GMM DLL, then we will
-        // create this here.
-        pGmmGlobalContext->ProcessVA        = {0};
-        pGmmGlobalContext->ProcessVACounter = 0;
-#endif
-
-        GmmLib::Context::UnlockSingletonContextSyncMutex();
-
-        return Status;
-    }
-    else ///< Error in Acquiring SyncLock, return Error
-    {
-        return GMM_ERROR;
-    }
 #endif
 }
 
@@ -156,19 +88,6 @@ extern "C" void GMM_STDCALL GmmDestroySingletonContext(void)
     // Adapter Singletoncontext, hardcoding BDF to {020}
     ADAPTER_BDF sBdf = {0, 2, 0, 0};
     GmmLibContextFree(sBdf);
-#else
-    GMM_STATUS SyncLockStatus = GmmLib::Context::LockSingletonContextSyncMutex();
-    if(SyncLockStatus == GMM_SUCCESS)
-    {
-        int32_t ContextRefCount = GmmLib::Context::DecrementRefCount();
-        if(!ContextRefCount && pGmmGlobalContext)
-        {
-            pGmmGlobalContext->DestroyContext();
-            delete pGmmGlobalContext;
-            pGmmGlobalContext = NULL;
-        }
-        GmmLib::Context::UnlockSingletonContextSyncMutex();
-    }
 #endif
 }
 /////////////////////////////////////////////////////////////////////////////////////

@@ -38,7 +38,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #endif
 
 /// Logger instance shared by all of GmmLib within a process
+#if(_DEBUG || _RELEASE_INTERNAL)
 GmmLib::Logger &GmmLoggerPerProc = GmmLib::Logger::CreateGmmLogSingleton();
+#endif
 
 #if _WIN32
 namespace spdlog
