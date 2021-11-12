@@ -69,6 +69,7 @@ GmmLib::PlatformInfo *GmmLib::PlatformInfo::Create(PLATFORM Platform, bool Overr
         case IGFX_GEN12LP_CORE:
         case IGFX_GEN12_CORE:
         case IGFX_XE_HP_CORE:
+	case IGFX_XE_HPG_CORE:
             return new GmmLib::PlatformInfoGen12(Platform);
             break;
         case IGFX_GEN11_CORE:
@@ -109,7 +110,8 @@ GmmLib::GmmCachePolicyCommon *GmmLib::GmmCachePolicyCommon::Create()
             case IGFX_GEN12LP_CORE:
             case IGFX_GEN12_CORE:
             case IGFX_XE_HP_CORE:
-                if(pGmmGlobalContext->GetSkuTable().FtrLocalMemory)
+	    case IGFX_XE_HPG_CORE:
+		if(pGmmGlobalContext->GetSkuTable().FtrLocalMemory)
                 {
                     pGmmCachePolicy = new GmmLib::GmmGen12dGPUCachePolicy(CachePolicy);
                 }
@@ -180,6 +182,7 @@ GmmLib::GmmTextureCalc *GmmLib::GmmTextureCalc::Create(PLATFORM Platform, uint8_
         case IGFX_GEN12LP_CORE:
         case IGFX_GEN12_CORE:
         case IGFX_XE_HP_CORE:
+	case IGFX_XE_HPG_CORE:
         default:
             return new GmmGen12TextureCalc();
             break;
