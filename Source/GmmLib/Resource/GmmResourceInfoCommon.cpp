@@ -254,15 +254,9 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
 
     GMM_DPF_ENTER;
 
-#if defined(__GMM_KMD__)
-    ClientType = GMM_KMD_VISTA;
-    pGmmKmdLibContext = reinterpret_cast<uint64_t>(&GmmLibContext);
-    __GMM_ASSERTPTR(pGmmKmdLibContext, GMM_ERROR);
-#else
     GET_GMM_CLIENT_TYPE(pClientContext, ClientType);
     pGmmUmdLibContext = reinterpret_cast<uint64_t>(&GmmLibContext);
     __GMM_ASSERTPTR(pGmmUmdLibContext, GMM_ERROR);
-#endif
 
     if(CreateParams.Flags.Info.ExistingSysMem &&
        (CreateParams.Flags.Info.TiledW ||

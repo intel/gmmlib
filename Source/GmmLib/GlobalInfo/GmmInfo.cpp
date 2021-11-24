@@ -860,25 +860,14 @@ GmmLib::Context::Context()
       SkuTable(),
       WaTable(),
       GtSysInfo(),
-#if(defined(__GMM_KMD__))
-      GttContext(),
-#endif
       pGmmKmdContext(),
       pGmmUmdContext(),
       pKmdHwDev(),
       pUmdAdapter(),
       pGmmCachePolicy()
-#if(defined(__GMM_KMD__))
-      ,
-      IA32ePATTable()
-#endif
 {
     memset(CachePolicy, 0, sizeof(CachePolicy));
     memset(CachePolicyTbl, 0, sizeof(CachePolicyTbl));
-#if(defined(__GMM_KMD__))
-    memset(PrivatePATTable, 0, sizeof(PrivatePATTable));
-    memset(PrivatePATTableMemoryType, 0, sizeof(PrivatePATTableMemoryType));
-#endif
 
     //Default initialize 64KB Page padding percentage.
     AllowedPaddingFor64KbPagesPercentage = 10;
@@ -1098,21 +1087,6 @@ GMM_PLATFORM_INFO_CLASS *GMM_STDCALL GmmLib::Context::CreatePlatformInfo(PLATFOR
     }
 }
 
-#ifdef __GMM_KMD__ /*LINK CONTEXT TO GLOBAL*/
-//=============================================================================
-// Function:
-//      GmmLinkKmdContextToGlobalInfo
-//
-// Description:
-//      Links KMD GMM_CONTEXT to GMM Global struct
-//-----------------------------------------------------------------------------
-void GMM_STDCALL GmmLinkKmdContextToGlobalInfo(GMM_GLOBAL_CONTEXT *pGmmLibContext, GMM_CONTEXT *pGmmKmdContext)
-{
-    __GMM_ASSERTPTR(pGmmKmdContext, VOIDRETURN);
-    pGmmLibContext->SetGmmKmdContext(pGmmKmdContext);
-}
-#endif /*__GMM_KMD__ LINK CONTEXT TO GLOBAL*/
-
 //C - Wrappers
 /////////////////////////////////////////////////////////////////////////
 /// C-wrapper to get the PlatformInfo ptr
@@ -1174,132 +1148,3 @@ const GT_SYSTEM_INFO *GmmGetGtSysInfo(GMM_LIB_CONTEXT *pGmmLibContext)
     return (pGmmLibContext->GetGtSysInfoPtr());
 }
 
-#ifdef __GMM_KMD__
-
-/////////////////////////////////////////////////////////////////////////
-/// C-wrapper to get the private PAT table memory type for a given PAT type
-/// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
-/// @param[in]  PatIndex: PAT index
-/// @return   PAT Memory type
-/////////////////////////////////////////////////////////////////////////
-int32_t GmmGetPrivatePATTableMemoryType(GMM_LIB_CONTEXT *pGmmLibContext, GMM_GFX_PAT_TYPE PatType)
-{
-    return (pGmmLibContext->GetPrivatePATTableMemoryType(PatType));
-}
-
-/////////////////////////////////////////////////////////////////////////
-/// C-wrapper to get the private PAT table entry for a given PAT index
-/// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
-/// @param[in]  PatIndex: PAT index
-/// @return   PAT entry
-/////////////////////////////////////////////////////////////////////////
-GMM_PRIVATE_PAT GmmGetPrivatePATEntry(GMM_LIB_CONTEXT *pGmmLibContext, uint32_t PatIndex)
-{
-    GMM_PRIVATE_PAT NullPAT = {0};
-
-    if(PatIndex >= GMM_NUM_PAT_ENTRIES)
-    {
-        GMM_ASSERTDPF(false, "CRITICAL ERROR: INVALID PAT IDX");
-        return NullPAT;
-    }
-
-    return pGmmLibContext->GetPrivatePATEntry(PatIndex);
-}
-
-/////////////////////////////////////////////////////////////////////////
-/// C-wrapper to get the gmm kmd context ptr
-/// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
-/// @return   GmmKmdContext ptr
-/////////////////////////////////////////////////////////////////////////
-GMM_CONTEXT *GmmGetGmmKmdContext(GMM_LIB_CONTEXT *pGmmLibContext)
-{
-    return (pGmmLibContext->GetGmmKmdContext());
-}
-
-/////////////////////////////////////////////////////////////////////////
-/// C-wrapper to get gtt context ptr
-/// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
-/// @return   GttContext ptr
-/////////////////////////////////////////////////////////////////////////
-GMM_GTT_CONTEXT *GmmGetGttContext(GMM_LIB_CONTEXT *pGmmLibContext)
-{
-    return (pGmmLibContext->GetGttContext());
-}
-
-/////////////////////////////////////////////////////////////////////////
-/// C-wrapper to get the  Cache policy tbl element for a given usage type
-/// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
-/// @param[in]  Usage: cache policy resource usage type
-/// @return   cache policy tbl element
-////////////////////////////////////////////////////////////////////////
-GMM_CACHE_POLICY_TBL_ELEMENT GmmGetCachePolicyTblElement(GMM_LIB_CONTEXT *pGmmLibContext, GMM_RESOURCE_USAGE_TYPE Usage)
-{
-    return (pGmmLibContext->GetCachePolicyTblElement(Usage));
-}
-
-/////////////////////////////////////////////////////////////////////////
-/// C-wrapper to get the Cache policy element for a given usage type
-/// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
-/// @param[in]  Usage: cache policy resource usage type
-/// @return   cache policy element
-////////////////////////////////////////////////////////////////////////
-GMM_CACHE_POLICY_ELEMENT GmmGetCachePolicyElement(GMM_LIB_CONTEXT *pGmmLibContext, GMM_RESOURCE_USAGE_TYPE Usage)
-{
-    return (pGmmLibContext->GetCachePolicyElement(Usage));
-}
-
-/////////////////////////////////////////////////////////////////////////
-/// C-wrapper to reset  the sku Table after  GmmInitContext() could have
-/// changed them since original latching
-/// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
-/// @param[in]  SkuTable: platform based sku feature table
-////////////////////////////////////////////////////////////////////////
-void GmmSetSkuTable(GMM_LIB_CONTEXT *pGmmLibContext, SKU_FEATURE_TABLE SkuTable)
-{
-    pGmmLibContext->SetSkuTable(SkuTable);
-}
-
-/////////////////////////////////////////////////////////////////////////
-/// C-wrapper to reset the Wa Table after  GmmInitContext() could have
-/// changed them since original latching
-/// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
-/// @param[in]  WaTable: platform based workaround table
-////////////////////////////////////////////////////////////////////////
-void GmmSetWaTable(GMM_LIB_CONTEXT *pGmmLibContext, WA_TABLE WaTable)
-{
-    pGmmLibContext->SetWaTable(WaTable);
-}
-
-/////////////////////////////////////////////////////////////////////////
-/// C-wrapper to get the Platform info ptr to kmd
-/// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
-/// @return   PlatformInfo ptr
-////////////////////////////////////////////////////////////////////////
-GMM_PLATFORM_INFO *GmmKmdGetPlatformInfo(GMM_LIB_CONTEXT *pGmmLibContext)
-{
-    return (&pGmmLibContext->GetPlatformInfo());
-}
-
-#if(_DEBUG || _RELEASE_INTERNAL)
-/////////////////////////////////////////////////////////////////////////
-/// C-wrapper to get the override Platform info ptr to kmd
-/// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
-/// @return   override PlatformInfo ptr
-////////////////////////////////////////////////////////////////////////
-const GMM_PLATFORM_INFO *GmmGetOverridePlatformInfo(GMM_LIB_CONTEXT *pGmmLibContext)
-{
-    return (&pGmmLibContext->GetOverridePlatformInfo());
-}
-
-/////////////////////////////////////////////////////////////////////////
-/// C-wrapper to get the override Texture calc ptr to kmd
-/// @param[in]  pGmmLibContext: ptr to GMM_GLOBAL_CONTEXT
-/// @return   override Texture calc ptr
-////////////////////////////////////////////////////////////////////////
-GMM_TEXTURE_CALC *GmmGetOverrideTextureCalc(GMM_LIB_CONTEXT *pGmmLibContext)
-{
-    return (pGmmLibContext->GetOverrideTextureCalc());
-}
-#endif
-
-#endif

@@ -91,7 +91,6 @@ void CommonULT::SetUpTestCase()
     pfnGmmInit(&InArgs, &OutArgs);
     pGmmULTClientContext = OutArgs.pGmmClientContext;
 
-
     ASSERT_TRUE(pGmmULTClientContext);
 }
 

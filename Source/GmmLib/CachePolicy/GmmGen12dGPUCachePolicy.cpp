@@ -112,11 +112,8 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
 
 #if(_WIN32 && (_DEBUG || _RELEASE_INTERNAL))
         void *pKmdGmmContext = NULL;
-#if(defined(__GMM_KMD__))
-        pKmdGmmContext = pGmmLibContext->GetGmmKmdContext();
-#endif
 
-        OverrideCachePolicy(pKmdGmmContext);
+	OverrideCachePolicy(pKmdGmmContext);
 #endif
 
         // Process the cache policy and fill in the look up table

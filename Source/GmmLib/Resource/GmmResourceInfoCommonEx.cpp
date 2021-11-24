@@ -326,13 +326,6 @@ Surf.BitsPerPixel = BitsPerPixel;
         MultiTileArch = CreateParams.MultiTileArch;
     }
 
-#ifdef __GMM_KMD__
-    if(Surf.Flags.Gpu.S3d)
-    {
-        Surf.S3d = CreateParams.S3d;
-    }
-#endif
-
     return true;
 }
 

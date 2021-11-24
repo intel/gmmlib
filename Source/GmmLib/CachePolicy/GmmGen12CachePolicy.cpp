@@ -27,11 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "External/Common/CachePolicy/GmmCachePolicyGen11.h"
 #include "External/Common/CachePolicy/GmmCachePolicyGen12.h"
 
-#if __GMM_KMD__
-extern "C" NTSTATUS __GmmReadDwordKeyValue(void *pKmdGmmContext, char *pPath, WCHAR *pValueName, ULONG *pValueData);
-extern "C" NTSTATUS __GmmWriteDwordKeyValue(void *pKmdGmmContext, char *pCStringPath, WCHAR *pValueName, ULONG DWord);
-#endif
-
 //=============================================================================
 //
 // Function: IsSpecialMOCSUsage
@@ -165,9 +160,6 @@ GMM_STATUS GmmLib::GmmGen12CachePolicy::InitCachePolicy()
 
 #if(_WIN32 && (_DEBUG || _RELEASE_INTERNAL))
         void *pKmdGmmContext = NULL;
-#if(defined(__GMM_KMD__))
-        pKmdGmmContext = pGmmLibContext->GetGmmKmdContext();
-#endif
 
         OverrideCachePolicy(pKmdGmmContext);
 #endif
@@ -345,13 +337,6 @@ GMM_STATUS GmmLib::GmmGen12CachePolicy::InitCachePolicy()
 #endif
                 {
                     GMM_ASSERTDPF(false, "CRITICAL ERROR: Cache Policy Usage value specified by Client is not defined in Fixed MOCS Table!");
-
-// Log Error using regkey to indicate the above error
-#if(_WIN32 && (_DEBUG || _RELEASE_INTERNAL) && __GMM_KMD__)
-                    REGISTRY_OVERRIDE_WRITE(pKmdGmmContext, Usage, NewMOCSEntryLeCCValue, UsageEle.LeCC.DwordValue);
-                    REGISTRY_OVERRIDE_WRITE(pKmdGmmContext, Usage, NewMOCSEntryL3Value, UsageEle.L3.UshortValue);
-                    REGISTRY_OVERRIDE_WRITE(pKmdGmmContext, Usage, NewMOCSEntryHDCL1, UsageEle.HDCL1);
-#endif
 
                     CachePolicyError = true;
                     GMM_ASSERTDPF(
