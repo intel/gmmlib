@@ -34,9 +34,9 @@ bool GmmLib::GmmResourceInfoCommon::IsPresentableformat()
     const GMM_FORMAT_ENTRY * FormatTable = NULL;
 
     GMM_DPF_ENTER;
-    __GMM_ASSERTPTR(pGmmGlobalContext, false);
+    __GMM_ASSERTPTR(GetGmmLibContext(), false);
 
-    pPlatform   = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
+    pPlatform   = GMM_OVERRIDE_PLATFORM_INFO(&Surf, GetGmmLibContext());
     FormatTable = &(pPlatform->FormatTable[0]);
 
     if(Surf.Flags.Gpu.Presentable == false)
@@ -75,7 +75,7 @@ void GmmLib::GmmResourceInfoCommon::GetRestrictions(__GMM_BUFFER_TYPE &Restricti
     GMM_DPF_ENTER;
 
     GMM_TEXTURE_CALC *pTextureCalc = NULL;
-    pTextureCalc                   = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pTextureCalc                   = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
     pTextureCalc->GetResRestrictions(&Surf, Restrictions);
 
     GMM_DPF_EXIT;
@@ -175,7 +175,7 @@ __GMM_BUFFER_TYPE *GmmLib::GmmTextureCalc::GetBestRestrictions(__GMM_BUFFER_TYPE
 void GmmLib::GmmTextureCalc::GetGenericRestrictions(GMM_TEXTURE_INFO *pTexInfo, __GMM_BUFFER_TYPE *pBuff)
 {
     GMM_DPF_ENTER;
-    const GMM_PLATFORM_INFO *pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     if(pTexInfo->Flags.Gpu.NoRestriction)
     {
@@ -446,9 +446,9 @@ void GmmLib::GmmTextureCalc::GetResRestrictions(GMM_TEXTURE_INFO * pTexinfo,
     const GMM_PLATFORM_INFO *pPlatform = NULL;
     GMM_RESOURCE_FLAG        ZeroGpuFlags;
 
-    __GMM_ASSERTPTR(pGmmGlobalContext, VOIDRETURN);
+    __GMM_ASSERTPTR(pGmmLibContext, VOIDRETURN);
 
-    pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexinfo);
+    pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexinfo, pGmmLibContext);
 
     // Check that at least one usage flag is set for allocations other than
     // Primary/Shadow/Staging.
@@ -547,14 +547,14 @@ void GmmLib::GmmTextureCalc::GetResRestrictions(GMM_TEXTURE_INFO * pTexinfo,
         Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, GMM_KBYTE(32));
     }
 
-    if(pGmmGlobalContext->GetWaTable().WaAlignContextImage && (pTexinfo->Type == RESOURCE_HW_CONTEXT))
+    if(pGmmLibContext->GetWaTable().WaAlignContextImage && (pTexinfo->Type == RESOURCE_HW_CONTEXT))
     {
         Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, GMM_KBYTE(64));
     }
 
     if(pTexinfo->Flags.Gpu.S3d &&
        pTexinfo->Flags.Info.Linear &&
-       !pGmmGlobalContext->GetSkuTable().FtrDisplayEngineS3d)
+       !pGmmLibContext->GetSkuTable().FtrDisplayEngineS3d)
     {
         Restrictions.Alignment      = PAGE_SIZE;
         Restrictions.PitchAlignment = PAGE_SIZE;
@@ -573,7 +573,7 @@ void GmmLib::GmmTextureCalc::GetResRestrictions(GMM_TEXTURE_INFO * pTexinfo,
 
         if(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN9_CORE)
         {
-            pGmmGlobalContext->GetPlatformInfo().SurfaceMaxSize = GMM_TBYTE(1);
+            pGmmLibContext->GetPlatformInfo().SurfaceMaxSize = GMM_TBYTE(1);
         }
     }
 
@@ -589,13 +589,13 @@ void GmmLib::GmmTextureCalc::GetResRestrictions(GMM_TEXTURE_INFO * pTexinfo,
     if(pTexinfo->Flags.Info.RenderCompressed ||
        pTexinfo->Flags.Info.MediaCompressed)
     {
-      if(pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS)
+      if(pGmmLibContext->GetSkuTable().FtrFlatPhysCCS)
         {
             Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, GMM_KBYTE(64));
         }
         else // only for platforms having auxtable
         {
-            Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, (!WA16K ? GMM_KBYTE(64) : GMM_KBYTE(16)));
+            Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, (!WA16K(pGmmLibContext) ? GMM_KBYTE(64) : GMM_KBYTE(16)));
         }
     }
 
@@ -624,8 +624,8 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
 
     GMM_DPF_ENTER;
 
-    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo);
+    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, GetGmmLibContext());
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo, GetGmmLibContext());
 
     Height = pTexInfo->BaseHeight;
     Width  = pTexInfo->BaseWidth;
@@ -683,8 +683,8 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
     !((pTexInfo->Type == RESOURCE_BUFFER) && GmmIsYUVPacked(pTexInfo->Format)));
 
     // Convert to compression blocks, if applicable...
-    if(GmmIsCompressed(pTexInfo->Format))
-    {
+    if(GmmIsCompressed(GetGmmLibContext(), pTexInfo->Format))
+     {
         pTextureCalc->GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
         Width  = GFX_CEIL_DIV(Width, CompressWidth);
@@ -705,7 +705,7 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
 
             // 3DSTATE_INDEX_BUFFER...
             UPDATE_BASE_ALIGNMENT(4); // 32-bit worst-case, since GMM doesn't receive element-size from clients.
-            if(pGmmGlobalContext->GetWaTable().WaAlignIndexBuffer)
+            if(GetGmmLibContext()->GetWaTable().WaAlignIndexBuffer)
             {
                 UPDATE_END_ALIGNMENT(64);
             }
@@ -742,12 +742,12 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
         {
             UPDATE_BASE_ALIGNMENT(1); // Sampler supports byte alignment (with performance hit if misaligned).
 
-            if(pGmmGlobalContext->GetWaTable().WaNoMinimizedTrivialSurfacePadding)
+            if(GetGmmLibContext()->GetWaTable().WaNoMinimizedTrivialSurfacePadding)
             {
                 if(pTexInfo->Type == RESOURCE_BUFFER)
                 {
-                    if(pGmmGlobalContext->GetWaTable().WaNoBufferSamplerPadding)
-                    {
+                    if(GetGmmLibContext()->GetWaTable().WaNoBufferSamplerPadding)
+                     {
                         // Client agreeing to take responsibility for flushing L3 after sampling/etc.
                     }
                     else
@@ -774,7 +774,7 @@ GMM_STATUS GmmLib::GmmResourceInfoCommon::ApplyExistingSysMemRestrictions()
 
                     __GMM_ASSERT((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN8_CORE));
 
-                    if(GmmIsCompressed(pTexInfo->Format))
+                    if(GmmIsCompressed(GetGmmLibContext(), pTexInfo->Format))
                     {
                         // "For compressed textures...padding at the bottom of the surface is to an even compressed row."
                         UPDATE_PADDING(pTexInfo->Pitch * 2); // (Sampler arch confirmed that even-row is sufficient on BDW despite BDW's 4x4 sampling, since this req is from L2 instead of L1.)

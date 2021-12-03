@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *pTexInfo)
 {
     GMM_STATUS               Status    = GMM_SUCCESS;
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     if(!pTexInfo->Flags.Gpu.CCS &&
        !pTexInfo->Flags.Gpu.MCS &&
@@ -181,9 +181,9 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
             pTexInfo->Flags.Info.TiledW  = 0;
             pTexInfo->Flags.Info.TiledX  = 0;
             pTexInfo->Flags.Info.TiledYf = 0;
+            GMM_SET_64KB_TILE(pTexInfo->Flags, 0, pGmmLibContext);
+            GMM_SET_4KB_TILE(pTexInfo->Flags, 1, pGmmLibContext);
 
-            GMM_SET_64KB_TILE(pTexInfo->Flags, 0);
-            GMM_SET_4KB_TILE(pTexInfo->Flags, 1);
         }
         else
         {
@@ -205,7 +205,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
         __GMM_ASSERT((pTexInfo->MSAA.NumSamples == 1) || (pTexInfo->MSAA.NumSamples == 2) || (pTexInfo->MSAA.NumSamples == 4) ||
                      (pTexInfo->MSAA.NumSamples == 8) || (pTexInfo->MSAA.NumSamples == 16));
 
-        Status = pGmmGlobalContext->GetTextureCalc()->MSAACCSUsage(pTexInfo);
+        Status = pGmmLibContext->GetTextureCalc()->MSAACCSUsage(pTexInfo);
 
         if(!pTexInfo->Flags.Gpu.__NonMsaaLinearCCS)
         {
@@ -215,8 +215,8 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
             pTexInfo->Flags.Info.TiledX  = 0;
             pTexInfo->Flags.Info.TiledYf = 0;
 
-            GMM_SET_64KB_TILE(pTexInfo->Flags, 0);
-            GMM_SET_4KB_TILE(pTexInfo->Flags, 1);
+            GMM_SET_64KB_TILE(pTexInfo->Flags, 0, pGmmLibContext);
+            GMM_SET_4KB_TILE(pTexInfo->Flags, 1, pGmmLibContext);
 
             //Clear compression request in CCS
             pTexInfo->Flags.Info.RenderCompressed = 0;
@@ -241,15 +241,15 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
                 GMM_ASSERTDPF((pTexInfo->MaxLod == 0), "Stencil Buffer LOD's not supported!");
             }
 
-            if(pGmmGlobalContext->GetSkuTable().FtrTileY)
+            if(pGmmLibContext->GetSkuTable().FtrTileY)
             {
                 // Separate Stencil Tile-W Gen8-Gen11, otherwise Tile-Y
                 pTexInfo->Flags.Info.Linear  = 0;
                 pTexInfo->Flags.Info.TiledX  = 0;
                 pTexInfo->Flags.Info.TiledYf = 0;
                 pTexInfo->Flags.Info.TiledW  = 0;
-                GMM_SET_4KB_TILE(pTexInfo->Flags, 0);
-                GMM_SET_64KB_TILE(pTexInfo->Flags, 0);
+                GMM_SET_4KB_TILE(pTexInfo->Flags, 0, pGmmLibContext);
+                GMM_SET_64KB_TILE(pTexInfo->Flags, 0, pGmmLibContext);
 
                 if(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE &&
                    GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) <= IGFX_GEN11_CORE)
@@ -258,7 +258,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
                 }
                 else
                 {
-                    GMM_SET_4KB_TILE(pTexInfo->Flags, 1);
+                    GMM_SET_4KB_TILE(pTexInfo->Flags, 1, pGmmLibContext);
                 }
             }
             else

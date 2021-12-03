@@ -364,7 +364,7 @@ typedef struct __GMM_PLATFORM_RESOURCE_REC
 //                      GMM_PLATFORM_INFO API
 //
 //***************************************************************************
-uint32_t GMM_STDCALL GmmPlatformGetBppFromGmmResourceFormat(GMM_RESOURCE_FORMAT Format);
+uint32_t GMM_STDCALL GmmPlatformGetBppFromGmmResourceFormat(void *pLibContext, GMM_RESOURCE_FORMAT Format);
 
 // Reset packing alignment to project default
 #pragma pack(pop)

@@ -38,17 +38,18 @@ namespace GmmLib
                                             GMM_GFX_MEMORY_TYPE MT2, GMM_GFX_TARGET_CACHE TC2);
             bool            GetUsagePTEValue(GMM_CACHE_POLICY_ELEMENT  CachePolicy,
                 uint32_t                     Usage,
-                uint32_t                    *pPTEDwordValue);
+                uint64_t                    *pPTEDwordValue);
 
             /* Virtual function prototypes */
             virtual uint32_t BestMatchingPATIdx(GMM_CACHE_POLICY_ELEMENT CachePolicy);
 
         public:
             /* Constructors */
-            GmmGen8CachePolicy(GMM_CACHE_POLICY_ELEMENT *pCachePolicy) :GmmCachePolicyCommon(pCachePolicy)
-            {
+            GmmGen8CachePolicy(GMM_CACHE_POLICY_ELEMENT *pCachePolicyContext, Context *pGmmLibContext)
+                : GmmCachePolicyCommon(pCachePolicyContext, pGmmLibContext)            
+	    {
                 #if(defined(__GMM_KMD__))
-                //if (GFX_IS_SKU(pGmmGlobalContext, FtrIA32eGfxPTEs))
+                //if (GFX_IS_SKU(pGmmLibContext, FtrIA32eGfxPTEs))
                 {
                     // Set the WA's needed for Private PAT initialization
                     SetPATInitWA();

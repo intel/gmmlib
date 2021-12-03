@@ -61,7 +61,7 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::InitCachePolicy()
         for(; Usage < GMM_RESOURCE_USAGE_MAX; Usage++)
         {
             bool     CachePolicyError = false;
-            uint32_t PTEValue         = 0;
+            uint64_t PTEValue         = 0;
 
             if(pCachePolicy[Usage].LLC && pCachePolicy[Usage].ELLC && pCachePolicy[Usage].L3)
                 pCachePolicy[Usage].MemoryObjectOverride.Gen8.TargetCache = MO_L3_LLC_ELLC;
@@ -89,8 +89,9 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::InitCachePolicy()
                 CachePolicyError = true;
             }
             // On error, the PTE value is set to a UC PAT entry
-            pCachePolicy[Usage].PTE.DwordValue = PTEValue;
-            pCachePolicy[Usage].Override       = ALWAYS_OVERRIDE;
+            pCachePolicy[Usage].PTE.DwordValue     = PTEValue & 0xFFFFFFFF;
+            pCachePolicy[Usage].PTE.HighDwordValue = 0;
+	    pCachePolicy[Usage].Override       = ALWAYS_OVERRIDE;
 
             if(CachePolicyError)
             {
@@ -148,9 +149,9 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetupPAT()
     uint8_t              ServiceClass               = 0;
     int32_t *            pPrivatePATTableMemoryType = NULL;
 
-    pPrivatePATTableMemoryType = pGmmGlobalContext->GetPrivatePATTableMemoryType();
+    pPrivatePATTableMemoryType = pGmmLibContext->GetPrivatePATTableMemoryType();
 
-    __GMM_ASSERT(pGmmGlobalContext->GetSkuTable().FtrIA32eGfxPTEs);
+    __GMM_ASSERT(pGmmLibContext->GetSkuTable().FtrIA32eGfxPTEs);
 
     for(i = 0; i < GMM_NUM_GFX_PAT_TYPES; i++)
     {
@@ -162,7 +163,7 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetupPAT()
     {
         GMM_PRIVATE_PAT PAT = {0};
 
-        if(pGmmGlobalContext->GetWaTable().FtrMemTypeMocsDeferPAT)
+        if(pGmmLibContext->GetWaTable().WaNoMocsEllcOnly)	
         {
             GfxTargetCache = GMM_GFX_TC_ELLC_ONLY;
         }
@@ -174,12 +175,12 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetupPAT()
         switch(i)
         {
             case PAT0:
-                if(pGmmGlobalContext->GetWaTable().WaGttPat0)
+                if(pGmmLibContext->GetWaTable().WaGttPat0)		    
                 {
-                    if(pGmmGlobalContext->GetWaTable().WaGttPat0WB)
+                    if(pGmmLibContext->GetWaTable().WaGttPat0WB)			
                     {
                         GfxMemType = GMM_GFX_WB;
-                        if(GFX_IS_ATOM_PLATFORM)
+                        if(GFX_IS_ATOM_PLATFORM(pGmmLibContext))
                         {
                             PAT.PreGen10.Snoop = 1;
                         }
@@ -194,7 +195,7 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetupPAT()
                 else // if GTT is not tied to PAT0 then WaGttPat0WB is NA
                 {
                     GfxMemType = GMM_GFX_WB;
-                    if(GFX_IS_ATOM_PLATFORM)
+                    if(GFX_IS_ATOM_PLATFORM(pGmmLibContext))
                     {
                         PAT.PreGen10.Snoop = 1;
                     }
@@ -203,10 +204,10 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetupPAT()
                 break;
 
             case PAT1:
-                if(pGmmGlobalContext->GetWaTable().WaGttPat0 && !pGmmGlobalContext->GetWaTable().WaGttPat0WB)
-                {
+                if(pGmmLibContext->GetWaTable().WaGttPat0 && !pGmmLibContext->GetWaTable().WaGttPat0WB)
+		{
                     GfxMemType = GMM_GFX_WB;
-                    if(GFX_IS_ATOM_PLATFORM)
+                    if(GFX_IS_ATOM_PLATFORM(pGmmLibContext))
                     {
                         PAT.PreGen10.Snoop = 1;
                     }
@@ -224,8 +225,8 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetupPAT()
                 // Page Tables have TC hardcoded to eLLC+LLC in Adv Ctxt. Hence making this to have same in Leg Ctxt.
                 // For BDW-H, due to Perf issue, TC has to be eLLC only for Page Tables when eDRAM is present.
                 GfxMemType = GMM_GFX_WB;
-
-                if(pGmmGlobalContext->GetWaTable().FtrMemTypeMocsDeferPAT)
+		
+		if(pGmmLibContext->GetWaTable().WaNoMocsEllcOnly)
                 {
                     GfxTargetCache = GMM_GFX_TC_ELLC_ONLY;
                 }
@@ -282,7 +283,7 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetupPAT()
 GMM_STATUS GmmLib::GmmGen8CachePolicy::SetPATInitWA()
 {
     GMM_STATUS Status   = GMM_SUCCESS;
-    WA_TABLE * pWaTable = &const_cast<WA_TABLE &>(pGmmGlobalContext->GetWaTable());
+    WA_TABLE * pWaTable = &const_cast<WA_TABLE &>(pGmmLibContext->GetWaTable());
 
 #if(defined(__GMM_KMD__))
 
@@ -291,7 +292,7 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetPATInitWA()
     pWaTable->WaGttPat0GttWbOverOsIommuEllcOnly = 1;
 
     // Platforms which support OS-IOMMU.
-    if(pGmmGlobalContext->GetSkuTable().FtrWddm2Svm)
+    if(pGmmLibContext->GetSkuTable().FtrWddm2Svm)    
     {
         pWaTable->WaGttPat0GttWbOverOsIommuEllcOnly = 0;
         pWaTable->WaGttPat0WB                       = 0;
@@ -377,7 +378,7 @@ bool GmmLib::GmmGen8CachePolicy::SetPrivatePATEntry(uint32_t PATIdx, GMM_PRIVATE
     GMM_ASSERTDPF(false, "Should only be called from KMD");
     return false;
 #else
-    pGmmGlobalContext->GetPrivatePATTable()[PATIdx] = Entry;
+    pGmmLibContext->GetPrivatePATTable()[PATIdx] = Entry;    
     return true;
 #endif
 }
@@ -402,7 +403,7 @@ GMM_PRIVATE_PAT GmmLib::GmmGen8CachePolicy::GetPrivatePATEntry(uint32_t PATIdx)
 #if(!defined(__GMM_KMD__))
     return NullPAT;
 #else
-    return pGmmGlobalContext->GetPrivatePATTable()[PATIdx];
+    return pGmmLibContext->GetPrivatePATTable()[PATIdx];    
 #endif
 }
 
@@ -458,7 +459,7 @@ EXIT:
 /////////////////////////////////////////////////////////////////////////////////////
 bool GmmLib::GmmGen8CachePolicy::GetUsagePTEValue(GMM_CACHE_POLICY_ELEMENT CachePolicyUsage,
                                                   uint32_t                 Usage,
-                                                  uint32_t *               pPTEDwordValue)
+                                                  uint64_t *               pPTEDwordValue)
 {
     GMM_PTE_CACHE_CONTROL_BITS PTE     = {0};
     bool                       Success = true;

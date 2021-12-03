@@ -45,7 +45,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen7TextureCalc::FillTex2D(GMM_TEXTURE_INFO * 
 
     GMM_DPF_ENTER;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     BitsPerPixel = pTexInfo->BitsPerPixel;
     Height       = pTexInfo->BaseHeight;
@@ -91,7 +91,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen7TextureCalc::FillTex2D(GMM_TEXTURE_INFO * 
     VAlign = pTexInfo->Alignment.VAlign;
     GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
-    Compress = GmmIsCompressed(pTexInfo->Format);
+    Compress = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
 
     /////////////////////////////////
     // Calculate Block Surface Height
@@ -266,14 +266,14 @@ GMM_GFX_SIZE_T GmmLib::GmmGen7TextureCalc::Get2DTexOffsetAddressPerMip(GMM_TEXTU
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
     GMM_DPF_ENTER;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     HAlign = pTexInfo->Alignment.HAlign;
     VAlign = pTexInfo->Alignment.VAlign;
 
     GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
-    Compress = GmmIsCompressed(pTexInfo->Format);
+    Compress = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
 
     MipHeight    = pTexInfo->BaseHeight;
     OffsetHeight = 0;
@@ -292,8 +292,8 @@ GMM_GFX_SIZE_T GmmLib::GmmGen7TextureCalc::Get2DTexOffsetAddressPerMip(GMM_TEXTU
         if(Compress)
         {
             Mip1Width /= CompressWidth;
-
-            if((pGmmGlobalContext->GetWaTable().WaAstcCorruptionForOddCompressedBlockSizeX || pTexInfo->Flags.Wa.CHVAstcSkipVirtualMips) && pPlatform->FormatTable[pTexInfo->Format].ASTC && CompressWidth == 5)
+            
+	    if((pGmmLibContext->GetWaTable().WaAstcCorruptionForOddCompressedBlockSizeX || pTexInfo->Flags.Wa.CHVAstcSkipVirtualMips) && pPlatform->FormatTable[pTexInfo->Format].ASTC && CompressWidth == 5)
             {
                 uint32_t Width1   = (pTexInfo->BaseWidth == 1) ? 1 : (GFX_ULONG_CAST(pTexInfo->BaseWidth) >> 1);
                 uint32_t Modulo10 = Width1 % 10;
@@ -353,11 +353,11 @@ uint32_t GmmLib::GmmGen7TextureCalc::Get2DMipMapHeight(GMM_TEXTURE_INFO *pTexInf
 
     GMM_DPF_ENTER;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     // Mip 0 height is needed later
     Height      = pTexInfo->BaseHeight;
-    Compress    = GmmIsCompressed(pTexInfo->Format);
+    Compress    = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
     NumLevels   = pTexInfo->MaxLod;
     HeightLines = Height;
     VAlign      = pTexInfo->Alignment.VAlign;
@@ -473,7 +473,7 @@ void GmmLib::GmmGen7TextureCalc::Fill2DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
             ArrayQPitch = Height0;
         }
 
-        if(GmmIsCompressed(pTexInfo->Format))
+        if(GmmIsCompressed(pGmmLibContext, pTexInfo->Format))
         {
             uint32_t CompressHeight, CompressWidth, CompressDepth;
 
@@ -524,14 +524,14 @@ uint32_t GmmLib::GmmGen7TextureCalc::GetTotal3DHeight(GMM_TEXTURE_INFO *pTexInfo
 
     GMM_DPF_ENTER;
 
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo, pGmmLibContext);
 
     BlockHeight     = pTexInfo->BaseHeight;
     Depth           = pTexInfo->Depth;
     MipLevel        = pTexInfo->MaxLod;
     UnitAlignHeight = pTexInfo->Alignment.VAlign;
 
-    Compressed = GmmIsCompressed(pTexInfo->Format);
+    Compressed = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
     pTextureCalc->GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
     // All mip0s of all planes are stacked together, then mip1s and so on...
@@ -599,7 +599,7 @@ void GmmLib::GmmGen7TextureCalc::Fill3DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
 
     __GMM_ASSERT(pTexInfo);
 
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo, pGmmLibContext);
 
     // Assign directly to unaligned MipMap dimension variables
     // There isn't a need to save original dimensions
@@ -609,7 +609,7 @@ void GmmLib::GmmGen7TextureCalc::Fill3DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
     // Align before we compress
     UnitAlignWidth  = pTexInfo->Alignment.HAlign;
     UnitAlignHeight = pTexInfo->Alignment.VAlign;
-    Compress        = GmmIsCompressed(pTexInfo->Format);
+    Compress        = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
     pTextureCalc->GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
     // Aligned MipMap Dimensions
@@ -742,7 +742,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen7TextureCalc::FillTex3D(GMM_TEXTURE_INFO * 
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
     __GMM_ASSERTPTR(pRestrictions, GMM_ERROR);
 
-    const __GMM_PLATFORM_RESOURCE *pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const __GMM_PLATFORM_RESOURCE *pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     BitsPerPixel = pTexInfo->BitsPerPixel;
     Height       = pTexInfo->BaseHeight;
@@ -751,7 +751,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen7TextureCalc::FillTex3D(GMM_TEXTURE_INFO * 
 
     // Align before we compress
     UnitAlignWidth = pTexInfo->Alignment.HAlign;
-    Compress       = GmmIsCompressed(pTexInfo->Format);
+    Compress       = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
     GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
     SeparateStencil = pTexInfo->Flags.Gpu.SeparateStencil ? true : false;
 

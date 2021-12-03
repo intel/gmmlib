@@ -23,15 +23,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Internal/Common/GmmLibInc.h"
 #include "External/Common/GmmCachePolicy.h"
 
-int32_t GmmLib::GmmCachePolicyCommon::RefCount = 0;
-
 /////////////////////////////////////////////////////////////////////////////////////
 /// Constructor for the GmmCachePolicyCommon Class, initializes the CachePolicy
 /// @param[in]         pCachePolicy
 /////////////////////////////////////////////////////////////////////////////////////
-GmmLib::GmmCachePolicyCommon::GmmCachePolicyCommon(GMM_CACHE_POLICY_ELEMENT *pCachePolicy)
+GmmLib::GmmCachePolicyCommon::GmmCachePolicyCommon(GMM_CACHE_POLICY_ELEMENT *pCachePolicy, Context *pGmmLibContext)
 {
-    this->pCachePolicy = pCachePolicy;
+    this->pCachePolicy   = pCachePolicy;
+    this->pGmmLibContext = pGmmLibContext;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -70,8 +69,8 @@ GMM_GFX_MEMORY_TYPE GmmLib::GmmCachePolicyCommon::GetWantedMemoryType(GMM_CACHE_
 /////////////////////////////////////////////////////////////////////////////////////
 MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmCachePolicyCommon::CachePolicyGetOriginalMemoryObject(GMM_RESOURCE_INFO *pResInfo)
 {
-    MEMORY_OBJECT_CONTROL_STATE MOCS = pGmmGlobalContext->GetCachePolicyElement(GMM_RESOURCE_USAGE_UNKNOWN).MemoryObjectOverride;
-
+    MEMORY_OBJECT_CONTROL_STATE MOCS = pGmmLibContext->GetCachePolicyElement(GMM_RESOURCE_USAGE_UNKNOWN).MemoryObjectOverride;
+   
     if(pResInfo)
     {
         MOCS = pResInfo->GetMOCS();
@@ -94,9 +93,8 @@ MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmCachePolicyCommon::CachePolic
 MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmCachePolicyCommon::CachePolicyGetMemoryObject(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage)
 {
     const GMM_CACHE_POLICY_ELEMENT *CachePolicy = NULL;
-    __GMM_ASSERT(pGmmGlobalContext->GetCachePolicyElement(Usage).Initialized);
-    CachePolicy = pGmmGlobalContext->GetCachePolicyUsage();
-
+    __GMM_ASSERT(pGmmLibContext->GetCachePolicyElement(Usage).Initialized);
+    CachePolicy = pGmmLibContext->GetCachePolicyUsage();
     // Prevent wrong Usage for XAdapter resources. UMD does not call GetMemoryObject on shader resources but,
     // when they add it someone could call it without knowing the restriction.
     if(pResInfo &&
@@ -129,6 +127,6 @@ MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmCachePolicyCommon::CachePolic
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_PTE_CACHE_CONTROL_BITS GMM_STDCALL GmmLib::GmmCachePolicyCommon::CachePolicyGetPteType(GMM_RESOURCE_USAGE_TYPE Usage)
 {
-    __GMM_ASSERT(pGmmGlobalContext->GetCachePolicyElement(Usage).Initialized);
-    return pGmmGlobalContext->GetCachePolicyElement(Usage).PTE;
+    __GMM_ASSERT(pGmmLibContext->GetCachePolicyElement(Usage).Initialized);
+    return pGmmLibContext->GetCachePolicyElement(Usage).PTE;
 }

@@ -80,29 +80,29 @@ OTHER DEALINGS IN THE SOFTWARE.
     }
 #define GMM_CALL_OGL_ESCAPE(pfnEscape, hAdapter, Escape) (pfnEscape(&Escape))
 
-#define __GMM_RANGE_IN_GMADR(RangeBase, RangeSize)                              \
-    (((RangeBase) >= GmmGetGttContext(pGmmGlobalContext)->GfxAddrRange.Global.Base) &&           \
+#define __GMM_RANGE_IN_GMADR(RangeBase, RangeSize,pGmmLibContext)                              \
+    (((RangeBase) >= GmmGetGttContext(pGmmLibContext)->GfxAddrRange.Global.Base) &&           \
     (((RangeBase) + (RangeSize)) <=                                             \
-        (GmmGetGttContext(pGmmGlobalContext)->GfxAddrRange.Global.Base +        \
-        GmmGetGttContext(pGmmGlobalContext)->GlobalGfxApertureSize)))
+        (GmmGetGttContext(pGmmLibContext)->GfxAddrRange.Global.Base +        \
+        GmmGetGttContext(pGmmLibContext)->GlobalGfxApertureSize)))
 
-#define __GMM_RANGE_IN_GLOBAL_GTT_SPACE(RangeBase, RangeSize)                   \
-    (((RangeBase) >= GmmGetGttContext(pGmmGlobalContext)->GfxAddrRange.Global.Base) &&           \
+#define __GMM_RANGE_IN_GLOBAL_GTT_SPACE(RangeBase, RangeSize,pGmmLibContext)                   \
+    (((RangeBase) >= GmmGetGttContext(pGmmLibContext)->GfxAddrRange.Global.Base) &&           \
     (((RangeBase) + (RangeSize)) <=                                             \
-        (GmmGetGttContext(pGmmGlobalContext)->GfxAddrRange.Global.Base +        \
-         GmmGetGttContext(pGmmGlobalContext)->GfxAddrRange.Global.Size)))
+        (GmmGetGttContext(pGmmLibContext)->GfxAddrRange.Global.Base +        \
+         GmmGetGttContext(pGmmLibContext)->GfxAddrRange.Global.Size)))
 
-#define __GMM_RANGE_IN_PPGTT_SPACE(RangeBase, RangeSize)                        \
-    (((RangeBase) >= GmmGetGttContext(pGmmGlobalContext)->GfxAddrRange.PP.Base) &&               \
+#define __GMM_RANGE_IN_PPGTT_SPACE(RangeBase, RangeSize,pGmmLibContext)                        \
+    (((RangeBase) >= GmmGetGttContext(pGmmLibContext)->GfxAddrRange.PP.Base) &&               \
     (((RangeBase) + (RangeSize)) <=                                             \
-        (GmmGetGttContext(pGmmGlobalContext)->GfxAddrRange.PP.Base +                             \
-         GmmGetGttContext(pGmmGlobalContext)->GfxAddrRange.PP.Size)))
+        (GmmGetGttContext(pGmmLibContext)->GfxAddrRange.PP.Base +                             \
+         GmmGetGttContext(pGmmLibContext)->GfxAddrRange.PP.Size)))
 
 #define GMM_INLINE __inline
 
 #if(defined(__GMM_KMD__))
-#define GMM_OVERRIDE_SIZE_64KB_ALLOC  if(GmmGetSkuTable(pGmmGlobalContext)->FtrPpgtt64KBWalkOptimization){ return (this->GetSizeAllocation());}
+#define GMM_OVERRIDE_SIZE_64KB_ALLOC(pGmmLibContext)  if(GmmGetSkuTable(pGmmLibContext)->FtrPpgtt64KBWalkOptimization){ return (this->GetSizeAllocation());}
 #else 
-#define GMM_OVERRIDE_SIZE_64KB_ALLOC  if(((GmmClientContext*)pClientContext)->GetSkuTable().FtrPpgtt64KBWalkOptimization){ return (this->GetSizeAllocation());}
+#define GMM_OVERRIDE_SIZE_64KB_ALLOC(pGmmLibContext)  if(((GmmClientContext*)pClientContext)->GetSkuTable().FtrPpgtt64KBWalkOptimization){ return (this->GetSizeAllocation());}
 #endif
 

@@ -20,18 +20,18 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
 
-#define PRODUCT(X)  (GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_##X)
+#define ISPRODUCT(X)  (GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) == IGFX_##X)
 
-#define FROMPRODUCT(X)  (GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_##X)
+#define FROMPRODUCT(X)  (GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) >= IGFX_##X)
 
-#define SKU(FtrXxx) (pGmmGlobalContext->GetSkuTable().FtrXxx != 0)
+#define SKU(FtrXxx) (pGmmLibContext->GetSkuTable().FtrXxx != 0)
 
-#define WA(WaXxx)   (pGmmGlobalContext->GetWaTable().WaXxx != 0)
+#define WA(WaXxx)   (pGmmLibContext->GetWaTable().WaXxx != 0)
 
 // Underscored to prevent name collision with the GMM_CACHE_POLICY_ELEMENT fields named L3 and LLC
-#define _L3           (pGmmGlobalContext->GetGtSysInfo()->L3CacheSizeInKb)
-#define _LLC          (pGmmGlobalContext->GetGtSysInfo()->LLCCacheSizeInKb)
-#define _ELLC         (pGmmGlobalContext->GetGtSysInfo()->EdramSizeInKb)
+#define _L3           (pGmmLibContext->GetGtSysInfo()->L3CacheSizeInKb)
+#define _LLC          (pGmmLibContext->GetGtSysInfo()->LLCCacheSizeInKb)
+#define _ELLC         (pGmmLibContext->GetGtSysInfo()->EdramSizeInKb)
 #define CAM$          (SKU(FtrCameraCaptureCaching))
 
 // Units are already in KB in the system information, so these helper macros need to account for that

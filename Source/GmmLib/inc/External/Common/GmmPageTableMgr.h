@@ -157,6 +157,11 @@ namespace GmmLib
     private:
         GMM_PAGETABLEPool * __AllocateNodePool(uint32_t AddrAlignment, POOL_TYPE Type);
 
+        GMM_INLINE GMM_LIB_CONTEXT *GetLibContext() 
+        {
+            return pClientContext->GetLibContext();
+        }
+
     };
 
     

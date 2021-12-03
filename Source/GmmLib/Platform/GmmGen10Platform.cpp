@@ -20,8 +20,6 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
 
-
-
 #include "Internal/Common/GmmLibInc.h"
 #include "Internal/Common/Platform/GmmGen10Platform.h"
 
@@ -32,11 +30,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 ///
 /// @param[in]  Platform: Contains information about platform to initialize an object
 /////////////////////////////////////////////////////////////////////////////////////
-GmmLib::PlatformInfoGen10::PlatformInfoGen10(PLATFORM &Platform)
-    : PlatformInfo(Platform)
+GmmLib::PlatformInfoGen10::PlatformInfoGen10(PLATFORM &Platform, Context *pGmmLibContext)
+    : PlatformInfo(Platform, pGmmLibContext)
 {
-    __GMM_ASSERTPTR(pGmmGlobalContext, VOIDRETURN);
-
+    __GMM_ASSERTPTR(pGmmLibContext, VOIDRETURN);
     // --------------------------
     // Non Native Dispay Interface buffer restriction. Register Ref: DSPACNTR, DSPASTRIDE, DSPASURF
     // Clamping res based on 2 Nndi buffers and GMM_NNDI_SEGMENT_SIZE reserved gfx memory
@@ -215,7 +212,7 @@ GmmLib::PlatformInfoGen10::PlatformInfoGen10(PLATFORM &Platform)
     Data.Texture2DSurface.LockPitchAlignment   = GMM_BYTES(32);
     Data.Texture2DSurface.RenderPitchAlignment = GMM_BYTES(32);
     Data.Texture2DSurface.MinPitch             = GMM_BYTES(32);
-    Data.Texture2DSurface.MaxPitch             = (pGmmGlobalContext->GetWaTable().WaRestrictPitch128KB) ? GMM_KBYTE(128) : GMM_KBYTE(256);
+    Data.Texture2DSurface.MaxPitch             = (pGmmLibContext->GetWaTable().WaRestrictPitch128KB) ? GMM_KBYTE(128) : GMM_KBYTE(256);
     Data.Texture2DSurface.MinAllocationSize    = PAGE_SIZE;
     Data.Texture2DSurface.MinHeight            = GMM_SCANLINES(1);
     Data.Texture2DSurface.MinWidth             = GMM_PIXELS(1);
@@ -280,7 +277,7 @@ GmmLib::PlatformInfoGen10::PlatformInfoGen10(PLATFORM &Platform)
     Data.CubeSurface.LockPitchAlignment   = GMM_BYTES(32);
     Data.CubeSurface.RenderPitchAlignment = GMM_BYTES(32);
     Data.CubeSurface.MinPitch             = GMM_BYTES(32);
-    Data.CubeSurface.MaxPitch             = (pGmmGlobalContext->GetWaTable().WaRestrictPitch128KB) ? GMM_KBYTE(128) : GMM_KBYTE(256);
+    Data.CubeSurface.MaxPitch             = (pGmmLibContext->GetWaTable().WaRestrictPitch128KB) ? GMM_KBYTE(128) : GMM_KBYTE(256);
     Data.CubeSurface.MinAllocationSize    = PAGE_SIZE;
     Data.CubeSurface.MinHeight            = GMM_SCANLINES(1);
     Data.CubeSurface.MinWidth             = GMM_PIXELS(1);
@@ -299,7 +296,7 @@ GmmLib::PlatformInfoGen10::PlatformInfoGen10(PLATFORM &Platform)
     Data.Texture3DSurface.LockPitchAlignment   = GMM_BYTES(32);
     Data.Texture3DSurface.RenderPitchAlignment = GMM_BYTES(32);
     Data.Texture3DSurface.MinPitch             = GMM_BYTES(32);
-    Data.Texture3DSurface.MaxPitch             = (pGmmGlobalContext->GetWaTable().WaRestrictPitch128KB) ? GMM_KBYTE(128) : GMM_KBYTE(256);
+    Data.Texture3DSurface.MaxPitch             = (pGmmLibContext->GetWaTable().WaRestrictPitch128KB) ? GMM_KBYTE(128) : GMM_KBYTE(256);
     Data.Texture3DSurface.MinAllocationSize    = PAGE_SIZE;
     Data.Texture3DSurface.MinHeight            = GMM_SCANLINES(1);
     Data.Texture3DSurface.MinWidth             = GMM_PIXELS(1);
@@ -331,7 +328,7 @@ GmmLib::PlatformInfoGen10::PlatformInfoGen10(PLATFORM &Platform)
     // --------------------------
     // Cursor surface restricion. Register Ref: CURACNTR, CURABASE
     // --------------------------
-    Data.Cursor.Alignment            = pGmmGlobalContext->GetWaTable().WaCursor16K ? GMM_KBYTE(16) : PAGE_SIZE;
+    Data.Cursor.Alignment            = pGmmLibContext->GetWaTable().WaCursor16K ? GMM_KBYTE(16) : PAGE_SIZE;
     Data.Cursor.PitchAlignment       = 1;
     Data.Cursor.LockPitchAlignment   = 1;
     Data.Cursor.RenderPitchAlignment = 1;
@@ -442,7 +439,7 @@ GmmLib::PlatformInfoGen10::PlatformInfoGen10(PLATFORM &Platform)
     //--------------------------
     // Fence paramaters. Register Ref: FENCE
     //--------------------------
-    Data.NumberFenceRegisters = pGmmGlobalContext->GetWaTable().Wa16TileFencesOnly ? 16 : 32;
+    Data.NumberFenceRegisters = pGmmLibContext->GetWaTable().Wa16TileFencesOnly ? 16 : 32;
     Data.FenceLowBoundShift   = 12;
     Data.FenceLowBoundMask    = GFX_MASK(12, 31);
     Data.MinFenceSize         = GMM_MBYTE(1);
@@ -491,7 +488,7 @@ GmmLib::PlatformInfoGen10::PlatformInfoGen10(PLATFORM &Platform)
     Data.XAdapter.RenderPitchAlignment = GMM_BYTES(D3DKMT_CROSS_ADAPTER_RESOURCE_PITCH_ALIGNMENT);
     Data.XAdapter.LockPitchAlignment   = GMM_BYTES(D3DKMT_CROSS_ADAPTER_RESOURCE_PITCH_ALIGNMENT);
     Data.XAdapter.MinPitch             = GMM_BYTES(32);
-    Data.XAdapter.MaxPitch             = (pGmmGlobalContext->GetWaTable().WaRestrictPitch128KB) ? GMM_KBYTE(128) : GMM_KBYTE(256);
+    Data.XAdapter.MaxPitch             = (pGmmLibContext->GetWaTable().WaRestrictPitch128KB) ? GMM_KBYTE(128) : GMM_KBYTE(256);
     Data.XAdapter.MinAllocationSize    = PAGE_SIZE;
     Data.XAdapter.MinHeight            = GMM_SCANLINES(1);
     Data.XAdapter.MinWidth             = GMM_PIXELS(1);

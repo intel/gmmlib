@@ -49,7 +49,7 @@ GMM_GFX_SIZE_T GmmLib::GmmGen9TextureCalc::Get1DTexOffsetAddressPerMip(GMM_TEXTU
     GFX_MIN(MipLevel, pTexInfo->Alignment.MipTailStartLod) :
     MipLevel;
 
-    Compressed = GmmIsCompressed(pTexInfo->Format);
+    Compressed = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
     GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
     for(i = 1; i <= __MipLevel; i++)
@@ -134,15 +134,15 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex1D(GMM_TEXTURE_INFO * 
     pTexInfo->Flags.Info.Linear = 1;
     pTexInfo->Flags.Info.TiledW = 0;
     pTexInfo->Flags.Info.TiledX = 0;
-    GMM_SET_4KB_TILE(pTexInfo->Flags, 0);
+    GMM_SET_4KB_TILE(pTexInfo->Flags, 0, pGmmLibContext);
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     ArraySize    = GFX_MAX(pTexInfo->ArraySize, 1);
     BitsPerPixel = pTexInfo->BitsPerPixel;
     HAlign       = pTexInfo->Alignment.HAlign;
 
-    Compressed = GmmIsCompressed(pTexInfo->Format);
+    Compressed = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
     GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
     if(pTexInfo->Flags.Info.TiledYf || GMM_IS_64KB_TILE(pTexInfo->Flags))
@@ -255,9 +255,9 @@ uint32_t GmmLib::GmmGen9TextureCalc::Get2DMipMapHeight(GMM_TEXTURE_INFO *pTexInf
     uint8_t  Compressed;
     GMM_DPF_ENTER;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
-    Compressed = GmmIsCompressed(pTexInfo->Format);
+    Compressed = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
     MipHeight  = pTexInfo->BaseHeight;
     MipLevel   = pTexInfo->MaxLod;
     VAlign     = pTexInfo->Alignment.VAlign;
@@ -450,11 +450,11 @@ GMM_GFX_SIZE_T GmmLib::GmmGen9TextureCalc::Get2DTexOffsetAddressPerMip(GMM_TEXTU
 
     GMM_DPF_ENTER;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     HAlign     = pTexInfo->Alignment.HAlign;
     VAlign     = pTexInfo->Alignment.VAlign;
-    Compressed = GmmIsCompressed(pTexInfo->Format);
+    Compressed = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
 
     MipHeight    = pTexInfo->BaseHeight;
     OffsetHeight = 0;
@@ -558,7 +558,7 @@ void GmmLib::GmmGen9TextureCalc::Fill2DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
     uint32_t i;
     GMM_DPF_ENTER;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     // QPitch: Array Element-to-Element, or Cube Face-to-Face Pitch...
     if((pTexInfo->ArraySize <= 1) &&
@@ -576,8 +576,8 @@ void GmmLib::GmmGen9TextureCalc::Fill2DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
 
         Alignment = pTexInfo->Alignment.VAlign;
         if((pTexInfo->Type == RESOURCE_3D && !pTexInfo->Flags.Info.Linear) ||
-           (pTexInfo->Flags.Gpu.S3dDx && pGmmGlobalContext->GetSkuTable().FtrDisplayEngineS3d))
-        {
+           (pTexInfo->Flags.Gpu.S3dDx && pGmmLibContext->GetSkuTable().FtrDisplayEngineS3d))
+         {
             Alignment = pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileHeight;
 	    //Gmm uses TileY for Stencil allocations, having half TileW height (TileY width compensates)
             if(pTexInfo->Flags.Gpu.SeparateStencil && pTexInfo->Flags.Info.TiledW)
@@ -591,7 +591,7 @@ void GmmLib::GmmGen9TextureCalc::Fill2DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
         ArrayQPitch = GFX_ALIGN_NP2(ArrayQPitch, Alignment);
 	    
 	// Color Surf with MSAA Enabled Mutiply 4
-        if(GMM_IS_64KB_TILE(pTexInfo->Flags) && (!pGmmGlobalContext->GetSkuTable().FtrTileY) &&
+        if(GMM_IS_64KB_TILE(pTexInfo->Flags) && (!pGmmLibContext->GetSkuTable().FtrTileY) &&
            ((pTexInfo->MSAA.NumSamples == 8) || (pTexInfo->MSAA.NumSamples == 16)) &&
            ((pTexInfo->Flags.Gpu.Depth == 0) && (pTexInfo->Flags.Gpu.SeparateStencil == 0)))
         {
@@ -600,7 +600,7 @@ void GmmLib::GmmGen9TextureCalc::Fill2DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
 	    
         pTexInfo->Alignment.QPitch = ArrayQPitch;
 
-        if(GmmIsCompressed(pTexInfo->Format))
+        if(GmmIsCompressed(pGmmLibContext, pTexInfo->Format))
         {
             uint32_t CompressWidth, CompressHeight, CompressDepth;
 
@@ -656,7 +656,7 @@ uint32_t GmmLib::GmmGen9TextureCalc::GetAligned3DBlockHeight(GMM_TEXTURE_INFO *p
     GMM_UNREFERENCED_PARAMETER(ExpandedArraySize);
     __GMM_ASSERTPTR(pTexInfo, 0);
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     if((pTexInfo->Type == RESOURCE_3D) && !pTexInfo->Flags.Info.Linear)
     {
@@ -690,7 +690,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex2D(GMM_TEXTURE_INFO * 
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
     __GMM_ASSERTPTR(pRestrictions, GMM_ERROR);
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     BitsPerPixel = pTexInfo->BitsPerPixel;
     if(pTexInfo->Flags.Gpu.CCS && pTexInfo->Flags.Gpu.__NonMsaaTileYCcs)
@@ -755,7 +755,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex2D(GMM_TEXTURE_INFO * 
     DAlign = pTexInfo->Alignment.DAlign;
     GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
-    Compress = GmmIsCompressed(pTexInfo->Format);
+    Compress = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
 
     /////////////////////////////////
     // Calculate Block Surface Height
@@ -765,7 +765,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex2D(GMM_TEXTURE_INFO * 
     {
         uint32_t Alignment = VAlign;
         if((pTexInfo->Type == RESOURCE_3D && !pTexInfo->Flags.Info.Linear) ||
-           (pTexInfo->Flags.Gpu.S3dDx && pGmmGlobalContext->GetSkuTable().FtrDisplayEngineS3d))
+           (pTexInfo->Flags.Gpu.S3dDx && pGmmLibContext->GetSkuTable().FtrDisplayEngineS3d))
         {
             Alignment = pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileHeight;
 	    //Gmm uses TileY for Stencil allocations, having half TileW height (TileY width compensates)

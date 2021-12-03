@@ -48,8 +48,9 @@ namespace GmmLib
         public:
             /* Constructors */
 
-            GmmGen8TextureCalc()
-            {
+            GmmGen8TextureCalc(Context *pGmmLibContext)
+                : GmmGen7TextureCalc(pGmmLibContext)
+	    {
 
             }
 

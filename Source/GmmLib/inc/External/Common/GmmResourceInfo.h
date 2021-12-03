@@ -96,7 +96,7 @@ typedef struct GMM_EXISTING_SYS_MEM_REC
 
 uint8_t     GMM_STDCALL GmmResValidateParams(GMM_RESOURCE_INFO *pResourceInfo);
 void        GMM_STDCALL GmmResGetRestrictions(GMM_RESOURCE_INFO* pResourceInfo, __GMM_BUFFER_TYPE* pRestrictions);
-uint8_t     __CanSupportStdTiling(GMM_TEXTURE_INFO Surface);
+uint8_t     __CanSupportStdTiling(GMM_TEXTURE_INFO Surface, GMM_LIB_CONTEXT *pGmmLibContext);
 
 #ifdef __cplusplus
 }

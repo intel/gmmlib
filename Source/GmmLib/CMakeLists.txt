@@ -269,7 +269,6 @@ set(SOURCES_
   ${BS_DIR_GMMLIB}/Texture/GmmTextureOffset.cpp
   ${BS_DIR_GMMLIB}/GlobalInfo/GmmInfo.cpp
   ${BS_DIR_GMMLIB}/Utility/CpuSwizzleBlt/CpuSwizzleBlt.c
-  ${BS_DIR_GMMLIB}/Utility/GmmLibObject.cpp
   ${BS_DIR_GMMLIB}/Utility/GmmLog/GmmLog.cpp
   ${BS_DIR_GMMLIB}/Utility/GmmUtility.cpp
 )

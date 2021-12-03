@@ -24,8 +24,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Internal/Common/Platform/GmmGen10Platform.h"
 #include "Internal/Common/Platform/GmmGen11Platform.h"
 
-GmmLib::PlatformInfoGen11::PlatformInfoGen11(PLATFORM &Platform)
-    : PlatformInfoGen10(Platform)
+GmmLib::PlatformInfoGen11::PlatformInfoGen11(PLATFORM &Platform, Context *pGmmLibContext)
+    : PlatformInfoGen10(Platform, pGmmLibContext)
 {
 
     Data.SurfaceMaxSize                      = GMM_GBYTE(16384);
@@ -64,7 +64,7 @@ uint8_t GmmLib::PlatformInfoGen11::ValidateMMC(GMM_TEXTURE_INFO &Surf)
         return 0;
     }
 
-    if(GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_LAKEFIELD)
+    if(GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) == IGFX_LAKEFIELD)
     {
         if(Surf.Flags.Gpu.MMC &&
            Surf.Flags.Gpu.UnifiedAuxSurface &&
@@ -91,7 +91,7 @@ uint8_t GmmLib::PlatformInfoGen11::ValidateUnifiedAuxSurface(GMM_TEXTURE_INFO &S
        !( //--- Legitimate UnifiedAuxSurface Case ------------------------------------------
        Surf.Flags.Gpu.CCS &&
        ((Surf.MSAA.NumSamples <= 1 && (Surf.Flags.Gpu.RenderTarget || Surf.Flags.Gpu.Texture))) ||
-       ((GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_LAKEFIELD) && Surf.Flags.Gpu.MMC &&
+       ((GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) == IGFX_LAKEFIELD) && Surf.Flags.Gpu.MMC &&
         (Surf.MSAA.NumSamples <= 1))))
     {
         GMM_ASSERTDPF(0, "Invalid UnifiedAuxSurface usage!");
@@ -124,7 +124,7 @@ uint8_t GmmLib::PlatformInfoGen11::CheckFmtDisplayDecompressible(GMM_TEXTURE_INF
     bool IsMediaCompressed  = false;
     GMM_UNREFERENCED_PARAMETER(IsSupportedMediaFormats);
 
-    if(GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_LAKEFIELD)
+    if(GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) == IGFX_LAKEFIELD)
     {
         if(Surf.Flags.Gpu.MMC &&
            Surf.Flags.Info.TiledY &&
@@ -145,7 +145,7 @@ uint8_t GmmLib::PlatformInfoGen11::CheckFmtDisplayDecompressible(GMM_TEXTURE_INF
     {
         // Pre-LKF1
         if(IsSupportedRGB32_8_8_8_8 || //RGB32 8 : 8 : 8 : 8
-           (GFX_GET_CURRENT_PRODUCT(pGmmGlobalContext->GetPlatformInfo().Platform) == IGFX_ICELAKE &&
+           (GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) == IGFX_ICELAKE &&
             IsSupportedRGB64_16_16_16_16)) //RGB64 16:16 : 16 : 16 FP16
         {
             IsRenderCompressed = true;

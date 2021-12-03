@@ -40,8 +40,7 @@ uint32_t GmmLib::GmmGen10TextureCalc::GetMipTailByteOffset(GMM_TEXTURE_INFO *pTe
     GMM_DPF_ENTER;
 
     // 3D textures follow the Gen9 mip tail format
-    if(!pGmmGlobalContext->GetSkuTable().FtrStandardMipTailFormat ||
-       pTexInfo->Type == RESOURCE_3D)
+    if(!pGmmLibContext->GetSkuTable().FtrStandardMipTailFormat || pTexInfo->Type == RESOURCE_3D)
     {
         return GmmGen9TextureCalc::GetMipTailByteOffset(pTexInfo, MipLevel);
     }
@@ -152,7 +151,7 @@ void GmmLib::GmmGen10TextureCalc::GetMipTailGeometryOffset(GMM_TEXTURE_INFO *pTe
     GMM_DPF_ENTER;
 
     // 3D textures follow the Gen9 mip tail format
-    if(!pGmmGlobalContext->GetSkuTable().FtrStandardMipTailFormat ||
+    if(!pGmmLibContext->GetSkuTable().FtrStandardMipTailFormat ||
        pTexInfo->Type == RESOURCE_3D)
     {
         return GmmGen9TextureCalc::GetMipTailGeometryOffset(pTexInfo, MipLevel, OffsetX, OffsetY, OffsetZ);
@@ -234,7 +233,7 @@ uint32_t GmmLib::GmmGen10TextureCalc::GetAligned3DBlockHeight(GMM_TEXTURE_INFO *
 
     __GMM_ASSERTPTR(pTexInfo, 0);
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     DAlign = pTexInfo->Alignment.DAlign;
 
@@ -277,7 +276,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTex2D(GMM_TEXTURE_INFO *
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
     __GMM_ASSERTPTR(pRestrictions, GMM_ERROR);
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     BitsPerPixel = pTexInfo->BitsPerPixel;
     if(pTexInfo->Flags.Gpu.CCS && pTexInfo->Flags.Gpu.__NonMsaaTileYCcs)
@@ -342,7 +341,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTex2D(GMM_TEXTURE_INFO *
     DAlign = pTexInfo->Alignment.DAlign;
     GetCompressionBlockDimensions(pTexInfo->Format, &CompressWidth, &CompressHeight, &CompressDepth);
 
-    Compress = GmmIsCompressed(pTexInfo->Format);
+    Compress = GmmIsCompressed(pGmmLibContext, pTexInfo->Format);
 
     /////////////////////////////////
     // Calculate Block Surface Height
@@ -352,7 +351,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTex2D(GMM_TEXTURE_INFO *
     {
         uint32_t Alignment = VAlign;
         if((pTexInfo->Type == RESOURCE_3D && !pTexInfo->Flags.Info.Linear) ||
-           (pTexInfo->Flags.Gpu.S3dDx && pGmmGlobalContext->GetSkuTable().FtrDisplayEngineS3d))
+           (pTexInfo->Flags.Gpu.S3dDx && pGmmLibContext->GetSkuTable().FtrDisplayEngineS3d))
         {
             Alignment = pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileHeight;
 	    //Gmm uses TileY for Stencil allocations, having half TileW height (TileY width compensates)
@@ -401,7 +400,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTex2D(GMM_TEXTURE_INFO *
     AlignedWidth = __GMM_EXPAND_WIDTH(this, Width, HAlign, pTexInfo);
 
     // For Non - planar surfaces, the alignment is done on the entire height of the allocation
-    if(pGmmGlobalContext->GetWaTable().WaAlignYUVResourceToLCU &&
+    if(pGmmLibContext->GetWaTable().WaAlignYUVResourceToLCU &&
        GmmIsYUVFormatLCUAligned(pTexInfo->Format))
     {
         AlignedWidth = GFX_ALIGN(AlignedWidth, GMM_SCANLINES(GMM_MAX_LCU_SIZE));
@@ -496,8 +495,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTex2D(GMM_TEXTURE_INFO *
     }
 
     // For Non-planar surfaces, the alignment is done on the entire height of the allocation
-    if(pGmmGlobalContext->GetWaTable().WaAlignYUVResourceToLCU &&
-       GmmIsYUVFormatLCUAligned(pTexInfo->Format) &&
+    if(pGmmLibContext->GetWaTable().WaAlignYUVResourceToLCU &&
+        GmmIsYUVFormatLCUAligned(pTexInfo->Format) &&
        !GmmIsPlanar(pTexInfo->Format))
     {
         BlockHeight = GFX_ALIGN(BlockHeight, GMM_SCANLINES(GMM_MAX_LCU_SIZE));
@@ -541,7 +540,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
     __GMM_ASSERT(!pTexInfo->Flags.Info.TiledW);
     pTexInfo->TileMode = TILE_NONE;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     WidthBytesPhysical = GFX_ULONG_CAST(pTexInfo->BaseWidth) * pTexInfo->BitsPerPixel >> 3;
     Height = VHeight = 0;
@@ -835,7 +834,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
 
     AdjustedVHeight = VHeight;
     // In case of Planar surfaces, only the last Plane has to be aligned to 64 for LCU access
-    if(pGmmGlobalContext->GetWaTable().WaAlignYUVResourceToLCU && GmmIsYUVFormatLCUAligned(pTexInfo->Format) && VHeight > 0)
+    if(pGmmLibContext->GetWaTable().WaAlignYUVResourceToLCU && GmmIsYUVFormatLCUAligned(pTexInfo->Format) && VHeight > 0)
     {
         AdjustedVHeight = GFX_ALIGN(VHeight, GMM_SCANLINES(GMM_MAX_LCU_SIZE));
         Height += AdjustedVHeight - VHeight;
@@ -846,8 +845,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
     // and width must be adjusted for correct size calculation
     if(GMM_IS_TILED(pPlatform->TileInfo[pTexInfo->TileMode]))
     {
-        uint32_t TileHeight = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
-        uint32_t TileWidth  = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileWidth;
+        uint32_t TileHeight = pGmmLibContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
+        uint32_t TileWidth  = pGmmLibContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileWidth;
 
         pTexInfo->OffsetInfo.Plane.IsTileAlignedPlanes = true;
 
@@ -881,7 +880,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen10TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
        pTexInfo->Flags.Gpu.UnifiedAuxSurface &&
        pTexInfo->Flags.Info.TiledY)
     {
-        uint32_t TileHeight = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
+        uint32_t TileHeight = pGmmLibContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
 
         Height = GFX_ALIGN(YHeight, TileHeight) + GFX_ALIGN(AdjustedVHeight, TileHeight);
     }

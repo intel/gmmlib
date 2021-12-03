@@ -36,7 +36,7 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
     if((CreateParams.Format > GMM_FORMAT_INVALID) &&
        (CreateParams.Format < GMM_RESOURCE_FORMATS))
     {
-        BitsPerPixel = pGmmGlobalContext->GetPlatformInfo().FormatTable[CreateParams.Format].Element.BitsPer;
+        BitsPerPixel = GetGmmLibContext()->GetPlatformInfo().FormatTable[CreateParams.Format].Element.BitsPer;
     }
     else
     {
@@ -60,7 +60,7 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
                 CreateParams.Flags.Info.Linear = true;
             }
 
-            if(pGmmGlobalContext->GetSkuTable().FtrTileY)
+            if(GetGmmLibContext()->GetSkuTable().FtrTileY)
             {
 
                 CreateParams.Flags.Info.TiledYs |= CreateParams.Flags.Info.StdSwizzle || CreateParams.Flags.Gpu.TiledResource;
@@ -70,7 +70,7 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
                 CreateParams.Flags.Info.TiledY = true;
 
                 // Pre-Gen11 Planar
-                if(GmmIsPlanar(CreateParams.Format) && (GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) < IGFX_GEN11_CORE))
+                if(GmmIsPlanar(CreateParams.Format) && (GFX_GET_CURRENT_RENDERCORE(GetGmmLibContext()->GetPlatformInfo().Platform) < IGFX_GEN11_CORE))
                 {
                     CreateParams.Flags.Info.TiledX = true;
                 }
@@ -86,12 +86,12 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
                 {
                     GMM_ASSERTDPF(!CreateParams.Flags.Info.StdSwizzle, "StdSwizzle not supported on current platform");
 
-                    if(!pGmmGlobalContext->GetWaTable().WaDefaultTile4)
+                    if(!GetGmmLibContext()->GetWaTable().WaDefaultTile4)
                     {
                         // Default Tiling is set to Tile64 on FtrTileY disabled platforms
                         CreateParams.Flags.Info.Tile4 = ((!GMM_IS_SUPPORTED_BPP_ON_TILE_64_YF_YS(BitsPerPixel)) ||            // 24,48,96 bpps are not supported on Tile64, Tile4 is bpp independent
                                                          ((CreateParams.Type == RESOURCE_3D) && (CreateParams.Flags.Gpu.Depth || CreateParams.Flags.Gpu.SeparateStencil)) ||
-                                                         ((!pGmmGlobalContext->GetSkuTable().FtrDisplayDisabled) &&
+                                                         ((!GetGmmLibContext()->GetSkuTable().FtrDisplayDisabled) &&
                                                           (CreateParams.Flags.Gpu.FlipChain || CreateParams.Flags.Gpu.Overlay)
                                                           ));
                         CreateParams.Flags.Info.Tile64 = !CreateParams.Flags.Info.Tile4;
@@ -108,7 +108,7 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
                     GMM_ASSERTDPF(0, "Tile Yf/Ys not supported on given platform");
 
                     // Overrides the flags.
-                    if(pGmmGlobalContext->GetWaTable().WaDefaultTile4)
+                    if(GetGmmLibContext()->GetWaTable().WaDefaultTile4)
                     {
                         CreateParams.Flags.Info.Tile64 = CreateParams.Flags.Info.TiledYs ||
                                                          (CreateParams.MSAA.NumSamples > 1) || CreateParams.Flags.Gpu.TiledResource; // Colour & Depth/Stencil(IMS) MSAA should use Tile64
@@ -123,7 +123,7 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
         //Convert non linear & non-tiledX tiling selection by client to proper tiling.
         else if(CreateParams.Flags.Info.Linear + CreateParams.Flags.Info.TiledX == 0)
          {
-            if(!pGmmGlobalContext->GetSkuTable().FtrTileY)
+            if(!GetGmmLibContext()->GetSkuTable().FtrTileY)
             {
                 __GMM_ASSERT(!(CreateParams.Flags.Info.TiledYs ||
                                CreateParams.Flags.Info.TiledYf ||
@@ -131,7 +131,7 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
 
                 // On Xe_HP onwards translate UMD's TileY/TileYs request to Tile4/Tile64 respectively
                 // Exclude TileX, Linear from override
-                if(pGmmGlobalContext->GetWaTable().WaDefaultTile4 && (CreateParams.Flags.Info.TiledYs ||
+                if(GetGmmLibContext()->GetWaTable().WaDefaultTile4 && (CreateParams.Flags.Info.TiledYs ||
                                                                        CreateParams.Flags.Info.TiledY))
                 {
                     CreateParams.Flags.Info.Tile64 =
@@ -147,10 +147,10 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
                 }
 
                 // Displayable surfaces cannot be Tiled4/64.
-                __GMM_ASSERT(!pGmmGlobalContext->GetSkuTable().FtrDisplayYTiling);
+                __GMM_ASSERT(!GetGmmLibContext()->GetSkuTable().FtrDisplayYTiling);
 
                 //override displayable surfaces to TileX
-                if(pGmmGlobalContext->GetSkuTable().FtrDisplayXTiling)
+                if(GetGmmLibContext()->GetSkuTable().FtrDisplayXTiling)
                 {
                     if(CreateParams.Flags.Gpu.FlipChain || CreateParams.Flags.Gpu.Overlay ||
                        CreateParams.Flags.Gpu.Presentable)
@@ -169,7 +169,7 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
                      CreateParams.Flags.Info.Linear);
     }
 
-    if(pGmmGlobalContext->GetSkuTable().FtrMultiTileArch)
+    if(GetGmmLibContext()->GetSkuTable().FtrMultiTileArch)
     {
         // For Naive apps, UMD does not populate multi tile arch params.
         // Gmm will populate them based on the kmd assigned tile to the umd process
@@ -180,14 +180,14 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
             __GMM_ASSERT(CreateParams.MultiTileArch.LocalMemEligibilitySet == 0);
             __GMM_ASSERT(CreateParams.MultiTileArch.LocalMemPreferredSet == 0);
 
-            __GMM_ASSERT(pGmmGlobalContext->GetSkuTable().FtrAssignedGpuTile < 4);
+            __GMM_ASSERT(GetGmmLibContext()->GetSkuTable().FtrAssignedGpuTile < 4);
 
 #if !__GMM_KMD__
-            GpuTile                                    = pGmmGlobalContext->GetSkuTable().FtrAssignedGpuTile;
+            GpuTile                                    = GetGmmLibContext()->GetSkuTable().FtrAssignedGpuTile;
             CreateParams.MultiTileArch.GpuVaMappingSet = __BIT(GpuTile);
 #else
             GpuTile                                    = 0;
-            CreateParams.MultiTileArch.GpuVaMappingSet = pGmmGlobalContext->GetGtSysInfo()->MultiTileArchInfo.TileMask;
+            CreateParams.MultiTileArch.GpuVaMappingSet = GetGmmLibContext()->GetGtSysInfo()->MultiTileArchInfo.TileMask;
 #endif
 
             CreateParams.MultiTileArch.Enable = true;
@@ -218,11 +218,11 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
 
     Surf.Flags.Info.__PreWddm2SVM =
     Surf.Flags.Info.SVM &&
-    !(pGmmGlobalContext->GetSkuTable().FtrWddm2GpuMmu ||
-      pGmmGlobalContext->GetSkuTable().FtrWddm2Svm);
+    !(GetGmmLibContext()->GetSkuTable().FtrWddm2GpuMmu ||
+      GetGmmLibContext()->GetSkuTable().FtrWddm2Svm);
 
 #if !__GMM_KMD__ && _WIN32
-    if(pGmmGlobalContext->GetWaTable().WaLLCCachingUnsupported)
+    if(GetGmmLibContext()->GetWaTable().WaLLCCachingUnsupported)
     {
         Surf.Flags.Info.GttMapType = (CreateParams.Flags.Info.Cacheable) ?
                                      GMM_GTT_CACHETYPE_VLV_SNOOPED :
@@ -231,18 +231,18 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
 #endif
 
 #if(_DEBUG || _RELEASE_INTERNAL)
-    Surf.Platform = pGmmGlobalContext->GetPlatformInfo().Platform;
+    Surf.Platform = GetGmmLibContext()->GetPlatformInfo().Platform;
 #endif
 
 Surf.BitsPerPixel = BitsPerPixel;
 
-    pGmmGlobalContext->GetPlatformInfoObj()->SetCCSFlag(this->GetResFlags());
+    GetGmmLibContext()->GetPlatformInfoObj()->SetCCSFlag(this->GetResFlags());
 
     // Moderate down displayable flags if input parameters are not conducive.
     // Reject non displayable tiling modes
     if(Surf.Flags.Gpu.FlipChain || Surf.Flags.Gpu.Overlay)
     {
-        if(Surf.Flags.Info.TiledY && !pGmmGlobalContext->GetSkuTable().FtrDisplayYTiling)
+        if(Surf.Flags.Info.TiledY && !GetGmmLibContext()->GetSkuTable().FtrDisplayYTiling)
         {
             if(Surf.Flags.Gpu.FlipChainPreferred)
             {
@@ -258,7 +258,7 @@ Surf.BitsPerPixel = BitsPerPixel;
     }
 
     // Convert Any Pseudo Creation Params to Actual...
-    GMM_TEXTURE_CALC *pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    GMM_TEXTURE_CALC *pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
     if(Surf.Flags.Gpu.UnifiedAuxSurface)
     {
         AuxSurf = Surf;
@@ -267,7 +267,7 @@ Surf.BitsPerPixel = BitsPerPixel;
         {
             //GMM_ASSERTDPF(Surf.Flags.Gpu.HiZ, "Lossless Z compression supported when Depth+HiZ+CCS is unified");
             AuxSecSurf                           = Surf;
-            AuxSecSurf.Type                      = pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS ? RESOURCE_INVALID : AuxSecSurf.Type;
+            AuxSecSurf.Type                      = GetGmmLibContext()->GetSkuTable().FtrFlatPhysCCS ? RESOURCE_INVALID : AuxSecSurf.Type;
             Surf.Flags.Gpu.HiZ                   = 0; //Its depth buffer, so clear HiZ
             AuxSecSurf.Flags.Gpu.HiZ             = 0;
             AuxSurf.Flags.Gpu.IndirectClearColor = 0; //Clear Depth flags from HiZ, contained with separate/legacy HiZ when Depth isn't compressible.
@@ -284,20 +284,20 @@ Surf.BitsPerPixel = BitsPerPixel;
                 return false;
             }
             Surf.Flags.Gpu.CCS = 1;
-            AuxSurf.Type       = pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS ? RESOURCE_INVALID : AuxSurf.Type;
+            AuxSurf.Type       = GetGmmLibContext()->GetSkuTable().FtrFlatPhysCCS ? RESOURCE_INVALID : AuxSurf.Type;
         }
         else if(Surf.MSAA.NumSamples > 1 && Surf.Flags.Gpu.CCS) //MSAA+MCS+CCS
         {
             GMM_ASSERTDPF(Surf.Flags.Gpu.MCS, "Lossless MSAA supported when MSAA+MCS+CCS is unified");
             AuxSecSurf                          = Surf;
-            AuxSecSurf.Type                     = pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS ? RESOURCE_INVALID : AuxSecSurf.Type;
+            AuxSecSurf.Type                     = GetGmmLibContext()->GetSkuTable().FtrFlatPhysCCS ? RESOURCE_INVALID : AuxSecSurf.Type;
             AuxSecSurf.Flags.Gpu.MCS            = 0;
             AuxSurf.Flags.Gpu.CCS               = 0;
             AuxSurf.Flags.Info.RenderCompressed = AuxSurf.Flags.Info.MediaCompressed = 0;
         }
         else if(Surf.Flags.Gpu.CCS)
         {
-            AuxSurf.Type = (pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS && !Surf.Flags.Gpu.ProceduralTexture) ? RESOURCE_INVALID : AuxSurf.Type;
+            AuxSurf.Type = (GetGmmLibContext()->GetSkuTable().FtrFlatPhysCCS && !Surf.Flags.Gpu.ProceduralTexture) ? RESOURCE_INVALID : AuxSurf.Type;
         }
 
         if(AuxSurf.Type != RESOURCE_INVALID &&
@@ -321,17 +321,10 @@ Surf.BitsPerPixel = BitsPerPixel;
 
     RotateInfo = CreateParams.RotateInfo;
 
-    if(pGmmGlobalContext->GetSkuTable().FtrMultiTileArch)
+    if(GetGmmLibContext()->GetSkuTable().FtrMultiTileArch)
     {
         MultiTileArch = CreateParams.MultiTileArch;
     }
-
-#ifdef __GMM_KMD__
-    if(Surf.Flags.Gpu.S3d)
-    {
-        Surf.S3d = CreateParams.S3d;
-    }
-#endif
 
     return true;
 }
@@ -354,7 +347,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
 
     GMM_DPF_ENTER;
 
-    __GMM_ASSERTPTR(pGmmGlobalContext, 0);
+    __GMM_ASSERTPTR(GetGmmLibContext(), 0);
 
 #if(defined(__GMM_KMD__) && (_DEBUG || _RELEASE_INTERNAL))
     //KMD Debug and Release Internal Drivers only
@@ -365,7 +358,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
     //in "Release" version and passes all zeros in Surf.Platform
     if(GFX_GET_CURRENT_RENDERCORE(Surf.Platform) == IGFX_UNKNOWN_CORE)
     {
-        Surf.Platform = pGmmGlobalContext->GetPlatformInfo().Platform;
+        Surf.Platform = GetGmmLibContext()->GetPlatformInfo().Platform;
         // If this is a unified surface then make sure the AUX surface has the same platform info
         if(Surf.Flags.Gpu.UnifiedAuxSurface)
         {
@@ -374,31 +367,32 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
         }
     }
 
-    if(pGmmGlobalContext->GetPlatformInfoObj() != NULL &&
+    if(GetGmmLibContext()->GetPlatformInfoObj() != NULL &&
        (GFX_GET_CURRENT_RENDERCORE(Surf.Platform) !=
-        GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform)) &&
-       (pGmmGlobalContext->GetOverridePlatformInfoObj() == NULL ||
+        GFX_GET_CURRENT_RENDERCORE(GetGmmLibContext()->GetPlatformInfo().Platform)) &&
+       (GetGmmLibContext()->GetOverridePlatformInfoObj() == NULL ||
         (GFX_GET_CURRENT_RENDERCORE(Surf.Platform) !=
-         GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetOverridePlatformInfo().Platform))))
+         GFX_GET_CURRENT_RENDERCORE(GetGmmLibContext()->GetOverridePlatformInfo().Platform))))
     {
         //Ensure override is a future platform.
         __GMM_ASSERT(GFX_GET_CURRENT_RENDERCORE(Surf.Platform) >
-                     GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform));
+                     GFX_GET_CURRENT_RENDERCORE(GetGmmLibContext()->GetPlatformInfo().Platform));
 
-        pGmmGlobalContext->SetOverridePlatformInfoObj(GmmLib::PlatformInfo::Create(Surf.Platform, true));
+        GetGmmLibContext()->SetOverridePlatformInfoObj(GetGmmLibContext()->CreatePlatformInfo(Surf.Platform, true));
 
-        if(pGmmGlobalContext->GetOverrideTextureCalc())
+        if(GetGmmLibContext()->GetOverrideTextureCalc())
         {
-            delete(pGmmGlobalContext->GetOverrideTextureCalc());
-            pGmmGlobalContext->SetOverrideTextureCalc(NULL);
+            delete(GetGmmLibContext()->GetOverrideTextureCalc());
+            GetGmmLibContext()->SetOverrideTextureCalc(NULL);
         }
 
-        pGmmGlobalContext->SetOverrideTextureCalc(GmmLib::GmmTextureCalc::Create(Surf.Platform, true));
+	GetGmmLibContext()->SetOverrideTextureCalc(GetGmmLibContext()->CreateTextureCalc(Surf.Platform, true));
+
     }
 #endif
 
-    pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
-    pTextureCalc      = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(&Surf, GetGmmLibContext());
+    pTextureCalc      = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
 
     __GMM_ASSERT(!(
     Surf.Flags.Gpu.Query &&
@@ -441,7 +435,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
         }
     }
 
-    if(!__CanSupportStdTiling(Surf))
+    if(!__CanSupportStdTiling(Surf, GetGmmLibContext()))
     {
         GMM_ASSERTDPF(0, "Invalid TileYf/TileYs usage!");
         goto ERROR_CASE;
@@ -482,7 +476,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
     }
     
     // Displayable surfaces must remain Tile4
-    if(((!pGmmGlobalContext->GetSkuTable().FtrDisplayDisabled) &&
+    if(((!GetGmmLibContext()->GetSkuTable().FtrDisplayDisabled) &&
         (Surf.Flags.Gpu.Overlay || Surf.Flags.Gpu.FlipChain)) &&
        (!(Surf.Flags.Info.Linear || Surf.Flags.Info.TiledX || GMM_IS_4KB_TILE(Surf.Flags))))
     {
@@ -490,7 +484,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
         goto ERROR_CASE;
     }
 
-    if(pGmmGlobalContext->GetSkuTable().FtrLocalMemory)
+    if(GetGmmLibContext()->GetSkuTable().FtrLocalMemory)
     {
         GMM_ASSERTDPF(((Surf.Flags.Info.NonLocalOnly && Surf.Flags.Info.LocalOnly) == 0),
                       "Incorrect segment preference, cannot be both local and system memory.");
@@ -506,7 +500,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
             Surf.Flags.Info.LocalOnly    = 1;
             Surf.Flags.Info.NonLocalOnly = 0;
         }
-        if(pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS &&
+        if(GetGmmLibContext()->GetSkuTable().FtrFlatPhysCCS &&
            (Surf.Flags.Info.RenderCompressed ||
             Surf.Flags.Info.MediaCompressed))
         {
@@ -542,7 +536,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
         }
 
         if(!Surf.Flags.Info.NonLocalOnly &&
-           (!pGmmGlobalContext->GetSkuTable().FtrLocalMemoryAllows4KB))
+           (!GetGmmLibContext()->GetSkuTable().FtrLocalMemoryAllows4KB))
         {
             Surf.Flags.Info.LocalOnly = true;
         }
@@ -568,7 +562,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
 
     if((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) < IGFX_GEN9_CORE) &&
 #if(_DEBUG || _RELEASE_INTERNAL)
-       !pGmmGlobalContext->GetWaTable().WaDisregardPlatformChecks &&
+       !GetGmmLibContext()->GetWaTable().WaDisregardPlatformChecks &&
 #endif
        Surf.Flags.Gpu.MMC)
     {
@@ -577,13 +571,13 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
     }
 
     //For Media Memory Compression --
-    if((Status = pGmmGlobalContext->GetPlatformInfoObj()->ValidateMMC(Surf)) == 0)
+    if((Status = GetGmmLibContext()->GetPlatformInfoObj()->ValidateMMC(Surf)) == 0)
     {
         GMM_ASSERTDPF(0, "Invalid flag or array size!");
         goto ERROR_CASE;
     }
 
-    if(!pGmmGlobalContext->GetSkuTable().FtrTileY)
+    if(!GetGmmLibContext()->GetSkuTable().FtrTileY)
     {
         if(Surf.Flags.Gpu.TiledResource &&
            ((Surf.Flags.Info.Linear && !(Surf.Type == RESOURCE_BUFFER)) || Surf.Flags.Info.TiledYs ||
@@ -608,7 +602,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
         }
     }
 
-    __GMM_ASSERT(!(pGmmGlobalContext->GetSkuTable().FtrTileY &&
+    __GMM_ASSERT(!(GetGmmLibContext()->GetSkuTable().FtrTileY &&
                    (Surf.Flags.Info.Tile4 || Surf.Flags.Info.Tile64)));
 
     //GMM asserts that ExistingSysMem allocation (whose malloc is outside GmmLib) are either
@@ -736,14 +730,14 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
        ((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) >= IGFX_GEN10_CORE) ||
         !Surf.Flags.Info.TiledYf) &&
        // Tile64 MSAA (Xe_HP)
-       (pGmmGlobalContext->GetSkuTable().FtrTileY ||
+       (GetGmmLibContext()->GetSkuTable().FtrTileY ||
         !GMM_IS_64KB_TILE(Surf.Flags) ||
         (Surf.MaxLod == 0)) &&
        // Tile4 does not support MSAA
-       (pGmmGlobalContext->GetSkuTable().FtrTileY ||
+       (GetGmmLibContext()->GetSkuTable().FtrTileY ||
         !GMM_IS_4KB_TILE(Surf.Flags)) &&
        // Non-Compressed/YUV...
-       !GmmIsCompressed(Surf.Format) &&
+       !GmmIsCompressed(GetGmmLibContext(), Surf.Format) &&
        !GmmIsYUVPacked(Surf.Format) &&
        !GmmIsPlanar(Surf.Format) &&
        // Supported Sample Count for Platform...
@@ -761,7 +755,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
     // CCS Restrictions
     if(Surf.Flags.Gpu.CCS)
     {
-        if((Status = pGmmGlobalContext->GetPlatformInfoObj()->ValidateCCS(Surf)) == 0)
+        if((Status = GetGmmLibContext()->GetPlatformInfoObj()->ValidateCCS(Surf)) == 0)
         {
             GMM_ASSERTDPF(0, "Invalid CCS usage!");
             goto ERROR_CASE;
@@ -775,7 +769,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
     }
 
     // UnifiedAuxSurface Restrictions
-    if((Status = pGmmGlobalContext->GetPlatformInfoObj()->ValidateUnifiedAuxSurface(Surf)) == 0)
+    if((Status = GetGmmLibContext()->GetPlatformInfoObj()->ValidateUnifiedAuxSurface(Surf)) == 0)
     {
         GMM_ASSERTDPF(0, "Invalid UnifiedAuxSurface usage!");
         goto ERROR_CASE;
@@ -805,7 +799,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
     }
 
  //MultiTileArch params
-    if(pGmmGlobalContext->GetSkuTable().FtrMultiTileArch)
+    if(GetGmmLibContext()->GetSkuTable().FtrMultiTileArch)
     {
         /*
             MultiTileArch validation criteria 
@@ -819,8 +813,8 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
            // Legitimate cases
            MultiTileArch.Enable &&
            (Surf.Flags.Info.NonLocalOnly || MultiTileArch.LocalMemEligibilitySet) &&
-           ((MultiTileArch.GpuVaMappingSet & pGmmGlobalContext->GetGtSysInfo()->MultiTileArchInfo.TileMask) == MultiTileArch.GpuVaMappingSet) &&
-           ((MultiTileArch.LocalMemEligibilitySet & pGmmGlobalContext->GetGtSysInfo()->MultiTileArchInfo.TileMask) == MultiTileArch.LocalMemEligibilitySet) &&
+           ((MultiTileArch.GpuVaMappingSet & GetGmmLibContext()->GetGtSysInfo()->MultiTileArchInfo.TileMask) == MultiTileArch.GpuVaMappingSet) &&
+           ((MultiTileArch.LocalMemEligibilitySet & GetGmmLibContext()->GetGtSysInfo()->MultiTileArchInfo.TileMask) == MultiTileArch.LocalMemEligibilitySet) &&
            ((MultiTileArch.LocalMemEligibilitySet & MultiTileArch.LocalMemPreferredSet) == MultiTileArch.LocalMemPreferredSet)))
         {
             GMM_ASSERTDPF(0, "Invalid MultiTileArch allocation params");
@@ -978,7 +972,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetDisplayCompressionSupport(
         }
 
         //Check fmt is display decompressible
-        ComprSupported = pGmmGlobalContext->GetPlatformInfoObj()->CheckFmtDisplayDecompressible(Surf, IsSupportedRGB64_16_16_16_16,
+        ComprSupported = GetGmmLibContext()->GetPlatformInfoObj()->CheckFmtDisplayDecompressible(Surf, IsSupportedRGB64_16_16_16_16,
                                                                                                 IsSupportedRGB32_8_8_8_8, IsSupportedRGB32_2_10_10_10,
                                                                                                 IsSupportedMediaFormats);
     }
@@ -1003,7 +997,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetDisplayFastClearSupport()
 {
     uint8_t FCSupported = 0;
 
-    if(GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN11_CORE)
+    if(GFX_GET_CURRENT_RENDERCORE(GetGmmLibContext()->GetPlatformInfo().Platform) >= IGFX_GEN11_CORE)
     {
         FCSupported = GetDisplayCompressionSupport() && !GmmIsPlanar(Surf.Format);
         FCSupported &= Surf.Flags.Gpu.IndirectClearColor;

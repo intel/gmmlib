@@ -22,21 +22,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Internal/Common/GmmLibInc.h"
 
-extern GMM_GLOBAL_CONTEXT *pGmmGlobalContext;
-
-int32_t GmmLib::PlatformInfo::RefCount = 0;
-
-GmmLib::PlatformInfo::PlatformInfo(PLATFORM &Platform)
+GmmLib::PlatformInfo::PlatformInfo(PLATFORM &Platform, Context *pGmmLibContext)
 {
     GMM_DPF_ENTER;
 
     memset(&Data, 0, sizeof(Data));
     Data.Platform = Platform;
 
+    this->pGmmLibContext = pGmmLibContext;
+
     GMM_RESOURCE_FORMAT GmmFormat;
 #define GMM_FORMAT_GEN(X) (GFX_GET_CURRENT_RENDERCORE(Data.Platform) >= IGFX_GEN##X##_CORE)
-#define GMM_FORMAT_SKU(FtrXxx) (pGmmGlobalContext->GetSkuTable().FtrXxx != 0)
-#define GMM_FORMAT_WA(WaXxx) (pGmmGlobalContext->GetWaTable().WaXxx != 0)
+#define GMM_FORMAT_SKU(FtrXxx) (pGmmLibContext->GetSkuTable().FtrXxx != 0)
+#define GMM_FORMAT_WA(WaXxx) (pGmmLibContext->GetWaTable().WaXxx != 0)
 #define GMM_COMPR_FORMAT_INVALID GMM_E2ECOMP_FORMAT_INVALID
 #define GMM_FORMAT(Name, bpe, _Width, _Height, _Depth, IsRT, IsASTC, RcsSurfaceFormat, SSCompressionFmt, Availability)        \
                                                                                                                          \
@@ -165,7 +163,7 @@ uint8_t GmmLib::PlatformInfo::CheckFmtDisplayDecompressible(GMM_TEXTURE_INFO &Su
     GMM_UNREFERENCED_PARAMETER(Surf);
 
     if(IsSupportedRGB32_8_8_8_8 || //RGB32 8 : 8 : 8 : 8
-       (GFX_GET_CURRENT_DISPLAYCORE(pGmmGlobalContext->GetPlatformInfo().Platform) >= IGFX_GEN10_CORE &&
+       (GFX_GET_CURRENT_DISPLAYCORE(pGmmLibContext->GetPlatformInfo().Platform) >= IGFX_GEN10_CORE &&
         IsSupportedRGB32_2_10_10_10)) //RGB32 2 : 10 : 10 : 10))
     {
         IsRenderCompressed = true;
@@ -178,71 +176,38 @@ uint8_t GmmLib::PlatformInfo::CheckFmtDisplayDecompressible(GMM_TEXTURE_INFO &Su
 ///
 /// @return Pointer to platform info data
 /////////////////////////////////////////////////////////////////////////////////////
-const GMM_PLATFORM_INFO *GMM_STDCALL __GmmGetPlatformInfo()
+const GMM_PLATFORM_INFO *GMM_STDCALL __GmmGetPlatformInfo(void *pLibContext)
 {
-    __GMM_ASSERTPTR(pGmmGlobalContext, NULL)
+    GMM_LIB_CONTEXT *pGmmLibContext = (GMM_LIB_CONTEXT *)pLibContext;
+    __GMM_ASSERTPTR(pGmmLibContext, NULL)
 
-    if(pGmmGlobalContext->GetPlatformInfoObj() != NULL)
+    if(pGmmLibContext->GetPlatformInfoObj() != NULL)
     {
-        return (const GMM_PLATFORM_INFO *)(&(pGmmGlobalContext->GetPlatformInfo()));
+        return (const GMM_PLATFORM_INFO *)(&(pGmmLibContext->GetPlatformInfo()));
     }
 
     return NULL;
 }
-
 /////////////////////////////////////////////////////////////////////////////////////
-/// C wrapper to set FBCRequiredStolenMemorySize
-///
-/// @param[in] Size: Size of FBC Required Stolen Memory
-/////////////////////////////////////////////////////////////////////////////////////
-void GMM_STDCALL __SetFBCRequiredStolenMemorySize(uint32_t Size)
-{
-    __GMM_ASSERT(pGmmGlobalContext != NULL)
-
-    if(pGmmGlobalContext != NULL && pGmmGlobalContext->GetPlatformInfoObj() != NULL)
-    {
-        pGmmGlobalContext->GetPlatformInfoObj()->SetDataFBCRequiredStolenMemorySize(Size);
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-/// C wrapper to set NumberFenceRegisters
-///
 /// @param[in] Number: Number of Fence Registers
 /////////////////////////////////////////////////////////////////////////////////////
-void GMM_STDCALL __SetNumberFenceRegisters(uint32_t Number)
+void GMM_STDCALL __SetNumberFenceRegisters(void *pLibContext, uint32_t Number)
 {
-    __GMM_ASSERT(pGmmGlobalContext != NULL)
+    GMM_LIB_CONTEXT *pGmmLibContext = (GMM_LIB_CONTEXT *)pLibContext;
+    __GMM_ASSERT(pGmmLibContext != NULL)
 
-    if(pGmmGlobalContext != NULL && pGmmGlobalContext->GetPlatformInfoObj() != NULL)
+    if(pGmmLibContext != NULL && pGmmLibContext->GetPlatformInfoObj() != NULL)
     {
-        pGmmGlobalContext->GetPlatformInfoObj()->SetDataNumberFenceRegisters(Number);
+        pGmmLibContext->GetPlatformInfoObj()->SetDataNumberFenceRegisters(Number);
     }
 }
 
-#if(defined(__GMM_KMD__) && (_DEBUG || _RELEASE_INTERNAL))
-/////////////////////////////////////////////////////////////////////////////////////
-/// C wrapper to get override platform info data pointer
-///
-/// @return Override platfrom info data pointer
-/////////////////////////////////////////////////////////////////////////////////////
-const GMM_PLATFORM_INFO *GMM_STDCALL __GmmGetOverridePlatformInfo()
+uint32_t GMM_STDCALL GmmPlatformGetBppFromGmmResourceFormat(void *pLibContext, GMM_RESOURCE_FORMAT Format)
 {
-    __GMM_ASSERT(pGmmGlobalContext != NULL)
+    GMM_LIB_CONTEXT *pGmmLibContext = (GMM_LIB_CONTEXT *)pLibContext;
 
-    if(pGmmGlobalContext != NULL && pGmmGlobalContext->GetOverridePlatformInfoObj() != NULL)
-    {
-        return (const GMM_PLATFORM_INFO *)(&(pGmmGlobalContext->GetOverridePlatformInfoObj()->GetData()));
-    }
-
-    return NULL;
-}
-#endif
-
-uint32_t GMM_STDCALL GmmPlatformGetBppFromGmmResourceFormat(GMM_RESOURCE_FORMAT Format)
-{
     __GMM_ASSERT((Format > GMM_FORMAT_INVALID) && (Format < GMM_RESOURCE_FORMATS));
-    __GMM_ASSERT(pGmmGlobalContext);
-    __GMM_ASSERT(pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].Element.BitsPer >> 3);
-    return pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].Element.BitsPer;
+    __GMM_ASSERT(pGmmLibContext);
+    __GMM_ASSERT(pGmmLibContext->GetPlatformInfo().FormatTable[Format].Element.BitsPer >> 3);
+    return pGmmLibContext->GetPlatformInfo().FormatTable[Format].Element.BitsPer;
 }

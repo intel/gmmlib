@@ -26,30 +26,32 @@ OTHER DEALINGS IN THE SOFTWARE.
 /////////////////////////////////////////////////////////////////////////////////////
 /// C Wrapper function for GmmLib::GmmCachePolicyGetPteType
 /// @see           GmmLib::GmmCachePolicyCommon::CachePolicyGetPteType()
-///
+//
+/// @param[in]     pLibContext: pGmmLibContext
 /// @param[in]     Usage: type of usage
 ///
 /// @return        GMM_PTE_CACHE_CONTROL_BITS:Populated PTE
 ///
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_PTE_CACHE_CONTROL_BITS GMM_STDCALL GmmCachePolicyGetPteType(GMM_RESOURCE_USAGE_TYPE Usage)
+GMM_PTE_CACHE_CONTROL_BITS GMM_STDCALL GmmCachePolicyGetPteType(void *pLibContext, GMM_RESOURCE_USAGE_TYPE Usage)
 {
-    return pGmmGlobalContext->GetCachePolicyObj()->CachePolicyGetPteType(Usage);
+    GMM_LIB_CONTEXT *pGmmLibContext = (GMM_LIB_CONTEXT *)pLibContext;
+    return pGmmLibContext->GetCachePolicyObj()->CachePolicyGetPteType(Usage);
 }
-
 /////////////////////////////////////////////////////////////////////////////////////
 /// C Wrapper function for GmmLib::GmmCachePolicyIsUsagePTECached
 /// @see           GmmLib::GmmCachePolicyCommon::CachePolicyIsUsagePTECached()
 ///
+/// @param[in]     pLibContext: pGmmLibContext
 /// @param[in]     Usage: type of usage
 ///
 /// @return        1 if the usage PTE entry is set for cached, 0 otherwise.
 /////////////////////////////////////////////////////////////////////////////////////
-uint8_t GMM_STDCALL GmmCachePolicyIsUsagePTECached(GMM_RESOURCE_USAGE_TYPE Usage)
+uint8_t GMM_STDCALL GmmCachePolicyIsUsagePTECached(void *pLibContext, GMM_RESOURCE_USAGE_TYPE Usage)
 {
-    return pGmmGlobalContext->GetCachePolicyObj()->CachePolicyIsUsagePTECached(Usage);
+    GMM_LIB_CONTEXT *pGmmLibContext = (GMM_LIB_CONTEXT *)pLibContext;
+    return pGmmLibContext->GetCachePolicyObj()->CachePolicyIsUsagePTECached(Usage);
 }
-
 /////////////////////////////////////////////////////////////////////////////////////
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetCachePolicyUsage.
 /// @see        GmmLib::GmmResourceInfoCommon::GetCachePolicyUsage()
@@ -85,9 +87,10 @@ void GMM_STDCALL GmmCachePolicyOverrideResourceUsage(GMM_RESOURCE_INFO *pResInfo
 /// @return        MEMORY_OBJECT_CONTROL_STATE: Gen adjusted MOCS structure (cache
 ///                                             policy) for the given buffer use.
 /////////////////////////////////////////////////////////////////////////////////////
-MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmCachePolicyGetMemoryObject(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage)
+MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmCachePolicyGetMemoryObject(void *pLibContext, GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage)
 {
-    return pGmmGlobalContext->GetCachePolicyObj()->CachePolicyGetMemoryObject(pResInfo, Usage);
+    GMM_LIB_CONTEXT *pGmmLibContext = (GMM_LIB_CONTEXT *)pLibContext;
+    return pGmmLibContext->GetCachePolicyObj()->CachePolicyGetMemoryObject(pResInfo, Usage);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -100,58 +103,61 @@ MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmCachePolicyGetMemoryObject(GMM_RESOUR
 ///  @return        MEMORY_OBJECT_CONTROL_STATE: Populated memory object
 ///
 /////////////////////////////////////////////////////////////////////////////////////
-MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmCachePolicyGetOriginalMemoryObject(GMM_RESOURCE_INFO *pResInfo)
+MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmCachePolicyGetOriginalMemoryObject(void *pLibContext, GMM_RESOURCE_INFO *pResInfo)
 {
-    return pGmmGlobalContext->GetCachePolicyObj()->CachePolicyGetOriginalMemoryObject(pResInfo);
+    GMM_LIB_CONTEXT *pGmmLibContext = (GMM_LIB_CONTEXT *)pLibContext;
+    return pGmmLibContext->GetCachePolicyObj()->CachePolicyGetOriginalMemoryObject(pResInfo);
 }
-
 /////////////////////////////////////////////////////////////////////////////////////
 /// C Wrapper function for GmmCachePolicy::GmmGetWantedMemoryType.
 /// @see            GmmLib::GmmCachePolicy::GetWantedMemoryType()
 ///
 /// @param[in]      CachePolicy:cache policy for a usage
+/// @param[in]     pLibContext: pGmmLibContext
 ///
 /// @return         wanted memory type
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_GFX_MEMORY_TYPE GmmGetWantedMemoryType(GMM_CACHE_POLICY_ELEMENT CachePolicy)
+GMM_GFX_MEMORY_TYPE GmmGetWantedMemoryType(void *pLibContext, GMM_CACHE_POLICY_ELEMENT CachePolicy)
 {
-    return pGmmGlobalContext->GetCachePolicyObj()->GetWantedMemoryType(CachePolicy);
+    GMM_LIB_CONTEXT *pGmmLibContext = (GMM_LIB_CONTEXT *)pLibContext;
+    return pGmmLibContext->GetCachePolicyObj()->GetWantedMemoryType(CachePolicy);
 }
-
 /////////////////////////////////////////////////////////////////////////////////////
 /// Returns count of current MOCS values for MOCS Table programming at GMM boot
 ///
-/// @param[in]  none:
+/// @param[in]     pLibContext: pGmmLibContext
 /// @return     uint32_t  no of mocs register required to program
 /////////////////////////////////////////////////////////////////////////////////////
-uint32_t GMM_STDCALL GmmCachePolicyGetMaxMocsIndex(void)
+uint32_t GMM_STDCALL GmmCachePolicyGetMaxMocsIndex(void *pLibContext)
 {
-    GMM_CACHE_POLICY *          pCachePolicy = pGmmGlobalContext->GetCachePolicyObj();
-    GmmLib::GmmGen9CachePolicy *ptr          = static_cast<GmmLib::GmmGen9CachePolicy *>(pCachePolicy);
+    GMM_LIB_CONTEXT *           pGmmLibContext = (GMM_LIB_CONTEXT *)pLibContext;
+    GMM_CACHE_POLICY *          pCachePolicy   = pGmmLibContext->GetCachePolicyObj();
+    GmmLib::GmmGen9CachePolicy *ptr            = static_cast<GmmLib::GmmGen9CachePolicy *>(pCachePolicy);
     return ptr->CurrentMaxMocsIndex;
 }
-
 /////////////////////////////////////////////////////////////////////////////////////
 /// Returns count of current L1 HDC MOCS values for MOCS Table programming at GMM boot
 ///
-/// @param[in]  none:
+/// @param[in]     pLibContext: pGmmLibContext
 /// @return     uint32_t  max L1 hdc mocs index needed to program
 /////////////////////////////////////////////////////////////////////////////////////
-uint32_t GMM_STDCALL GmmCachePolicyGetMaxL1HdcMocsIndex(void)
+uint32_t GMM_STDCALL GmmCachePolicyGetMaxL1HdcMocsIndex(void *pLibContext)
 {
-    GMM_CACHE_POLICY *          pCachePolicy = pGmmGlobalContext->GetCachePolicyObj();
-    GmmLib::GmmGen9CachePolicy *ptr          = static_cast<GmmLib::GmmGen9CachePolicy *>(pCachePolicy);
+    GMM_LIB_CONTEXT *           pGmmLibContext = (GMM_LIB_CONTEXT *)pLibContext;
+    GMM_CACHE_POLICY *          pCachePolicy   = pGmmLibContext->GetCachePolicyObj();
+    GmmLib::GmmGen9CachePolicy *ptr            = static_cast<GmmLib::GmmGen9CachePolicy *>(pCachePolicy);
     return ptr->CurrentMaxL1HdcMocsIndex;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// Returns count of current Special MOCS values for MOCS Table programming at GMM boot
 ///
-/// @param[in]  none:
+/// @param[in]     pLibContext: pGmmLibContext
 /// @return     uint32_t  max special mocs index needed to program
 /////////////////////////////////////////////////////////////////////////////////////
-uint32_t GMM_STDCALL GmmCachePolicyGetMaxSpecialMocsIndex(void)
+uint32_t GMM_STDCALL GmmCachePolicyGetMaxSpecialMocsIndex(void *pLibContext)
 {
-    GMM_CACHE_POLICY *pCachePolicy = pGmmGlobalContext->GetCachePolicyObj();
+    GMM_LIB_CONTEXT * pGmmLibContext = (GMM_LIB_CONTEXT *)pLibContext;
+    GMM_CACHE_POLICY *pCachePolicy   = pGmmLibContext->GetCachePolicyObj();
     return pCachePolicy->GetMaxSpecialMocsIndex();
 }

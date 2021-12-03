@@ -4140,7 +4140,7 @@ TEST_F(CTestGen9Resource, TestCCS)
                 //{
                 //    ExpectedQPitch *= DepthSlice;
                 //}
-                //else { //TBD: Should 3D surface Aux QPitch be distance between R-slices or not
+                //else { // Should 3D surface Aux QPitch be distance between R-slices or not
                 // If it must be R-slice distance, compute 3D QPitch, remove depthslice from arraysize
                 VerifyResourceQPitch<true>(CCSResourceInfo, ExpectedQPitch); //verify false, else QPitch given for RT-size not CCS
                 //}
@@ -4158,7 +4158,7 @@ TEST_F(CTestGen9Resource, TestCCS)
         pGmmULTClientContext->DestroyResInfoObject(RTResourceInfo);
     } //Iterate through all input tuples
 
-    //TBD: Mip-mapped case
+    // Mip-mapped case
 }
 
 /// @brief ULT for MMC Resource

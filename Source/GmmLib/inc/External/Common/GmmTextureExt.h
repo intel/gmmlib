@@ -195,10 +195,10 @@ typedef struct GMM_TEXTURE_INFO_REC
 //
 //***************************************************************************
 #if(defined(__GMM_KMD__))
-GMM_STATUS GmmTexAlloc(GMM_TEXTURE_INFO* pTexInfo);
-GMM_STATUS GmmTexLinearCCS(GMM_TEXTURE_INFO* pTexInfo, GMM_TEXTURE_INFO *pAuxTexInfo);
+GMM_STATUS GmmTexAlloc(GMM_LIB_CONTEXT *pGmmLibContext, GMM_TEXTURE_INFO* pTexInfo);
+GMM_STATUS GmmTexLinearCCS(GMM_LIB_CONTEXT *pGmmLibContext, GMM_TEXTURE_INFO* pTexInfo, GMM_TEXTURE_INFO *pAuxTexInfo);
 #endif
-GMM_STATUS GmmTexGetMipMapOffset(GMM_TEXTURE_INFO* pTexInfo, GMM_REQ_OFFSET_INFO* pReqInfo);
+GMM_STATUS GmmTexGetMipMapOffset(GMM_TEXTURE_INFO* pTexInfo, GMM_REQ_OFFSET_INFO* pReqInfo , GMM_LIB_CONTEXT* pGmmLibContext);
 
 #define GMM_ISNOT_TILED(TileInfo) ((TileInfo).LogicalSize == 0)
 #define GMM_IS_TILED(TileInfo)    ((TileInfo).LogicalSize > 0)
@@ -214,11 +214,10 @@ GMM_STATUS GmmTexGetMipMapOffset(GMM_TEXTURE_INFO* pTexInfo, GMM_REQ_OFFSET_INFO
 #define GMM_IS_64KB_TILE(Flags) (Flags.Info.TiledYs || Flags.Info.Tile64)
 #define GMM_IS_SUPPORTED_BPP_ON_TILE_64_YF_YS(bpp) ((bpp == 8) || (bpp == 16) || (bpp == 32) || (bpp == 64) || (bpp == 128))
 
-#define GMM_SET_4KB_TILE(Flags, Value) if (pGmmGlobalContext->GetSkuTable().FtrTileY) ((Flags).Info.TiledY = (Value)); else ((Flags).Info.Tile4 = (Value))
-#define GMM_SET_64KB_TILE(Flags, Value) if (pGmmGlobalContext->GetSkuTable().FtrTileY) ((Flags).Info.TiledYs = (Value)); else ((Flags).Info.Tile64 = (Value))
-#define GMM_SET_4KB_TILE_MODE(TileMode) if (pGmmGlobalContext->GetSkuTable().FtrTileY) (TileMode = LEGACY_TILE_Y); else (TileMode = TILE4)
-#define GMM_IS_TILEY (pClientContext->GetSkuTable().FtrTileY)
-
+#define GMM_SET_4KB_TILE(Flags, Value,pGmmLibContext) if (pGmmLibContext->GetSkuTable().FtrTileY) ((Flags).Info.TiledY = (Value)); else ((Flags).Info.Tile4 = (Value))
+#define GMM_SET_64KB_TILE(Flags, Value,pGmmLibContext) if (pGmmLibContext->GetSkuTable().FtrTileY) ((Flags).Info.TiledYs = (Value)); else ((Flags).Info.Tile64 = (Value))
+#define GMM_SET_4KB_TILE_MODE(TileMode,pGmmLibContext) if (pGmmLibContext->GetSkuTable().FtrTileY) (TileMode = LEGACY_TILE_Y); else (TileMode = TILE4)
+#define GMM_IS_TILEY(pGmmLibContext) (((GmmClientContext*)pClientContext)->GetSkuTable().FtrTileY)
 
 // Reset packing alignment to project default
 #pragma pack(pop)

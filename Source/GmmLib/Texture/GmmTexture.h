@@ -57,7 +57,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 //
 //-----------------------------------------------------------------------------
 // Gmmlib 2.0 TODO[Low] Move to Class and Inline function handling.
-GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
+GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo,GMM_LIB_CONTEXT* pGmmLibContext)
 {
     uint32_t                   UnitAlignWidth = 0;
     uint32_t                   UnitAlignHeight = 0;
@@ -66,12 +66,12 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
     GMM_TEXTURE_CALC        *pTextureCalc;
 
     GMM_DPF_ENTER;
+    __GMM_ASSERTPTR(pGmmLibContext,GMM_ERROR);
 
     __GMM_ASSERTPTR(pTexInfo, GMM_ERROR);
-    __GMM_ASSERTPTR(pGmmGlobalContext, GMM_ERROR);
 
 #define SET_ALIGN_FACTOR(Xxx, Bytes)                            \
-    if(!pGmmGlobalContext->GetSkuTable().FtrTileY)              \
+    if(!pGmmLibContext->GetSkuTable().FtrTileY)              \
     {                                                           \
         UnitAlign##Xxx =                                        \
             (pTexInfo->BitsPerPixel == 128) ? Bytes/16 :        \
@@ -101,8 +101,8 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
     if( !pTexInfo->Alignment.HAlign &&
         !pTexInfo->Alignment.VAlign)
     {
-        pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
-        pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo);
+        pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo,pGmmLibContext);
+        pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(pTexInfo,pGmmLibContext);
 
         /// SKL TiledYf/Ys Surfaces //////////////////////////////////////////
         if( ((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN9_CORE) &&
@@ -145,7 +145,7 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
                    !pTexInfo->Flags.Gpu.Depth &&
                    !pTexInfo->Flags.Gpu.SeparateStencil)
                 {
-                    if(pGmmGlobalContext->GetSkuTable().FtrTileY)
+                    if(pGmmLibContext->GetSkuTable().FtrTileY)
                     {
                         switch(pTexInfo->MSAA.NumSamples)
                         {
@@ -186,7 +186,7 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
             }
 
             #undef SET_ALIGN_INFO
-            if (GmmIsCompressed(pTexInfo->Format))
+            if(GmmIsCompressed(pGmmLibContext, pTexInfo->Format))
             {
                 uint32_t   ElementWidth, ElementHeight, ElementDepth;
                 pTextureCalc->GetCompressionBlockDimensions(pTexInfo->Format, &ElementWidth, &ElementHeight, &ElementDepth);
@@ -213,7 +213,7 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
             UnitAlignHeight = pPlatform->TexAlign.CCS.Align.Height;
 
             ALIGNMENT UnitAlign = { UnitAlignWidth , UnitAlignHeight, UnitAlignDepth };
-            pGmmGlobalContext->GetPlatformInfoObj()->ApplyExtendedTexAlign(pTexInfo->CCSModeAlign, UnitAlign);
+            pGmmLibContext->GetPlatformInfoObj()->ApplyExtendedTexAlign(pTexInfo->CCSModeAlign, UnitAlign);
 
             if (UnitAlign.Width != UnitAlignWidth ||
                 UnitAlign.Height != UnitAlignHeight ||
@@ -232,7 +232,7 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
             // For packed 8/16-bit formats alignment factor of 4 will give us < 16B so expand to 32B
             SET_ALIGN_FACTOR(Width, 32);
         }
-        else if(GmmIsCompressed(pTexInfo->Format)) /////////////////////////////
+        else if(GmmIsCompressed(pGmmLibContext, pTexInfo->Format)) /////////////////////////////
         {
             uint32_t   ElementWidth, ElementHeight, ElementDepth;
 
@@ -337,14 +337,14 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
                 UnitAlignHeight = pPlatform->TexAlign.AllOther.Height;
 
                 // Let VAlign = 16, when bpp == 8 or 16 for both TileX and TileY on BDW
-                if ((GmmGetWaTable(pGmmGlobalContext)->WaUseVAlign16OnTileXYBpp816) &&
+                if ((GmmGetWaTable(pGmmLibContext)->WaUseVAlign16OnTileXYBpp816) &&
                     (pTexInfo->BitsPerPixel == 8 || pTexInfo->BitsPerPixel == 16) &&
                     (pTexInfo->Flags.Info.TiledX || pTexInfo->Flags.Info.TiledY))
                 {
                     UnitAlignHeight = 16;
                 }
 
-                if((GmmGetWaTable(pGmmGlobalContext)->Wa32bppTileY2DColorNoHAlign4) &&
+                if((GmmGetWaTable(pGmmLibContext)->Wa32bppTileY2DColorNoHAlign4) &&
                    (pTexInfo->BitsPerPixel == 32 && pTexInfo->Flags.Info.TiledY &&
                        pTexInfo->MSAA.NumSamples == 1 && pTexInfo->MaxLod > 1) &&
                    UnitAlignWidth <= 4)
@@ -356,12 +356,12 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo)
             }
             else if(pTexInfo->MSAA.NumSamples <= 1)
             {
-                if ((GmmGetWaTable(pGmmGlobalContext)->WaValign2For96bppFormats) &&
+                if ((GmmGetWaTable(pGmmLibContext)->WaValign2For96bppFormats) &&
                             ( pTexInfo->BitsPerPixel == 96 ) )
                 {
                     UnitAlignHeight = 2;
                 }
-                else if ((GmmGetWaTable(pGmmGlobalContext)->WaValign2ForR8G8B8UINTFormat) &&
+                else if ((GmmGetWaTable(pGmmLibContext)->WaValign2ForR8G8B8UINTFormat) &&
                             ( pTexInfo->Format == GMM_FORMAT_R8G8B8_UINT ) )
                 {
                     UnitAlignHeight = 2;

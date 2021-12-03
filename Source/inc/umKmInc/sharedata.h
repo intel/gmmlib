@@ -213,6 +213,9 @@ typedef struct _ADAPTER_INFO
     GT_SYSTEM_INFO              SystemInfo;             // List of system details
     KM_DEFERRED_WAIT_INFO       DeferredWaitInfo;       // Indicates if DeferredWait feature is enabled and value of active display
 
+#ifdef _WIN32
+    ADAPTER_BDF                 stAdapterBDF;           // Adapter BDF
+#endif
 
 } ADAPTER_INFO, *PADAPTER_INFO;
 #pragma pack (pop)

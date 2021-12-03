@@ -38,27 +38,28 @@ typedef struct GMM_CACHE_POLICY_ELEMENT_REC
 {
     uint32_t                       IDCode;
     union {
-        struct{
-            uint32_t                   LLC         : 1;
-            uint32_t                   ELLC        : 1;
-            uint32_t                   L3          : 1;
-            uint32_t                   WT          : 1;
-            uint32_t                   AGE         : 2;
-            uint32_t                   AOM         : 1;
-            uint32_t                   LeCC_SCC    : 3;
-            uint32_t                   L3_SCC      : 3;
-            uint32_t                   SCF         : 1; // Snoop Control Field for BXT
-            uint32_t                   CoS         : 2; // Class of Service, driver default to Class 0
-            uint32_t                   SSO         : 2; // Self Snoop Override  control and value
-            uint32_t                   HDCL1       : 1; // HDC L1 caching enable/disable
-            uint32_t                   L3Eviction  : 2; // Specify L3-eviction type (NA, ReadOnly, Standard, Special)
-            uint32_t                   Initialized : 1;
-            uint32_t                   SegOv       : 3; // Override seg-pref (none, local-only, sys-only, etc)
-            uint32_t                   GlbGo       : 1; // Global GO point - L3 or Memory
-            uint32_t                   UcLookup    : 1; // Snoop L3 for uncached 
-            uint32_t                   Reserved    : 5;
-        };
-        uint32_t Value;
+       struct{
+            uint64_t                  LLC         : 1;
+            uint64_t                    ELLC        : 1;
+            uint64_t                   L3          : 1;
+            uint64_t                   WT          : 1;
+            uint64_t                   AGE         : 2;
+            uint64_t                   AOM         : 1;
+            uint64_t                   LeCC_SCC    : 3;
+            uint64_t                   L3_SCC      : 3;
+            uint64_t                   SCF         : 1; // Snoop Control Field for BXT
+            uint64_t                   CoS         : 2; // Class of Service, driver default to Class 0
+            uint64_t                   SSO         : 2; // Self Snoop Override  control and value
+            uint64_t                   HDCL1       : 1; // HDC L1 caching enable/disable
+            uint64_t                   L3Eviction  : 2; // Specify L3-eviction type (NA, ReadOnly, Standard, Special)
+            uint64_t                   SegOv       : 3; // Override seg-pref (none, local-only, sys-only, etc)
+            uint64_t                   GlbGo       : 1; // Global GO point - L3 or Memory
+            uint64_t                   UcLookup    : 1; // Snoop L3 for uncached 
+            uint64_t                   Initialized : 1;
+            uint64_t                   Reserved    : 2;
+
+	};
+        uint64_t Value;    
     };
 
     MEMORY_OBJECT_CONTROL_STATE               MemoryObjectOverride;
@@ -143,7 +144,7 @@ typedef enum GMM_GFX_PAT_IDX_REC
     PAT7            // Will be tied to GMM_GFX_PAT_WC
 }GMM_GFX_PAT_IDX;
 
-#define GFX_IS_ATOM_PLATFORM (GmmGetSkuTable(pGmmGlobalContext)->FtrLCIA)
+#define GFX_IS_ATOM_PLATFORM(pGmmLibContext) (GmmGetSkuTable(pGmmLibContext)->FtrLCIA)
 
 typedef enum GMM_GFX_TARGET_CACHE_REC
 {
@@ -367,7 +368,7 @@ typedef union GMM_PRIVATE_PAT_REC {
 
 // Function Prototypes
 GMM_STATUS  GmmInitializeCachePolicy();
-GMM_GFX_MEMORY_TYPE GmmGetWantedMemoryType(GMM_CACHE_POLICY_ELEMENT CachePolicy);
+GMM_GFX_MEMORY_TYPE GmmGetWantedMemoryType(void *pLibContext, GMM_CACHE_POLICY_ELEMENT CachePolicy);
 
 // Used for GMM ULT testing.
 #ifdef __GMM_ULT

@@ -47,30 +47,38 @@ typedef union GMM_PTE_CACHE_CONTROL_BITS_REC
 {
     struct
     {
-        uint32_t Valid         : 1 ;
-        uint32_t CacheControl  : 2 ;
-        uint32_t GFDT          : 1 ;
-        uint32_t               : 28;
-    }Gen6;
+	uint64_t Valid          : 1;
+        uint64_t CacheControl   : 2;
+        uint64_t GFDT           : 1;
+        uint64_t                : 28;
+        uint64_t                : 32;
+    } Gen6;
     struct
     {
-        uint32_t Valid          : 1 ;
-        uint32_t CacheControlLo : 3 ;
-        uint32_t                : 7 ;
-        uint32_t CacheControlHi : 1 ;
-        uint32_t                : 20;
-    }Gen7_5;
+        uint64_t Valid          : 1;
+        uint64_t CacheControlLo : 3;
+        uint64_t                : 7;
+        uint64_t CacheControlHi : 1;
+        uint64_t                : 20;
+        uint64_t                : 32;
+    } Gen7_5;
     struct
     {
-        uint32_t Valid          : 1 ;
-        uint32_t                : 2 ;
-        uint32_t PWT            : 1 ;
-        uint32_t PCD            : 1 ;
-        uint32_t                : 2 ;
-        uint32_t PAT            : 1 ;
-        uint32_t                : 24;
-    }Gen8;
-    uint32_t                       DwordValue;
+        uint64_t Valid          : 1;
+        uint64_t                : 2;
+        uint64_t PWT            : 1;
+        uint64_t PCD            : 1;
+        uint64_t                : 2;
+        uint64_t PAT            : 1;
+        uint64_t                : 24;
+        uint64_t                : 32;
+    } Gen8;
+
+    struct
+    {
+        uint32_t DwordValue;
+        uint32_t HighDwordValue;
+    };
 }GMM_PTE_CACHE_CONTROL_BITS;
 
 typedef union MEMORY_OBJECT_CONTROL_STATE_REC

@@ -42,7 +42,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::Is64KBPageSuitable()
        Surf.Flags.Gpu.CameraCapture ||
        Surf.Flags.Info.KernelModeMapped ||
        (Surf.Flags.Gpu.S3d && !Surf.Flags.Gpu.S3dDx &&
-        !pGmmGlobalContext->GetSkuTable().FtrDisplayEngineS3d)
+        !GetGmmLibContext()->GetSkuTable().FtrDisplayEngineS3d)
 #if(LHDM)
        || (Surf.Flags.Info.AllowVirtualPadding &&
            ExistingSysMem.hParentAllocation)
@@ -52,24 +52,24 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::Is64KBPageSuitable()
         Ignore64KBPadding = true;
     }
 
-    if(pGmmGlobalContext->GetSkuTable().FtrLocalMemory)
-    {
+    if(GetGmmLibContext()->GetSkuTable().FtrLocalMemory)
+     {
         Ignore64KBPadding |= (Surf.Flags.Info.NonLocalOnly || (Surf.Flags.Info.Shared && !Surf.Flags.Info.NotLockable));
-        Ignore64KBPadding |= (pGmmGlobalContext->GetSkuTable().FtrLocalMemoryAllows4KB && Surf.Flags.Info.NoOptimizationPadding);
-	Ignore64KBPadding |= ((pGmmGlobalContext->GetSkuTable().FtrLocalMemoryAllows4KB) && (((Size * (100 + (GMM_GFX_SIZE_T)pGmmGlobalContext->GetAllowedPaddingFor64KbPagesPercentage())) / 100) < GFX_ALIGN(Size, GMM_KBYTE(64)))); 
+        Ignore64KBPadding |= (GetGmmLibContext()->GetSkuTable().FtrLocalMemoryAllows4KB && Surf.Flags.Info.NoOptimizationPadding);
+	Ignore64KBPadding |= ((GetGmmLibContext()->GetSkuTable().FtrLocalMemoryAllows4KB) && (((Size * (100 + (GMM_GFX_SIZE_T)GetGmmLibContext()->GetAllowedPaddingFor64KbPagesPercentage())) / 100) < GFX_ALIGN(Size, GMM_KBYTE(64)))); 
     }
     else
     {
         // The final padded size cannot be larger then a set percentage of the original size
         if((Surf.Flags.Info.NoOptimizationPadding && !GFX_IS_ALIGNED(Size, GMM_KBYTE(64))) /*Surface is not 64kb aligned*/ ||
-           (!Surf.Flags.Info.NoOptimizationPadding && (((Size * (100 + pGmmGlobalContext->GetAllowedPaddingFor64KbPagesPercentage())) / 100) < GFX_ALIGN(Size, GMM_KBYTE(64)))) /*10% padding TBC */)
+           (!Surf.Flags.Info.NoOptimizationPadding && (((Size * (100 + GetGmmLibContext()->GetAllowedPaddingFor64KbPagesPercentage())) / 100) < GFX_ALIGN(Size, GMM_KBYTE(64)))) /*10% padding TBC */)
         {
             Ignore64KBPadding |= true;
         }
     }
 
     // If 64KB paging is enabled pad out the resource to 64KB alignment
-    if(pGmmGlobalContext->GetSkuTable().FtrWddm2_1_64kbPages &&
+    if(GetGmmLibContext()->GetSkuTable().FtrWddm2_1_64kbPages &&
        // Ignore the padding for the above VirtualPadding or ESM cases
        (!Ignore64KBPadding) &&
        // Resource must be 64KB aligned
@@ -99,14 +99,9 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::Is64KBPageSuitable()
 GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(GMM_RESCREATE_PARAMS &CreateParams)
 {
     GMM_STATUS Status = GMM_ERROR;
-
-#if defined(__GMM_KMD__)
-    ClientType = GMM_KMD_VISTA;
-#else
-    GET_GMM_CLIENT_TYPE(pClientContext, ClientType);
-#endif
-
-    Status = Create(*pGmmGlobalContext, CreateParams);
+    // ToDo: Only Vk is using this Create API directly. Derive the GmmLibCOntext from the ClientContext stored in
+    // ResInfo object.
+    Status = Create(*(reinterpret_cast<GMM_CLIENT_CONTEXT *>(pClientContext)->GetLibContext()), CreateParams);
 
     return Status;
 }
@@ -131,14 +126,14 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::CreateCustomRes(Context &G
 
     GMM_DPF_ENTER;
 
-    __GMM_ASSERTPTR(pGmmGlobalContext, GMM_ERROR);
-    pGmmLibContext = reinterpret_cast<uint64_t>(&GmmLibContext);
+    GET_GMM_CLIENT_TYPE(pClientContext, ClientType);
+    pGmmUmdLibContext = reinterpret_cast<uint64_t>(&GmmLibContext);
 
 
     if((CreateParams.Format > GMM_FORMAT_INVALID) &&
        (CreateParams.Format < GMM_RESOURCE_FORMATS))
     {
-        BitsPerPixel = pGmmGlobalContext->GetPlatformInfo().FormatTable[CreateParams.Format].Element.BitsPer;
+        BitsPerPixel = GetGmmLibContext()->GetPlatformInfo().FormatTable[CreateParams.Format].Element.BitsPer;
     }
     else
     {
@@ -147,8 +142,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::CreateCustomRes(Context &G
         goto ERROR_CASE;
     }
 
-    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf, GetGmmLibContext());
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
 
     Surf.Type                    = CreateParams.Type;
     Surf.Format                  = CreateParams.Format;
@@ -163,7 +158,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::CreateCustomRes(Context &G
     Surf.ArraySize               = 1;
 
 #if(_DEBUG || _RELEASE_INTERNAL)
-    Surf.Platform = pGmmGlobalContext->GetPlatformInfo().Platform;
+    Surf.Platform = GetGmmLibContext()->GetPlatformInfo().Platform;
 #endif
     Surf.BitsPerPixel     = BitsPerPixel;
     Surf.Alignment.QPitch = (GMM_GLOBAL_GFX_SIZE_T)(Surf.Pitch * Surf.BaseHeight);
@@ -259,7 +254,9 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
 
     GMM_DPF_ENTER;
 
-    __GMM_ASSERTPTR(pGmmGlobalContext, GMM_ERROR);
+    GET_GMM_CLIENT_TYPE(pClientContext, ClientType);
+    pGmmUmdLibContext = reinterpret_cast<uint64_t>(&GmmLibContext);
+    __GMM_ASSERTPTR(pGmmUmdLibContext, GMM_ERROR);
 
     if(CreateParams.Flags.Info.ExistingSysMem &&
        (CreateParams.Flags.Info.TiledW ||
@@ -272,30 +269,14 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
         goto ERROR_CASE;
     }
 
-    pGmmLibContext = reinterpret_cast<uint64_t>(&GmmLibContext);
-
-#if(!defined(__GMM_KMD__) && !defined(GMM_UNIFIED_LIB))
-    // Client ULT does new on ResInfo without calling GmmInitGlobalContext. If they call create later, on the previously created
-    // ResInfo object set the clientContext for them, since clientContext wouldnt have been set
-    if(!pClientContext)
-    {
-        pClientContext = pGmmGlobalContext->pGmmGlobalClientContext;
-        GET_GMM_CLIENT_TYPE(pClientContext, ClientType);
-    }
-#endif
-
-#if defined(__GMM_KMD__)
-    ClientType = GMM_KMD_VISTA;
-#endif
-
     if(!CopyClientParams(CreateParams))
     {
         Status = GMM_INVALIDPARAM;
         goto ERROR_CASE;
     }
 
-    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf, GetGmmLibContext());
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
 
 #if defined(__GMM_KMD__) || !defined(_WIN32)
     if(!CreateParams.Flags.Info.ExistingSysMem)
@@ -350,7 +331,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
             if(Surf.Flags.Gpu.IndirectClearColor ||
                Surf.Flags.Gpu.ColorDiscard)
             {
-                if(pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS && AuxSurf.Type == RESOURCE_INVALID)
+                if(GetGmmLibContext()->GetSkuTable().FtrFlatPhysCCS && AuxSurf.Type == RESOURCE_INVALID)
                 {
                     //ie only AuxType is CCS, doesn't exist with FlatCCS, enable it for CC
                     AuxSurf.Type = Surf.Type;
@@ -487,7 +468,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
         }
     }
 
-    if(Is64KBPageSuitable() && pGmmGlobalContext->GetSkuTable().FtrLocalMemory)
+    if(Is64KBPageSuitable() && GetGmmLibContext()->GetSkuTable().FtrLocalMemory)
     {
         // BaseAlignment can be greater than 64KB and needs to be aligned to 64KB
         Surf.Alignment.BaseAlignment = GFX_MAX(GFX_ALIGN(Surf.Alignment.BaseAlignment, GMM_KBYTE(64)), GMM_KBYTE(64));
@@ -736,8 +717,8 @@ bool GmmLib::GmmResourceInfoCommon::RedescribePlanes()
     GMM_STATUS               Status       = GMM_SUCCESS;
     int                      MaxPlanes    = 1;
 
-    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf, GetGmmLibContext());
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
 
     __GMM_ASSERT(Surf.Flags.Info.RedecribedPlanes);
 
@@ -869,7 +850,7 @@ uint64_t GmmLib::GmmResourceInfoCommon::GetFastClearWidth(uint32_t MipLevel)
     uint32_t numSamples = GetNumSamples();
 
     GMM_TEXTURE_CALC *pTextureCalc;
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
 
     if(numSamples == 1)
     {
@@ -904,7 +885,7 @@ uint32_t GmmLib::GmmResourceInfoCommon::GetFastClearHeight(uint32_t MipLevel)
     uint32_t numSamples = GetNumSamples();
 
     GMM_TEXTURE_CALC *pTextureCalc;
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
 
     if(numSamples == 1)
     {
@@ -928,7 +909,7 @@ uint32_t GmmLib::GmmResourceInfoCommon::GetFastClearHeight(uint32_t MipLevel)
 /////////////////////////////////////////////////////////////////////////////////////
 bool GmmLib::GmmResourceInfoCommon::ReAdjustPlaneProperties(bool IsAuxSurf)
 {
-    const GMM_PLATFORM_INFO *pPlatform     = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
+    const GMM_PLATFORM_INFO *pPlatform     = GMM_OVERRIDE_PLATFORM_INFO(&Surf, GetGmmLibContext());
     GMM_TEXTURE_INFO *       pTexInfo      = &Surf;
     GMM_TEXTURE_INFO *       pPlaneTexInfo = PlaneSurf;
 
@@ -994,16 +975,16 @@ bool GmmLib::GmmResourceInfoCommon::ReAdjustPlaneProperties(bool IsAuxSurf)
 const GMM_PLATFORM_INFO &GmmLib::GmmResourceInfoCommon::GetPlatformInfo()
 {
 #if(defined(__GMM_KMD__) && (_DEBUG || _RELEASE_INTERNAL))
-    if(GFX_GET_CURRENT_RENDERCORE(Surf.Platform) != GFX_GET_CURRENT_RENDERCORE(((Context *)pGmmLibContext)->GetPlatformInfo().Platform))
+    if(GFX_GET_CURRENT_RENDERCORE(Surf.Platform) != GFX_GET_CURRENT_RENDERCORE(((Context *)pGmmKmdLibContext)->GetPlatformInfo().Platform))
     {
-        return ((Context *)pGmmLibContext)->GetOverridePlatformInfo();
+        return ((Context *)pGmmKmdLibContext)->GetOverridePlatformInfo();
     }
     else
     {
-        return ((Context *)pGmmLibContext)->GetPlatformInfo();
+        return ((Context *)pGmmKmdLibContext)->GetPlatformInfo();
     }
 #else
-    return ((Context *)pGmmLibContext)->GetPlatformInfo();
+    return ((Context *)pGmmUmdLibContext)->GetPlatformInfo();
 #endif
 }
 
@@ -1023,7 +1004,7 @@ uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetPaddedWidth(uint32_t MipL
 
     __GMM_ASSERT(MipLevel <= Surf.MaxLod);
 
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
 
     // This shall be called for Depth and Separate Stencil main surface resource
     // This shall be called for the Aux surfaces (MCS, CCS and Hiz) too.
@@ -1108,7 +1089,7 @@ uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetPaddedHeight(uint32_t Mip
                  AuxSurf.Flags.Gpu.__MsaaTileMcs ||
                  AuxSurf.Flags.Gpu.CCS || AuxSurf.Flags.Gpu.__NonMsaaTileYCcs);
 
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
 
     MipHeight = pTextureCalc->GmmTexGetMipHeight(&Surf, MipLevel);
 
@@ -1198,7 +1179,7 @@ uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetQPitch()
     const GMM_PLATFORM_INFO *pPlatform;
     uint32_t                 QPitch;
 
-    pPlatform = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
+    pPlatform = GMM_OVERRIDE_PLATFORM_INFO(&Surf, GetGmmLibContext());
 
     __GMM_ASSERT(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE);
     __GMM_ASSERT((Surf.Type != RESOURCE_3D) ||
@@ -1211,7 +1192,7 @@ uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetQPitch()
     // Stencil    ==> logical, i.e. not halved
 
     if((GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN9_CORE) &&
-       GmmIsCompressed(Surf.Format))
+       GmmIsCompressed(GetGmmLibContext(), Surf.Format))
     {
         QPitch = Surf.Alignment.QPitch / GetCompressionBlockHeight();
 
@@ -1245,7 +1226,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetOffset(GMM_REQ_OFFSET_I
 {
     GMM_TEXTURE_CALC *pTextureCalc;
 
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
 
     __GMM_ASSERT((pTextureCalc != NULL))
 
@@ -1257,7 +1238,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetOffset(GMM_REQ_OFFSET_I
         if(ReqInfo.ReqLock || ReqInfo.ReqRender)
         {
             ReqInfo.ReqStdLayout = 0;
-            GmmTexGetMipMapOffset(&Surf, &ReqInfo);
+            GmmTexGetMipMapOffset(&Surf, &ReqInfo, GetGmmLibContext());
             ReqInfo.ReqStdLayout = RestoreReqStdLayout;
         }
 
@@ -1286,11 +1267,11 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetOffset(GMM_REQ_OFFSET_I
             pTextureCalc->GetRedescribedPlaneParams(&Surf, GMM_PLANE_U, &TexInfo[GMM_PLANE_U]);
             pTextureCalc->GetRedescribedPlaneParams(&Surf, GMM_PLANE_V, &TexInfo[GMM_PLANE_V]);
 
-            if(GMM_SUCCESS != GmmTexGetMipMapOffset(&TexInfo[GMM_PLANE_Y], &TempReqInfo[GMM_PLANE_Y]) ||
-               GMM_SUCCESS != GmmTexGetMipMapOffset(&TexInfo[GMM_PLANE_U], &TempReqInfo[GMM_PLANE_U]) ||
-               GMM_SUCCESS != GmmTexGetMipMapOffset(&TexInfo[GMM_PLANE_V], &TempReqInfo[GMM_PLANE_V]))
+            if(GMM_SUCCESS != GmmTexGetMipMapOffset(&TexInfo[GMM_PLANE_Y], &TempReqInfo[GMM_PLANE_Y], GetGmmLibContext()) ||
+               GMM_SUCCESS != GmmTexGetMipMapOffset(&TexInfo[GMM_PLANE_U], &TempReqInfo[GMM_PLANE_U], GetGmmLibContext()) ||
+               GMM_SUCCESS != GmmTexGetMipMapOffset(&TexInfo[GMM_PLANE_V], &TempReqInfo[GMM_PLANE_V], GetGmmLibContext()))
 	    {
-                __GMM_ASSERT(0);
+    		    __GMM_ASSERT(0);
                 return GMM_ERROR;
             }
 
@@ -1319,7 +1300,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetOffset(GMM_REQ_OFFSET_I
                     // Find the size of the previous planes and add it to the offset
                     TempReqInfo[Plane].StdLayout.Offset = -1;
                 
-		    if(GMM_SUCCESS != GmmTexGetMipMapOffset(&TexInfo[Plane], &TempReqInfo[Plane]))
+                    if(GMM_SUCCESS != GmmTexGetMipMapOffset(&PlaneSurf[Plane], &TempReqInfo[Plane], GetGmmLibContext()))
                     {
                  
                         __GMM_ASSERT(0);
@@ -1335,7 +1316,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetOffset(GMM_REQ_OFFSET_I
     }
     else
     {
-        return GmmTexGetMipMapOffset(&Surf, &ReqInfo);
+        return GmmTexGetMipMapOffset(&Surf, &ReqInfo, GetGmmLibContext());
     }
 }
 
@@ -1364,8 +1345,8 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::CpuBlt(GMM_RES_COPY_BLT *pBlt
 
     __GMM_ASSERTPTR(pBlt, 0);
 
-    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf, GetGmmLibContext());
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
 
     __GMM_ASSERT(
     Surf.Type == RESOURCE_1D ||
@@ -1760,8 +1741,8 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::CpuBlt(GMM_RES_COPY_BLT *pBlt
                     !(pTexInfo->Flags.Info.TiledYf ||
                       GMM_IS_64KB_TILE(pTexInfo->Flags)))
             {
-                if(pGmmGlobalContext->GetSkuTable().FtrTileY)
-                {
+                if(GetGmmLibContext()->GetSkuTable().FtrTileY)
+                 {
                     SwizzledSurface.pSwizzle = &INTEL_TILE_Y;
                 }
                 else
@@ -1848,7 +1829,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::CpuBlt(GMM_RES_COPY_BLT *pBlt
                     }
                     else if(GMM_IS_64KB_TILE(pTexInfo->Flags))
                     {
-                        if(pGmmGlobalContext->GetSkuTable().FtrTileY)
+                        if(GetGmmLibContext()->GetSkuTable().FtrTileY)
                         {
                             SWITCH_BPP(INTEL, TILE_YS, , 3D_);
                         }
@@ -1866,7 +1847,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::CpuBlt(GMM_RES_COPY_BLT *pBlt
                     }
                     else if(GMM_IS_64KB_TILE(pTexInfo->Flags))
                     {
-                        if(pGmmGlobalContext->GetSkuTable().FtrTileY)
+                        if(GetGmmLibContext()->GetSkuTable().FtrTileY)
                         {
                             SWITCH_MSAA(INTEL, TILE_YS, );
                         }
@@ -1915,8 +1896,8 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetMappingSpanDesc(GMM_GET_MA
 
     __GMM_ASSERT(Surf.Flags.Info.StdSwizzle);
 
-    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
-    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf, GetGmmLibContext());
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
 
     __GMM_ASSERT(pTextureCalc != NULL);
     pTexInfo = &Surf;
@@ -2255,7 +2236,7 @@ uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetPackedMipTailStartLod()
 {
     uint32_t NumPackedMips = 0, NumTilesForPackedMips = 0;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(&Surf, GetGmmLibContext());
 
     GetTiledResourceMipPacking(&NumPackedMips,
                                &NumTilesForPackedMips);
@@ -2299,7 +2280,7 @@ uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetCompressionBlockWidth()
     __GMM_ASSERT((Format > GMM_FORMAT_INVALID) &&
                  (Format < GMM_RESOURCE_FORMATS));
 
-    return pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].Element.Width;
+    return GetGmmLibContext()->GetPlatformInfo().FormatTable[Format].Element.Width;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -2314,7 +2295,7 @@ uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetCompressionBlockHeight()
     __GMM_ASSERT((Format > GMM_FORMAT_INVALID) &&
                  (Format < GMM_RESOURCE_FORMATS));
 
-    return pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].Element.Height;
+    return GetGmmLibContext()->GetPlatformInfo().FormatTable[Format].Element.Height;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -2329,7 +2310,7 @@ uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetCompressionBlockDepth()
     __GMM_ASSERT((Format > GMM_FORMAT_INVALID) &&
                  (Format < GMM_RESOURCE_FORMATS));
 
-    return pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].Element.Depth;
+    return GetGmmLibContext()->GetPlatformInfo().FormatTable[Format].Element.Depth;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -2338,7 +2319,7 @@ uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetCompressionBlockDepth()
 /////////////////////////////////////////////////////////////////////////////////////
 uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::IsArraySpacingSingleLod()
 {
-    __GMM_ASSERT(GFX_GET_CURRENT_RENDERCORE(pGmmGlobalContext->GetPlatformInfo().Platform) < IGFX_GEN8_CORE);
+    __GMM_ASSERT(GFX_GET_CURRENT_RENDERCORE(GetGmmLibContext()->GetPlatformInfo().Platform) < IGFX_GEN8_CORE);
     return Surf.Alignment.ArraySpacingSingleLod;
 }
 
@@ -2353,7 +2334,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::IsASTC()
 
     return (Format > GMM_FORMAT_INVALID) &&
            (Format < GMM_RESOURCE_FORMATS) &&
-           pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].ASTC;
+           GetGmmLibContext()->GetPlatformInfo().FormatTable[Format].ASTC;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -2362,7 +2343,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::IsASTC()
 /////////////////////////////////////////////////////////////////////////////////////
 MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetMOCS()
 {
-    const GMM_CACHE_POLICY_ELEMENT *CachePolicy = pGmmGlobalContext->GetCachePolicyUsage();
+    const GMM_CACHE_POLICY_ELEMENT *CachePolicy = GetGmmLibContext()->GetCachePolicyUsage();
 
     __GMM_ASSERT(CachePolicy[GetCachePolicyUsage()].Initialized);
 
@@ -2389,11 +2370,11 @@ MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetMOCS()
 /////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetStdTilingModeExtSurfaceState()
 {
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(&Surf, GetGmmLibContext());
     GMM_UNREFERENCED_LOCAL_VARIABLE(pPlatform); // Only used for debug
     __GMM_ASSERT(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) > IGFX_GEN10_CORE);
 
-    if(pGmmGlobalContext->GetSkuTable().FtrStandardMipTailFormat)
+    if(GetGmmLibContext()->GetSkuTable().FtrStandardMipTailFormat)
     {
         return 1;
     }
@@ -2412,7 +2393,7 @@ GMM_SURFACESTATE_FORMAT GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetResourceFo
     Format = Surf.Format;
     __GMM_ASSERT((Format > GMM_FORMAT_INVALID) && (Format < GMM_RESOURCE_FORMATS));
 
-    return pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].SurfaceStateFormat;
+    return GetGmmLibContext()->GetPlatformInfo().FormatTable[Format].SurfaceStateFormat;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -2422,7 +2403,7 @@ GMM_SURFACESTATE_FORMAT GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetResourceFo
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_GFX_SIZE_T GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetMipWidth(uint32_t MipLevel)
 {
-    GMM_TEXTURE_CALC *pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    GMM_TEXTURE_CALC *pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
     return pTextureCalc->GmmTexGetMipWidth(&Surf, MipLevel);
 }
 
@@ -2433,7 +2414,7 @@ GMM_GFX_SIZE_T GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetMipWidth(uint32_t M
 /////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetMipHeight(uint32_t MipLevel)
 {
-    GMM_TEXTURE_CALC *pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    GMM_TEXTURE_CALC *pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
     return pTextureCalc->GmmTexGetMipHeight(&Surf, MipLevel);
 }
 
@@ -2444,6 +2425,6 @@ uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetMipHeight(uint32_t MipLev
 /////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetMipDepth(uint32_t MipLevel)
 {
-    GMM_TEXTURE_CALC *pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf);
+    GMM_TEXTURE_CALC *pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
     return pTextureCalc->GmmTexGetMipDepth(&Surf, MipLevel);
 }

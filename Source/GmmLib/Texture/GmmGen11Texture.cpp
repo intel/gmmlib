@@ -57,7 +57,7 @@ void GmmLib::GmmGen11TextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTex
     __GMM_ASSERTPTR(((pTexInfo->TileMode < GMM_TILE_MODES) && (pTexInfo->TileMode >= TILE_NONE)), VOIDRETURN);
     GMM_DPF_ENTER;
 
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     // GMM_PLANE_Y always at (0, 0)...
     pTexInfo->OffsetInfo.Plane.X[GMM_PLANE_Y] = 0;
@@ -349,11 +349,11 @@ void GmmLib::GmmGen11TextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTex
         if(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) > IGFX_GEN11LP_CORE)
         {
 
-            if(pTexInfo->Flags.Gpu.CCS && !pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS)
+            if(pTexInfo->Flags.Gpu.CCS && !pGmmLibContext->GetSkuTable().FtrFlatPhysCCS)
             {
                 //U/V must be aligned to AuxT granularity, for 16K AuxT- 4x pitchalign enforces it,
                 //add extra padding for 64K AuxT
-                TileHeight *= (!GMM_IS_64KB_TILE(pTexInfo->Flags) && !WA16K) ? 4 : 1;
+                TileHeight *= (!GMM_IS_64KB_TILE(pTexInfo->Flags) && !WA16K(pGmmLibContext)) ? 4 : 1;
             }
         }
 
@@ -371,7 +371,7 @@ void GmmLib::GmmGen11TextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTex
         }
 
 	// This is needed for FtrDisplayPageTables
-        if(pGmmGlobalContext->GetSkuTable().FtrDisplayPageTables)
+        if(pGmmLibContext->GetSkuTable().FtrDisplayPageTables)
         {
             pTexInfo->OffsetInfo.Plane.Aligned.Height[GMM_PLANE_Y] = GFX_ALIGN(YHeight, TileHeight);
             if(pTexInfo->OffsetInfo.Plane.NoOfPlanes == 2)
@@ -391,8 +391,8 @@ void GmmLib::GmmGen11TextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTex
        pTexInfo->Flags.Gpu.UnifiedAuxSurface &&
        pTexInfo->Flags.Info.TiledY)
     {
-        GMM_GFX_SIZE_T TileHeight = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
-        GMM_GFX_SIZE_T TileWidth  = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileWidth;
+        GMM_GFX_SIZE_T TileHeight = pGmmLibContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
+        GMM_GFX_SIZE_T TileWidth  = pGmmLibContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileWidth;
 
         *pUOffsetX = GFX_ALIGN(*pUOffsetX, TileWidth);
         *pUOffsetY = GFX_ALIGN(*pUOffsetY, TileHeight);
@@ -421,7 +421,7 @@ uint32_t GmmLib::GmmGen11TextureCalc::GetMipTailByteOffset(GMM_TEXTURE_INFO *pTe
     GMM_DPF_ENTER;
 
     // 3D textures follow the Gen10 mip tail format
-    if(!pGmmGlobalContext->GetSkuTable().FtrStandardMipTailFormat)
+    if(!pGmmLibContext->GetSkuTable().FtrStandardMipTailFormat)
     {
         return GmmGen9TextureCalc::GetMipTailByteOffset(pTexInfo, MipLevel);
     }
@@ -606,7 +606,7 @@ GMM_STATUS GmmLib::GmmGen11TextureCalc::FillLinearCCS(GMM_TEXTURE_INFO * pTexInf
     GMM_GFX_SIZE_T           YCcsSize    = 0;
     GMM_GFX_SIZE_T           UVCcsSize   = 0;
     GMM_GFX_SIZE_T           TotalHeight = 0;
-    const GMM_PLATFORM_INFO *pPlatform   = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform   = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
     GMM_DPF_ENTER;
 
 
@@ -689,7 +689,7 @@ GMM_STATUS GmmLib::GmmGen11TextureCalc::FillLinearCCS(GMM_TEXTURE_INFO * pTexInf
 GMM_STATUS GMM_STDCALL GmmLib::GmmGen11TextureCalc::FillTexPlanar(GMM_TEXTURE_INFO * pTexInfo,
                                                                   __GMM_BUFFER_TYPE *pRestrictions)
 {
-    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo);
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
 
     GMM_DPF_ENTER;
     uint32_t   WidthBytesPhysical, Height, YHeight, VHeight;
@@ -1037,7 +1037,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen11TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
 
     AdjustedVHeight = VHeight;
     // In case of Planar surfaces, only the last Plane has to be aligned to 64 for LCU access
-    if(pGmmGlobalContext->GetWaTable().WaAlignYUVResourceToLCU && GmmIsYUVFormatLCUAligned(pTexInfo->Format) && VHeight > 0)
+    if(pGmmLibContext->GetWaTable().WaAlignYUVResourceToLCU && GmmIsYUVFormatLCUAligned(pTexInfo->Format) && VHeight > 0)
     {
         AdjustedVHeight = GFX_ALIGN(VHeight, GMM_SCANLINES(GMM_MAX_LCU_SIZE));
         Height += AdjustedVHeight - VHeight;
@@ -1083,7 +1083,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen11TextureCalc::FillTexPlanar(GMM_TEXTURE_IN
        pTexInfo->Flags.Gpu.UnifiedAuxSurface &&
        pTexInfo->Flags.Info.TiledY)
     {
-        uint32_t TileHeight = pGmmGlobalContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
+        uint32_t TileHeight = pGmmLibContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
 
         Height = GFX_ALIGN(YHeight, TileHeight) + GFX_ALIGN(AdjustedVHeight, TileHeight);
     }

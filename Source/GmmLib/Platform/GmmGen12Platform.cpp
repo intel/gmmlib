@@ -67,16 +67,15 @@ eg:
 ///
 /// @param[in]  Platform: Contains information about platform to initialize an object
 /////////////////////////////////////////////////////////////////////////////////////
-GmmLib::PlatformInfoGen12::PlatformInfoGen12(PLATFORM &Platform)
-    : PlatformInfoGen11(Platform)
-
+GmmLib::PlatformInfoGen12::PlatformInfoGen12(PLATFORM &Platform, Context *pGmmLibContext)
+    : PlatformInfoGen11(Platform, pGmmLibContext)
 {
-    __GMM_ASSERTPTR(pGmmGlobalContext, VOIDRETURN);
+    __GMM_ASSERTPTR(pGmmLibContext, VOIDRETURN);
 
     //Compression format update
     GMM_RESOURCE_FORMAT GmmFormat;
-#define GMM_FORMAT_SKU(FtrXxx) (pGmmGlobalContext->GetSkuTable().FtrXxx != 0)
-#define GMM_COMPR_FORMAT_INVALID ((pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS != 0) ? static_cast<uint8_t>(GMM_FLATCCS_FORMAT_INVALID) : static_cast<uint8_t>(GMM_E2ECOMP_FORMAT_INVALID))
+#define GMM_FORMAT_SKU(FtrXxx) (pGmmLibContext->GetSkuTable().FtrXxx != 0)
+#define GMM_COMPR_FORMAT_INVALID ((pGmmLibContext->GetSkuTable().FtrFlatPhysCCS != 0) ? static_cast<uint8_t>(GMM_FLATCCS_FORMAT_INVALID) : static_cast<uint8_t>(GMM_E2ECOMP_FORMAT_INVALID))
 #define GMM_FORMAT(Name, bpe, _Width, _Height, _Depth, IsRT, IsASTC, RcsSurfaceFormat, SSCompressionFmt, Availability) \
                                                                                                                        \
     {                                                                                                                  \
@@ -397,7 +396,7 @@ uint8_t GmmLib::PlatformInfoGen12::ValidateCCS(GMM_TEXTURE_INFO &Surf)
         return 0;
     }
 
-    if(!pGmmGlobalContext->GetSkuTable().FtrLinearCCS &&
+    if(!pGmmLibContext->GetSkuTable().FtrLinearCCS &&
        (Surf.Type == RESOURCE_3D || Surf.MaxLod > 0 || Surf.MSAA.NumSamples > 1 ||
         !(Surf.Flags.Info.TiledYf || GMM_IS_64KB_TILE(Surf.Flags))))
     {
@@ -489,7 +488,7 @@ uint8_t GmmLib::PlatformInfoGen12::OverrideCompressionFormat(GMM_RESOURCE_FORMAT
 {
 
     uint8_t CompressionFormat = Data.FormatTable[Format].CompressionFormat.CompressionFormat;
-    if(pGmmGlobalContext->GetSkuTable().FtrFlatPhysCCS)
+    if(pGmmLibContext->GetSkuTable().FtrFlatPhysCCS)
     {
         if(!IsMC &&
            (CompressionFormat < GMM_FLATCCS_MIN_RC_FORMAT ||

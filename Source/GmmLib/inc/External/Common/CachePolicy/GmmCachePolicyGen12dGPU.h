@@ -32,8 +32,9 @@ namespace GmmLib
         public:
 
             /* Constructors */
-            GmmGen12dGPUCachePolicy(GMM_CACHE_POLICY_ELEMENT *pCachePolicy):GmmGen12CachePolicy(pCachePolicy)
-            {
+            GmmGen12dGPUCachePolicy(GMM_CACHE_POLICY_ELEMENT *pCachePolicy, Context *pGmmLibContext)
+                : GmmGen12CachePolicy(pCachePolicy, pGmmLibContext)
+	    {
             }
             virtual ~GmmGen12dGPUCachePolicy()
             {

@@ -80,9 +80,9 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::InitCachePolicy()
 
     {
         uint32_t                      CurrentMaxIndex        = 0;
-        GMM_CACHE_POLICY_TBL_ELEMENT *pCachePolicyTblElement = pGmmGlobalContext->GetCachePolicyTlbElement();
+        GMM_CACHE_POLICY_TBL_ELEMENT *pCachePolicyTblElement = pGmmLibContext->GetCachePolicyTlbElement();
 
-        bool LLC = (pGmmGlobalContext->GetGtSysInfo()->LLCCacheSizeInKb > 0); // aka "Core -vs- Atom".
+        bool LLC = (pGmmLibContext->GetGtSysInfo()->LLCCacheSizeInKb > 0); // aka "Core -vs- Atom".
 
 #if defined(_WIN32)
         {
@@ -118,7 +118,7 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::InitCachePolicy()
         for(uint32_t Usage = 0; Usage < GMM_RESOURCE_USAGE_MAX; Usage++)
         {
             bool                         CachePolicyError = false;
-            uint32_t                     PTEValue         = 0;
+            uint64_t                     PTEValue         = 0;
             int32_t                      CPTblIdx         = -1;
             uint32_t                     j                = 0;
             GMM_CACHE_POLICY_TBL_ELEMENT UsageEle         = {0};
@@ -140,8 +140,8 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::InitCachePolicy()
             UsageEle.LeCC.TargetCache  = TC_LLC_ELLC;
             UsageEle.LeCC.Cacheability = LeCC_WB_CACHEABLE;
 
-            if(pGmmGlobalContext->GetPlatformInfo().Platform.eProductFamily == IGFX_BROXTON ||
-               pGmmGlobalContext->GetPlatformInfo().Platform.eProductFamily == IGFX_GEMINILAKE)
+            if(pGmmLibContext->GetPlatformInfo().Platform.eProductFamily == IGFX_BROXTON ||
+               pGmmLibContext->GetPlatformInfo().Platform.eProductFamily == IGFX_GEMINILAKE)
             {
                 UsageEle.LeCC.AOM          = 0;
                 UsageEle.LeCC.Cacheability = LeCC_UNCACHEABLE; // To avoid side effects use 01b even though 01b(UC) 11b(WB) are equivalent option
@@ -225,8 +225,8 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::InitCachePolicy()
                 CachePolicyError = true;
             }
 
-            pCachePolicy[Usage].PTE.DwordValue = PTEValue;
-
+            pCachePolicy[Usage].PTE.DwordValue     = PTEValue & 0xFFFFFFFF;
+            pCachePolicy[Usage].PTE.HighDwordValue = 0;
             pCachePolicy[Usage].MemoryObjectOverride.Gen9.Index = CPTblIdx;
 
             pCachePolicy[Usage].Override = ALWAYS_OVERRIDE;
@@ -276,9 +276,9 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::SetupPAT()
     uint8_t              ServiceClass               = 0;
     int32_t *            pPrivatePATTableMemoryType = NULL;
 
-    pPrivatePATTableMemoryType = pGmmGlobalContext->GetPrivatePATTableMemoryType();
+    pPrivatePATTableMemoryType = pGmmLibContext->GetPrivatePATTableMemoryType();
 
-    __GMM_ASSERT(pGmmGlobalContext->GetSkuTable().FtrIA32eGfxPTEs);
+    __GMM_ASSERT(pGmmLibContext->GetSkuTable().FtrIA32eGfxPTEs);
 
     for(i = 0; i < GMM_NUM_GFX_PAT_TYPES; i++)
     {
@@ -290,7 +290,7 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::SetupPAT()
     {
         GMM_PRIVATE_PAT PAT = {0};
 
-        if(pGmmGlobalContext->GetWaTable().FtrMemTypeMocsDeferPAT)
+        if(pGmmLibContext->GetSkuTable().FtrMemTypeMocsDeferPAT)
         {
             GfxTargetCache = GMM_GFX_TC_ELLC_ONLY;
         }
@@ -302,12 +302,12 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::SetupPAT()
         switch(i)
         {
             case PAT0:
-                if(pGmmGlobalContext->GetWaTable().WaGttPat0)
+                if(pGmmLibContext->GetWaTable().WaGttPat0)
                 {
-                    if(pGmmGlobalContext->GetWaTable().WaGttPat0WB)
+                    if(pGmmLibContext->GetWaTable().WaGttPat0WB)
                     {
                         GfxMemType = GMM_GFX_WB;
-                        if(GFX_IS_ATOM_PLATFORM)
+                        if(GFX_IS_ATOM_PLATFORM(pGmmLibContext))
                         {
                             PAT.PreGen10.Snoop = 1;
                         }
@@ -322,7 +322,7 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::SetupPAT()
                 else // if GTT is not tied to PAT0 then WaGttPat0WB is NA
                 {
                     GfxMemType = GMM_GFX_WB;
-                    if(GFX_IS_ATOM_PLATFORM)
+                    if(GFX_IS_ATOM_PLATFORM(pGmmLibContext))
                     {
                         PAT.PreGen10.Snoop = 1;
                     }
@@ -331,10 +331,10 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::SetupPAT()
                 break;
 
             case PAT1:
-                if(pGmmGlobalContext->GetWaTable().WaGttPat0 && !pGmmGlobalContext->GetWaTable().WaGttPat0WB)
+                if(pGmmLibContext->GetWaTable().WaGttPat0 && !pGmmLibContext->GetWaTable().WaGttPat0WB)
                 {
                     GfxMemType = GMM_GFX_WB;
-                    if(GFX_IS_ATOM_PLATFORM)
+                    if(GFX_IS_ATOM_PLATFORM(pGmmLibContext))
                     {
                         PAT.PreGen10.Snoop = 1;
                     }

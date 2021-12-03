@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 /// @param[in] pCreateParams: Flags which specify what sort of resource to create
 /// @return     Pointer to GmmResourceInfo class.
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_RESOURCE_INFO *GMM_STDCALL GmmResCreate(GMM_RESCREATE_PARAMS *pCreateParams)
+GMM_RESOURCE_INFO *GMM_STDCALL GmmResCreate(GMM_RESCREATE_PARAMS *pCreateParams, GMM_LIB_CONTEXT *pLibContext)
 {
     GMM_RESOURCE_INFO *pRes = NULL;
 
@@ -56,7 +56,7 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmResCreate(GMM_RESCREATE_PARAMS *pCreateParams)
         }
     }
 
-    if(pRes->Create(*pGmmGlobalContext, *pCreateParams) != GMM_SUCCESS)
+    if(pRes->Create(*pLibContext, *pCreateParams) != GMM_SUCCESS)
     {
         goto ERROR_CASE;
     }
@@ -1126,11 +1126,11 @@ GMM_SURFACESTATE_FORMAT GMM_STDCALL GmmResGetSurfaceStateFormat(GMM_RESOURCE_INF
 //      direct SURFACE_STATE.Format.
 //
 //-----------------------------------------------------------------------------
-GMM_SURFACESTATE_FORMAT GMM_STDCALL GmmGetSurfaceStateFormat(GMM_RESOURCE_FORMAT Format)
+GMM_SURFACESTATE_FORMAT GMM_STDCALL GmmGetSurfaceStateFormat(GMM_RESOURCE_FORMAT Format, GMM_LIB_CONTEXT *pGmmLibContext)
 {
     return ((Format > GMM_FORMAT_INVALID) &&
             (Format < GMM_RESOURCE_FORMATS)) ?
-           pGmmGlobalContext->GetPlatformInfo().FormatTable[Format].SurfaceStateFormat :
+           pGmmLibContext->GetPlatformInfo().FormatTable[Format].SurfaceStateFormat :
            GMM_SURFACESTATE_FORMAT_INVALID;
 }
 
@@ -1340,12 +1340,12 @@ uint32_t GMM_STDCALL GmmResGetColorSeparationPhysicalWidth(GMM_RESOURCE_INFO *pG
 // Returns:
 //      uint32_t - Max no of GpuVA bits
 //-----------------------------------------------------------------------------
-uint32_t GMM_STDCALL GmmResGetMaxGpuVirtualAddressBits(GMM_RESOURCE_INFO *pGmmResource)
+uint32_t GMM_STDCALL GmmResGetMaxGpuVirtualAddressBits(GMM_RESOURCE_INFO *pGmmResource, GMM_LIB_CONTEXT *pGmmLibContext)
 {
     if(pGmmResource == NULL)
     {
-        __GMM_ASSERTPTR(pGmmGlobalContext, 0);
-        const GMM_PLATFORM_INFO &PlatformInfo = pGmmGlobalContext->GetPlatformInfo();
+        __GMM_ASSERTPTR(pGmmLibContext, 0);
+        const GMM_PLATFORM_INFO &PlatformInfo = pGmmLibContext->GetPlatformInfo();
         return PlatformInfo.MaxGpuVirtualAddressBitsPerResource;
     }
 
@@ -1407,23 +1407,24 @@ uint32_t GMM_STDCALL GmmResGetMaximumRenamingListLength(GMM_RESOURCE_INFO *pGmmR
 GMM_STATUS GMM_STDCALL GmmGetLogicalTileShape(uint32_t  TileMode,
                                               uint32_t *pWidthInBytes,
                                               uint32_t *pHeight,
-                                              uint32_t *pDepth)
+                                              uint32_t *pDepth,
+                                              GMM_LIB_CONTEXT *pGmmLibContext)
 {
     __GMM_ASSERT(TileMode < GMM_TILE_MODES);
 
     if(pWidthInBytes)
     {
-        *pWidthInBytes = pGmmGlobalContext->GetPlatformInfo().TileInfo[TileMode].LogicalTileWidth;
+        *pWidthInBytes = pGmmLibContext->GetPlatformInfo().TileInfo[TileMode].LogicalTileWidth;
     }
 
     if(pHeight)
     {
-        *pHeight = pGmmGlobalContext->GetPlatformInfo().TileInfo[TileMode].LogicalTileHeight;
+        *pHeight = pGmmLibContext->GetPlatformInfo().TileInfo[TileMode].LogicalTileHeight;
     }
 
     if(pDepth)
     {
-        *pDepth = pGmmGlobalContext->GetPlatformInfo().TileInfo[TileMode].LogicalTileDepth;
+        *pDepth = pGmmLibContext->GetPlatformInfo().TileInfo[TileMode].LogicalTileDepth;
     }
 
     return GMM_SUCCESS;
@@ -1682,6 +1683,21 @@ GMM_GFX_SIZE_T GMM_STDCALL GmmResGetPlanarAuxOffset(GMM_RESOURCE_INFO *pGmmResou
     return pGmmResource->GetPlanarAuxOffset(ArrayIndex, AuxType);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+/// C wrapper for GmmResourceInfoCommon::SetGmmLibContext
+/// @see    GmmLib::GmmResourceInfoCommon::SetGmmLibContext()
+///
+/// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
+/// @param[in]  pLibContext: Pointer to GmmLibContext
+/////////////////////////////////////////////////////////////////////////////////////
+void GMM_STDCALL GmmResSetLibContext(GMM_RESOURCE_INFO *pGmmResource, void *pLibContext)
+{
+    if(pGmmResource)
+    {
+        pGmmResource->SetGmmLibContext(pLibContext);
+    }
+}
+
 //=============================================================================
 //
 // Function: __CanSupportStdTiling
@@ -1694,9 +1710,9 @@ GMM_GFX_SIZE_T GMM_STDCALL GmmResGetPlanarAuxOffset(GMM_RESOURCE_INFO *pGmmResou
 // Returns:
 //
 //-----------------------------------------------------------------------------
-uint8_t __CanSupportStdTiling(GMM_TEXTURE_INFO Surf)
+uint8_t __CanSupportStdTiling(GMM_TEXTURE_INFO Surf, GMM_LIB_CONTEXT *pGmmLibContext)
 {
-    const __GMM_PLATFORM_RESOURCE *pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(&Surf);
+    const __GMM_PLATFORM_RESOURCE *pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(&Surf, pGmmLibContext);
 
     // SKL+ Tiled Resource Mode Restrictions
     if((Surf.Flags.Info.TiledYf || Surf.Flags.Info.TiledYs) &&
@@ -1706,14 +1722,14 @@ uint8_t __CanSupportStdTiling(GMM_TEXTURE_INFO Surf)
           (Surf.Flags.Info.Linear && (Surf.Type == RESOURCE_1D ||
                                       Surf.Type == RESOURCE_BUFFER))) &&
          // 8, 16, 32, 64, or 128 bpp
-         ((!GmmIsCompressed(Surf.Format) &&
+         ((!GmmIsCompressed(pGmmLibContext, Surf.Format) &&
            ((Surf.BitsPerPixel == 8) ||
             (Surf.BitsPerPixel == 16) ||
             (Surf.BitsPerPixel == 32) ||
             (Surf.BitsPerPixel == 64) ||
             (Surf.BitsPerPixel == 128))) ||
           // Compressed Modes: BC*, ETC*, EAC*, ASTC*
-          (GmmIsCompressed(Surf.Format) && (Surf.Format != GMM_FORMAT_FXT1)))))
+          (GmmIsCompressed(pGmmLibContext, Surf.Format) && (Surf.Format != GMM_FORMAT_FXT1)))))
     /* Not currently supported...
         // YCRCB* Formats
         GmmIsYUVPacked(Surf.Format) */
