@@ -73,7 +73,7 @@ namespace GmmLib
             uint64_t                            pGmmKmdLibContext;     ///< Pointer to GmmLib context created in KMD passed in during Create()
             uint64_t                            pPrivateData;       ///< Allows clients to attach any private data to GmmResourceInfo
 #ifdef __GMM_KMD__
-            void                               *pClientContext;    ///< void * in oreder to of same size for the ResInfo Object across KMD and UMD
+            void                               *pClientContext;    ///< void * in order to of same size for the ResInfo Object across KMD and UMD
 #else
             GmmClientContext                   *pClientContext;    ///< ClientContext of the client creating this Resource
 #endif
@@ -286,7 +286,7 @@ namespace GmmLib
 
             /////////////////////////////////////////////////////////////////////////////////////
             /// Returns the system memory pointer. It selectively returns either the natural
-            /// pointer or a value appriopriately page aligned for D3DDI_ALLOCATIONINFO,
+            /// pointer or a value appropriately page aligned for D3DDI_ALLOCATIONINFO,
             /// depending on what the caller request.
             /// @param[in]      IsD3DDdiAllocation: Specifies where allocation was made by a D3D client
             /// @return         Pointer to system memory. NULL if not available.
@@ -502,7 +502,7 @@ namespace GmmLib
                 if (pPlatform->TileInfo[TileMode].LogicalTileWidth != 0)
                 {
                     // In case of Depth/Stencil buffer MSAA TileYs surface, the LogicalTileWidth/Height is smaller than non-MSAA ones
-                    // Thus introducting the below variable to get the right PitchInTiles
+                    // Thus introducing the below variable to get the right PitchInTiles
                     uint32_t MSAASpecialFactorForDepthAndStencil = 1;
 
                     if ((Surf.Flags.Gpu.Depth || Surf.Flags.Gpu.SeparateStencil) &&
@@ -1374,7 +1374,7 @@ namespace GmmLib
                 {
                     if (GetResFlags().Info.TiledYf || GMM_IS_64KB_TILE(GetResFlags()))
                     {
-                        HAlign = 1; //Ignored, but we'll retrun valid encoding nonetheless.
+                        HAlign = 1; // Ignored, but we'll retrun valid encoding nonetheless.
                     }
                     else
                     {
@@ -1436,7 +1436,7 @@ namespace GmmLib
                 {
                     if (GetResFlags().Info.TiledYf || GMM_IS_64KB_TILE(GetResFlags()))
                     {
-                        VAlign = 1; // Ignored , but we'll return valid encoding nonetheless.
+                        VAlign = 1; // Ignored, but we'll return valid encoding nonetheless.
                     }
                     else
                     {

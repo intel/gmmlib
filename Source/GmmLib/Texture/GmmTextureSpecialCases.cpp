@@ -280,3 +280,183 @@ GMM_STATUS GmmLib::GmmTextureCalc::PreProcessTexSpecialCases(GMM_TEXTURE_INFO *p
 
     return Status;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// This function performs rough estimate of memory requirement between 4KB Tile vs
+/// 64KB Tile surfaces and if the memory wastage due to padding/alignment exceeds
+/// configured threshold, then optimize to demote the surface to 4KB Tile.
+///
+/// @param[in]  pTexInfo: Reference to ::GMM_TEXTURE_INFO
+///             returns 1 if optimization to demote to 4KB tile is required otherwise 0
+///
+/////////////////////////////////////////////////////////////////////////////////////
+uint8_t GmmLib::GmmTextureCalc::SurfaceRequires64KBTileOptimization(GMM_TEXTURE_INFO *pTexInfo)
+{
+    GMM_STATUS               Status    = GMM_SUCCESS;
+    const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
+    uint32_t                 Size4KbTile, Size64KbTile;
+
+    // Discard the surface if not eligible for 4KB Tile.
+    // All YUV formats restricted with default Tile64 across clients
+    if((pTexInfo->MSAA.NumSamples > 1) ||
+       pTexInfo->Flags.Gpu.TiledResource ||
+       pTexInfo->Flags.Gpu.HiZ ||
+       (!pTexInfo->Flags.Info.Tile64))
+    {
+        return 0;
+    }
+
+    // Calc Surf size for 64KB Tile.
+    // Ignoring the CCS/AuxSurf dimensions since its proportional to main surface size
+    {
+        GMM_TEXTURE_INFO Surf = {};
+        uint32_t         ExpandedArraySize, BitsPerPixel;
+        uint32_t         SliceHeight, SliceWidth, Pitch;
+        uint32_t         BlockHeight = 0;
+        uint32_t         HAlign, VAlign, DAlign, CompressHeight, CompressWidth, CompressDepth;
+
+        Surf = *pTexInfo;
+
+        //Get HAlign/VAlign
+        if((Status = __GmmTexFillHAlignVAlign(&Surf, pGmmLibContext)) != GMM_SUCCESS)
+        {
+            __GMM_ASSERT(0);
+            return 0;
+        }
+
+        HAlign = Surf.Alignment.HAlign;
+        VAlign = Surf.Alignment.VAlign;
+        DAlign = Surf.Alignment.DAlign;
+
+        // Set Tile Mode
+        SetTileMode(&Surf);
+        BitsPerPixel = Surf.BitsPerPixel;
+
+        ExpandedArraySize =
+        GFX_MAX(Surf.ArraySize, 1) *
+        ((Surf.Type == RESOURCE_CUBE) ? 6 : 1) *                   // Cubemaps simply 6-element, 2D arrays.
+        ((Surf.Type == RESOURCE_3D) ? GFX_MAX(Surf.Depth, 1) : 1); // 3D's simply 2D arrays for sizing.
+
+        if(GMM_IS_64KB_TILE(Surf.Flags))
+        {
+            ExpandedArraySize = GFX_CEIL_DIV(ExpandedArraySize, pPlatform->TileInfo[Surf.TileMode].LogicalTileDepth);
+        }
+
+        // For Mipped Surface, Approx SliceHeight = VAlign(Lod0Height) * Mipped ? 1.5 : 1;
+        SliceHeight = GFX_ALIGN(Surf.BaseHeight, VAlign);
+
+        if(Surf.MaxLod > 1)
+        {
+            SliceHeight = (GFX_ALIGN(Surf.BaseHeight, VAlign) * 3) / 2;
+        }
+
+        uint8_t Compress = GmmIsCompressed(pGmmLibContext, Surf.Format);
+        GetCompressionBlockDimensions(Surf.Format, &CompressWidth, &CompressHeight, &CompressDepth);
+
+
+        SliceWidth  = __GMM_EXPAND_WIDTH(this, GFX_ULONG_CAST(Surf.BaseWidth), HAlign, &Surf);
+        BlockHeight = SliceHeight * ExpandedArraySize;
+
+        if(Compress)
+        {
+            SliceWidth  = GFX_CEIL_DIV(SliceWidth, CompressWidth);
+            BlockHeight = GFX_CEIL_DIV(BlockHeight, CompressHeight);
+        }
+
+        // Default pitch
+        Pitch = SliceWidth * BitsPerPixel >> 3;
+
+        if(GMM_IS_TILED(pPlatform->TileInfo[Surf.TileMode]))
+        {
+            Pitch       = GFX_ALIGN(Pitch, pPlatform->TileInfo[Surf.TileMode].LogicalTileWidth);
+            BlockHeight = GFX_ALIGN(BlockHeight, pPlatform->TileInfo[Surf.TileMode].LogicalTileHeight);
+        }
+
+        // Calculate Tile aligned size.
+        Size64KbTile = BlockHeight * Pitch;
+
+	if(pTexInfo->Type == RESOURCE_3D && !pTexInfo->Flags.Info.Linear)
+        {
+            Size64KbTile *= pPlatform->TileInfo[Surf.TileMode].LogicalTileDepth;
+        }
+    }
+
+    // Calc Surf size for 4KB Tile
+    // Ignoring the CCS/AuxSurf dimensions since its proportional to main surface size
+    {
+        GMM_TEXTURE_INFO Surf = {};
+        uint32_t         ExpandedArraySize, BitsPerPixel;
+        uint32_t         SliceHeight, SliceWidth, Pitch;
+        uint32_t         BlockHeight = 0;
+        uint32_t         HAlign, VAlign, DAlign, CompressHeight, CompressWidth, CompressDepth;
+
+        Surf                   = *pTexInfo;
+        Surf.Flags.Info.Tile4  = 1;
+        Surf.Flags.Info.Tile64 = 0;
+
+        //Get HAlign/VAlign
+        if((Status = __GmmTexFillHAlignVAlign(&Surf, pGmmLibContext)) != GMM_SUCCESS)
+        {
+            Status = GMM_ERROR;
+            return Status;
+        }
+
+        HAlign = Surf.Alignment.HAlign;
+        VAlign = Surf.Alignment.VAlign;
+        DAlign = Surf.Alignment.DAlign;
+
+        // Set Tile Mode
+        SetTileMode(&Surf);
+        BitsPerPixel = Surf.BitsPerPixel;
+
+        ExpandedArraySize =
+        GFX_MAX(Surf.ArraySize, 1) *
+        ((Surf.Type == RESOURCE_CUBE) ? 6 : 1) *                   // Cubemaps simply 6-element, 2D arrays.
+        ((Surf.Type == RESOURCE_3D) ? GFX_MAX(Surf.Depth, 1) : 1); // 3D's simply 2D arrays for sizing.
+
+        if(GMM_IS_64KB_TILE(Surf.Flags))
+        {
+            ExpandedArraySize = GFX_CEIL_DIV(ExpandedArraySize, pPlatform->TileInfo[Surf.TileMode].LogicalTileDepth);
+        }
+
+        // For Mipped Surface, Approx SliceHeight = VAlign(Lod0Height) * Mipped ? 1.5 : 1;
+        SliceHeight = GFX_ALIGN(Surf.BaseHeight, VAlign);
+
+        if(Surf.MaxLod > 1)
+        {
+            SliceHeight = (GFX_ALIGN(Surf.BaseHeight, VAlign) * 3) / 2;
+        }
+
+        uint8_t Compress = GmmIsCompressed(pGmmLibContext, Surf.Format);
+        GetCompressionBlockDimensions(Surf.Format, &CompressWidth, &CompressHeight, &CompressDepth);
+
+        SliceWidth  = __GMM_EXPAND_WIDTH(this, GFX_ULONG_CAST(Surf.BaseWidth), HAlign, &Surf);
+        BlockHeight = SliceHeight * ExpandedArraySize;
+
+        if(Compress)
+        {
+            SliceWidth  = GFX_CEIL_DIV(SliceWidth, CompressWidth);
+            BlockHeight = GFX_CEIL_DIV(BlockHeight, CompressHeight);
+        }
+
+        // Default pitch
+        Pitch = SliceWidth * BitsPerPixel >> 3;
+
+        if(GMM_IS_TILED(pPlatform->TileInfo[Surf.TileMode]))
+        {
+            Pitch       = GFX_ALIGN(Pitch, pPlatform->TileInfo[Surf.TileMode].LogicalTileWidth);
+            BlockHeight = GFX_ALIGN(BlockHeight, pPlatform->TileInfo[Surf.TileMode].LogicalTileHeight);
+        }
+
+        // Calculate Tile aligned size.
+        Size4KbTile = BlockHeight * Pitch;
+    }
+
+    // check if 64KB tiled resource size exceeds memory wastage threshold.
+    if(((Size4KbTile * (100 + (GMM_GFX_SIZE_T)pGmmLibContext->GetAllowedPaddingFor64KBTileSurf())) / 100) < Size64KbTile)
+    {
+        return 1;
+    }
+
+    return 0;
+}

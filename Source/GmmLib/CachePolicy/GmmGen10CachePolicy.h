@@ -68,6 +68,8 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_UNKNOWN                                 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_UNMAP_PAGING_RESERVED_GTT_DMA_BUFFER                  , 0   , 0    , 0  , 0  , 0 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VSC_BATCH_BUFFER                                      , 0   , 0    , 0  , 0  , 0 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_WA_BATCH_BUFFER                                       , 0   , 0    , 0  , 0  , 0 ,     0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_KMD_OCA_BUFFER                                        , 0   , 0    , 0  , 0  , 0 ,     0,       0,      0,   0,    0);
+
 
 //
 // 3D Usages
@@ -98,6 +100,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_STAGING                                 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_STENCIL_BUFFER                                        , 1   , 0    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_STREAM_OUTPUT_BUFFER                                  , 0   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILE_POOL                                             , 1   , 1    , 1  , 0  , 3 ,     0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_PROCEDURAL_TEXTURE                                    , 0   , 0    , 0  , 0  , 0 ,     0,       0,      0,   0,    0);
 
 // Tiled Resource
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_DEPTH_BUFFER                                    , 1   , 0    , 0  , 0  , 3 ,     0,       0,      0,   0,    0);
@@ -229,6 +232,8 @@ DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE               
 /**********************************************************************************/
 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CAMERA_CAPTURE                                        , CAM$, 0    , 0  , 0  , CAM$ ,  0,       0,      0,   0,    0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COMMAND_STREAMER                                     , 0   , 0    , 0  , 0  , 0 ,     0,       0,      0,   0,    0);
+
 
 // Uncacheable copies
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COPY_SOURCE                                          , 0   , 0    , 0  , 0  , 0 ,     0,       0,      0,   0,    0);

@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &CreateParams)
 {
     uint32_t BitsPerPixel;
+    uint8_t  Optimize64KBTile = 0;
 
     if((CreateParams.Format > GMM_FORMAT_INVALID) &&
        (CreateParams.Format < GMM_RESOURCE_FORMATS))
@@ -89,13 +90,26 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
                     if(!GetGmmLibContext()->GetWaTable().WaDefaultTile4)
                     {
                         // Default Tiling is set to Tile64 on FtrTileY disabled platforms
-                        CreateParams.Flags.Info.Tile4 = ((!GMM_IS_SUPPORTED_BPP_ON_TILE_64_YF_YS(BitsPerPixel)) ||            // 24,48,96 bpps are not supported on Tile64, Tile4 is bpp independent
+                        uint8_t IsYUVSurface = ((GmmIsPlanar(CreateParams.Format) &&
+                                                 (!((CreateParams.Format == GMM_FORMAT_BGRP) || (CreateParams.Format == GMM_FORMAT_RGBP)))) ||
+                                                (GmmIsYUVPacked(CreateParams.Format) &&
+                                                 !((CreateParams.Format == GMM_FORMAT_YVYU_2x1) || (CreateParams.Format == GMM_FORMAT_UYVY_2x1) || (CreateParams.Format == GMM_FORMAT_UYVY_2x1))));
+
+			CreateParams.Flags.Info.Tile4 = ((!GMM_IS_SUPPORTED_BPP_ON_TILE_64_YF_YS(BitsPerPixel)) ||            // 24,48,96 bpps are not supported on Tile64, Tile4 is bpp independent
                                                          ((CreateParams.Type == RESOURCE_3D) && (CreateParams.Flags.Gpu.Depth || CreateParams.Flags.Gpu.SeparateStencil)) ||
                                                          ((!GetGmmLibContext()->GetSkuTable().FtrDisplayDisabled) &&
                                                           (CreateParams.Flags.Gpu.FlipChain || CreateParams.Flags.Gpu.Overlay)
-                                                          ));
-                        CreateParams.Flags.Info.Tile64 = !CreateParams.Flags.Info.Tile4;
-                    }
+                                                          ) ||
+							  IsYUVSurface);
+
+			CreateParams.Flags.Info.Tile64 = !CreateParams.Flags.Info.Tile4;
+                        // Optimize only when GMM makes tiling decision on behalf of UMD clients.
+                        // Defering the memory calculations until GMM_TEXTURE_INFO  is available.
+                        if(CreateParams.Flags.Info.Tile64)
+                        {
+                            Optimize64KBTile = 1;
+                        }
+		    }
                     else
                     {
                         CreateParams.Flags.Info.Tile64 = (CreateParams.MSAA.NumSamples > 1) || CreateParams.Flags.Gpu.TiledResource; // Colour & Depth/Stencil(IMS) MSAA should use Tile64
@@ -234,7 +248,10 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
     Surf.Platform = GetGmmLibContext()->GetPlatformInfo().Platform;
 #endif
 
-Surf.BitsPerPixel = BitsPerPixel;
+    Surf.BitsPerPixel = BitsPerPixel;
+
+    // Get pTextureCalc after surface evaluation
+    GMM_TEXTURE_CALC *pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
 
     GetGmmLibContext()->GetPlatformInfoObj()->SetCCSFlag(this->GetResFlags());
 
@@ -257,8 +274,17 @@ Surf.BitsPerPixel = BitsPerPixel;
         }
     }
 
+    // Memory optimization for 64KB tiled Surface.
+    if(GetGmmLibContext()->GetWaTable().WaTile64Optimization && Optimize64KBTile)
+    {
+        if(pTextureCalc->SurfaceRequires64KBTileOptimization(&Surf))
+        {
+            GMM_SET_64KB_TILE(Surf.Flags, 0, GetGmmLibContext());
+            GMM_SET_4KB_TILE(Surf.Flags, 1, GetGmmLibContext());
+        }
+    }
+
     // Convert Any Pseudo Creation Params to Actual...
-    GMM_TEXTURE_CALC *pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
     if(Surf.Flags.Gpu.UnifiedAuxSurface)
     {
         AuxSurf = Surf;

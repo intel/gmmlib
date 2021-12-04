@@ -179,6 +179,8 @@ namespace GmmLib
 	    /* Function prototypes */
             GMM_STATUS      AllocateTexture(GMM_TEXTURE_INFO *pTexInfo);
             virtual GMM_STATUS      FillTexCCS(GMM_TEXTURE_INFO *pBaseSurf, GMM_TEXTURE_INFO *pTexInfo);
+            uint8_t         SurfaceRequires64KBTileOptimization(
+                                GMM_TEXTURE_INFO *pTexInfo);
 
             GMM_STATUS      PreProcessTexSpecialCases(
                                 GMM_TEXTURE_INFO* pTexInfo);

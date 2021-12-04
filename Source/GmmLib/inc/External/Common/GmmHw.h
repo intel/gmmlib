@@ -115,6 +115,7 @@ C_ASSERT(sizeof(GMM_AUXTTL1e) == 8);
 
 //For perf, AuxTable granularity changed to 64K
 #define WA16K(pGmmLibContext)                   (pGmmLibContext->GetWaTable().WaAuxTable16KGranular)
+#define WA64K(pGmmLibContext)                   (pGmmLibContext->GetWaTable().WaAuxTable64KGranular)
 
 // #L1 entries, i.e. 1024; 16K-granular ie 4 consequtive pages share Aux-cacheline;
 // HW only tracks the distinct entries;
@@ -131,12 +132,12 @@ C_ASSERT(sizeof(GMM_AUXTTL1e) == 8);
 
 #define GMM_AUX_L1_ENTRY_IDX(GfxAddress,pGmmLibContext)                                         \
     ((((GfxAddress) & GFX_MASK_LARGE(GMM_AUX_L1_LOW_BIT, GMM_AUX_L1_HIGH_BIT)) >> \
-     (uint64_t)GMM_AUX_L1_LOW_BIT) / (!(WA16K(pGmmLibContext)) ? 4 : 1))
+     (uint64_t)GMM_AUX_L1_LOW_BIT) / (WA16K(pGmmLibContext) ? 1 : WA64K(pGmmLibContext) ? 4 : 64))
 
 
-#define GMM_AUX_L1_ENTRY_IDX_EXPORTED(GfxAddress,WA64KEx)                         \
+#define GMM_AUX_L1_ENTRY_IDX_EXPORTED(GfxAddress,WA64KEx,WA16KEx)                         \
     ((((GfxAddress) & GFX_MASK_LARGE(GMM_AUX_L1_LOW_BIT, GMM_AUX_L1_HIGH_BIT)) >> \
-     (uint64_t)GMM_AUX_L1_LOW_BIT) / ((WA64KEx) ? 4 : 1))
+     (uint64_t)GMM_AUX_L1_LOW_BIT) / (WA16KEx ? 1 : WA64KEx ? 4 : 64 ))
 
 
 #define GMM_AUX_L2_ENTRY_IDX(GfxAddress)                                     \

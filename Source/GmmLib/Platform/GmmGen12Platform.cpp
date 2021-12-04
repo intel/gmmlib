@@ -488,18 +488,28 @@ uint8_t GmmLib::PlatformInfoGen12::OverrideCompressionFormat(GMM_RESOURCE_FORMAT
 {
 
     uint8_t CompressionFormat = Data.FormatTable[Format].CompressionFormat.CompressionFormat;
-    if(pGmmLibContext->GetSkuTable().FtrFlatPhysCCS)
+    if(pGmmLibContext->GetSkuTable().FtrFlatPhysCCS || pGmmLibContext->GetSkuTable().FtrUnified3DMediaCompressionFormats)
     {
         if(!IsMC &&
+           !pGmmLibContext->GetSkuTable().FtrUnified3DMediaCompressionFormats &&
            (CompressionFormat < GMM_FLATCCS_MIN_RC_FORMAT ||
             CompressionFormat > GMM_FLATCCS_MAX_RC_FORMAT))
         {
             CompressionFormat = GMM_FLATCCS_FORMAT_INVALID;
         }
 
-        if(IsMC)
+	if(!IsMC &&
+           pGmmLibContext->GetSkuTable().FtrUnified3DMediaCompressionFormats &&
+           (CompressionFormat < GMM_UNIFIED_COMP_MIN_RC_FORMAT ||
+            CompressionFormat > GMM_UNIFIED_COMP_MAX_RC_FORMAT))
         {
-                if(CompressionFormat >= GMM_FLATCCS_MIN_MC_FORMAT && CompressionFormat <= GMM_FLATCCS_MAX_MC_FORMAT)
+            CompressionFormat = GMM_UNIFIED_COMP_FORMAT_INVALID;
+        }
+	else if(IsMC)
+        {
+            if(!pGmmLibContext->GetSkuTable().FtrUnified3DMediaCompressionFormats)
+            {
+		if(CompressionFormat >= GMM_FLATCCS_MIN_MC_FORMAT && CompressionFormat <= GMM_FLATCCS_MAX_MC_FORMAT)
                 {
                     //True MC format encodings, drop MC-identify bit (ie bit5)
                     CompressionFormat -= (GMM_FLATCCS_MIN_MC_FORMAT - 1);
@@ -532,8 +542,50 @@ uint8_t GmmLib::PlatformInfoGen12::OverrideCompressionFormat(GMM_RESOURCE_FORMAT
                         CompressionFormat -= (GMM_FLATCCS_MIN_MC_FORMAT - 1);
                     }
                 }
-         }
+	    }
+            else
+            {
+                if(CompressionFormat >= GMM_UNIFIED_COMP_MIN_MC_FORMAT && CompressionFormat <= GMM_UNIFIED_COMP_MAX_MC_FORMAT)
+                {
+                    //True MC format encodings, drop MC-identify bit (ie bit5)
+                    CompressionFormat -= (GMM_UNIFIED_COMP_MIN_MC_FORMAT - 1);
+                }
+                else
+                {
+                    // RC format encoding, needs MC format encoding for MC usage
+                    switch(CompressionFormat)
+                    {
+                        case GMM_UNIFIED_COMP_FORMAT_RGB10A2:
+                            CompressionFormat = GMM_UNIFIED_COMP_FORMAT_RGB10b;
+                            break;
+                        case GMM_UNIFIED_COMP_FORMAT_RGBA16U:
+                        case GMM_UNIFIED_COMP_FORMAT_RGBA16F:
+                            CompressionFormat = GMM_UNIFIED_COMP_FORMAT_RGBA16_MEDIA;
+                            break;
+                        case GMM_UNIFIED_COMP_FORMAT_RGBA8U:
+                        case GMM_UNIFIED_COMP_FORMAT_RGBA8S:
+                            CompressionFormat = GMM_UNIFIED_COMP_FORMAT_ARGB8b;
+                            break;
+                        default:
+                            if(CompressionFormat < GMM_UNIFIED_COMP_MIN_MC_FORMAT || CompressionFormat > GMM_UNIFIED_COMP_MAX_MC_FORMAT)
+                            {
+                                CompressionFormat = GMM_UNIFIED_COMP_FORMAT_INVALID;
+                            }
+                            break;
+                    }
 
+                    if(CompressionFormat != GMM_UNIFIED_COMP_FORMAT_INVALID)
+                    {
+                        //drop MC-identify bit (ie bit 5)
+                        CompressionFormat -= (GMM_UNIFIED_COMP_MIN_MC_FORMAT - 1);
+                    }
+		}
+	    }
+        }
+
+	//Assert if out of MC/RC encoding range -ie format-table must be corrected for Compression code
+        __GMM_ASSERT(!pGmmLibContext->GetSkuTable().FtrUnified3DMediaCompressionFormats && CompressionFormat != GMM_FLATCCS_FORMAT_INVALID ||
+                     pGmmLibContext->GetSkuTable().FtrUnified3DMediaCompressionFormats && CompressionFormat != GMM_UNIFIED_COMP_FORMAT_INVALID);
     }
 
     return CompressionFormat;

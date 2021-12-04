@@ -90,6 +90,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_DYNAMIC_STATE                      
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_GENERAL_STATE                                    , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    0,    RO );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_GENERAL_STATE_UC                                 , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0,    0,    NA );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_STATELESS_DATA_PORT                              , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    0,    RO );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_STATELESS_DATA_PORT_L1_CACHED                    , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    0,    RO );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_INDIRECT_OBJECT                                  , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    0,    RO );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_INSTRUCTION                                      , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    0,    RO );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HIZ                                                   , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    0,    RO );
@@ -110,6 +111,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SHADER_RESOURCE_LLC_BYPASS              
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_MOCS_62                                               , 1   , 0    , 0  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    0,    NA ); 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_L3_EVICTION                                           , 1   , 1    , 0  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    0,    RW ); 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_L3_EVICTION_SPECIAL                                   , 0   , EDRAM, 1  , EDRAM  , 0 ,    0,     0,       0,      NS,    0,   0,    0,  SP ); 
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_PROCEDURAL_TEXTURE                                    , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    0,    RO );
 
 // Tiled Resource
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_DEPTH_BUFFER                                    , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    0,    RO );
@@ -117,8 +119,8 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_HIZ                               
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_MCS                                             , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    0,    RO );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_CCS                                             , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    0,    RO );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_RENDER_TARGET                                   , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    0,    RO );
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_RENDER_TARGET_AND_SHADER_RESOURCE               , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    0,    RO );
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_SHADER_RESOURCE                                 , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    0,    RO );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_RENDER_TARGET_AND_SHADER_RESOURCE               , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    1,    RO );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_SHADER_RESOURCE                                 , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    1,    RO );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_UAV                                             , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    0,    RO );
 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_UAV                                                   , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    0,    RO );
@@ -297,6 +299,9 @@ DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_BLT_DESTINATION                        
 /**********************************************************************************/
 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CAMERA_CAPTURE                                        , CAM$, 0    , 0  , 0  , CAM$ , 0,     0,       0,      0,    0,   0,    0,    NA );
+
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_KMD_NULL_CONTEXT_BB                                  , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0,    0,    NA );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COMMAND_STREAMER                                     , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0,    0,    NA );
 
 // Uncacheable copies
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COPY_SOURCE                                           , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0,    0,   NA);

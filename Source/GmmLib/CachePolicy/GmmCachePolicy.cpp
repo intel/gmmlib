@@ -53,6 +53,20 @@ uint8_t GMM_STDCALL GmmCachePolicyIsUsagePTECached(void *pLibContext, GMM_RESOUR
     return pGmmLibContext->GetCachePolicyObj()->CachePolicyIsUsagePTECached(Usage);
 }
 /////////////////////////////////////////////////////////////////////////////////////
+/// C Wrapper function to return L1 Cache Control on DG2 for a given resource type
+///
+/// @param[in]     pLibContext: pGmmLibContext
+/// @param[in]     Usage: type of usage
+///
+/// @return         Value of L1 Cache control.
+/////////////////////////////////////////////////////////////////////////////////////
+uint8_t GMM_STDCALL GmmGetSurfaceStateL1CachePolicy(void *pLibContext, GMM_RESOURCE_USAGE_TYPE Usage)
+{
+    GMM_LIB_CONTEXT *pGmmLibContext = (GMM_LIB_CONTEXT *)pLibContext;
+    return pGmmLibContext->GetCachePolicyElement(Usage).L1CC;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetCachePolicyUsage.
 /// @see        GmmLib::GmmResourceInfoCommon::GetCachePolicyUsage()
 ///
@@ -112,8 +126,8 @@ MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmCachePolicyGetOriginalMemoryObject(vo
 /// C Wrapper function for GmmCachePolicy::GmmGetWantedMemoryType.
 /// @see            GmmLib::GmmCachePolicy::GetWantedMemoryType()
 ///
-/// @param[in]      CachePolicy:cache policy for a usage
 /// @param[in]     pLibContext: pGmmLibContext
+/// @param[in]     CachePolicy:cache policy for a usage
 ///
 /// @return         wanted memory type
 /////////////////////////////////////////////////////////////////////////////////////

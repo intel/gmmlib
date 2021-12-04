@@ -106,6 +106,8 @@ typedef struct _SKU_FEATURE_TABLE
         unsigned int   FtrMultiTileArch                 : 1;
 	unsigned int   FtrDisplayPageTables             : 1;  // Display Page Tables: 2-Level Page walk for Displayable Frame buffers in GGTT.
         unsigned int   Ftr57bGPUAddressing              : 1;  // 57b GPUVA support eg: PVC
+	unsigned int   FtrUnified3DMediaCompressionFormats : 1; // DG2 has unified Render/media compression(versus TGLLP/XeHP_SDV 's multiple instances) and requires changes to RC format h/w encodings.
+
     };
 
 
@@ -477,6 +479,12 @@ typedef struct _WA_TABLE
         WA_BUG_TYPE_PERF,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_UNKNOWN)
 
+	WA_DECLARE(
+        WaAuxTable64KGranular,
+        "AuxTable map granularity changed to 64K ..Remove once Neo switches reference to WaAuxTable16KGranular",
+        WA_BUG_TYPE_PERF,
+        WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_UNKNOWN)
+
         WA_DECLARE(
         WaLimit128BMediaCompr,
         "WA to limit media decompression on Render pipe to 128B (2CLs) 4:n.",
@@ -492,6 +500,18 @@ typedef struct _WA_TABLE
         WA_DECLARE(
         WaDefaultTile4,
         "[XeHP] Keep Tile4 as default on XeHP till B stepping",
+        WA_BUG_TYPE_UNKNOWN,
+        WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
+
+	WA_DECLARE(
+        Wa_1606955757,
+        "[GPSSCLT] [XeHP] Multicontext (LB) : out-of-order write-read access to scratch space from hdctlbunit",
+        WA_BUG_TYPE_UNKNOWN,
+        WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_OGL)
+
+	WA_DECLARE(
+        WaTile64Optimization,
+        "Tile64 wastge a lot of memory so WA provides optimization to fall back to Tile4 when waste is relatively higher",
         WA_BUG_TYPE_UNKNOWN,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
 

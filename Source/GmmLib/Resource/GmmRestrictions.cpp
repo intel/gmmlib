@@ -577,8 +577,8 @@ void GmmLib::GmmTextureCalc::GetResRestrictions(GMM_TEXTURE_INFO * pTexinfo,
         }
         else // only for platforms having auxtable
         {
-            Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, (!WA16K(pGmmLibContext) ? GMM_KBYTE(64) : GMM_KBYTE(16)));
-        }
+            Restrictions.Alignment = GFX_ALIGN(Restrictions.Alignment, (WA16K(pGmmLibContext) ? GMM_KBYTE(16) : WA64K(pGmmLibContext) ? GMM_KBYTE(64) : GMM_MBYTE(1)));
+	}
     }
 
     GMM_DPF_EXIT;

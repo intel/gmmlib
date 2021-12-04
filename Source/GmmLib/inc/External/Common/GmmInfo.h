@@ -112,7 +112,7 @@ namespace GmmLib
         // Padding Percentage limit on 64KB paged resource
         uint32_t               AllowedPaddingFor64KbPagesPercentage;
         uint64_t              InternalGpuVaMax;
-
+        uint32_t               AllowedPaddingFor64KBTileSurf;
 #ifdef GMM_LIB_DLL
         // Mutex Object used for synchronization of ProcessSingleton Context
         static GMM_MUTEX_HANDLE           SingletonContextSyncMutex;
@@ -291,6 +291,22 @@ namespace GmmLib
         uint64_t& GetInternalGpuVaRangeLimit()
         {
             return InternalGpuVaMax;
+        }
+         /////////////////////////////////////////////////////////////////////////
+        /// Get padding  limit for 64k pages
+        /////////////////////////////////////////////////////////////////////////
+        uint32_t GetAllowedPaddingFor64KBTileSurf()
+        {
+            return (AllowedPaddingFor64KBTileSurf);
+        }
+
+        /////////////////////////////////////////////////////////////////////////
+        /// Set padding  limit for 64k pages
+        /////////////////////////////////////////////////////////////////////////
+
+        GMM_INLINE void SetAllowedPaddingFor64KBTileSurf(uint32_t Value)
+        {
+            AllowedPaddingFor64KBTileSurf = Value;
         }
 
     #ifdef GMM_LIB_DLL

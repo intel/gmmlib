@@ -145,6 +145,10 @@ void CTestGen12dGPUCachePolicy::CheckL3Gen12dGPUCachePolicy()
 
         //printf("Usage: %d --> Index: [%d]\n", Usage, AssignedMocsIdx);
 
+	if(GfxPlatform.eProductFamily == IGFX_DG2)
+        {
+            StartMocsIdx = 0;
+        }
         if(StartMocsIdx == 1)
         {
             EXPECT_NE(0, AssignedMocsIdx) << "Usage# " << Usage << ": Misprogramming MOCS - Index 0 is reserved for Error";
@@ -161,8 +165,8 @@ void CTestGen12dGPUCachePolicy::CheckL3Gen12dGPUCachePolicy()
             CheckMocsIdxHDCL1(Usage, AssignedMocsIdx, ClientRequest);
         }
 
-        if(GfxPlatform.eProductFamily <= IGFX_XE_HP_SDV)
-        {
+        if(GfxPlatform.eProductFamily < IGFX_DG2)
+	{
             CheckSpecialMocs(Usage, AssignedMocsIdx, ClientRequest);
         }
 
@@ -201,6 +205,13 @@ void CTestXe_HP_CachePolicy::SetUpTestCase()
 
 void CTestXe_HP_CachePolicy::TearDownTestCase()
 {
+}
+
+TEST_F(CTestXe_HP_CachePolicy, Test_DG2_CachePolicy)
+{
+    SetUpPlatformVariant(IGFX_DG2);
+    CheckL3CachePolicy();
+    TearDownPlatformVariant();
 }
 
 TEST_F(CTestXe_HP_CachePolicy, Test_PVC_CachePolicy)

@@ -819,7 +819,7 @@ GmmLib::Context::Context()
     //Default initialize 64KB Page padding percentage.
     AllowedPaddingFor64KbPagesPercentage = 10;
     InternalGpuVaMax                     = 0;
-
+    AllowedPaddingFor64KBTileSurf        = 10;
 #if(!defined(__GMM_KMD__) && !defined(GMM_UNIFIED_LIB))
     pGmmGlobalClientContext = NULL;
 #endif

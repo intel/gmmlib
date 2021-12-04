@@ -61,6 +61,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_UNKNOWN                                 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_UNMAP_PAGING_RESERVED_GTT_DMA_BUFFER            , 0      , 0    , 0  , 0  , 0 );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VSC_BATCH_BUFFER                                , 0      , 0    , 0  , 0  , 0 );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_WA_BATCH_BUFFER                                 , 0      , 0    , 0  , 0  , 0 );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_KMD_OCA_BUFFER                                  , 0      , 0    , 0  , 0  , 0 );
 
 //
 // 3D Usages
@@ -103,6 +104,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_UAV                                     
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_RENDER_TARGET_AND_SHADER_RESOURCE               , 1     , 1     , 1  , 0  , 1 );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_WDDM_HISTORY_BUFFER                             , 0     , EDRAM , 0  , 0  , 1 );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CONTEXT_SAVE_RESTORE                            , 0     , EDRAM , 0  , 0  , 1 );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_PROCEDURAL_TEXTURE                              , 0     , 0     , 0  , 0  , 0 );
 
 //
 // CM USAGES

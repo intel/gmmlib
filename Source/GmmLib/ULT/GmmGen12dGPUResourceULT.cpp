@@ -46,7 +46,8 @@ void CTestGen12dGPUResource::SetUpTestCase()
         pGfxAdapterInfo->SkuTable.FtrLinearCCS             = 1; //legacy y =>0 - test both
         pGfxAdapterInfo->SkuTable.FtrStandardMipTailFormat = 1;
         pGfxAdapterInfo->SkuTable.FtrTileY                 = 1;
-        CommonULT::SetUpTestCase();
+        pGfxAdapterInfo->WaTable.WaAuxTable64KGranular     = 1;
+	CommonULT::SetUpTestCase();
     }
 }
 
@@ -318,6 +319,494 @@ TEST_F(CTestGen12dGPUResource, DISABLED_Test1DTileTiledResourceMips)
             EXPECT_EQ(0, OffsetInfo.Render.YOffset);
             EXPECT_EQ(0, OffsetInfo.Render.ZOffset);
         }
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
+    }
+}
+
+/// @brief ULT for 2D Tile64 Resource Optimization
+TEST_F(CTestGen12dGPUResource, DISABLED_TestTile64ResourceOptimization)
+{
+    const uint32_t TileSize[TEST_BPP_MAX][2] = {{256, 256},
+                                                {512, 128},
+                                                {512, 128},
+                                                {1024, 64},
+                                                {1024, 64}};
+
+    GMM_RESCREATE_PARAMS gmmParams = {};
+
+    gmmParams.Type              = RESOURCE_2D;
+    gmmParams.Format            = GMM_FORMAT_R8G8B8A8_UNORM;
+    gmmParams.NoGfxMemory       = 1;
+    gmmParams.Flags.Gpu.Texture = 1;
+    // TiledResource set 0 - allow to enter in Tile64 optimization logic
+    gmmParams.Flags.Gpu.TiledResource = 0;
+    gmmParams.ArraySize               = 6;
+    gmmParams.BaseWidth64             = 1;
+    gmmParams.BaseHeight              = 1;
+    // set any valid Usage
+    gmmParams.Usage = GMM_RESOURCE_USAGE_RENDER_TARGET;
+
+    GMM_RESOURCE_INFO *ResourceInfo;
+
+    ResourceInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
+    // Check if Tile4 info flag
+    VerifyResourceTile4<true>(ResourceInfo, true);
+    pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
+
+    gmmParams.Type              = RESOURCE_2D;
+    gmmParams.BaseWidth64       = 128;
+    gmmParams.BaseHeight        = 128;
+    gmmParams.NoGfxMemory       = 1;
+    gmmParams.Flags.Gpu.Texture = 1;
+    // TiledResource set 0 - allow to enter in Tile64 optimization logic
+    gmmParams.Flags.Gpu.TiledResource = 0;
+    gmmParams.ArraySize               = 960;
+    gmmParams.Flags.Info.Tile4        = 0;
+    gmmParams.Flags.Info.Tile64       = 0;
+
+    gmmParams.Format = GMM_FORMAT_BC6H;
+    ResourceInfo     = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
+    // Check if Tile4 info flag
+    VerifyResourceTile4<true>(ResourceInfo, true);
+    pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
+
+
+    // Allocate surface that requires multi tiles in two dimension
+    // Allocate 2 tiles in X dimension
+    for(uint32_t i = 0; i < TEST_BPP_MAX; i++)
+    {
+        TEST_BPP bpp          = static_cast<TEST_BPP>(i);
+        gmmParams.Format      = SetResourceFormat(bpp);
+        gmmParams.BaseWidth64 = (TileSize[i][0] / GetBppValue(bpp)) + 1; // 1 pixel larger than 1 tile width
+        gmmParams.BaseHeight  = 0x1;
+        gmmParams.Depth       = 0x1;
+        // TiledResource set 0 - allow to enter in Tile64 optimization logic
+        gmmParams.Flags.Gpu.TiledResource = 0;
+        gmmParams.Flags.Info.Tile4        = 0;
+        gmmParams.Flags.Info.Tile64       = 0;
+
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
+
+        // Check if Tile4 is set or not
+        VerifyResourceTile4<true>(ResourceInfo, true);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
+    }
+
+    // Allocate 2 tiles in X/Y dimension
+    for(uint32_t i = 0; i < TEST_BPP_MAX; i++)
+    {
+        TEST_BPP bpp                = static_cast<TEST_BPP>(i);
+        gmmParams.Format            = GMM_FORMAT_R8G8B8A8_UNORM;               //SetResourceFormat(bpp);
+        gmmParams.BaseWidth64       = (TileSize[i][0] / GetBppValue(bpp)) + 1; // 1 pixel larger than 1 tile width
+        gmmParams.BaseHeight        = TileSize[i][1] + 1;                      // 1 row larger than 1 tile height
+        gmmParams.Depth             = 0x1;
+        gmmParams.Flags.Info.Tile4  = 0;
+        gmmParams.Flags.Info.Tile64 = 0;
+
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
+
+        // Check if Tile4 is set or not
+        VerifyResourceTile4<true>(ResourceInfo, true);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
+    }
+}
+
+/// @brief ULT for 2D Tile64 Resource with Mips
+TEST_F(CTestGen12dGPUResource, DISABLED_Test2DTile64MippedResourceOptimization)
+{
+    const uint32_t HAlign[TEST_BPP_MAX] = {256, 256, 128, 128, 64};
+    const uint32_t VAlign[TEST_BPP_MAX] = {256, 128, 128, 64, 64};
+
+    const uint32_t TileSize[TEST_BPP_MAX][2] = {{256, 256},
+                                                {512, 128},
+                                                {512, 128},
+                                                {1024, 64},
+                                                {1024, 64}};
+
+    const uint32_t MtsWidth[TEST_BPP_MAX]  = {128, 128, 64, 64, 32};
+    const uint32_t MtsHeight[TEST_BPP_MAX] = {256, 128, 128, 64, 64};
+
+    GMM_RESCREATE_PARAMS gmmParams = {};
+    gmmParams.Type                 = RESOURCE_2D;
+    gmmParams.NoGfxMemory          = 1;
+    // TiledResource set 0 - allow to enter in Tile64 optimization logic
+    gmmParams.Flags.Gpu.TiledResource = 0;
+    gmmParams.Flags.Gpu.Texture       = 1;
+    gmmParams.MaxLod                  = 5;
+    gmmParams.ArraySize               = 4;
+    // set any valid Usage
+    gmmParams.Usage = GMM_RESOURCE_USAGE_RENDER_TARGET;
+
+    for(uint32_t i = 0; i < TEST_BPP_MAX; i++)
+    {
+        uint32_t AlignedWidth    = 0;
+        uint32_t AlignedHeight   = 0;
+        uint32_t ExpectedPitch   = 0;
+        uint32_t MipTailStartLod = 0;
+        // Valigned Mip Heights
+        uint32_t Mip0Height    = 0;
+        uint32_t Mip1Height    = 0;
+        uint32_t Mip2Height    = 0;
+        uint32_t Mip3Height    = 0;
+        uint32_t Mip4Height    = 0;
+        uint32_t Mip5Height    = 0;
+        uint32_t Mip2Higher    = 0; // Sum of aligned heights of Mip2 and above
+        uint32_t MipTailHeight = 0;
+        // Haligned Mip Widths
+        uint32_t Mip0Width = 0;
+        uint32_t Mip1Width = 0;
+        uint32_t Mip2Width = 0;
+
+        TEST_BPP bpp          = static_cast<TEST_BPP>(i);
+        gmmParams.Format      = SetResourceFormat(bpp);
+        gmmParams.BaseWidth64 = 0x120;
+        gmmParams.BaseHeight  = 0x120;
+        // TiledResource set 0 - allow to enter in Tile64 optimization logic
+        gmmParams.Flags.Gpu.TiledResource = 0;
+        gmmParams.Flags.Info.Tile4        = 0;
+        gmmParams.Flags.Info.Tile64       = 0;
+
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
+        VerifyResourceTile4<true>(ResourceInfo, true);
+
+        // find the miptail start level
+        {
+            uint32_t MipWidth  = gmmParams.BaseWidth64;
+            uint32_t MipHeight = gmmParams.BaseHeight;
+            while(!(MipWidth <= MtsWidth[i] && MipHeight <= MtsHeight[i]))
+            {
+                MipTailStartLod++;
+                MipWidth  = (uint32_t)(GMM_ULT_MAX(1, gmmParams.BaseWidth64 >> MipTailStartLod));
+                MipHeight = GMM_ULT_MAX(1, gmmParams.BaseHeight >> MipTailStartLod);
+            }
+        }
+
+        // Mip resource Aligned Width calculation
+        Mip0Width    = GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign[i]);
+        Mip1Width    = GMM_ULT_ALIGN(gmmParams.BaseWidth64 >> 1, HAlign[i]);
+        Mip2Width    = GMM_ULT_ALIGN(gmmParams.BaseWidth64 >> 2, HAlign[i]);
+        AlignedWidth = GMM_ULT_MAX(Mip0Width, Mip1Width + Mip2Width);
+
+        Mip0Height = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign[i]);
+        if(MipTailStartLod == 2)
+        {
+            //EXPECT_EQ(2, ResourceInfo->GetPackedMipTailStartLod());
+            // Block height...Mip0Height + Max(Mip1Height, Sum of Mip2Height..MipnHeight)
+            Mip1Height = GMM_ULT_ALIGN(gmmParams.BaseHeight >> 1, VAlign[i]);
+            Mip2Height = Mip2Higher = GMM_ULT_ALIGN(gmmParams.BaseHeight >> 2, VAlign[i]);
+        }
+        else if(MipTailStartLod == 3)
+        {
+            //EXPECT_EQ(3, ResourceInfo->GetPackedMipTailStartLod());
+            // Block height...Mip0Height + Max(Mip1Height, Sum of Mip2Height..MipnHeight)
+            Mip1Height = GMM_ULT_ALIGN(gmmParams.BaseHeight >> 1, VAlign[i]);
+            Mip2Height = GMM_ULT_ALIGN(gmmParams.BaseHeight >> 2, VAlign[i]);
+            // Miptail started lod
+            MipTailHeight = VAlign[i];
+            Mip2Higher    = Mip2Height + MipTailHeight;
+        }
+        else if(MipTailStartLod == 4)
+        {
+            //EXPECT_EQ(4, ResourceInfo->GetPackedMipTailStartLod());
+            // Block height...Mip0Height + Max(Mip1Height, Sum of Mip2Height..MipnHeight)
+            Mip1Height = GMM_ULT_ALIGN(gmmParams.BaseHeight >> 1, VAlign[i]);
+            Mip2Height = GMM_ULT_ALIGN(gmmParams.BaseHeight >> 2, VAlign[i]);
+            Mip3Height = GMM_ULT_ALIGN(gmmParams.BaseHeight >> 3, VAlign[i]);
+            // Miptail started lod
+            MipTailHeight = VAlign[i];
+            Mip2Higher    = Mip2Height + Mip3Height + MipTailHeight;
+        }
+
+        uint32_t MaxHeight = GMM_ULT_MAX(Mip1Height, Mip2Higher);
+        AlignedHeight      = Mip0Height + MaxHeight;
+        AlignedHeight      = GMM_ULT_ALIGN(AlignedHeight, VAlign[i]);
+
+        ExpectedPitch = AlignedWidth * GetBppValue(bpp);
+        ExpectedPitch = GMM_ULT_ALIGN(ExpectedPitch, GMM_BYTES(32));
+        //VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
+
+        //VerifyResourcePitchInTiles<true>(ResourceInfo, static_cast<uint32_t>(ExpectedPitch / TileSize[i][0]));
+        //VerifyResourceSize<true>(ResourceInfo, GMM_ULT_ALIGN(ExpectedPitch * AlignedHeight * gmmParams.ArraySize, PAGE_SIZE));
+        //VerifyResourceQPitch<false>(ResourceInfo, AlignedHeight);
+
+        // Mip 0 offsets, offset is 0,0
+        GMM_REQ_OFFSET_INFO ReqInfo = {0};
+        ReqInfo.MipLevel            = 0;
+        ReqInfo.ReqRender           = 1;
+        ResourceInfo->GetOffset(ReqInfo);
+        uint32_t Mip0Size = ExpectedPitch * Mip0Height;
+        //EXPECT_EQ(0, ReqInfo.Render.Offset64);
+        //EXPECT_EQ(0, ReqInfo.Render.XOffset);
+        //EXPECT_EQ(0, ReqInfo.Render.YOffset);
+
+        // Mip 1 offsets
+        ReqInfo           = {0};
+        ReqInfo.MipLevel  = 1;
+        ReqInfo.ReqRender = 1;
+        ResourceInfo->GetOffset(ReqInfo);
+        uint32_t Mip1Offset = Mip0Size;
+        //EXPECT_EQ(Mip1Offset, ReqInfo.Render.Offset64);
+        //EXPECT_EQ(0, ReqInfo.Render.XOffset);
+        //EXPECT_EQ(0, ReqInfo.Render.YOffset);
+
+        // Mip 2 offset
+        ReqInfo           = {0};
+        ReqInfo.MipLevel  = 2;
+        ReqInfo.ReqRender = 1;
+        ResourceInfo->GetOffset(ReqInfo);
+        uint32_t Mip2Offset              = Mip1Width * GetBppValue(bpp) + Mip0Height * ExpectedPitch;
+        uint32_t Mip2X                   = GFX_ALIGN_FLOOR(uint32_t(Mip2Offset % ExpectedPitch), TileSize[i][0]);
+        uint32_t Mip2Y                   = GFX_ALIGN_FLOOR(uint32_t(Mip2Offset / ExpectedPitch), TileSize[i][1]);
+        uint32_t Mip2RenderAlignedOffset = Mip2Y * ExpectedPitch + (Mip2X / TileSize[i][0]) * (TileSize[i][0] * TileSize[i][1]);
+        //EXPECT_EQ(Mip2RenderAlignedOffset, ReqInfo.Render.Offset64);
+        switch(bpp)
+        {
+            case TEST_BPP_8:
+                //EXPECT_EQ(128, ReqInfo.Render.XOffset);
+                //EXPECT_EQ(0, ReqInfo.Render.YOffset);
+                break;
+            case TEST_BPP_16:
+                //EXPECT_EQ(256, ReqInfo.Render.XOffset);
+                //EXPECT_EQ(0, ReqInfo.Render.YOffset);
+                break;
+            case TEST_BPP_32:
+                //EXPECT_EQ(0, ReqInfo.Render.XOffset);
+                //EXPECT_EQ(0, ReqInfo.Render.YOffset);
+                break;
+            case TEST_BPP_64:
+                //EXPECT_EQ(0, ReqInfo.Render.XOffset);
+                //EXPECT_EQ(0, ReqInfo.Render.YOffset);
+                break;
+            case TEST_BPP_128:
+                //EXPECT_EQ(0, ReqInfo.Render.XOffset);
+                //EXPECT_EQ(0, ReqInfo.Render.YOffset);
+                break;
+            default:
+                break;
+        }
+
+        // Mip 3 offset
+        ReqInfo           = {0};
+        ReqInfo.MipLevel  = 3;
+        ReqInfo.ReqRender = 1;
+        ResourceInfo->GetOffset(ReqInfo);
+        uint32_t Mip3Offset = 0;
+        switch(bpp)
+        {
+            case TEST_BPP_8:
+                Mip3Offset = Mip1Width * GetBppValue(bpp) + Mip0Height * ExpectedPitch;
+                //EXPECT_EQ(0, ReqInfo.Render.XOffset);
+                //EXPECT_EQ(128, ReqInfo.Render.YOffset);
+                break;
+            case TEST_BPP_16:
+                Mip3Offset = Mip1Width * GetBppValue(bpp) + Mip0Height * ExpectedPitch;
+                //EXPECT_EQ(0, ReqInfo.Render.XOffset);
+                //EXPECT_EQ(64, ReqInfo.Render.YOffset);
+                break;
+            case TEST_BPP_32:
+                Mip3Offset = Mip1Width * GetBppValue(bpp) + (Mip0Height + Mip2Height) * ExpectedPitch;
+                //EXPECT_EQ(256, ReqInfo.Render.XOffset);
+                //EXPECT_EQ(0, ReqInfo.Render.YOffset);
+                break;
+            case TEST_BPP_64:
+                Mip3Offset = Mip1Width * GetBppValue(bpp) + (Mip0Height + Mip2Height) * ExpectedPitch;
+                //EXPECT_EQ(512, ReqInfo.Render.XOffset);
+                //EXPECT_EQ(0, ReqInfo.Render.YOffset);
+                break;
+            case TEST_BPP_128:
+                Mip3Offset = Mip1Width * GetBppValue(bpp) + (Mip0Height + Mip2Height) * ExpectedPitch;
+                //EXPECT_EQ(0, ReqInfo.Render.XOffset);
+                //EXPECT_EQ(0, ReqInfo.Render.YOffset);
+                break;
+            default:
+                break;
+        }
+        uint32_t Mip3X                   = GFX_ALIGN_FLOOR(uint32_t(Mip3Offset % ExpectedPitch), TileSize[i][0]);
+        uint32_t Mip3Y                   = GFX_ALIGN_FLOOR(uint32_t(Mip3Offset / ExpectedPitch), TileSize[i][1]);
+        uint32_t Mip3RenderAlignedOffset = Mip3Y * ExpectedPitch + (Mip3X / TileSize[i][0]) * (TileSize[i][0] * TileSize[i][1]);
+        //EXPECT_EQ(Mip3RenderAlignedOffset, ReqInfo.Render.Offset64);
+
+        // Mip 4 offset
+        ReqInfo           = {0};
+        ReqInfo.MipLevel  = 4;
+        ReqInfo.ReqRender = 1;
+        ResourceInfo->GetOffset(ReqInfo);
+        uint32_t Mip4Offset = 0;
+        switch(bpp)
+        {
+            case TEST_BPP_8:
+                Mip4Offset = Mip1Width * GetBppValue(bpp) + Mip0Height * ExpectedPitch;
+                //EXPECT_EQ(64, ReqInfo.Render.XOffset);
+                //EXPECT_EQ(0, ReqInfo.Render.YOffset);
+                break;
+            case TEST_BPP_16:
+                Mip4Offset = Mip1Width * GetBppValue(bpp) + Mip0Height * ExpectedPitch;
+                //EXPECT_EQ(128, ReqInfo.Render.XOffset);
+                //EXPECT_EQ(0, ReqInfo.Render.YOffset);
+                break;
+            case TEST_BPP_32:
+                Mip4Offset = Mip1Width * GetBppValue(bpp) + (Mip0Height + Mip2Height) * ExpectedPitch;
+                //EXPECT_EQ(0, ReqInfo.Render.XOffset);
+                //EXPECT_EQ(64, ReqInfo.Render.YOffset);
+                break;
+            case TEST_BPP_64:
+                Mip4Offset = Mip1Width * GetBppValue(bpp) + (Mip0Height + Mip2Height) * ExpectedPitch;
+                //EXPECT_EQ(0, ReqInfo.Render.XOffset);
+                //EXPECT_EQ(32, ReqInfo.Render.YOffset);
+                break;
+            case TEST_BPP_128:
+                Mip4Offset = Mip1Width * GetBppValue(bpp) + (Mip0Height + Mip2Height + Mip3Height) * ExpectedPitch;
+                //EXPECT_EQ(512, ReqInfo.Render.XOffset);
+                //EXPECT_EQ(0, ReqInfo.Render.YOffset);
+                break;
+            default:
+                break;
+        }
+        uint32_t Mip4X                   = GFX_ALIGN_FLOOR(uint32_t(Mip4Offset % ExpectedPitch), TileSize[i][0]);
+        uint32_t Mip4Y                   = GFX_ALIGN_FLOOR(uint32_t(Mip4Offset / ExpectedPitch), TileSize[i][1]);
+        uint32_t Mip4RenderAlignedOffset = Mip4Y * ExpectedPitch + (Mip4X / TileSize[i][0]) * (TileSize[i][0] * TileSize[i][1]);
+        //EXPECT_EQ(Mip4RenderAlignedOffset, ReqInfo.Render.Offset64);
+
+        // Mip 5 offset
+        ReqInfo           = {0};
+        ReqInfo.MipLevel  = 4;
+        ReqInfo.ReqRender = 1;
+        ResourceInfo->GetOffset(ReqInfo);
+        uint32_t Mip5Offset = 0;
+        switch(bpp)
+        {
+            case TEST_BPP_8:
+                Mip5Offset = Mip1Width * GetBppValue(bpp) + Mip0Height * ExpectedPitch;
+                //EXPECT_EQ(64, ReqInfo.Render.XOffset);
+                //EXPECT_EQ(0, ReqInfo.Render.YOffset);
+                break;
+            case TEST_BPP_16:
+                Mip5Offset = Mip1Width * GetBppValue(bpp) + Mip0Height * ExpectedPitch;
+                //EXPECT_EQ(128, ReqInfo.Render.XOffset);
+                //EXPECT_EQ(0, ReqInfo.Render.YOffset);
+                break;
+            case TEST_BPP_32:
+                Mip5Offset = Mip1Width * GetBppValue(bpp) + (Mip0Height + Mip2Height) * ExpectedPitch;
+                //EXPECT_EQ(0, ReqInfo.Render.XOffset);
+                //EXPECT_EQ(64, ReqInfo.Render.YOffset);
+                break;
+            case TEST_BPP_64:
+                Mip5Offset = Mip1Width * GetBppValue(bpp) + (Mip0Height + Mip2Height) * ExpectedPitch;
+                //EXPECT_EQ(0, ReqInfo.Render.XOffset);
+                //EXPECT_EQ(32, ReqInfo.Render.YOffset);
+                break;
+            case TEST_BPP_128:
+                Mip5Offset = Mip1Width * GetBppValue(bpp) + (Mip0Height + Mip2Height + Mip3Height) * ExpectedPitch;
+                //EXPECT_EQ(512, ReqInfo.Render.XOffset);
+                //EXPECT_EQ(0, ReqInfo.Render.YOffset);
+                break;
+            default:
+                break;
+        }
+        uint32_t Mip5X                   = GFX_ALIGN_FLOOR(uint32_t(Mip4Offset % ExpectedPitch), TileSize[i][0]);
+        uint32_t Mip5Y                   = GFX_ALIGN_FLOOR(uint32_t(Mip4Offset / ExpectedPitch), TileSize[i][1]);
+        uint32_t Mip5RenderAlignedOffset = Mip5Y * ExpectedPitch + (Mip5X / TileSize[i][0]) * (TileSize[i][0] * TileSize[i][1]);
+        //EXPECT_EQ(Mip5RenderAlignedOffset, ReqInfo.Render.Offset64);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
+    }
+}
+
+/// @brief ULT for 3D Tile64 Resource Optimization
+TEST_F(CTestGen12dGPUResource, DISABLED_Test3DTile64ResourceOptimization)
+{
+    const uint32_t TileSize[TEST_BPP_MAX][2] = {{256, 256},
+                                                {512, 128},
+                                                {512, 128},
+                                                {1024, 64},
+                                                {1024, 64}};
+
+    GMM_RESCREATE_PARAMS gmmParams = {};
+
+    gmmParams.Type              = RESOURCE_3D;
+    gmmParams.Format            = GMM_FORMAT_R8G8B8A8_UNORM;
+    gmmParams.NoGfxMemory       = 1;
+    gmmParams.Flags.Gpu.Texture = 1;
+    // TiledResource set 0 - allow to enter in Tile64 optimization logic
+    gmmParams.Flags.Gpu.TiledResource = 0;
+    gmmParams.ArraySize               = 6;
+    gmmParams.BaseWidth64             = 1;
+    gmmParams.BaseHeight              = 1;
+    gmmParams.Depth                   = 1;
+
+    GMM_RESOURCE_INFO *ResourceInfo;
+
+    ResourceInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
+    // Check if Tile4 info flag
+    VerifyResourceTile4<true>(ResourceInfo, true);
+    pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
+
+    gmmParams.Type              = RESOURCE_3D;
+    gmmParams.BaseWidth64       = 128;
+    gmmParams.BaseHeight        = 128;
+    gmmParams.NoGfxMemory       = 1;
+    gmmParams.Flags.Gpu.Texture = 1;
+    gmmParams.Depth             = 1;
+    // TiledResource set 0 - allow to enter in Tile64 optimization logic
+    gmmParams.Flags.Gpu.TiledResource = 0;
+    gmmParams.ArraySize               = 960;
+    gmmParams.Flags.Info.Tile4        = 0;
+    gmmParams.Flags.Info.Tile64       = 0;
+
+    gmmParams.Format = GMM_FORMAT_BC6H;
+    ResourceInfo     = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
+    // Check if Tile4 info flag
+    VerifyResourceTile4<true>(ResourceInfo, true);
+    pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
+
+
+    // Allocate surface that requires multi tiles in two dimension
+    // Allocate 2 tiles in X dimension
+    for(uint32_t i = 0; i < TEST_BPP_MAX; i++)
+    {
+        TEST_BPP bpp          = static_cast<TEST_BPP>(i);
+        gmmParams.Type        = RESOURCE_3D;
+        gmmParams.Format      = SetResourceFormat(bpp);
+        gmmParams.BaseWidth64 = (TileSize[i][0] / GetBppValue(bpp)) + 1; // 1 pixel larger than 1 tile width
+        gmmParams.BaseHeight  = 0x1;
+        gmmParams.Depth       = 0x1;
+        // TiledResource set 0 - allow to enter in Tile64 optimization logic
+        gmmParams.Flags.Gpu.TiledResource = 0;
+        gmmParams.Flags.Info.Tile4        = 0;
+        gmmParams.Flags.Info.Tile64       = 0;
+
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
+
+        // Check if Tile4 is set or not
+        VerifyResourceTile4<true>(ResourceInfo, true);
+
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
+    }
+
+    // Allocate 2 tiles in X/Y dimension
+    for(uint32_t i = 0; i < TEST_BPP_MAX; i++)
+    {
+        TEST_BPP bpp                = static_cast<TEST_BPP>(i);
+        gmmParams.Type              = RESOURCE_3D;
+        gmmParams.Format            = GMM_FORMAT_R8G8B8A8_UNORM;               //SetResourceFormat(bpp);
+        gmmParams.BaseWidth64       = (TileSize[i][0] / GetBppValue(bpp)) + 1; // 1 pixel larger than 1 tile width
+        gmmParams.BaseHeight        = TileSize[i][1] + 1;                      // 1 row larger than 1 tile height
+        gmmParams.Depth             = 0x1;
+        gmmParams.Flags.Info.Tile4  = 0;
+        gmmParams.Flags.Info.Tile64 = 0;
+
+        GMM_RESOURCE_INFO *ResourceInfo;
+        ResourceInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
+
+        // Check if Tile4 is set or not
+        VerifyResourceTile4<true>(ResourceInfo, true);
 
         pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }

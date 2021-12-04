@@ -55,8 +55,9 @@ typedef struct GMM_CACHE_POLICY_ELEMENT_REC
             uint64_t                   SegOv       : 3; // Override seg-pref (none, local-only, sys-only, etc)
             uint64_t                   GlbGo       : 1; // Global GO point - L3 or Memory
             uint64_t                   UcLookup    : 1; // Snoop L3 for uncached 
-            uint64_t                   Initialized : 1;
-            uint64_t                   Reserved    : 2;
+            uint64_t                   L1CC        : 3; // L1 Cache Control
+	    uint64_t                   Initialized : 1;
+            uint64_t                   Reserved    : 5;
 
 	};
         uint64_t Value;    

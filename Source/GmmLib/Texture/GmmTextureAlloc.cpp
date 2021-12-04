@@ -682,7 +682,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexPitchAndSize(GMM_TEXTURE_INFO * pTexIn
                 }
                 else
                 {
-                    //XeHP
+                    //XeHP, DG2
                     if((pTexInfo->MSAA.NumSamples == 8 || pTexInfo->MSAA.NumSamples == 16))
                     {
                         uint64_t SliceSize = pTexInfo->Pitch * Height;

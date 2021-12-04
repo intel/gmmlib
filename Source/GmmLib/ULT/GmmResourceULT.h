@@ -463,6 +463,21 @@ protected:
         }
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////
+    /// Verifies if Tile4 info flag is set or not.  Fails test if Tile4 flag is not set
+    ///
+    /// @param[in]  ResourceInfo: ResourceInfo returned by GmmLib
+    /// @param[in]  ExpectedValue: expected value to check against
+    /////////////////////////////////////////////////////////////////////////////////////
+    template <bool Verify>
+    void VerifyResourceTile4(GMM_RESOURCE_INFO *ResourceInfo, bool ExpectedValue)
+    {
+        if(Verify)
+        {
+            EXPECT_EQ(true, (GMM_IS_4KB_TILE(ResourceInfo->GetResFlags())));
+        }
+    }
+
 public:
     CTestResource();
     ~CTestResource();

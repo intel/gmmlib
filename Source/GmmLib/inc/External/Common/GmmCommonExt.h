@@ -172,12 +172,13 @@ typedef enum GMM_CLIENT_ENUM
 // Macros related to GMM_CLIENT Enum
 #define USE_KMT_API(ClientType)         ((ClientType == GMM_OGL_VISTA) || (ClientType == GMM_OCL_VISTA) || (ClientType == GMM_VK_VISTA) || (ClientType == GMM_EXCITE_VISTA))
 #define USE_DX12_API(ClientType)        (ClientType == GMM_D3D12_VISTA)
-#define USE_DX_API(ClientType)          ((ClientType == GMM_D3D12_VISTA) || (GMM_D3D10_VISTA) || (GMM_D3D9_VISTA))
+#define USE_DX10_API(ClientType)        (ClientType == GMM_D3D10_VISTA)
+#define USE_DX_API(ClientType)          ((ClientType == GMM_D3D12_VISTA) || (ClientType == GMM_D3D10_VISTA) || (ClientType == GMM_D3D9_VISTA))
 
 #define GET_GMM_CLIENT_TYPE(pContext, ClientType)   \
 if(pContext)                                        \
 {                                                   \
-    ClientType = pContext->GetClientType();         \
+    ClientType = ((GmmClientContext*)pContext)->GetClientType();         \
 }                                                   \
 else                                                \
 {                                                   \
@@ -360,63 +361,6 @@ typedef enum GMM_YUV_PLANE_ENUM
     // No internal use >= GMM_MAX_PLANE!
 }GMM_YUV_PLANE;
 
-//===========================================================================
-// typedef:
-//        GMM_RESOURCE_TYPE
-//
-// Description:
-//     This enum describe type of resource requested
-//---------------------------------------------------------------------------
-typedef enum GMM_RESOURCE_TYPE_ENUM
-{
-    RESOURCE_INVALID,
-
-    // User-mode use
-    RESOURCE_1D,
-    RESOURCE_2D,
-    RESOURCE_3D,
-    RESOURCE_CUBE,
-    RESOURCE_SCRATCH,
-    RESOURCE_BUFFER,
-
-    //Kernel-mode use only
-    RESOURCE_KMD_CHECK_START,
-    RESOURCE_PRIMARY,
-    RESOURCE_SHADOW,
-    RESOURCE_STAGING,
-    RESOURCE_CURSOR,
-    RESOURCE_FBC,
-    RESOURCE_PWR_CONTEXT,
-    RESOURCE_PERF_DATA_QUEUE,
-    RESOURCE_KMD_BUFFER,
-    RESOURCE_HW_CONTEXT,
-    RESOURCE_TAG_PAGE,
-    RESOURCE_NNDI,
-    RESOURCE_HARDWARE_MBM,
-    RESOURCE_OVERLAY_DMA,
-    RESOURCE_OVERLAY_INTERMEDIATE_SURFACE,
-    RESOURCE_GTT_TRANSFER_REGION,
-    RESOURCE_GLOBAL_BUFFER,
-    RESOURCE_GDI,
-    RESOURCE_NULL_CONTEXT_INDIRECT_STATE,
-    RESOURCE_GFX_CLIENT_BUFFER,
-    RESOURCE_KMD_CHECK_END,
-    RESOURCE_SEGMENT,
-    RESOURCE_IFFS_MAPTOGTT,
-#if _WIN32
-    RESOURCE_WGBOX_ENCODE_STATE,
-    RESOURCE_WGBOX_ENCODE_DISPLAY,
-    RESOURCE_WGBOX_ENCODE_REFERENCE,
-    RESOURCE_WGBOX_ENCODE_TFD,
-#endif
-    // only used for allocation of context specific SVM Present kernels buffer
-    RESOURCE_SVM_KERNELS_BUFFER,
-
-    GMM_MAX_HW_RESOURCE_TYPE
-} GMM_RESOURCE_TYPE;
-
-//===========================================================================
-// typedef:
 //      GMM_RESOURCE_FORMAT
 //
 // Description:
@@ -642,3 +586,57 @@ typedef enum GMM_HW_COMMAND_STREAMER_ENUM
 // Reset packing alignment to project default
 #pragma pack(pop)
 
+//===========================================================================
+// typedef:
+//        GMM_RESOURCE_TYPE
+//
+// Description:
+//     This enum describe type of resource requested
+//---------------------------------------------------------------------------
+typedef enum GMM_RESOURCE_TYPE_ENUM
+{
+    RESOURCE_INVALID,
+
+    // User-mode use
+    RESOURCE_1D,
+    RESOURCE_2D,
+    RESOURCE_3D,
+    RESOURCE_CUBE,
+    RESOURCE_SCRATCH,
+    RESOURCE_BUFFER,
+
+    //Kernel-mode use only
+    RESOURCE_KMD_CHECK_START,
+    RESOURCE_PRIMARY,
+    RESOURCE_SHADOW,
+    RESOURCE_STAGING,
+    RESOURCE_CURSOR,
+    RESOURCE_FBC,
+    RESOURCE_PWR_CONTEXT,
+    RESOURCE_PERF_DATA_QUEUE,
+    RESOURCE_KMD_BUFFER,
+    RESOURCE_HW_CONTEXT,
+    RESOURCE_TAG_PAGE,
+    RESOURCE_NNDI,
+    RESOURCE_HARDWARE_MBM,
+    RESOURCE_OVERLAY_DMA,
+    RESOURCE_OVERLAY_INTERMEDIATE_SURFACE,
+    RESOURCE_GTT_TRANSFER_REGION,
+    RESOURCE_GLOBAL_BUFFER,
+    RESOURCE_GDI,
+    RESOURCE_NULL_CONTEXT_INDIRECT_STATE,
+    RESOURCE_GFX_CLIENT_BUFFER,
+    RESOURCE_KMD_CHECK_END,
+    RESOURCE_SEGMENT,
+    RESOURCE_IFFS_MAPTOGTT,
+#if _WIN32
+    RESOURCE_WGBOX_ENCODE_STATE,
+    RESOURCE_WGBOX_ENCODE_DISPLAY,
+    RESOURCE_WGBOX_ENCODE_REFERENCE,
+    RESOURCE_WGBOX_ENCODE_TFD,
+#endif
+    // only used for allocation of context specific SVM Present kernels buffer
+    RESOURCE_SVM_KERNELS_BUFFER,
+
+    GMM_MAX_HW_RESOURCE_TYPE
+} GMM_RESOURCE_TYPE;

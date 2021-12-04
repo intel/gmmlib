@@ -696,6 +696,7 @@ GMM_PTE_CACHE_CONTROL_BITS GMM_STDCALL GmmCachePolicyGetPteType(void *pLibContex
 GMM_RESOURCE_USAGE_TYPE     GMM_STDCALL GmmCachePolicyGetResourceUsage(GMM_RESOURCE_INFO *pResInfo );
 MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmCachePolicyGetOriginalMemoryObject(void *pLibContext, GMM_RESOURCE_INFO *pResInfo);
 uint8_t                     GMM_STDCALL GmmCachePolicyIsUsagePTECached(void *pLibContext, GMM_RESOURCE_USAGE_TYPE Usage);
+uint8_t                     GMM_STDCALL GmmGetSurfaceStateL1CachePolicy(void *pLibContext, GMM_RESOURCE_USAGE_TYPE Usage);
 void                        GMM_STDCALL GmmCachePolicyOverrideResourceUsage(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage);
 uint32_t                    GMM_STDCALL GmmCachePolicyGetMaxMocsIndex(void *pLibContext);
 uint32_t                    GMM_STDCALL GmmCachePolicyGetMaxL1HdcMocsIndex(void *pLibContext);

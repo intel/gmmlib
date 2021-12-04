@@ -66,6 +66,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_UNKNOWN                                 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_UNMAP_PAGING_RESERVED_GTT_DMA_BUFFER                  , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VSC_BATCH_BUFFER                                      , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_WA_BATCH_BUFFER                                       , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_KMD_OCA_BUFFER                                        , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0);
 
 //
 // 3D Usages
@@ -82,6 +83,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_DYNAMIC_STATE                      
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_GENERAL_STATE                                    , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_GENERAL_STATE_UC                                 , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_STATELESS_DATA_PORT                              , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_STATELESS_DATA_PORT_L1_CACHED                    , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_INDIRECT_OBJECT                                  , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_INSTRUCTION                                      , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HIZ                                                   , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
@@ -101,7 +103,8 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILE_POOL                               
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SHADER_RESOURCE_LLC_BYPASS                            , 0   , 1    , 1  , 0  , 0 ,    0,     0,       0,      NS,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_MOCS_62                                               , 1   , 0    , 0  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_L3_EVICTION                                           , 1   , 1    , 0  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
-
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_PROCEDURAL_TEXTURE                                    , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_UNCACHED                                              , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0);
 
 // Tiled Resource
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_DEPTH_BUFFER                                    , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
@@ -118,10 +121,12 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VERTEX_BUFFER                           
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VERTEX_BUFFER_L3_COHERENT_UC                          , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VERTEX_BUFFER_L3_CACHED                               , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OGL_WSTN_VERTEX_BUFFER                                , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_POSH_VERTEX_BUFFER                                    , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_RENDER_TARGET_AND_SHADER_RESOURCE                     , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_WDDM_HISTORY_BUFFER                                   , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CONTEXT_SAVE_RESTORE                                  , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
-
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_PTBR_PAGE_POOL                                        , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_PTBR_BATCH_BUFFER                                     , 0   , 0    , 1  , 0  , 0 ,    0,     0,       0,      0,    0,   0);
 
 //
 // CM USAGES
@@ -278,6 +283,7 @@ DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE               
 /**********************************************************************************/
 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CAMERA_CAPTURE                                        , CAM$, 0    , 0  , 0  , CAM$ , 0,     0,       0,      0,    0,   0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COMMAND_STREAMER                                      , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0);
 
 // Uncacheable copies
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COPY_SOURCE                                           , 0   , 0    , 0  , 0  , 0 ,    0,     0,       0,      0,    0,   0);

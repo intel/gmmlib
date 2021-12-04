@@ -23,7 +23,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Internal/Common/GmmLibInc.h"
 #include "External/Common/GmmClientContext.h"
 
-#if !__GMM_KMD__ && _WIN32
+#if !__GMM_KMD__ && LHDM
 #include "..\..\inc\common\gfxEscape.h"
 #include "..\..\..\miniport\LHDM\inc\gmmEscape.h"
 #include "Internal\Windows\GmmResourceInfoWinInt.h"
@@ -102,6 +102,18 @@ MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmClientContext::CachePolicyGet
 uint8_t GMM_STDCALL GmmLib::GmmClientContext::CachePolicyIsUsagePTECached(GMM_RESOURCE_USAGE_TYPE Usage)
 {
     return pGmmLibContext->GetCachePolicyObj()->CachePolicyIsUsagePTECached(Usage);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of ClientContext class to return L1 Cache Control on DG2 for a
+/// given resource usage type
+///
+/// @param[in]  GMM_RESOURCE_USAGE_TYPE : Resource Usage Type
+/// @return     Value of L1 Cache control
+/////////////////////////////////////////////////////////////////////////////////////
+uint8_t GMM_STDCALL GmmLib::GmmClientContext::GetSurfaceStateL1CachePolicy(GMM_RESOURCE_USAGE_TYPE Usage)
+{
+    return pGmmLibContext->GetCachePolicyElement(Usage).L1CC;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

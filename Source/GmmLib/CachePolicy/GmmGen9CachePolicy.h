@@ -85,7 +85,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_UNKNOWN                                 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_UNMAP_PAGING_RESERVED_GTT_DMA_BUFFER                  , 0   , 0    , 0  , 0 , UC );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VSC_BATCH_BUFFER                                      , 0   , 0    , 0  , 0 , UC );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_WA_BATCH_BUFFER                                       , 0   , 0    , 0  , 0 , UC );
-
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_KMD_OCA_BUFFER                                        , 0   , 0    , 0  , 0 , UC );
 //
 // 3D Usages
 //
@@ -103,6 +103,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_GENERAL_STATE                      
 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_GENERAL_STATE_UC                                 , 0      , 0     , 0  ,3 , UC );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_STATELESS_DATA_PORT                              , 1      , 1     , 1  ,3 , WB );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_STATELESS_DATA_PORT_L1_CACHED                    , 1      , 1     , 1  ,3 , WB );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_INDIRECT_OBJECT                                  , 1      , 1     , 1  ,3 , WB );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_INSTRUCTION                                      , 1      , 1     , 1  ,3 , WB );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HIZ                                                   , !GT3e  , EDRAM , 1  ,3 , WB );
@@ -117,6 +118,8 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_STAGING                                 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_STENCIL_BUFFER                                        , !GT3e  , EDRAM , 1  ,3 , WB );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_STREAM_OUTPUT_BUFFER                                  , 0      , EDRAM , 0  ,3 , UC );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILE_POOL                                             , !GT3e  , EDRAM , 1  ,3 , WB );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_PROCEDURAL_TEXTURE                                    , 0      , 0     , 0  ,0 , UC );
+
 
 // Tiled Resource
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILED_DEPTH_BUFFER                                    , !GT3e  , EDRAM , 1  ,3 , WB );
@@ -243,6 +246,8 @@ DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE               
 /**********************************************************************************/
 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CAMERA_CAPTURE                                        , CAM$, 0    , 0  , CAM$ , WB );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COMMAND_STREAMER                                      , 0   , 0    , 0  , 0 , UC );
+
 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COPY_SOURCE                                           , 0   , 0    , 0  , 0  , UC);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COPY_DEST                                             , 0   , 0    , 0  , 0  , UC);

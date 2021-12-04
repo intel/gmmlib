@@ -49,7 +49,7 @@ int32_t GmmLib::GmmGen12dGPUCachePolicy::IsSpecialMOCSUsage(GMM_RESOURCE_USAGE_T
     {
         case GMM_RESOURCE_USAGE_CCS:
             __GMM_ASSERT(pCachePolicy[Usage].L3 == 0 &&      //Architecturally, CCS isn't L3-cacheable.
-                         pCachePolicy[Usage].UcLookup == 0);  // On DG1/XE_HP_SDV, CCS Resource is never cached in L3, so LookUp is N/A
+                         pCachePolicy[Usage].UcLookup == 0);  // On DG1/XE_HP_SDV/DG2, CCS Resource is never cached in L3, so LookUp is N/A
             MocsIdx = 60;
             break;
         case GMM_RESOURCE_USAGE_MOCS_62:
@@ -89,7 +89,7 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
 
     __GMM_ASSERTPTR(pCachePolicy, GMM_ERROR);
 
-#define DEFINE_CACHE_ELEMENT(usage, l3, l3_scc, hdcl1, go, uclookup) DEFINE_CP_ELEMENT(usage, 0, 0, l3, 0, 0, 0, 0, l3_scc, 0, 0, 0, hdcl1, 0, 0, go, uclookup)
+#define DEFINE_CACHE_ELEMENT(usage, l3, l3_scc, hdcl1, go, uclookup, l1cc) DEFINE_CP_ELEMENT(usage, 0, 0, l3, 0, 0, 0, 0, l3_scc, 0, 0, 0, hdcl1, 0, 0, go, uclookup, l1cc)
 
 #include "GmmGen12dGPUCachePolicy.h"
 
@@ -130,10 +130,14 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
 
             switch(GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform))
             {
-                case IGFX_DG1:
+	        case IGFX_DG1:
                 case IGFX_XE_HP_SDV:
 	        case IGFX_PVC:
                     StartMocsIdx = 1; // Index 0 is reserved for Error
+                    break;
+                case IGFX_DG2:
+                    // DG2 provides 2 wires for MOCS Registers, gives 4(2^2) indexes to program.
+                    StartMocsIdx = 0;
                     break;
                 default:
                     StartMocsIdx = 1;
@@ -141,7 +145,7 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
             }
 
             // No Special MOCS handling for next platform
-            if(GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) <= IGFX_XE_HP_SDV)
+            if(GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) < IGFX_DG2)
             {
                 CPTblIdx = IsSpecialMOCSUsage((GMM_RESOURCE_USAGE_TYPE)Usage, SpecialMOCS);
             }
@@ -173,7 +177,7 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
             // Go/Lookup
             // N/A for SpecialMOCS
             // N/A for DG1, RKL, PVC
-            // Applicable for IGFX_XE_HP_SDV only
+            // Applicable for IGFX_XE_HP_SDV and DG2 only
             if(!SpecialMOCS &&
                (FROMPRODUCT(XE_HP_SDV)) &&
                (GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) != IGFX_PVC))
@@ -375,6 +379,22 @@ void GmmLib::GmmGen12dGPUCachePolicy::SetUpMOCSTable()
         CurrentMaxL1HdcMocsIndex    = 49;
         CurrentMaxSpecialMocsIndex  = 63;
 
+    }
+    else if ((GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) == IGFX_DG2))
+     {
+        //Default MOCS Table
+        for(int index = 0; index < GMM_MAX_NUMBER_MOCS_INDEXES; index++)
+        {     //             Index     ESC	  SCC	  L3CC    Go      LookUp    HDCL1
+             GMM_DEFINE_MOCS( index  , 0     , 0     , 3     , 0     , 1       , 0 )
+        }
+         // Fixed MOCS Table
+        //              Index     ESC	  SCC	  L3CC    Go      LookUp    HDCL1
+        GMM_DEFINE_MOCS( 0      , 0     , 0     , 1     , 0     , 1       , 0 )
+        GMM_DEFINE_MOCS( 1      , 0     , 0     , 1     , 1     , 1       , 0 )
+        GMM_DEFINE_MOCS( 2      , 0     , 0     , 1     , 1     , 0       , 0 )
+        GMM_DEFINE_MOCS( 3      , 0     , 0     , 3     , 0     , 1       , 0 )
+
+        CurrentMaxMocsIndex         = 3;
     }
     else if (GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) == IGFX_PVC) 
      {

@@ -1674,4 +1674,36 @@ typedef enum __NATIVEGTTYPE
 
 //#define SDG_HAS      1              //Reserve place for Springdale-G HAS
 //#define SDG_SUPPORT    1              //Springdale G build switch
+
+// Macro to identify DG2 device IDs
+#define GFX_IS_DG2_G11_CONFIG(d) ( ( d == DEV_ID_56A5 )               ||   \
+                                 ( d == DEV_ID_56A6 )             ||   \
+                                 ( d == DEV_ID_5693 )             ||   \
+                                 ( d == DEV_ID_5694 )             ||   \
+                                 ( d == DEV_ID_56B0 )             ||   \
+                                 ( d == DEV_ID_56B1 )             ||   \
+                                 ( d == DEV_ID_4F87 )             ||   \
+                                 ( d == DEV_ID_4F88 ))
+
+#define GFX_IS_DG2_G10_CONFIG(d) ( ( d == DEV_ID_56A0 )                              ||   \
+                                      ( d == DEV_ID_56A1 )                              ||   \
+                                      ( d == DEV_ID_56A2 )                              ||   \
+                                      ( d == DEV_ID_5690 )                              ||   \
+                                      ( d == DEV_ID_5691 )                              ||   \
+                                      ( d == DEV_ID_5692 )                              ||   \
+                                      ( d == DEV_ID_4F80 )                              ||   \
+                                      ( d == DEV_ID_4F81 )                              ||   \
+                                      ( d == DEV_ID_4F82 )                              ||   \
+                                      ( d == DEV_ID_4F83 )                              ||   \
+                                      ( d == DEV_ID_4F84 ))
+
+//we define the highest cap and lower cap of stepping IDs
+#define SI_REV_ID(lo,hi) (lo | hi<<16)
+
+// define DG2 Media Rev ID
+#ifdef DG2_MEDIA_REV_ID_B0
+#undef DG2_MEDIA_REV_ID_B0
+#endif
+#define DG2_MEDIA_REV_ID_B0   SI_REV_ID(4,4)
+
 #endif

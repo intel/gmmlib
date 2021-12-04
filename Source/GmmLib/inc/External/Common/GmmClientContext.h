@@ -117,7 +117,8 @@ namespace GmmLib
         GMM_VIRTUAL GMM_PTE_CACHE_CONTROL_BITS          GMM_STDCALL CachePolicyGetPteType(GMM_RESOURCE_USAGE_TYPE Usage);
         GMM_VIRTUAL MEMORY_OBJECT_CONTROL_STATE         GMM_STDCALL CachePolicyGetOriginalMemoryObject(GMM_RESOURCE_INFO *pResInfo);
         GMM_VIRTUAL uint8_t                             GMM_STDCALL CachePolicyIsUsagePTECached(GMM_RESOURCE_USAGE_TYPE Usage);
-        GMM_VIRTUAL uint32_t                            GMM_STDCALL CachePolicyGetMaxMocsIndex();
+        GMM_VIRTUAL uint8_t                             GMM_STDCALL GetSurfaceStateL1CachePolicy(GMM_RESOURCE_USAGE_TYPE Usage);
+	GMM_VIRTUAL uint32_t                            GMM_STDCALL CachePolicyGetMaxMocsIndex();
         GMM_VIRTUAL uint32_t                            GMM_STDCALL CachePolicyGetMaxL1HdcMocsIndex();
         GMM_VIRTUAL uint32_t                            GMM_STDCALL CachePolicyGetMaxSpecialMocsIndex();
         GMM_VIRTUAL GMM_CACHE_POLICY_ELEMENT*           GMM_STDCALL GetCachePolicyUsage();
