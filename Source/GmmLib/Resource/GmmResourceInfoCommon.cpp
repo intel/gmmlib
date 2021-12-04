@@ -156,6 +156,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::CreateCustomRes(Context &G
     Surf.Alignment.BaseAlignment = CreateParams.BaseAlignment;
     Surf.MaxLod                  = 1;
     Surf.ArraySize               = 1;
+    Surf.CpTag                   = CreateParams.CpTag;
 
 #if(_DEBUG || _RELEASE_INTERNAL)
     Surf.Platform = GetGmmLibContext()->GetPlatformInfo().Platform;

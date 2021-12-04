@@ -361,6 +361,7 @@ typedef struct GMM_RESCREATE_CUSTOM_PARAMS__REC
     }PlaneOffset;
 
     uint32_t NoOfPlanes;
+    uint32_t CpTag;
 }GMM_RESCREATE_CUSTOM_PARAMS;
 
 //===========================================================================
