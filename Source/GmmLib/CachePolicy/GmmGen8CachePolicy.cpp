@@ -481,7 +481,7 @@ bool GmmLib::GmmGen8CachePolicy::GetUsagePTEValue(GMM_CACHE_POLICY_ELEMENT Cache
 
             CachePolicyElement.Initialized = 1;
 
-            GMM_DPF(GFXDBG_CRITICAL,
+            GMM_DPF(GFXDBG_NORMAL,
                     "Cache Policy Init: Degrading PAT settings to UC (uncached) from %s for Element %d\n",
                     MemTypes[GetWantedMemoryType(CachePolicyUsage)], Usage);
 

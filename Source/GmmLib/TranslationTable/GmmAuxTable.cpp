@@ -231,7 +231,7 @@ GMM_STATUS GmmLib::AuxTable::MapNullCCS(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX
                 //Sync update on CPU
                 ((GMM_AUXTTL1e *)L1CPUAddress)[L1eIdx].Value = Data;
 
-                GMM_DPF(GFXDBG_CRITICAL, "Null-Map | Table Entry: [0x%06x] L2Addr[0x%016llX] Value[0x%016llX] :: [0x%06x] L1Addr[0x%016llX] Value[0x%016llX]\n", L2eIdx, ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx], ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx].L1GfxAddr << 13, L1eIdx, &((GMM_AUXTTL1e *)L1CPUAddress)[L1eIdx], Data);
+                GMM_DPF(GFXDBG_NORMAL, "Null-Map | Table Entry: [0x%06x] L2Addr[0x%016llX] Value[0x%016llX] :: [0x%06x] L1Addr[0x%016llX] Value[0x%016llX]\n", L2eIdx, ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx], ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx].L1GfxAddr << 13, L1eIdx, &((GMM_AUXTTL1e *)L1CPUAddress)[L1eIdx], Data);
             }
             else
             {
@@ -482,7 +482,7 @@ GMM_STATUS GmmLib::AuxTable::InvalidateTable(GMM_UMD_SYNCCONTEXT *UmdContext, GM
                 //Sync update on CPU
                 ((GMM_AUXTTL1e *)L1CPUAddress)[L1eIdx].Value = Data;
 
-                GMM_DPF(GFXDBG_CRITICAL, "UnMap | Table Entry: [0x%06x] L2Addr[0x%016llX] Value[0x%016llX] :: [0x%06x] L1Addr[0x%016llX] Value[0x%016llX]\n", L2eIdx, ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx], ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx].L1GfxAddr << 13, L1eIdx, &((GMM_AUXTTL1e *)L1CPUAddress)[L1eIdx], Data);
+                GMM_DPF(GFXDBG_NORMAL, "UnMap | Table Entry: [0x%06x] L2Addr[0x%016llX] Value[0x%016llX] :: [0x%06x] L1Addr[0x%016llX] Value[0x%016llX]\n", L2eIdx, ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx], ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx].L1GfxAddr << 13, L1eIdx, &((GMM_AUXTTL1e *)L1CPUAddress)[L1eIdx], Data);
             }
             else
             {
@@ -616,7 +616,7 @@ GMM_STATUS GmmLib::AuxTable::MapValidEntry(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_
             PageTableMgr->TTCb.pfPrologTranslationTable(UmdContext->pCommandQueueHandle);
         }
 
-        GMM_DPF(GFXDBG_CRITICAL, "Mapping surface: GPUVA=0x%016llX Size=0x%08X Aux_GPUVA=0x%016llX\n", BaseAdr, BaseSize, AuxVA);
+        GMM_DPF(GFXDBG_NORMAL, "Mapping surface: GPUVA=0x%016llX Size=0x%08X Aux_GPUVA=0x%016llX\n", BaseAdr, BaseSize, AuxVA);
         for(Addr = GFX_ALIGN_FLOOR(BaseAdr, L1TableSize); Addr < BaseAdr + BaseSize; Addr += L1TableSize)
         {
             GMM_GFX_ADDRESS StartAdr, EndAdr, TileAdr;
@@ -732,7 +732,7 @@ GMM_STATUS GmmLib::AuxTable::MapValidEntry(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_
                 }
             }
 
-            GMM_DPF(GFXDBG_CRITICAL, "Mapping surface: GPUVA=0x%016llx Size=0x%08x Aux_GPUVA=0x%016llx", StartAdr, BaseSize, CCS$Adr);
+            GMM_DPF(GFXDBG_NORMAL, "Mapping surface: GPUVA=0x%016llx Size=0x%08x Aux_GPUVA=0x%016llx", StartAdr, BaseSize, CCS$Adr);
 
             for(TileAdr = StartAdr; TileAdr < EndAdr; TileAdr += (!WA16K(pClientContext->GetLibContext()) ? GMM_KBYTE(64) : GMM_KBYTE(16)),
             CCS$Adr += (pClientContext->GetLibContext()->GetSkuTable().FtrLinearCCS ?

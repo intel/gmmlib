@@ -449,7 +449,7 @@ GMM_STATUS GmmLib::GmmPageTableMgr::InitContextAuxTableRegister(HANDLE CmdQHandl
 
             TTCb.pfWriteL3Adr(CmdQHandle, MaskedL3GfxAddress, RegOffset);
 
-            GMM_DPF(GFXDBG_CRITICAL, "AuxTT Map Address: GPUVA=0x%016llX\n", MaskedL3GfxAddress);
+            GMM_DPF(GFXDBG_NORMAL, "AuxTT Map Address: GPUVA=0x%016llX\n", MaskedL3GfxAddress);
 
             //TTCb.pfEpilogTranslationTable(CmdQHandle, 0);
 

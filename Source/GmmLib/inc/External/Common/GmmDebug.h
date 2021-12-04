@@ -58,15 +58,20 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 // Enable GMM_ASSERTS and GMM_DEBUG only for Debug builds similar to what UMD clients used to do earlier
 #if (_DEBUG) //(_DEBUG || _RELEASE_INTERNAL)
-    #define GMM_DPF             GMMDebugMessage     //gfxDebug.h
     #define GMM_ASSERT          GMMASSERT           //gfxDebug.h
     #define GMM_ASSERTPTR       GMMASSERTPTR        //gfxDebug.h
 #else
     #define GMMDebugMessage(...)
-    #define GMM_DPF             GMMDebugMessage
     #define GMM_ASSERT(expr)
     #define GMM_ASSERTPTR(expr, ret)
 #endif
+
+// GMM_DPF Logging is enabled for Debug and Release_Internal
+#if (_DEBUG || _RELEASE_INTERNAL)
+   #define GMM_DPF GMMDebugMessage //gfxDebug.h
+#else
+   #define GMM_DPF GMMDebugMessage
+#endif // (_DEBUG || _RELEASE_INTERNAL)
 
 #define __GMM_ASSERT        GMM_ASSERT
 #define __GMM_ASSERTPTR     GMM_ASSERTPTR
@@ -84,26 +89,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <assert.h>
 #define GMM_DBG_BREAK assert(0)
 #endif
-
-#define GMMLibDebugMessage(DebugLevel, message, ...)                                \
-{                                                                                   \
-    if(DebugLevel == GFXDBG_CRITICAL)                                               \
-    {                                                                               \
-        GMM_LOG_ERROR(message, ##__VA_ARGS__);                                      \
-    }                                                                               \
-    else if(DebugLevel == GFXDBG_VERBOSE)                                           \
-    {                                                                               \
-        GMM_LOG_TRACE(message, ##__VA_ARGS__);                                      \
-    }                                                                               \
-    else if(DebugLevel == GFXDBG_OFF)                                               \
-    {                                                                               \
-        GMM_LOG_TRACE_IF(0, message, ##__VA_ARGS__)                             \
-    }                                                                               \
-    else                                                                            \
-    {                                                                               \
-        GMM_LOG_INFO(message, ##__VA_ARGS__);                                       \
-    }                                                                               \
-}
 
 #define GMM_LIB_ASSERT(expr)                                    \
 {                                                               \
@@ -124,7 +109,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #else
 
-#define GMMLibDebugMessage(...)
 #define GMM_LIB_ASSERT(expr)
 #define GMM_LIB_ASSERTPTR(expr, ret)                            \
 {                                                               \
@@ -135,6 +119,31 @@ OTHER DEALINGS IN THE SOFTWARE.
 }                                                               \
 
 #endif // (_DEBUG) //_DEBUG || _RELEASE_INTERNAL
+
+#if (_DEBUG || _RELEASE_INTERNAL)
+    #define GMMLibDebugMessage(DebugLevel, message, ...)    \
+    {                                                   \
+        if(DebugLevel == GFXDBG_CRITICAL)               \
+        {                                               \
+            GMM_LOG_ERROR(message, ##__VA_ARGS__);      \
+        }                                               \
+        else if(DebugLevel == GFXDBG_VERBOSE)           \
+        {                                               \
+            GMM_LOG_TRACE(message, ##__VA_ARGS__);      \
+        }                                               \
+        else if(DebugLevel == GFXDBG_OFF)               \
+        {                                               \
+            GMM_LOG_TRACE_IF(0, message, ##__VA_ARGS__) \
+        }                                               \
+        else                                            \
+        {                                               \
+            GMM_LOG_INFO(message, ##__VA_ARGS__);       \
+        }                                               \
+    }
+
+#else
+    #define GMMLibDebugMessage(...)
+#endif //_DEBUG || _RELEASE_INTERNAL
 
 #define GMM_DPF             GMMLibDebugMessage
 #define __GMM_ASSERT        GMM_LIB_ASSERT

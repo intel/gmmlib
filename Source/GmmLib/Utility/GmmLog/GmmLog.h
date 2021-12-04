@@ -88,6 +88,7 @@ typedef enum GmmLogLevel
     Trace,
     Info,
     Error, // default
+    Critical,
 }GmmLogLevel;
 
 #ifdef __cplusplus
@@ -98,10 +99,10 @@ typedef enum GmmLogLevel
 #define GMM_ROTATE_FILE_NUMBER    3                 // Once log is full, it'll save old log with .1/.2/.3 in name, and then start with .1
 #define GMM_LOG_MASSAGE_MAX_SIZE  1024
 #define GMM_LOGGER_NAME           "gmm_logger"
-#define GMM_LOG_FILENAME          "./gmm_log"
+#define GMM_LOG_FILENAME          "gmm_log"
 #define GMM_LOG_TAG               "GmmLib"
 #define GMM_UNKNOWN_PROCESS       "Unknown_Proc"
-#define GMM_PREFIX_STR            "INTC GMM: "
+#define GMM_PREFIX_STR            "INTC GMM SPD: "
 
 #if _WIN32
     #define GMM_LOG_REG_KEY_SUB_PATH  "SOFTWARE\\Intel\\IGFX\\GMMLOG\\"

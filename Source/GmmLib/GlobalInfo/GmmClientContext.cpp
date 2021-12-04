@@ -392,6 +392,8 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmLib::GmmClientContext::CreateResInfoObject(GMM
     pClientContextIn = this;
 #endif
 
+    GMM_DPF_ENTER;
+
     // GMM_RESOURCE_INFO...
     if(pCreateParams->pPreallocatedResInfo)
     {
@@ -412,6 +414,8 @@ GMM_RESOURCE_INFO *GMM_STDCALL GmmLib::GmmClientContext::CreateResInfoObject(GMM
     {
         goto ERROR_CASE;
     }
+
+    GMM_DPF_EXIT;
 
     return (pRes);
 

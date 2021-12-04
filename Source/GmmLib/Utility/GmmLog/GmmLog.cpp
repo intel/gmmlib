@@ -102,6 +102,8 @@ bool GmmLib::Logger::GmmLogInit()
             case Error:
                 LogLevel = spdlog::level::err;
                 break;
+	    case Critical:
+		LogLevel = spdlog::level::critical;
         }
     }
 
@@ -164,8 +166,11 @@ bool GmmLib::Logger::GmmLogInit()
 
             // TODO: Multiple GmmLib instance can be running in the same process. In that case, the file name will be
             // the same for two instances. Figure out a way to differentiate between the two instances.
-            LogFilePath = std::string(GMM_LOG_FILENAME) + "_" + ProcName + "_" + PidStr;
-
+#if _WIN32
+	    LogFilePath = std::string("c:\\") + std::string(GMM_LOG_FILENAME) + "_" + ProcName + "_" + PidStr;
+#else
+	    LogFilePath = std::string(".//") + std::string(GMM_LOG_FILENAME) + "" + ProcName + "_" + PidStr;
+#endif
             // Create logger
             SpdLogger = spdlog::rotating_logger_mt(GMM_LOGGER_NAME,
                                                    LogFilePath,
