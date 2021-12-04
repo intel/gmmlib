@@ -38,21 +38,6 @@ extern "C" {
 //***************************************************************************
 void GMM_STDCALL GmmGetCacheSizes(GMM_LIB_CONTEXT *pGmmLibContext, GMM_CACHE_SIZES *CacheSizes);
 
-#if defined(LINUX)
-GMM_STATUS GMM_STDCALL GmmInitGlobalContext(const PLATFORM Platform,
-                                            const void* pSkuTable,
-                                            const void* pWaTable,
-                                            const void* pGtSysInfo,
-                                            GMM_CLIENT ClientType);
-#else
-GMM_STATUS GMM_STDCALL GmmInitGlobalContext(const PLATFORM Platform,
-                                            const SKU_FEATURE_TABLE* pSkuTable,
-                                            const WA_TABLE* pWaTable,
-                                            const GT_SYSTEM_INFO* pGtSysInfo,
-                                            GMM_CLIENT ClientType);
-#endif
-void GMM_STDCALL GmmDestroyGlobalContext(void);
-
 const GMM_PLATFORM_INFO* GMM_STDCALL GmmGetPlatformInfo(GMM_GLOBAL_CONTEXT* pGmmLibContext);
 
 // Reset packing alignment to project default

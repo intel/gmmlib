@@ -75,11 +75,6 @@ namespace GmmLib
                                 uint32_t             Height,
                                 __GMM_BUFFER_TYPE *pBufferType);
 
-            void            FillTexPlanar_SetTilingBasedOnRequiredAlignment(
-                                GMM_TEXTURE_INFO    *pTexInfo,
-                                uint32_t               YHeight, bool YHeightAlignmentNeeded,
-                                uint32_t               VHeight, bool VHeightAlignmentNeeded);
-
             void            FillPlanarOffsetAddress(
                                 GMM_TEXTURE_INFO   *pTexInfo);
 
@@ -233,7 +228,11 @@ namespace GmmLib
                                   GMM_TEXTURE_INFO* pTexInfo,
                                   __GMM_BUFFER_TYPE& pBuff);
 
-            // Virtual functions
+	    bool RedescribeTexturePlanes(GMM_TEXTURE_INFO *pTexInfo, uint32_t *pWidthBytesPhysical);
+
+	    bool GetRedescribedPlaneParams(GMM_TEXTURE_INFO *pTexInfo, GMM_YUV_PLANE PlaneType, GMM_TEXTURE_INFO *pRedescribedTexInfo);
+
+	    // Virtual functions
             virtual GMM_STATUS GMM_STDCALL  FillTex1D(
                                                 GMM_TEXTURE_INFO  *pTexInfo,
                                                 __GMM_BUFFER_TYPE *pRestrictions) = 0;
@@ -349,11 +348,6 @@ namespace GmmLib
                                                                 GMM_GFX_SIZE_T &WidthBytesPhysical,
                                                                 GMM_GFX_SIZE_T &WidthBytesLock);
             GMM_STATUS MSAACompression(GMM_TEXTURE_INFO *pTexInfo);
-	    
-	    bool RedescribeTexturePlanes(GMM_TEXTURE_INFO *pTexInfo, uint32_t *pWidthBytesPhysical);
-	    
-	    bool GetRedescribedPlaneParams(GMM_TEXTURE_INFO *pTexInfo, GMM_YUV_PLANE PlaneType, GMM_TEXTURE_INFO *pRedescribedTexInfo);
-
 	    /* inline functions */
     };
 

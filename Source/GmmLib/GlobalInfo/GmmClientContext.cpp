@@ -33,19 +33,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 extern GMM_MA_LIB_CONTEXT *pGmmMALibContext;
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// Constructor to zero initialize the GmmLib::GmmClientContext object and create
-/// Utility class object
-/////////////////////////////////////////////////////////////////////////////////////
-GmmLib::GmmClientContext::GmmClientContext(GMM_CLIENT ClientType)
-    : ClientType(),
-      pUmdAdapter(),
-      pGmmUmdContext(),
-      DeviceCB(),
-      IsDeviceCbReceived(0)
-{
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
 /// Overloaded Constructor to zero initialize the GmmLib::GmmClientContext object
 /// This Construtor takes pointer to GmmLibCOntext as input argumnet and initiaizes
 /// ClientContext's GmmLibContext with this value
@@ -768,29 +755,6 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmClientContext::GmmSetDeviceInfo(GMM_DEVICE_INF
     DeviceCB = *(DeviceInfo->pDeviceCb);
     IsDeviceCbReceived = 1;
     return Status;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-/// Gmm lib DLL exported C wrapper for creating GmmLib::GmmClientContext object
-/// @see        Class GmmLib::GmmClientContext
-///
-/// @param[in]  ClientType : describles the UMD clients such as OCL, DX, OGL, Vulkan etc
-///
-/// @return     Pointer to GmmClientContext, if Context is created
-/////////////////////////////////////////////////////////////////////////////////////
-extern "C" GMM_CLIENT_CONTEXT *GMM_STDCALL GmmCreateClientContext(GMM_CLIENT ClientType)
-{
-    GMM_CLIENT_CONTEXT *pGmmClientContext = nullptr;
-
-#if GMM_LIB_DLL_MA
-    // To be backward compatible and to use new Multi-Adapter API defined for creation of
-    // Clientcontext, hardcoding BDF to {020}
-    ADAPTER_BDF sBdf  = {0, 2, 0, 0};
-    pGmmClientContext = GmmCreateClientContextForAdapter(ClientType, sBdf);
-#else
-    pGmmClientContext = new GMM_CLIENT_CONTEXT(ClientType);
-#endif
-    return pGmmClientContext;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

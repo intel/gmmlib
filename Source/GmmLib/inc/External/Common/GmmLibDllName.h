@@ -22,10 +22,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #if defined(_WIN64 ) || defined(__x86_64__) || defined(__LP64__)
-    #define GMM_ENTRY_NAME            "OpenGmm"
-    #define GMM_INIT_NAME             "InitializeGmm"
     #define GMM_ADAPTER_INIT_NAME     "InitializeGmm"
-    #define GMM_DESTROY_NAME          "GmmDestroy"
     #define GMM_ADAPTER_DESTROY_NAME  "GmmAdapterDestroy"
 
     #if defined(_WIN64)
@@ -33,13 +30,10 @@ OTHER DEALINGS IN THE SOFTWARE.
     #elif defined(ANDROID)
         #define GMM_UMD_DLL           "libigdgmm.so"
     #else
-        #define GMM_UMD_DLL           "libigdgmm.so.11"
+        #define GMM_UMD_DLL           "libigdgmm.so.12"
     #endif
 #else
-    #define GMM_ENTRY_NAME            "_OpenGmm@4"
-    #define GMM_INIT_NAME             "_GmmInit@48"
     #define GMM_ADAPTER_INIT_NAME     "_InitializeGmm@8"
-    #define GMM_DESTROY_NAME          "_GmmDestroy@4"
     #define GMM_ADAPTER_DESTROY_NAME  "_GmmAdapterDestroy@4"
 
     #if defined(_WIN32)
@@ -47,6 +41,6 @@ OTHER DEALINGS IN THE SOFTWARE.
     #elif defined(ANDROID)
         #define GMM_UMD_DLL     "libigdgmm.so"
     #else
-        #define GMM_UMD_DLL     "libigdgmm.so.11"
+        #define GMM_UMD_DLL     "libigdgmm.so.12"
     #endif
 #endif

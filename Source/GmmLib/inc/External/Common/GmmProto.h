@@ -25,7 +25,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 //////////////////////////////////////////////////////////////////////////////////////
 // GmmRestrictions.c
 //////////////////////////////////////////////////////////////////////////////////////
-void __GmmPlatformResetRestrictions(__GMM_BUFFER_TYPE *pRestriction);
 void __GmmGetCubeTexRestrictions(GMM_PLATFORM_INFO*     pPlatformResource,
                                  GMM_RESOURCE_INFO*     pResourceInfo,
                                  __GMM_BUFFER_TYPE*     pBuff);

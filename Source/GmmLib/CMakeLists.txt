@@ -24,15 +24,15 @@ cmake_minimum_required(VERSION 3.5)
 project(igfx_gmmumd)
 
 # GmmLib Api Version used for so naming
-set(GMMLIB_API_MAJOR_VERSION 11)
-set(GMMLIB_API_MINOR_VERSION 3)
+set(GMMLIB_API_MAJOR_VERSION 12)
+set(GMMLIB_API_MINOR_VERSION 0)
 
 if(NOT DEFINED MAJOR_VERSION)
-	set(MAJOR_VERSION 11)
+	set(MAJOR_VERSION 12)
 endif()
 
 if(NOT DEFINED MINOR_VERSION)
-	set(MINOR_VERSION 3)
+	set(MINOR_VERSION 0)
 endif()
 
 if(NOT DEFINED PATCH_VERSION)
@@ -279,8 +279,7 @@ set(UMD_SOURCES
   ${BS_DIR_GMMLIB}/TranslationTable/GmmPageTableMgr.cpp
   ${BS_DIR_GMMLIB}/TranslationTable/GmmUmdTranslationTable.cpp
   ${BS_DIR_GMMLIB}/GlobalInfo/GmmClientContext.cpp
-  ${BS_DIR_GMMLIB}/GlobalInfo/GmmOldApi.cpp
-   ${BS_DIR_GMMLIB}/GlobalInfo/GmmLibDllMain.cpp
+  ${BS_DIR_GMMLIB}/GlobalInfo/GmmLibDllMain.cpp
   )
 
 source_group("Source Files\\Cache Policy\\Client Files" FILES

@@ -64,7 +64,6 @@ namespace GmmLib
             GMM_TEXTURE_INFO                    Surf;                       ///< Contains info about the surface being created
             GMM_TEXTURE_INFO                    AuxSurf;                    ///< Contains info about the auxiliary surface if using Unified Auxiliary surfaces.
             GMM_TEXTURE_INFO                    AuxSecSurf;                 ///< For multi-Aux surfaces, contains info about the secondary auxiliary surface
-            GMM_TEXTURE_INFO                    PlaneSurf[GMM_MAX_PLANE];   ///< Contains info for each plane for tiled Ys/Yf planar resources
 
             uint32_t                            RotateInfo;
             GMM_EXISTING_SYS_MEM                ExistingSysMem;     ///< Info about resources initialized with existing system memory
@@ -88,8 +87,6 @@ namespace GmmLib
             GMM_VIRTUAL bool                IsPresentableformat();
             // Move GMM Restrictions to it's own class?
             virtual bool        CopyClientParams(GMM_RESCREATE_PARAMS &CreateParams);
-            GMM_VIRTUAL bool                RedescribePlanes();
-            GMM_VIRTUAL bool                ReAdjustPlaneProperties(bool IsAuxSurf);
             GMM_VIRTUAL const GMM_PLATFORM_INFO& GetPlatformInfo();
 
             /////////////////////////////////////////////////////////////////////////////////////
@@ -131,7 +128,6 @@ namespace GmmLib
                 Surf(),
                 AuxSurf(),
                 AuxSecSurf(),
-                PlaneSurf{},
                 RotateInfo(),
                 ExistingSysMem(),
                 SvmAddress(),
@@ -149,7 +145,6 @@ namespace GmmLib
                 Surf(),
                 AuxSurf(),
                 AuxSecSurf(),
-                PlaneSurf{},
                 RotateInfo(),
                 ExistingSysMem(),
                 SvmAddress(),
@@ -206,14 +201,6 @@ namespace GmmLib
             GMM_VIRTUAL bool                    GMM_STDCALL IsMipRCCAligned(uint8_t &MisAlignedLod);
             GMM_VIRTUAL uint8_t                 GMM_STDCALL GetDisplayFastClearSupport();
             GMM_VIRTUAL uint8_t                 GMM_STDCALL GetDisplayCompressionSupport();
-            GMM_VIRTUAL uint32_t                GMM_STDCALL GetCompressionBlockWidth();
-            GMM_VIRTUAL uint32_t                GMM_STDCALL GetCompressionBlockHeight();
-            GMM_VIRTUAL uint32_t                GMM_STDCALL GetCompressionBlockDepth();
-            GMM_VIRTUAL uint8_t                 GMM_STDCALL IsArraySpacingSingleLod();
-            GMM_VIRTUAL uint8_t                 GMM_STDCALL IsASTC();
-            GMM_VIRTUAL MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GetMOCS();
-            GMM_VIRTUAL uint32_t                GMM_STDCALL GetStdTilingModeExtSurfaceState();
-            GMM_VIRTUAL GMM_SURFACESTATE_FORMAT GMM_STDCALL GetResourceFormatSurfaceState();
             GMM_VIRTUAL GMM_GFX_SIZE_T          GMM_STDCALL GetMipWidth(uint32_t MipLevel);
             GMM_VIRTUAL uint32_t                GMM_STDCALL GetMipHeight(uint32_t MipLevel);
             GMM_VIRTUAL uint32_t                GMM_STDCALL GetMipDepth(uint32_t MipLevel);
@@ -1736,6 +1723,131 @@ namespace GmmLib
             protected:
                 GMM_VIRTUAL void UpdateUnAlignedParams();
             public:
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Returns the resource's compressions block width
+            /// @return    Compression block width
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetCompressionBlockWidth()
+            {
+                GMM_RESOURCE_FORMAT Format;
+                Format = Surf.Format;
+
+                __GMM_ASSERT((Format > GMM_FORMAT_INVALID) &&
+                             (Format < GMM_RESOURCE_FORMATS));
+
+                return GetGmmLibContext()->GetPlatformInfo().FormatTable[Format].Element.Width;
+            }
+
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Returns the resource's compressions block height
+            /// @return    Compression block width
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetCompressionBlockHeight()
+            {
+                GMM_RESOURCE_FORMAT Format;
+                Format = Surf.Format;
+
+                __GMM_ASSERT((Format > GMM_FORMAT_INVALID) &&
+                             (Format < GMM_RESOURCE_FORMATS));
+
+                return GetGmmLibContext()->GetPlatformInfo().FormatTable[Format].Element.Height;
+            }
+
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Returns the resource's compressions block depth
+            /// @return    Compression block width
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetCompressionBlockDepth()
+            {
+                GMM_RESOURCE_FORMAT Format;
+                Format = Surf.Format;
+
+                __GMM_ASSERT((Format > GMM_FORMAT_INVALID) &&
+                             (Format < GMM_RESOURCE_FORMATS));
+
+                return GetGmmLibContext()->GetPlatformInfo().FormatTable[Format].Element.Depth;
+            }
+
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Returns whether resource uses LOD0-only or Full array spacing
+            /// @return     1/0
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint8_t GMM_STDCALL IsArraySpacingSingleLod()
+            {
+                __GMM_ASSERT(GFX_GET_CURRENT_RENDERCORE(GetGmmLibContext()->GetPlatformInfo().Platform) < IGFX_GEN8_CORE);
+                return Surf.Alignment.ArraySpacingSingleLod;
+            }
+
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Returns whether resource is ASTC
+            /// @return     1/0
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint8_t GMM_STDCALL IsASTC()
+            {
+                GMM_RESOURCE_FORMAT Format;
+                Format = Surf.Format;
+
+                return (Format > GMM_FORMAT_INVALID) &&
+                       (Format < GMM_RESOURCE_FORMATS) &&
+                       GetGmmLibContext()->GetPlatformInfo().FormatTable[Format].ASTC;
+            }
+
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Returns MOCS associated with the resource
+            /// @param[in]     MOCS
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GetMOCS()
+            {
+                const GMM_CACHE_POLICY_ELEMENT *CachePolicy = GetGmmLibContext()->GetCachePolicyUsage();
+
+                __GMM_ASSERT(CachePolicy[GetCachePolicyUsage()].Initialized);
+
+                // Prevent wrong Usage for XAdapter resources. UMD does not call GetMemoryObject on shader resources but,
+                // when they add it someone could call it without knowing the restriction.
+                if(Surf.Flags.Info.XAdapter &&
+                   GetCachePolicyUsage() != GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE)
+                {
+                    __GMM_ASSERT(false);
+                }
+
+                if((CachePolicy[GetCachePolicyUsage()].Override & CachePolicy[GetCachePolicyUsage()].IDCode) ||
+                   (CachePolicy[GetCachePolicyUsage()].Override == ALWAYS_OVERRIDE))
+                {
+                    return CachePolicy[GetCachePolicyUsage()].MemoryObjectOverride;
+                }
+
+                return CachePolicy[GetCachePolicyUsage()].MemoryObjectNoOverride;
+            }
+
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Returns the surface state value for Standard Tiling Mode Extension
+            /// @return     Standard Tiling Mode Extension
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL GetStdTilingModeExtSurfaceState()
+            {
+                __GMM_ASSERT(GFX_GET_CURRENT_RENDERCORE(GetGmmLibContext()->GetPlatformInfo().Platform) > IGFX_GEN10_CORE);
+
+                if(GetGmmLibContext()->GetSkuTable().FtrStandardMipTailFormat)
+                {
+                    return 1;
+                }
+
+                return 0;
+            }
+
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Returns the surface state value for Resource Format
+            /// @return     Resource Format
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_SURFACESTATE_FORMAT GMM_STDCALL GetResourceFormatSurfaceState()
+            {
+                GMM_RESOURCE_FORMAT Format;
+
+                Format = Surf.Format;
+                __GMM_ASSERT((Format > GMM_FORMAT_INVALID) && (Format < GMM_RESOURCE_FORMATS));
+
+                return GetGmmLibContext()->GetPlatformInfo().FormatTable[Format].SurfaceStateFormat;
+            }
 
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED const GMM_MULTI_TILE_ARCH& GetMultiTileArch()
             {

@@ -94,7 +94,6 @@ typedef struct GMM_RESOURCE_FLAG_REC
     struct
     {
         uint32_t AllowVirtualPadding       : 1;
-        uint32_t ApertureOnly              : 1; // Renaming ApertureOnly to NonLocalOnly, Will remove once all clients are moved to NonLocalOnly.
         uint32_t BigPage                   : 1;
         uint32_t Cacheable                 : 1;
         uint32_t ContigPhysMemoryForiDART  : 1; // iDART clients only; resource allocation must be physically contiguous.

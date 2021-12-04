@@ -36,60 +36,7 @@ GMM_MUTEX_HANDLE GmmLib::Context::SingletonContextSyncMutex = ::CreateMutex(NULL
 GMM_MUTEX_HANDLE      GmmLib::Context::SingletonContextSyncMutex = PTHREAD_MUTEX_INITIALIZER;
 #endif // _WIN32
 #endif
-/////////////////////////////////////////////////////////////////////////////////////
-/// GMM lib DLL exported functions for creating Singleton Context (GmmLib::Context)
-/// object which shall be process singleton across all UMD clients within a process.
-/// @see        Class GmmLib::Context
-///
-/// @param[in]  Platform: platform variable. Includes product family (Haswell, Cherryview,
-///                       Broxton) with related render and display core revision (GEN3,
-//                        ..., GEN10)
-/// @param[in]  pSkuTable: Pointer to the sku feature table. Set of capabilities to
-///                        allow code paths to be feature based and GEN agnostic.
-/// @param[in]  pWaTable:  Pointer to the work around table. A set of anti-features,
-///                        often in early/prototype silicon that require work-arounds
-///                        until they are resolved to allow code paths to be GEN agnostic.
-/// @param[in]  pGtSysInfo: Pointer to the GT system info. Contains various GT System
-///                        Information such as EU counts, Thread Counts, Cache Sizes etc.
-/// @return     GMM_SUCCESS if Context is created, GMM_ERROR otherwise
-/////////////////////////////////////////////////////////////////////////////////////
-#ifdef _WIN32
-extern "C" GMM_STATUS GMM_STDCALL GmmCreateSingletonContext(const PLATFORM           Platform,
-                                                            const SKU_FEATURE_TABLE *pSkuTable,
-                                                            const WA_TABLE *         pWaTable,
-                                                            const GT_SYSTEM_INFO *   pGtSysInfo)
-#else
-extern "C" GMM_STATUS GMM_STDCALL GmmCreateSingletonContext(const PLATFORM Platform,
-                                                            const void *   pSkuTable,
-                                                            const void *   pWaTable,
-                                                            const void *   pGtSysInfo)
-#endif
-{
-#if GMM_LIB_DLL_MA
 
-    // To be backward compatible and to use new Multi-Adapter API defined for creation of
-    // Adapter Singletoncontext, hardcoding BDF to {020}
-    ADAPTER_BDF sBdf = {0, 2, 0, 0};
-    return GmmCreateLibContext(Platform, pSkuTable, pWaTable, pGtSysInfo, sBdf);
-
-#endif
-}
-
-
-/////////////////////////////////////////////////////////////////////////////////////
-/// GMM lib DLL exported functions for deleting the Singleton Context.
-/// Reference Count will be decremented and once the reference count reaches 0,
-/// Singleton Context will be freeed in memory
-/////////////////////////////////////////////////////////////////////////////////////
-extern "C" void GMM_STDCALL GmmDestroySingletonContext(void)
-{
-#if GMM_LIB_DLL_MA
-    // To be backward compatible and to use new Multi-Adapter API defined for destroy of
-    // Adapter Singletoncontext, hardcoding BDF to {020}
-    ADAPTER_BDF sBdf = {0, 2, 0, 0};
-    GmmLibContextFree(sBdf);
-#endif
-}
 /////////////////////////////////////////////////////////////////////////////////////
 /// GMM lib DLL Multi Adapter Functions
 /////////////////////////////////////////////////////////////////////////////////////

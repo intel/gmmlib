@@ -384,24 +384,6 @@ void GmmLib::GmmTextureCalc::GetGenericRestrictions(GMM_TEXTURE_INFO *pTexInfo, 
     GMM_DPF_EXIT;
 }
 
-//=============================================================================
-//
-// Function: __GmmPlatformResetRestrictions
-//
-// Desc: This routine initializes a __GMM_BUFFER_TYPE. Once this function is
-//       called, the caller has a invalid restrictions.
-//
-// Parameters:
-//      pRestriction ==> Restrictions
-// Returns:
-//      void
-//
-//-----------------------------------------------------------------------------
-void __GmmPlatformResetRestrictions(__GMM_BUFFER_TYPE *pRestriction)
-{
-    pRestriction->MinDepth = 0xffffffff;
-}
-
 /////////////////////////////////////////////////////////////////////////////////////
 /// Internal function resets the restrictions and puts the allocation in invalid state
 ///

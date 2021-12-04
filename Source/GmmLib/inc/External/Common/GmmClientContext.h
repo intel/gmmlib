@@ -188,16 +188,11 @@ extern "C" {
 #endif
 
     /* ClientContext will be unique to each client */
-    GMM_CLIENT_CONTEXT* GMM_STDCALL GmmCreateClientContext(GMM_CLIENT ClientType);
     GMM_CLIENT_CONTEXT* GMM_STDCALL GmmCreateClientContextForAdapter(GMM_CLIENT ClientType, ADAPTER_BDF sBdf);
     void GMM_STDCALL GmmDeleteClientContext(GMM_CLIENT_CONTEXT *pGmmClientContext);
 
 #if GMM_LIB_DLL
 #ifdef _WIN32
-    GMM_STATUS GMM_STDCALL GmmCreateSingletonContext(const PLATFORM Platform,
-                                                    const SKU_FEATURE_TABLE* pSkuTable,
-                                                    const WA_TABLE* pWaTable,
-                                                    const GT_SYSTEM_INFO* pGtSysInfo);
 
     GMM_STATUS GMM_STDCALL GmmCreateLibContext(const PLATFORM           Platform,
                                                const SKU_FEATURE_TABLE *pSkuTable,
@@ -205,10 +200,6 @@ extern "C" {
                                                const GT_SYSTEM_INFO *   pGtSysInfo,
                                                ADAPTER_BDF              sBdf);
 #else
-    GMM_STATUS GMM_STDCALL GmmCreateSingletonContext(const PLATFORM Platform,
-                                                    const void* pSkuTable,
-                                                    const void* pWaTable,
-                                                    const void* pGtSysInfo);
 
     GMM_STATUS GMM_STDCALL GmmCreateLibContext(const PLATFORM Platform,
                                                const void *   pSkuTable,
@@ -217,7 +208,6 @@ extern "C" {
                                                ADAPTER_BDF    sBdf);
 #endif
 
-    void GMM_STDCALL GmmDestroySingletonContext(void);
     void GMM_STDCALL GmmLibContextFree(ADAPTER_BDF sBdf);
     GMM_LIB_API_CONSTRUCTOR void GmmCreateMultiAdapterContext();
     GMM_LIB_API_DESTRUCTOR void GmmDestroyMultiAdapterContext();
