@@ -46,7 +46,6 @@ void CTestGen12dGPUResource::SetUpTestCase()
         pGfxAdapterInfo->SkuTable.FtrLinearCCS             = 1; //legacy y =>0 - test both
         pGfxAdapterInfo->SkuTable.FtrStandardMipTailFormat = 1;
         pGfxAdapterInfo->SkuTable.FtrTileY                 = 1;
-        pGfxAdapterInfo->WaTable.WaAuxTable64KGranular     = 1;
 	CommonULT::SetUpTestCase();
     }
 }

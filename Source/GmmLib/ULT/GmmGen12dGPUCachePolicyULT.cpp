@@ -49,7 +49,7 @@ void CTestGen12dGPUCachePolicy::SetUpGen12dGPUVariant(PRODUCT_FAMILY platform)
 
     GfxPlatform.eProductFamily = platform;
 
-    GfxPlatform.eRenderCoreFamily = IGFX_XE_HP_CORE;
+    GfxPlatform.eRenderCoreFamily = IGFX_XE_HPG_CORE;
 
     pGfxAdapterInfo = (ADAPTER_INFO *)malloc(sizeof(ADAPTER_INFO));
     if(pGfxAdapterInfo)

@@ -50,7 +50,6 @@ void CommonULT::AllocateAdapterInfo()
         memset(pGfxAdapterInfo, 0, sizeof(ADAPTER_INFO));
 
         pGfxAdapterInfo->SkuTable.FtrTileY = 1;
-        pGfxAdapterInfo->WaTable.WaAuxTable64KGranular = 1; // 64K aux granularity
     }
 }
 
