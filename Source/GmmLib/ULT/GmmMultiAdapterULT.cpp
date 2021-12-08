@@ -81,7 +81,8 @@ void MACommonULT::UnLoadGmmDll(uint32_t AdapterIdx, uint32_t CountIdx)
 
 void MACommonULT::GmmInitModule(uint32_t AdapterIdx, uint32_t CountIdx)
 {
-    GMM_STATUS Status                                   = GMM_SUCCESS;
+    GMM_STATUS  Status                                  = GMM_SUCCESS;
+    ADAPTER_BDF AdapterBDF                              = GetAdapterBDF(AdapterIdx);
     GfxPlatform[AdapterIdx][CountIdx].eProductFamily    = GetProductFamily(AdapterIdx);
     GfxPlatform[AdapterIdx][CountIdx].eRenderCoreFamily = GetRenderCoreFamily(AdapterIdx);
 
@@ -124,8 +125,11 @@ void MACommonULT::GmmInitModule(uint32_t AdapterIdx, uint32_t CountIdx)
     InArgs[AdapterIdx][CountIdx].pSkuTable  = &pGfxAdapterInfo[AdapterIdx][CountIdx]->SkuTable;
     InArgs[AdapterIdx][CountIdx].pWaTable   = &pGfxAdapterInfo[AdapterIdx][CountIdx]->WaTable;
     InArgs[AdapterIdx][CountIdx].Platform   = GfxPlatform[AdapterIdx][CountIdx];
-#ifdef _WIN32
-    InArgs[AdapterIdx][CountIdx].stAdapterBDF = GetAdapterBDF(AdapterIdx);
+#if LHDM
+    InArgs[AdapterIdx][CountIdx].stAdapterBDF       = AdapterBDF;
+    InArgs[AdapterIdx][CountIdx].DeviceRegistryPath = NULL;
+#else
+    InArgs[AdapterIdx][CountIdx].FileDescriptor = AdapterBDF.Data;
 #endif
 
     Status = pfnGmmInit[AdapterIdx][CountIdx](&InArgs[AdapterIdx][CountIdx], &OutArgs[AdapterIdx][CountIdx]);
@@ -177,10 +181,9 @@ TEST_F(CTestMA, TestLoadMultipleAdapters)
     GmmInitModule(0, 0);
     GmmInitModule(1, 0);
 
-    //Todo: Change EXPECT_EQ to EXPECT_NE once Multi-Adapter support is added to Linux
-    EXPECT_EQ(pLibContext[0][0], pLibContext[1][0]);
-    EXPECT_EQ(pLibContext[2][0], pLibContext[1][0]);
-    EXPECT_EQ(pLibContext[2][0], pLibContext[0][0]);
+    EXPECT_NE(pLibContext[0][0], pLibContext[1][0]);
+    EXPECT_NE(pLibContext[2][0], pLibContext[1][0]);
+    EXPECT_NE(pLibContext[2][0], pLibContext[0][0]);
 
     GmmDestroyModule(1, 0);
     GmmDestroyModule(2, 0);
@@ -255,10 +258,10 @@ TEST_F(CTestMA, TestInitDestroyMultipleTimesOnMultiAdapter)
         GmmInitModule(1, 0);
         GmmInitModule(2, 0);
 
-        //Todo: Change EXPECT_EQ to EXPECT_NE once Multi-Adapter support is added to Linux
-        EXPECT_EQ(pLibContext[0][0], pLibContext[1][0]);
-        EXPECT_EQ(pLibContext[2][0], pLibContext[1][0]);
-        EXPECT_EQ(pLibContext[2][0], pLibContext[0][0]);
+        //EXPECT_NE for Multi-Adapter support is added to Linux
+        EXPECT_NE(pLibContext[0][0], pLibContext[1][0]);
+        EXPECT_NE(pLibContext[2][0], pLibContext[1][0]);
+        EXPECT_NE(pLibContext[2][0], pLibContext[0][0]);
 
         GmmDestroyModule(2, 0);
         GmmDestroyModule(1, 0);

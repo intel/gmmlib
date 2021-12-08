@@ -93,16 +93,29 @@ public:
 
     static ADAPTER_BDF GetAdapterBDF(uint32_t AdapterIdx)
     {
+        ADAPTER_BDF AdapterBDF={0,2,0,0};
+
         switch (AdapterIdx)
         {
-        case 0:   return { 2, 0, 2, 0 };
-        case 1:   return { 1, 0, 0, 0 };
-        case 2:   return { 2, 0, 1, 0 };
+        case 0:
+            AdapterBDF.Bus      = 2;
+            AdapterBDF.Device   = 0;
+            AdapterBDF.Function = 0;
+            break;
+        case 1:
+            AdapterBDF.Bus      = 1;
+            AdapterBDF.Device   = 0;
+            AdapterBDF.Function = 0;
+            break;
+        case 2:
+            AdapterBDF.Bus      = 2;
+            AdapterBDF.Device   = 1;
+            AdapterBDF.Function = 0;
+            break;
         default: break;
         }
-        return { 0, 2, 0, 0 };
+        return AdapterBDF;
     }
-
 };
 
 typedef struct ThreadInParams_Rec
