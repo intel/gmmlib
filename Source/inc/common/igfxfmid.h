@@ -1700,10 +1700,19 @@ typedef enum __NATIVEGTTYPE
 //we define the highest cap and lower cap of stepping IDs
 #define SI_REV_ID(lo,hi) (lo | hi<<16)
 
-// define DG2 Media Rev ID
+#define SI_REV_LO(SteppingID) (SteppingID & 0xFFFF)
+
+#define SI_WA_FROM(ulRevID, STEPPING) (ulRevID >= (int)SI_REV_LO(STEPPING))
+
+//define DG2 Media Rev ID
 #ifdef DG2_MEDIA_REV_ID_B0
 #undef DG2_MEDIA_REV_ID_B0
 #endif
 #define DG2_MEDIA_REV_ID_B0   SI_REV_ID(4,4)
+
+#ifdef ACM_G10_MEDIA_REV_ID_B0
+#undef ACM_G10_MEDIA_REV_ID_B0
+#endif
+#define ACM_G10_MEDIA_REV_ID_B0   SI_REV_ID(4,4)
 
 #endif
