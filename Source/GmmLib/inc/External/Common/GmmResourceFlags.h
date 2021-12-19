@@ -150,7 +150,7 @@ typedef struct GMM_RESOURCE_FLAG_REC
         uint32_t DisableDisplayCcsClearColor       : 1; // Disables display clear color
         uint32_t DisableDisplayCcsCompression      : 1; // Disables display decompression on the surface (it disables display awareness of both fast clear/render compression)
         uint32_t PreGen12FastClearOnly             : 1; // i.e. AUX_CCS_D (instead of AUX_CCS_E). Flag carried by GMM between UMDs to support shared resources.
-        uint32_t Reserved                          : 1; // Reserved
+	uint32_t MediaPipeUsage                    : 1; // TileHeight Aligned ArrayQPitch on Tile4/TileY
     } Wa;
 
 } GMM_RESOURCE_FLAG;

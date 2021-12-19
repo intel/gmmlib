@@ -576,7 +576,8 @@ void GmmLib::GmmGen9TextureCalc::Fill2DTexOffsetAddress(GMM_TEXTURE_INFO *pTexIn
 
         Alignment = pTexInfo->Alignment.VAlign;
         if((pTexInfo->Type == RESOURCE_3D && !pTexInfo->Flags.Info.Linear) ||
-           (pTexInfo->Flags.Gpu.S3dDx && pGmmLibContext->GetSkuTable().FtrDisplayEngineS3d))
+           (pTexInfo->Flags.Gpu.S3dDx && pGmmLibContext->GetSkuTable().FtrDisplayEngineS3d) ||
+	   (pTexInfo->Flags.Wa.MediaPipeUsage))
          {
             Alignment = pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileHeight;
 	    //Gmm uses TileY for Stencil allocations, having half TileW height (TileY width compensates)
@@ -765,7 +766,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex2D(GMM_TEXTURE_INFO * 
     {
         uint32_t Alignment = VAlign;
         if((pTexInfo->Type == RESOURCE_3D && !pTexInfo->Flags.Info.Linear) ||
-           (pTexInfo->Flags.Gpu.S3dDx && pGmmLibContext->GetSkuTable().FtrDisplayEngineS3d))
+           (pTexInfo->Flags.Gpu.S3dDx && pGmmLibContext->GetSkuTable().FtrDisplayEngineS3d) ||
+           (pTexInfo->Flags.Wa.MediaPipeUsage))
         {
             Alignment = pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileHeight;
 	    //Gmm uses TileY for Stencil allocations, having half TileW height (TileY width compensates)

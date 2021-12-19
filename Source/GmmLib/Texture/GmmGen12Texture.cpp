@@ -374,7 +374,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTex2D(GMM_TEXTURE_INFO *
     {
         uint32_t Alignment = VAlign;
         if((pTexInfo->Type == RESOURCE_3D && !pTexInfo->Flags.Info.Linear) ||
-           (pTexInfo->Flags.Gpu.S3dDx && pGmmLibContext->GetSkuTable().FtrDisplayEngineS3d))
+           (pTexInfo->Flags.Gpu.S3dDx && pGmmLibContext->GetSkuTable().FtrDisplayEngineS3d) ||
+	   (pTexInfo->Flags.Wa.MediaPipeUsage))
         {
             Alignment = pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileHeight;
         }
