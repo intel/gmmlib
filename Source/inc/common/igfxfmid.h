@@ -70,7 +70,7 @@ typedef enum {
     IGFX_ROCKETLAKE,
     IGFX_ALDERLAKE_S,
     IGFX_ALDERLAKE_P,
-
+    IGFX_ALDERLAKE_N,
     IGFX_DG1  = 1210,
     IGFX_XE_HP_SDV = 1250,
     IGFX_DG2 = 1270,
@@ -105,6 +105,7 @@ typedef enum {
     PCH_ADL_S,          // ADL_S PCH
     PCH_ADL_P,          // ADL_P PCH
     PCH_TGL_H,          // TGL H PCH
+    PCH_ADL_N,          // ADL_N PCH
     PCH_PRODUCT_FAMILY_FORCE_ULONG = 0x7fffffff
 } PCH_PRODUCT_FAMILY;
 
@@ -1641,6 +1642,131 @@ typedef enum __NATIVEGTTYPE
 #define PCH_DEV_ID_519E         0x519E
 #define PCH_DEV_ID_519F         0x519F
 
+// ADL_N PCH Device ID range
+#define PCH_DEV_ID_5480         0x5480
+#define PCH_DEV_ID_5481         0x5481
+#define PCH_DEV_ID_5482         0x5482
+#define PCH_DEV_ID_5483         0x5483
+#define PCH_DEV_ID_5484         0x5484
+#define PCH_DEV_ID_5485         0x5485
+#define PCH_DEV_ID_5486         0x5486
+#define PCH_DEV_ID_5487         0x5487
+#define PCH_DEV_ID_5488         0x5488
+#define PCH_DEV_ID_5489         0x5489
+#define PCH_DEV_ID_548A         0x548A
+#define PCH_DEV_ID_548B         0x548B
+#define PCH_DEV_ID_548C         0x548C
+#define PCH_DEV_ID_548D         0x548D
+#define PCH_DEV_ID_548E         0x548E
+#define PCH_DEV_ID_548F         0x548F
+#define PCH_DEV_ID_5490         0x5490
+#define PCH_DEV_ID_5491         0x5491
+#define PCH_DEV_ID_5492         0x5492
+#define PCH_DEV_ID_5493         0x5493
+#define PCH_DEV_ID_5494         0x5494
+#define PCH_DEV_ID_5495         0x5495
+#define PCH_DEV_ID_5496         0x5496
+#define PCH_DEV_ID_5497         0x5497
+#define PCH_DEV_ID_5498         0x5498
+#define PCH_DEV_ID_5499         0x5499
+#define PCH_DEV_ID_549A         0x549A
+#define PCH_DEV_ID_549B         0x549B
+#define PCH_DEV_ID_549C         0x549C
+#define PCH_DEV_ID_549D         0x549D
+#define PCH_DEV_ID_549E         0x549E
+#define PCH_DEV_ID_549F         0x549F
+#define PCH_DEV_ID_54A0         0x54A0
+#define PCH_DEV_ID_54A1         0x54A1
+#define PCH_DEV_ID_54A2         0x54A2
+#define PCH_DEV_ID_54A3         0x54A3
+#define PCH_DEV_ID_54A4         0x54A4
+#define PCH_DEV_ID_15FB         0x15FB
+#define PCH_DEV_ID_15FC         0x15FC
+#define PCH_DEV_ID_54A6         0x54A6
+#define PCH_DEV_ID_54A7         0x54A7
+#define PCH_DEV_ID_54A8         0x54A8
+#define PCH_DEV_ID_54A9         0x54A9
+#define PCH_DEV_ID_54AA         0x54AA
+#define PCH_DEV_ID_54AB         0x54AB
+#define PCH_DEV_ID_54AC         0x54AC
+#define PCH_DEV_ID_54AD         0x54AD
+#define PCH_DEV_ID_54AE         0x54AE
+#define PCH_DEV_ID_54AF         0x54AF
+#define PCH_DEV_ID_54B0         0x54B0
+#define PCH_DEV_ID_54B1         0x54B1
+#define PCH_DEV_ID_54B2         0x54B2
+#define PCH_DEV_ID_54B3         0x54B3
+#define PCH_DEV_ID_54B4         0x54B4
+#define PCH_DEV_ID_54B5         0x54B5
+#define PCH_DEV_ID_54B6         0x54B6
+#define PCH_DEV_ID_54B7         0x54B7
+#define PCH_DEV_ID_54B8         0x54B8
+#define PCH_DEV_ID_54B9         0x54B9
+#define PCH_DEV_ID_54BA         0x54BA
+#define PCH_DEV_ID_54BB         0x54BB
+#define PCH_DEV_ID_54BC         0x54BC
+#define PCH_DEV_ID_54BD         0x54BD
+#define PCH_DEV_ID_54BE         0x54BE
+#define PCH_DEV_ID_54BF         0x54BF
+#define PCH_DEV_ID_54C4         0x54C4
+#define PCH_DEV_ID_54C5         0x54C5
+#define PCH_DEV_ID_54C6         0x54C6
+#define PCH_DEV_ID_54C7         0x54C7
+#define PCH_DEV_ID_54C8         0x54C8
+#define PCH_DEV_ID_54C9         0x54C9
+#define PCH_DEV_ID_54CA         0x54CA
+#define PCH_DEV_ID_54CB         0x54CB
+#define PCH_DEV_ID_54CC         0x54CC
+#define PCH_DEV_ID_54CD         0x54CD
+#define PCH_DEV_ID_54CE         0x54CE
+#define PCH_DEV_ID_54CF         0x54CF
+#define PCH_DEV_ID_54D0         0x54D0
+#define PCH_DEV_ID_54D1         0x54D1
+#define PCH_DEV_ID_54D2         0x54D2
+#define PCH_DEV_ID_54D3         0x54D3
+#define PCH_DEV_ID_54D4         0x54D4
+#define PCH_DEV_ID_54D6         0x54D6
+#define PCH_DEV_ID_54D7         0x54D7
+#define PCH_DEV_ID_282A         0x282A
+#define PCH_DEV_ID_54D8         0x54D8
+#define PCH_DEV_ID_54D9         0x54D9
+#define PCH_DEV_ID_54DA         0x54DA
+#define PCH_DEV_ID_54DB         0x54DB
+#define PCH_DEV_ID_54DC         0x54DC
+#define PCH_DEV_ID_54DD         0x54DD
+#define PCH_DEV_ID_54DE         0x54DE
+#define PCH_DEV_ID_54DF         0x54DF
+#define PCH_DEV_ID_54E0         0x54E0
+#define PCH_DEV_ID_54E1         0x54E1
+#define PCH_DEV_ID_54E2         0x54E2
+#define PCH_DEV_ID_54E3         0x54E3
+#define PCH_DEV_ID_54E4         0x54E4
+#define PCH_DEV_ID_54E5         0x54E5
+#define PCH_DEV_ID_54E6         0x54E6
+#define PCH_DEV_ID_54E7         0x54E7
+#define PCH_DEV_ID_54E8         0x54E8
+#define PCH_DEV_ID_54E9         0x54E9
+#define PCH_DEV_ID_54EA         0x54EA
+#define PCH_DEV_ID_54EB         0x54EB
+#define PCH_DEV_ID_54ED         0x54ED
+#define PCH_DEV_ID_54EE         0x54EE
+#define PCH_DEV_ID_54EF         0x54EF
+#define PCH_DEV_ID_54F0         0x54F0
+#define PCH_DEV_ID_54F1         0x54F1
+#define PCH_DEV_ID_54F2         0x54F2
+#define PCH_DEV_ID_54F3         0x54F3
+#define PCH_DEV_ID_54F4         0x54F4
+#define PCH_DEV_ID_54F5         0x54F5
+#define PCH_DEV_ID_54F6         0x54F6
+#define PCH_DEV_ID_54F7         0x54F7
+#define PCH_DEV_ID_54F9         0x54F9
+#define PCH_DEV_ID_54FA         0x54FA
+#define PCH_DEV_ID_54FB         0x54FB
+#define PCH_DEV_ID_54FC         0x54FC
+#define PCH_DEV_ID_54FD         0x54FD
+#define PCH_DEV_ID_54FE         0x54FE
+#define PCH_DEV_ID_54FF         0x54FF
+
 //PVC Device ID
 #define DEV_ID_0BD0                            0x0BD0
 #define DEV_ID_0BD5                            0x0BD5
@@ -1669,6 +1795,11 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_56A6                             0x56A6
 #define DEV_ID_56B0                             0x56B0
 #define DEV_ID_56B1                             0x56B1
+
+// ADL-N
+#define DEV_ID_46D0                            0x46D0
+#define DEV_ID_46D1                            0x46D1
+#define DEV_ID_46D2                            0x46D2
 
 #define MGM_HAS     0
 
