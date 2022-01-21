@@ -50,12 +50,25 @@ BDW (Broadwell)
 
 SKL (Skylake, Kaby Lake, Coffee Lake)
 
-BXT (Broxton) / APL (Apollolake)
+BXTx (BXT: Broxton, APL: Apollo Lake, GLK: Gemini Lake)
+
+KBLx (KBL: Kaby Lake, CFL: Coffe Lake, WHL: Whiskey Lake, CML: Comet Lake, AML: Amber Lake)
 
 CNL (Cannonlake)
 
 ICL (Icelake)
 
+TGLx (TGL: Tiger Lake, RKL: Rocket Lake)
+
+ADLx (ADL-S: Alder Lake S, ADL-P: Alder Lake P, ADL-N: Alder Lake N)
+
+XE_LP (DG1)
+
+XE_HP (XE_HP_SDV)
+
+XE_HPC (PVC: Ponte Vecchio)
+
+XE_HPG (DG2, ACM: Alchemist)
 
 Known Issues and Limitations
 ----------------------------
