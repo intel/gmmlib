@@ -235,13 +235,20 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
     !(GetGmmLibContext()->GetSkuTable().FtrWddm2GpuMmu ||
       GetGmmLibContext()->GetSkuTable().FtrWddm2Svm);
 
-#if !__GMM_KMD__ && _WIN32
+#if !__GMM_KMD__ && LHDM
     if(GetGmmLibContext()->GetWaTable().WaLLCCachingUnsupported)
     {
         Surf.Flags.Info.GttMapType = (CreateParams.Flags.Info.Cacheable) ?
                                      GMM_GTT_CACHETYPE_VLV_SNOOPED :
                                      GMM_GTT_CACHETYPE_UNCACHED;
     }
+
+    if(GetGmmLibContext()->GetSkuTable().FtrCameraCaptureCaching == FALSE &&
+       CreateParams.Flags.Gpu.CameraCapture)
+    {
+        Surf.Flags.Info.Cacheable = 0;
+    }
+    Surf.Flags.Wa.ForceStdAllocAlign = 0;
 #endif
 
 #if(_DEBUG || _RELEASE_INTERNAL)
@@ -515,6 +522,14 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
         GMM_ASSERTDPF(((Surf.Flags.Info.NonLocalOnly && Surf.Flags.Info.LocalOnly) == 0),
                       "Incorrect segment preference, cannot be both local and system memory.");
 
+	// Before overriding the flags predetermine if compression request is deniable or not.
+        if(!Surf.Flags.Info.LocalOnly &&
+           (!(Surf.Flags.Gpu.Overlay || Surf.Flags.Gpu.FlipChain)) &&
+           !(Surf.Flags.Info.HardwareProtected))
+        {
+            Surf.Flags.Wa.DeniableLocalOnlyForCompression = 1;
+        }
+
         if(Surf.Flags.Gpu.Overlay ||
            Surf.Flags.Gpu.FlipChain)
         {
@@ -561,10 +576,12 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
             Surf.Flags.Info.NonLocalOnly = 1;
         }
 
-        if(!Surf.Flags.Info.NonLocalOnly &&
-           (!GetGmmLibContext()->GetSkuTable().FtrLocalMemoryAllows4KB))
+        if(GetGmmLibContext()->GetWaTable().Wa64kbMappingAt2mbGranularity &&
+           (!GetGmmLibContext()->GetSkuTable().FtrLocalMemoryAllows4KB) &&
+           !Surf.Flags.Info.NonLocalOnly)
         {
             Surf.Flags.Info.LocalOnly = true;
+
         }
     }
     else

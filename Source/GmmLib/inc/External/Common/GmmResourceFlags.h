@@ -151,6 +151,9 @@ typedef struct GMM_RESOURCE_FLAG_REC
         uint32_t DisableDisplayCcsCompression      : 1; // Disables display decompression on the surface (it disables display awareness of both fast clear/render compression)
         uint32_t PreGen12FastClearOnly             : 1; // i.e. AUX_CCS_D (instead of AUX_CCS_E). Flag carried by GMM between UMDs to support shared resources.
 	uint32_t MediaPipeUsage                    : 1; // TileHeight Aligned ArrayQPitch on Tile4/TileY
+        uint32_t ForceStdAllocAlign                : 1; // Align standard allocation to 2MB, allowing 64K-PageTable. Set by KMD, not be used by UMDs
+        uint32_t DeniableLocalOnlyForCompression   : 1; // Align standard allocation to 2MB, allowing 64K-PageTable. Set by KMD, not be used by UMDs
+
     } Wa;
 
 } GMM_RESOURCE_FLAG;

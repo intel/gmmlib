@@ -497,6 +497,12 @@ typedef struct _WA_TABLE
         WA_BUG_TYPE_FUNCTIONAL,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
 
+	WA_DECLARE(
+        Wa64kbMappingAt2mbGranularity,
+        "WA to force 2MB alignment for 64KB-LMEM pages",
+        WA_BUG_TYPE_FUNCTIONAL,
+        WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
+
         WA_DECLARE(
         WaDefaultTile4,
         "[XeHP] Keep Tile4 as default on XeHP till B stepping",
