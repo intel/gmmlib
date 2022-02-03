@@ -542,6 +542,28 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexPitchAndSize(GMM_TEXTURE_INFO * pTexIn
         GMM_ASSERTDPF(0, "Aux Surface pitch too large!");
         Status = GMM_ERROR;
     }
+    
+    if(pGmmLibContext->GetWaTable().Wa_15010089951)
+    {
+        // Default Tiling is set to Tile64 on FtrTileY disabled platforms
+        uint8_t IsYUVSurface = ((GmmIsPlanar(pTexInfo->Format) &&
+                                 (!((pTexInfo->Format == GMM_FORMAT_BGRP) || (pTexInfo->Format == GMM_FORMAT_RGBP)))) ||
+                                (GmmIsYUVPacked(pTexInfo->Format) &&
+                                 !((pTexInfo->Format == GMM_FORMAT_YVYU_2x1) || (pTexInfo->Format == GMM_FORMAT_UYVY_2x1) || (pTexInfo->Format == GMM_FORMAT_UYVY_2x1))));
+
+        //YCRCB* formats
+        uint8_t IsYCrCbSurface = ((pTexInfo->Format == GMM_FORMAT_YCRCB_NORMAL) ||
+                                  (pTexInfo->Format == GMM_FORMAT_YCRCB_SWAPUV) ||
+                                  (pTexInfo->Format == GMM_FORMAT_YCRCB_SWAPUVY) || (pTexInfo->Format == GMM_FORMAT_YCRCB_SWAPY));
+
+        // Allocation needs to extend an extra tile in width when pitch is not an odd multiplication
+        // of tile width which is 128 for Tile4 (YUV allocation is forced as Tile4).
+        if(pTexInfo->Flags.Info.Tile4 && (IsYUVSurface || IsYCrCbSurface) &&
+           ((pTexInfo->Pitch / (pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileWidth)) % 2 == 0))
+        {
+            pTexInfo->Pitch = (pTexInfo->Pitch + (pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileWidth));
+        }
+    }
 
     // For NV12 Linear FlipChain surfaces, UV plane distance should be 4k Aligned.
     // Hence make the stride to align to 4k, so that UV distance will be 4k aligned.

@@ -521,6 +521,12 @@ typedef struct _WA_TABLE
         WA_BUG_TYPE_UNKNOWN,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
 
+        WA_DECLARE(
+        Wa_15010089951,
+        "[DG2][Silicon][Perf]DG2 VESFC performance when Compression feature is enabled.",
+        WA_BUG_TYPE_PERF,
+        WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
+
 } WA_TABLE, *PWA_TABLE;
 
 //********************************** SKU/WA Macros *************************************
