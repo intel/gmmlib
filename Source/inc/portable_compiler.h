@@ -34,6 +34,9 @@ OTHER DEALINGS IN THE SOFTWARE.
     #if defined __x86_64__
         #define __stdcall       // deprecated for x86-64
         #define __cdecl         // deprecated for x86-64
+    #elif defined(__ARM_ARCH)
+        #define __stdcall
+        #define __cdecl
     #else
         #define __cdecl         __attribute__((__cdecl__))
         #define __stdcall       __attribute__((__stdcall__))

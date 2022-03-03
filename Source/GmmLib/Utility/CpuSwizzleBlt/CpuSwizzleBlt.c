@@ -322,6 +322,8 @@ extern void CpuSwizzleBlt(CPU_SWIZZLE_BLT_SURFACE *pDest, CPU_SWIZZLE_BLT_SURFAC
 
 #if(_MSC_VER >= 1400)
     #include <intrin.h>
+#elif defined(__ARM_ARCH)
+    #include <sse2neon.h>
 #elif((defined __clang__) ||(__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 5)))
     #include <cpuid.h>
     #include <x86intrin.h>
@@ -693,6 +695,9 @@ void CpuSwizzleBlt( // #########################################################
                     int CpuInfo[4];
                     __cpuid(CpuInfo, 1);
                     StreamingLoadSupported = ((CpuInfo[2] & (1 << 19)) != 0); // ECX[19] = SSE4.1
+                #elif(defined(__ARM_ARCH))
+                    #define MOVNTDQA_R(Reg, Src) ((Reg) = (Reg))
+                    StreamingLoadSupported = 0;
                 #elif((defined __clang__) || (__GNUC__ > 4) || (__GNUC__ == 4) && (__GNUC_MINOR__ >= 5))
                     #define MOVNTDQA_R(Reg, Src) ((Reg) = _mm_stream_load_si128((__m128i *)(Src)))
                     unsigned int eax, ebx, ecx, edx;

@@ -77,7 +77,11 @@ extern const SWIZZLE_DESCRIPTOR INTEL_64KB_UNDEFINED_64_128bpp;
 // Set packing alignment
 #pragma pack(push, 8)
 
+#if defined(__ARM_ARCH)
+#define GMM_STDCALL            // GMM function calling convention
+#else
 #define GMM_STDCALL             __stdcall   // GMM function calling convention
+#endif
 #define GMM_NO_FENCE_REG        0xDEADBEEF
 #define GMM_MAX_DISPLAYS        3
 

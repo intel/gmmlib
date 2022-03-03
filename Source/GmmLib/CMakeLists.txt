@@ -141,7 +141,9 @@ elseif ("${BUILD_TYPE}" STREQUAL "debug")
     set(CMAKE_BUILD_TYPE "Debug")
 endif()
 
-if("${GMMLIB_MARCH}" STREQUAL "")
+if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^aarch")
+    set(GMMLIB_MARCH "armv8-a+fp+simd")
+elseif("${GMMLIB_MARCH}" STREQUAL "")
     set(GMMLIB_MARCH "corei7")
 endif()
 
@@ -403,6 +405,10 @@ include_directories(BEFORE ${PROJECT_SOURCE_DIR})
   ${BS_DIR_INSTALL}
   #${BS_DIR_ANDROID}/include
   )
+
+if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "^aarch")
+    include_directories(${GFX_DEVELOPMENT_DIR}/third_party/sse2neon)
+endif()
 
 set(headers
 	${HEADERS_}
