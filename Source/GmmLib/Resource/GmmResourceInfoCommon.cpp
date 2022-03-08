@@ -237,6 +237,192 @@ ERROR_CASE:
     GMM_DPF_EXIT;
     return Status;
 }
+
+#ifndef __GMM_KMD__
+/////////////////////////////////////////////////////////////////////////////////////
+/// Allows clients to "create"  Custom memory layout received from the App as user pointer or DMABUF
+// This function does not allocate any memory for the resource. It just calculates/ populates the various parameters
+/// which are useful for the client and can be queried using other functions.
+///
+/// @param[in]  GmmLib Context: Reference to ::GmmLibContext
+/// @param[in]  CreateParams: Flags which specify what sort of resource to create
+///
+/// @return     ::GMM_STATUS
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::CreateCustomRes_2(Context &GmmLibContext, GMM_RESCREATE_CUSTOM_PARAMS_2 &CreateParams)
+{
+    const GMM_PLATFORM_INFO *pPlatform;
+    GMM_STATUS               Status       = GMM_ERROR;
+    GMM_TEXTURE_CALC *       pTextureCalc = NULL;
+    uint32_t                 BitsPerPixel, i;
+
+
+    GMM_DPF_ENTER;
+
+    GET_GMM_CLIENT_TYPE(pClientContext, ClientType);
+    pGmmUmdLibContext = reinterpret_cast<uint64_t>(&GmmLibContext);
+    __GMM_ASSERTPTR(pGmmUmdLibContext, GMM_ERROR);
+
+
+    if((CreateParams.Format > GMM_FORMAT_INVALID) &&
+       (CreateParams.Format < GMM_RESOURCE_FORMATS))
+    {
+        BitsPerPixel = GetGmmLibContext()->GetPlatformInfo().FormatTable[CreateParams.Format].Element.BitsPer;
+    }
+    else
+    {
+        GMM_ASSERTDPF(0, "Format Error");
+        Status = GMM_INVALIDPARAM;
+        goto ERROR_CASE;
+    }
+
+    pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf, GetGmmLibContext());
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
+
+    Surf.Type                    = CreateParams.Type;
+    Surf.Format                  = CreateParams.Format;
+    Surf.BaseWidth               = CreateParams.BaseWidth64;
+    Surf.BaseHeight              = CreateParams.BaseHeight;
+    Surf.Flags                   = CreateParams.Flags;
+    Surf.CachePolicy.Usage       = CreateParams.Usage;
+    Surf.Pitch                   = CreateParams.Pitch;
+    Surf.Size                    = CreateParams.Size;
+    Surf.Alignment.BaseAlignment = CreateParams.BaseAlignment;
+    Surf.MaxLod                  = 1;
+    Surf.ArraySize               = 1;
+    Surf.CpTag                   = CreateParams.CpTag;
+
+#if(_DEBUG || _RELEASE_INTERNAL)
+    Surf.Platform = GetGmmLibContext()->GetPlatformInfo().Platform;
+#endif
+    Surf.BitsPerPixel     = BitsPerPixel;
+    Surf.Alignment.QPitch = (GMM_GLOBAL_GFX_SIZE_T)(Surf.Pitch * Surf.BaseHeight);
+
+    pTextureCalc->SetTileMode(&Surf);
+
+    if(GmmIsPlanar(Surf.Format))
+    {
+        if(GMM_IS_TILED(pPlatform->TileInfo[Surf.TileMode]))
+        {
+            Surf.OffsetInfo.Plane.IsTileAlignedPlanes = true;
+        }
+        for(i = 1; i <= CreateParams.NoOfPlanes; i++)
+        {
+            Surf.OffsetInfo.Plane.X[i] = CreateParams.PlaneOffset.X[i];
+            Surf.OffsetInfo.Plane.Y[i] = CreateParams.PlaneOffset.Y[i];
+        }
+        Surf.OffsetInfo.Plane.NoOfPlanes = CreateParams.NoOfPlanes;
+
+        if(Surf.ArraySize > 1)
+        {
+            //Not required as this new interface doesn't support arrayed surfaces.
+        }
+
+        UpdateUnAlignedParams();
+    }
+
+    switch(Surf.Type)
+    {
+        case RESOURCE_1D:
+        case RESOURCE_2D:
+        case RESOURCE_PRIMARY:
+        case RESOURCE_SHADOW:
+        case RESOURCE_STAGING:
+        case RESOURCE_GDI:
+        case RESOURCE_NNDI:
+        case RESOURCE_HARDWARE_MBM:
+        case RESOURCE_OVERLAY_INTERMEDIATE_SURFACE:
+        case RESOURCE_IFFS_MAPTOGTT:
+#if _WIN32
+        case RESOURCE_WGBOX_ENCODE_DISPLAY:
+        case RESOURCE_WGBOX_ENCODE_REFERENCE:
+#endif
+        {
+            if(Surf.ArraySize > 1)
+            {
+                //Not required as this new interface doesn't support arrayed surfaces.
+            }
+
+            for(i = 0; i <= Surf.MaxLod; i++)
+            {
+                Surf.OffsetInfo.Texture2DOffsetInfo.Offset[i] = 0;
+            }
+
+            break;
+        }
+        default:
+        {
+            GMM_ASSERTDPF(0, "GmmTexAlloc: Unknown surface type!");
+            Status = GMM_INVALIDPARAM;
+            goto ERROR_CASE;
+            ;
+        }
+    };
+
+    if(Surf.Flags.Gpu.UnifiedAuxSurface || Surf.Flags.Gpu.CCS)
+    {
+
+        if(GetGmmLibContext()->GetSkuTable().FtrLinearCCS)
+        {
+            AuxSurf.Flags.Gpu.__NonMsaaLinearCCS = 1;
+        }
+
+        AuxSurf.Flags.Info.TiledW  = 0;
+        AuxSurf.Flags.Info.TiledYf = 0;
+        AuxSurf.Flags.Info.TiledX  = 0;
+        AuxSurf.Flags.Info.Linear  = 1;
+        GMM_SET_64KB_TILE(AuxSurf.Flags, 0, GetGmmLibContext());
+        GMM_SET_4KB_TILE(AuxSurf.Flags, 0, GetGmmLibContext());
+
+        AuxSurf.ArraySize    = 1;
+        AuxSurf.BitsPerPixel = 8;
+
+        if(GmmIsPlanar(CreateParams.Format) || GmmIsUVPacked(CreateParams.Format))
+        {
+            AuxSurf.OffsetInfo.Plane.X[GMM_PLANE_Y] = CreateParams.AuxSurf.PlaneOffset.X[GMM_PLANE_Y];
+            AuxSurf.OffsetInfo.Plane.Y[GMM_PLANE_Y] = CreateParams.AuxSurf.PlaneOffset.Y[GMM_PLANE_Y];
+            AuxSurf.OffsetInfo.Plane.X[GMM_PLANE_U] = CreateParams.AuxSurf.PlaneOffset.X[GMM_PLANE_U];
+            AuxSurf.OffsetInfo.Plane.Y[GMM_PLANE_U] = CreateParams.AuxSurf.PlaneOffset.Y[GMM_PLANE_U];
+            AuxSurf.OffsetInfo.Plane.X[GMM_PLANE_V] = CreateParams.AuxSurf.PlaneOffset.X[GMM_PLANE_V];
+            AuxSurf.OffsetInfo.Plane.Y[GMM_PLANE_V] = CreateParams.AuxSurf.PlaneOffset.Y[GMM_PLANE_V];
+            AuxSurf.OffsetInfo.Plane.ArrayQPitch    = CreateParams.AuxSurf.Size;
+        }
+
+        AuxSurf.Size = CreateParams.AuxSurf.Size;
+
+        AuxSurf.Pitch     = CreateParams.AuxSurf.Pitch;
+        AuxSurf.Type      = RESOURCE_BUFFER;
+        AuxSurf.Alignment = {0};
+
+        AuxSurf.Alignment.QPitch        = GFX_ULONG_CAST(AuxSurf.Size);
+        AuxSurf.Alignment.BaseAlignment = CreateParams.AuxSurf.BaseAlignment; //TODO: TiledResource?
+        AuxSurf.Size                    = GFX_ALIGN(AuxSurf.Size, PAGE_SIZE); //page-align final size
+
+        if(AuxSurf.Flags.Gpu.TiledResource)
+        {
+            AuxSurf.Alignment.BaseAlignment = GMM_KBYTE(64);                          //TODO: TiledResource?
+            AuxSurf.Size                    = GFX_ALIGN(AuxSurf.Size, GMM_KBYTE(64)); //page-align final size
+        }
+
+        //Clear compression request in CCS
+        AuxSurf.Flags.Info.RenderCompressed = 0;
+        AuxSurf.Flags.Info.MediaCompressed  = 0;
+        AuxSurf.Flags.Info.RedecribedPlanes = 0;
+        pTextureCalc->SetTileMode(&AuxSurf);
+        AuxSurf.UnpaddedSize = AuxSurf.Size;
+    }
+    GMM_DPF_EXIT;
+    return GMM_SUCCESS;
+
+ERROR_CASE:
+    //Zero out all the members
+    new(this) GmmResourceInfoCommon();
+
+    GMM_DPF_EXIT;
+    return Status;
+}
+#endif
+
 /////////////////////////////////////////////////////////////////////////////////////
 /// Allows clients to "create" any type of resource. This function does not
 /// allocate any memory for the resource. It just calculates the various parameters

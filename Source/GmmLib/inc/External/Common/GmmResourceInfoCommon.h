@@ -1914,6 +1914,9 @@ namespace GmmLib
 
                 return TiledMode;
             }
+#ifndef __GMM_KMD__
+            GMM_VIRTUAL GMM_STATUS GMM_STDCALL CreateCustomRes_2(Context &GmmLibContext, GMM_RESCREATE_CUSTOM_PARAMS_2 &CreateParams);
+#endif
 
     };
 

@@ -364,6 +364,26 @@ typedef struct GMM_RESCREATE_CUSTOM_PARAMS__REC
     uint32_t CpTag;
 }GMM_RESCREATE_CUSTOM_PARAMS;
 
+#ifndef __GMM_KMD__
+typedef struct GMM_RESCREATE_CUSTOM_PARAMS_2_REC : public GMM_RESCREATE_CUSTOM_PARAMS
+{
+    struct
+    {
+        uint32_t       Pitch;
+        GMM_GFX_SIZE_T Size;
+        uint32_t       BaseAlignment;
+        struct
+        {
+            uint32_t X[GMM_MAX_PLANE];
+            uint32_t Y[GMM_MAX_PLANE];
+        } PlaneOffset;
+    } AuxSurf;
+
+    uint64_t Reserved;
+    uint64_t Reserved1;
+}GMM_RESCREATE_CUSTOM_PARAMS_2;
+#endif
+
 //===========================================================================
 // enum :
 //        GMM_UNIFIED_AUX_TYPE

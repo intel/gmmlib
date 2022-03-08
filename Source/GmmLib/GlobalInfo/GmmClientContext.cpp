@@ -386,6 +386,45 @@ ERROR_CASE:
 
     return (NULL);
 }
+
+#ifndef __GMM_KMD__
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of ClientContext class for creation of Custiom ResourceInfo Object .
+/// @see        GmmLib::GmmResourceInfoCommon::CreateCustomResInfoObject_2()
+///
+/// @param[in] pCreateParams: Flags which specify what sort of resource to create
+/// @return     Pointer to GmmResourceInfo class.
+/////////////////////////////////////////////////////////////////////////////////////
+GMM_RESOURCE_INFO *GMM_STDCALL GmmLib::GmmClientContext::CreateCustomResInfoObject_2(GMM_RESCREATE_CUSTOM_PARAMS_2 *pCreateParams)
+{
+    GMM_RESOURCE_INFO *pRes             = NULL;
+    GmmClientContext * pClientContextIn = NULL;
+
+    pClientContextIn = this;
+
+    if((pRes = new GMM_RESOURCE_INFO(pClientContextIn)) == NULL)
+    {
+        GMM_ASSERTDPF(0, "Allocation failed!");
+        goto ERROR_CASE;
+    }
+
+    if(pRes->CreateCustomRes_2(*pGmmLibContext, *pCreateParams) != GMM_SUCCESS)
+    {
+        goto ERROR_CASE;
+    }
+
+    return (pRes);
+
+ERROR_CASE:
+    if(pRes)
+    {
+        DestroyResInfoObject(pRes);
+    }
+
+    return (NULL);
+}
+#endif
+
 /////////////////////////////////////////////////////////////////////////////////////
 /// Member function of ClientContext class for creation of ResourceInfo Object .
 /// @see        GmmLib::GmmResourceInfoCommon::Create()
