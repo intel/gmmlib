@@ -566,8 +566,7 @@ namespace GmmLib
     };
 
 // Max number of Multi-Adapters allowed in the system
-// ToDO: Make this dynamic allocation instead of static Array
-#define MAX_NUM_ADAPTERS      3
+#define MAX_NUM_ADAPTERS      32
 //===========================================================================
 // typedef:
 //      _GMM_ADAPTER_INFO_
