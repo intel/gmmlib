@@ -43,6 +43,26 @@ if(NOT DEFINED GMMLIB_API_PATCH_VERSION)
     set(GMMLIB_API_PATCH_VERSION ${PATCH_VERSION})
 endif()
 
+# The Gmmlib dll is generated as libigdgmm.so.<x>.<y>.<z> where,
+# <x> = GMMLIB_API_MAJOR_VERSION
+# <y> = GMMLIB_API_MINOR_VERSION
+# <z> = GMMLIB_API_PATCH_VERSION
+#
+# Example: libigdgmm.so.12.0.0
+# 12 = GMMLIB_API_MAJOR_VERSION
+# 0  = GMMLIB_API_MINOR_VERSION
+# 0  = GMMLIB_API_PATCH_VERSION
+#
+# Library version update
+# - increment major for any ABI change
+# - increment minor for any interface change (e.g. new/modified function)
+#
+# Example:
+# On potential ABI break changes
+#
+# libigdgmm.so.<GMMLIB_API_MAJOR_VERSION>.y.z becomes libigdgmm.so.<GMMLIB_API_MAJOR_VERSION + 1>.0.0
+# i.e libigdgmm.so.12.5.0 becomes libigdgmm.so.13.0.0
+
 message(STATUS "API version: ${GMMLIB_API_MAJOR_VERSION}.${GMMLIB_API_MINOR_VERSION}.${GMMLIB_API_PATCH_VERSION}")
 message(STATUS "Package version: ${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}")
 
