@@ -90,9 +90,6 @@ bool GmmLib::Logger::GmmLogInit()
     {
         switch(static_cast<GmmLogLevel>(regkeyVal))
         {
-            case Off:
-                LogLevel = spdlog::level::off;
-                break;
             case Trace:
                 LogLevel = spdlog::level::trace;
                 break;
@@ -104,10 +101,20 @@ bool GmmLib::Logger::GmmLogInit()
                 break;
 	    case Critical:
 		LogLevel = spdlog::level::critical;
-        }
+                break;
+            case Off:
+            default:
+                LogLevel = spdlog::level::off;
+                break;
+	}
     }
 
 #endif
+    if(LogLevel == spdlog::level::off)
+    {
+        return false;
+    }
+
     try
     {
         if(LogMethod == ToFile)
@@ -218,7 +225,7 @@ bool GmmLib::Logger::GmmLogInit()
 /////////////////////////////////////////////////////////////////////////////////////
 GmmLib::Logger::Logger()
     : LogMethod(ToOSLog),
-      LogLevel(spdlog::level::err)
+      LogLevel(spdlog::level::off)
 {
     if(!GmmLogInit())
     {
@@ -260,28 +267,29 @@ inline int vscprintf_lin(const char *msg, va_list args)
 /////////////////////////////////////////////////////////////////////////////////////
 extern "C" void GMM_STDCALL GmmLibLogging(GmmLogLevel Level, const char *str, ...)
 {
-    va_list args;
-    va_start(args, str);
+   va_list args;
 
-#if _WIN32
-    const size_t length = _vscprintf(str, args);
-#else
-    const size_t length = vscprintf_lin(str, args);
-#endif
-
-    char *temp = new char[length + 1];
-
-    if(temp)
+    if(GmmLoggerPerProc.SpdLogger)
     {
+        va_start(args, str);
 
 #if _WIN32
-        vsprintf_s(temp, length + 1, str, args);
+        const size_t length = _vscprintf(str, args);
 #else
-        vsnprintf(temp, length + 1, str, args);
+        const size_t length = vscprintf_lin(str, args);
 #endif
 
-        if(GmmLoggerPerProc.SpdLogger)
+        char *temp = new char[length + 1];
+
+        if(temp)
         {
+
+#if _WIN32
+            vsprintf_s(temp, length + 1, str, args);
+#else
+            vsnprintf(temp, length + 1, str, args);
+#endif
+
             switch(Level)
             {
                 case Trace:
@@ -300,11 +308,12 @@ extern "C" void GMM_STDCALL GmmLibLogging(GmmLogLevel Level, const char *str, ..
                 default:
                     break;
             }
-        }
 
-        delete[] temp;
+            delete[] temp;
+        }
     }
 
     va_end(args);
 }
+
 #endif //#if GMM_LOG_AVAILABLE
