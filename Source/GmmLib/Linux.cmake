@@ -74,7 +74,6 @@ else()
     -Wno-enum-compare
     -Werror=address
     -Werror=format-security
-    -Werror=non-virtual-dtor
     -Werror=return-type
 
     # General optimization options
