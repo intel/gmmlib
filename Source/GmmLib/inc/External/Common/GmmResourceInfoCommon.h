@@ -458,6 +458,7 @@ namespace GmmLib
                 pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf, GetGmmLibContext());
 	       
 	        __GMM_ASSERT(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN8_CORE);
+		GMM_UNREFERENCED_PARAMETER(pPlatform);
 
                 QPitch = static_cast<uint32_t>(Surf.OffsetInfo.Plane.ArrayQPitch / Surf.Pitch);
 
@@ -1066,8 +1067,10 @@ namespace GmmLib
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T GMM_STDCALL GetUnifiedAuxSurfaceOffset(GMM_UNIFIED_AUX_TYPE GmmAuxType)
             {
                 GMM_GFX_SIZE_T Offset = 0;
-                const GMM_PLATFORM_INFO *pPlatform;
-                pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf, GetGmmLibContext());
+		const GMM_PLATFORM_INFO *pPlatform;
+		pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf, GetGmmLibContext());
+		GMM_UNREFERENCED_PARAMETER(pPlatform);
+
                 if (Surf.Flags.Gpu.UnifiedAuxSurface)
                 {
                     if ((GmmAuxType == GMM_AUX_CCS) || (GmmAuxType == GMM_AUX_SURF) || (GmmAuxType == GMM_AUX_Y_CCS)
