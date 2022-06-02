@@ -23,6 +23,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #ifndef _WIN32
 #include <dlfcn.h>
 #endif
+#include <stdlib.h>
 
 ADAPTER_INFO *      MACommonULT::pGfxAdapterInfo[MAX_NUM_ADAPTERS][MAX_COUNT_PER_ADAPTER];
 PLATFORM            MACommonULT::GfxPlatform[MAX_NUM_ADAPTERS][MAX_COUNT_PER_ADAPTER];
@@ -34,6 +35,20 @@ GMM_INIT_IN_ARGS    MACommonULT::InArgs[MAX_NUM_ADAPTERS][MAX_COUNT_PER_ADAPTER]
 GMM_INIT_OUT_ARGS   MACommonULT::OutArgs[MAX_NUM_ADAPTERS][MAX_COUNT_PER_ADAPTER];
 GMM_DLL_HANDLE      MACommonULT::hGmmLib[MAX_NUM_ADAPTERS][MAX_COUNT_PER_ADAPTER];
 
+// Comman array for all thread related ULTs to supply Adapter-Client Context input.
+ThreadInParams MACommonULT::InParams[MAX_NUM_ADAPTERS * MAX_COUNT_PER_ADAPTER];
+
+// Array to store the adapter BDFs from simulated UMD, Save the adapter bdf in an array.
+ADAPTER_BDF MACommonULT::AdpaterSaved[MAX_NUM_ADAPTERS];
+
+MACommonULT::MACommonULT()
+{
+}
+
+MACommonULT::~MACommonULT()
+{
+}
+
 void MACommonULT::SetUpTestCase()
 {
 }
@@ -44,6 +59,43 @@ void MACommonULT::TearDownTestCase()
 
 CTestMA::CTestMA()
 {
+    uint32_t i = 0;
+
+    memset(AdpaterSaved, 0, sizeof(AdpaterSaved));
+    // Save the random Generated bdf value in an array during intantiation itself
+    // These value remain live for each of the ULT lifetime.
+    for(i = 0; i < MAX_NUM_ADAPTERS; i++)
+    {
+        AdpaterSaved[i].Bus      = rand() / 100;
+        AdpaterSaved[i].Device   = rand() / 100;
+        AdpaterSaved[i].Function = rand() / 100;
+        AdpaterSaved[i].Reserved = 0;
+    }
+
+    // Validate the generated BDfs are unique
+    // No two Adapter's BDF should be equal on a PCI bus.
+    for(i = 0; i < MAX_NUM_ADAPTERS; i++)
+    {
+        for(uint32_t j = 0; j < MAX_NUM_ADAPTERS; j++)
+        {
+            if(i != j)
+            {
+                if(AdpaterSaved[i].Bus == AdpaterSaved[j].Bus)
+                {
+                    if(AdpaterSaved[i].Device == AdpaterSaved[j].Device)
+                    {
+                        if(AdpaterSaved[i].Function == AdpaterSaved[j].Function)
+                        {
+                            // OOps! Generated BDFs are equal.
+                            // Lets change any one field to make it unique
+                            // Lets increment Bus.
+                            AdpaterSaved[j].Bus++;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 CTestMA::~CTestMA()
@@ -155,6 +207,33 @@ void MACommonULT::GmmDestroyModule(uint32_t AdapterIdx, uint32_t CountIdx)
     }
 }
 
+// This member function creates MaxClientThreads number of threads
+// MaxClientsThreads to represent total numbers of UMD Clients
+// MaxClientsThreads = MAX_NUM_ADAPTERS for ULT TestMTLoadMultipleAdapters
+// MaxClientsThreads = MAX_COUNT_PER_ADAPTER for ULT TestMTLoadAdaptersMultipleTimes
+// MaxClientsThreads = MAX_NUM_ADAPTERS * MAX_COUNT_PER_ADAPTER, for ULT TestMTLoadMultipleAdaptersMultipleTimes
+void MACommonULT::CreateMAThread(uint32_t MaxClientThreads)
+{
+    // Spawn all threads upto MaxClientThreads and wait for them all at once
+    uint32_t  i = 0;
+    int       Status;                                              /* return value                           */
+    pthread_t thread_id[MAX_NUM_ADAPTERS * MAX_COUNT_PER_ADAPTER]; /* thread's ID (just an integer)          */
+
+    /* MaxClientsThreads to represent MAX_NUM_ADAPTERS *MAX_COUNT_PER_ADAPTER Clients */
+    for(i = 0; i < (MaxClientThreads); i++)
+    {
+        Status = pthread_create(&thread_id[i], NULL, Thread1, (void *)&InParams[i]);
+        ASSERT_TRUE((!Status));
+    }
+
+    /* wait for threads to terminate */
+    for(i = 0; i < (MaxClientThreads); i++)
+    {
+        Status = pthread_join(thread_id[i], NULL);
+        ASSERT_TRUE((!Status));
+    }
+}
+
 void *Thread1(void *lpParam)
 {
     ThreadInParams *pInParams = (ThreadInParams *)(lpParam);
@@ -169,225 +248,283 @@ void *Thread1(void *lpParam)
 
 
 #if GMM_LIB_DLL_MA
+/*
+ To simulate the real time scenario between the Gmmlib and the UMD clients
+ Folowing ULTs assume:
+ MAX_NUM_ADAPTERS = Number of GPU Adapters (BDFs) available on a system at a given point of time.
+ MAX_COUNT_PER_ADAPTER = Number of UMD clients that can be simulated per Adapter
+ So Total clients simulated = MAX_NUM_ADAPTERS * MAX_COUNT_PER_ADAPTER
+ Where,
+ The LibContext for an Adapter is equal across all Clients for that adapter
+ The ClientConetxt is unique(Not equal) across all Clients for that adapter
+*/
 
-/// Load multiple Adapters in the same process
+// Load multiple Adapters in the same process with the Limit up to MAX_NUM_ADAPTERS
+// Increase MAX_NUM_ADAPTERS > 32 if needed
 TEST_F(CTestMA, TestLoadMultipleAdapters)
 {
-    LoadGmmDll(0, 0);
-    LoadGmmDll(1, 0);
-    LoadGmmDll(2, 0);
+    uint32_t AdapterCount = 0;
+    uint32_t i            = 0;
 
-    GmmInitModule(2, 0);
-    GmmInitModule(0, 0);
-    GmmInitModule(1, 0);
-
-    EXPECT_NE(pLibContext[0][0], pLibContext[1][0]);
-    EXPECT_NE(pLibContext[2][0], pLibContext[1][0]);
-    EXPECT_NE(pLibContext[2][0], pLibContext[0][0]);
-
-    GmmDestroyModule(1, 0);
-    GmmDestroyModule(2, 0);
-    GmmDestroyModule(0, 0);
-
-    UnLoadGmmDll(2, 0);
-    UnLoadGmmDll(1, 0);
-    UnLoadGmmDll(0, 0);
-}
-
-/// Load same Adapter multiple times in same process
-TEST_F(CTestMA, TestLoadAdapterMultipleTimes)
-{
-    LoadGmmDll(0, 0);
-    LoadGmmDll(0, 1);
-    LoadGmmDll(0, 2);
-
-    GmmInitModule(0, 0);
-    GmmInitModule(0, 1);
-    GmmInitModule(0, 2);
-
-    EXPECT_EQ(pLibContext[0][0], pLibContext[0][2]);
-    EXPECT_EQ(pLibContext[0][0], pLibContext[0][1]);
-
-    GmmDestroyModule(0, 0);
-    GmmDestroyModule(0, 1);
-    GmmDestroyModule(0, 2);
-
-    UnLoadGmmDll(0, 0);
-    UnLoadGmmDll(0, 1);
-    UnLoadGmmDll(0, 2);
-}
-
-/// Test Init-Destroy multiple times before Unloading DLL, on Same Adapter
-TEST_F(CTestMA, TestInitDestroyMultipleTimesOnSameAdapter)
-{
-    uint32_t i = 0;
-    LoadGmmDll(0, 0);
-    LoadGmmDll(0, 1);
-    LoadGmmDll(0, 2);
-
-    for(i = 0; i < 3; i++)
+    // Load the dll for all available adapters
+    for(AdapterCount = 0; AdapterCount < MAX_NUM_ADAPTERS; AdapterCount++)
     {
-        GmmInitModule(0, 0);
-        GmmInitModule(0, 1);
-        GmmInitModule(0, 2);
-
-        EXPECT_EQ(pLibContext[0][0], pLibContext[0][2]);
-        EXPECT_EQ(pLibContext[0][0], pLibContext[0][1]);
-
-        GmmDestroyModule(0, 0);
-        GmmDestroyModule(0, 1);
-        GmmDestroyModule(0, 2);
+        LoadGmmDll(AdapterCount, 0);
     }
 
-    UnLoadGmmDll(0, 0);
-    UnLoadGmmDll(0, 1);
-    UnLoadGmmDll(0, 2);
+    // Initilize the dll for all available adapters
+    for(AdapterCount = 0; AdapterCount < MAX_NUM_ADAPTERS; AdapterCount++)
+    {
+        GmmInitModule(AdapterCount, 0);
+    }
+
+    // Check the Libcontext for each of the adapter is different or not
+    for(AdapterCount = 0; AdapterCount < MAX_NUM_ADAPTERS; AdapterCount++)
+    {
+        for(i = 0; i < MAX_NUM_ADAPTERS; i++)
+        {
+            if(AdapterCount != i)
+            {
+                EXPECT_NE(pLibContext[AdapterCount][0], pLibContext[i][0]);
+            }
+        }
+    }
+
+    // Un-Initilize the dll for all loaded adapters
+    for(AdapterCount = 0; AdapterCount < MAX_NUM_ADAPTERS; AdapterCount++)
+    {
+        GmmDestroyModule(AdapterCount, 0);
+    }
+
+    // Unload the dll for all loaded adapters
+    for(AdapterCount = 0; AdapterCount < MAX_NUM_ADAPTERS; AdapterCount++)
+    {
+        UnLoadGmmDll(AdapterCount, 0);
+    }
+}
+
+/// Load all adapters(MAX_NUM_ADAPTERS) multiple times up to MAX_COUNT_PER_ADAPTER in same process
+TEST_F(CTestMA, TestLoadAdapterMultipleTimes)
+{
+    uint32_t AdapterCount = 0, RefCount = 0;
+
+    // Load the dll upto MAX_COUNT_PER_ADAPTER times for each of MAX_NUM_ADAPTERS adapters
+    for(AdapterCount = 0; AdapterCount < MAX_NUM_ADAPTERS; AdapterCount++)
+    {
+        for(RefCount = 0; RefCount < MAX_COUNT_PER_ADAPTER; RefCount++)
+        {
+            LoadGmmDll(AdapterCount, RefCount);
+        }
+    }
+
+    // Initilize the dll upto MAX_COUNT_PER_ADAPTER times for each of MAX_NUM_ADAPTERS adapters
+    for(AdapterCount = 0; AdapterCount < MAX_NUM_ADAPTERS; AdapterCount++)
+    {
+        for(RefCount = 0; RefCount < MAX_COUNT_PER_ADAPTER; RefCount++)
+        {
+            GmmInitModule(AdapterCount, RefCount);
+        }
+    }
+    // For each adapter upto MAX_NUM_ADAPTERS Check the LibContext for all instances upto
+    // MAX_COUNT_PER_ADAPTER to be equal
+    for(AdapterCount = 0; AdapterCount < MAX_NUM_ADAPTERS; AdapterCount++)
+    {
+        for(RefCount = 0; RefCount < MAX_COUNT_PER_ADAPTER - 1; RefCount++)
+        {
+            EXPECT_EQ(pLibContext[AdapterCount][RefCount], pLibContext[AdapterCount][RefCount + 1]);
+        }
+    }
+
+    // Un-Initilize the dll upto MAX_COUNT_PER_ADAPTER times for each of MAX_NUM_ADAPTERS adapters
+    // The destroy/unload can be out of order
+    for(AdapterCount = 0; AdapterCount < MAX_NUM_ADAPTERS; AdapterCount++)
+    {
+        for(RefCount = 0; RefCount < MAX_COUNT_PER_ADAPTER; RefCount++)
+        {
+            GmmDestroyModule(AdapterCount, RefCount);
+        }
+    }
+
+    // Unload the dll upto MAX_COUNT_PER_ADAPTER times for each of MAX_NUM_ADAPTERS adapters
+    for(AdapterCount = 0; AdapterCount < MAX_NUM_ADAPTERS; AdapterCount++)
+    {
+        for(RefCount = 0; RefCount < MAX_COUNT_PER_ADAPTER; RefCount++)
+        {
+            UnLoadGmmDll(AdapterCount, RefCount);
+        }
+    }
+}
+
+/// Test Init-Destroy multiple times Upto MAX_COUNT_PER_ADAPTER before Unloading DLL, on Same Adapter upto MAX_NUM_ADAPTERS
+TEST_F(CTestMA, TestInitDestroyMultipleTimesOnSameAdapter)
+{
+    uint32_t AdapterCount = 0, RefCount = 0;
+
+    // Load the dll upto MAX_COUNT_PER_ADAPTER times for each of MAX_NUM_ADAPTERS adapters
+    for(AdapterCount = 0; AdapterCount < MAX_NUM_ADAPTERS; AdapterCount++)
+    {
+        for(RefCount = 0; RefCount < MAX_COUNT_PER_ADAPTER; RefCount++)
+        {
+            LoadGmmDll(AdapterCount, RefCount);
+        }
+    }
+
+    // Initilize and destroy module upto MAX_COUNT_PER_ADAPTER times for each of MAX_NUM_ADAPTERS adapters
+    // For each adapter(AdapterCount <  MAX_NUM_ADAPTERS) Check the LibContext for all instances to be equal
+    for(AdapterCount = 0; AdapterCount < MAX_NUM_ADAPTERS; AdapterCount++)
+    {
+        // Initilize the dll upto MAX_COUNT_PER_ADAPTER times for each adapter
+        // In reality the init and destroy can occurs any number of time on a particular adapter, so for simplcity treating that UMD
+        // will load already loaded lib again for MAX_COUNT_PER_ADAPTER times.
+        for(RefCount = 0; RefCount < MAX_COUNT_PER_ADAPTER; RefCount++)
+        {
+            GmmInitModule(AdapterCount, RefCount);
+        }
+
+        // Check the LibContext for all instances on a same adapter to be equal
+        // It might also seems that LibContext pointer value on next adapters is same as previous pointer value returned in previous adapter init.
+        // This is the OS Memory Manager's role to avoid fragmentation in the process VA space
+        // Also our ULT is a Light-Weight process due to which the freed memory not assigned to other processes may get assigned again.
+        // But mind that this is possible only when the previous libcontext intialized is compulsorily inactive and destroyed.
+        // otherwise the same secnario as in TestLoadMultipleAdapters occurs .i.e different pointer value is returned on new adpater bdf.
+        for(RefCount = 0; RefCount < MAX_COUNT_PER_ADAPTER - 1; RefCount++)
+        {
+            EXPECT_EQ(pLibContext[AdapterCount][RefCount], pLibContext[AdapterCount][RefCount + 1]);
+        }
+
+        // Un-Initilize the dll upto MAX_COUNT_PER_ADAPTER times for each adapter
+        for(RefCount = 0; RefCount < MAX_COUNT_PER_ADAPTER; RefCount++)
+        {
+            GmmDestroyModule(AdapterCount, RefCount);
+        }
+    }
+
+    // Unload the dll upto MAX_COUNT_PER_ADAPTER times for each of MAX_NUM_ADAPTERS adapters
+    for(AdapterCount = 0; AdapterCount < MAX_NUM_ADAPTERS; AdapterCount++)
+    {
+        for(RefCount = 0; RefCount < MAX_COUNT_PER_ADAPTER; RefCount++)
+        {
+            UnLoadGmmDll(AdapterCount, RefCount);
+        }
+    }
 }
 
 /// Test Init-Destroy multiple times before Unloading DLL, on Multiple Adapters
 TEST_F(CTestMA, TestInitDestroyMultipleTimesOnMultiAdapter)
 {
-    uint32_t i = 0;
-    LoadGmmDll(0, 0);
-    LoadGmmDll(1, 0);
-    LoadGmmDll(2, 0);
+    uint32_t AdapterCount = 0, RefCount = 0;
 
-    for(i = 0; i < 3; i++)
+    // Load the dll upto MAX_COUNT_PER_ADAPTER times for each of MAX_NUM_ADAPTERS adapters
+    for(AdapterCount = 0; AdapterCount < MAX_NUM_ADAPTERS; AdapterCount++)
     {
-        GmmInitModule(0, 0);
-        GmmInitModule(1, 0);
-        GmmInitModule(2, 0);
-
-        //EXPECT_NE for Multi-Adapter support is added to Linux
-        EXPECT_NE(pLibContext[0][0], pLibContext[1][0]);
-        EXPECT_NE(pLibContext[2][0], pLibContext[1][0]);
-        EXPECT_NE(pLibContext[2][0], pLibContext[0][0]);
-
-        GmmDestroyModule(2, 0);
-        GmmDestroyModule(1, 0);
-        GmmDestroyModule(0, 0);
+        for(RefCount = 0; RefCount < MAX_COUNT_PER_ADAPTER; RefCount++)
+        {
+            LoadGmmDll(AdapterCount, RefCount);
+        }
     }
 
-    UnLoadGmmDll(2, 0);
-    UnLoadGmmDll(1, 0);
-    UnLoadGmmDll(0, 0);
+    // Initilize and destroy the dll upto MAX_COUNT_PER_ADAPTER times for each of MAX_NUM_ADAPTERS adapters
+    // For each adapter(AdapterCount <  MAX_NUM_ADAPTERS) Check the LibContext for all instances to is unique
+    // This is similar to TestInitDestroyMultipleTimesOnSameAdapter ULT apart from the order of adapter initialization.
+    for(RefCount = 0; RefCount < MAX_COUNT_PER_ADAPTER; RefCount++)
+    {
+        // Initilize the dll upto MAX_COUNT_PER_ADAPTER times for each adapter
+        for(AdapterCount = 0; AdapterCount < MAX_NUM_ADAPTERS; AdapterCount++)
+        {
+            GmmInitModule(AdapterCount, RefCount);
+        }
+        // Check the LibContext for each of the adpater(upto MAX_NUM_ADAPTERS) to be unique
+        // whereas LibContext for all instances on a same adapter is to be equal
+        for(AdapterCount = 0; AdapterCount < MAX_NUM_ADAPTERS - 1; AdapterCount++)
+        {
+            EXPECT_NE(pLibContext[AdapterCount][RefCount], pLibContext[AdapterCount + 1][RefCount]);
+        }
+
+        for(AdapterCount = 0; AdapterCount < MAX_NUM_ADAPTERS; AdapterCount++)
+        {
+            GmmDestroyModule(AdapterCount, RefCount);
+        }
+    }
+
+    // Unload the dll upto MAX_COUNT_PER_ADAPTER times for each of MAX_NUM_ADAPTERS adapters
+    for(AdapterCount = 0; AdapterCount < MAX_NUM_ADAPTERS; AdapterCount++)
+    {
+        for(RefCount = 0; RefCount < MAX_COUNT_PER_ADAPTER; RefCount++)
+        {
+            UnLoadGmmDll(AdapterCount, RefCount);
+        }
+    }
 }
 
+/*
+Following ULT's Exhibit the multitasking behaviour of UMDs considering that all UMDs loads and unloads dll
+in parallel and in random order.
+*/
 
-// Load Multiple Adapters on multiple threads in same process
+// Load Multiple Adapters upto MAX_NUM_ADAPTERS on multiple threads in same process at the same time
+// Here the number of client per adapter is 1 .i.e 0th count Index
 TEST_F(CTestMA, TestMTLoadMultipleAdapters)
 {
-    ThreadInParams InParams[3];
-    uint32_t       i = 0;
+    uint32_t AdapterCount = 0;
 
-    InParams[0].AdapterIdx = 0;
-    InParams[0].CountIdx   = 0;
+    memset(InParams, 0, sizeof(InParams));
 
-    InParams[1].AdapterIdx = 1;
-    InParams[1].CountIdx   = 0;
-
-    InParams[2].AdapterIdx = 2;
-    InParams[2].CountIdx   = 0;
-
-    int       Status;       /* return value                           */
-    pthread_t thread_id[3]; /* thread's ID (just an integer)          */
-
-    for(i = 0; i < 3; i++)
+    //Populate the Inparams array with the MAX_NUM_ADAPTERS indices
+    for(AdapterCount = 0; AdapterCount < MAX_NUM_ADAPTERS; AdapterCount++)
     {
-        Status = pthread_create(&thread_id[i], NULL, Thread1, (void *)&InParams[i]);
-        ASSERT_TRUE((!Status));
+        InParams[AdapterCount].AdapterIdx = AdapterCount;
+        InParams[AdapterCount].CountIdx   = 0;
     }
 
-    /* wait for threads to terminate */
-    for(i = 0; i < 3; i++)
-    {
-        Status = pthread_join(thread_id[i], NULL);
-        ASSERT_TRUE((!Status));
-    }
+    // Create threads to load all Adapters upto MAX_NUM_ADAPTERS for a single client each
+    CreateMAThread(MAX_NUM_ADAPTERS);
 }
 
-// Load a single Adapter on multiple threads in same process
+// Load a Single Adapter multiple times upto MAX_COUNT_PER_ADAPTER on multiple threads in same process
 TEST_F(CTestMA, TestMTLoadAdaptersMultipleTimes)
 {
-    ThreadInParams InParams[3];
-    uint32_t       i = 0;
+    uint32_t RefCount = 0;
 
-    InParams[0].AdapterIdx = 0;
-    InParams[0].CountIdx   = 0;
+    memset(InParams, 0, sizeof(InParams));
 
-    InParams[1].AdapterIdx = 0;
-    InParams[1].CountIdx   = 1;
-
-    InParams[2].AdapterIdx = 0;
-    InParams[2].CountIdx   = 2;
-
-    int       Status;       /* return value                           */
-    pthread_t thread_id[3]; /* thread's ID (just an integer)          */
-
-    for(i = 0; i < 3; i++)
+    //Populate the Inparams array with MAX_COUNT_PER_ADAPTER indices
+    for(RefCount = 0; RefCount < MAX_COUNT_PER_ADAPTER; RefCount++)
     {
-        Status = pthread_create(&thread_id[i], NULL, Thread1, (void *)&InParams[i]);
-        ASSERT_TRUE((!Status));
+        InParams[RefCount].AdapterIdx = 0;
+        InParams[RefCount].CountIdx   = RefCount;
     }
-
-    /* wait for threads to terminate */
-    for(i = 0; i < 3; i++)
-    {
-        Status = pthread_join(thread_id[i], NULL);
-        ASSERT_TRUE((!Status));
-    }
-
+    // Create threads to load all clients i.e MAX_COUNT_PER_ADAPTER on single adpater
+    CreateMAThread(MAX_COUNT_PER_ADAPTER);
 }
 
-// Load Multiple Adapters, multiple times on multiple threads in same process
+// Load Multiple Adapters upto MAX_NUM_ADAPTERS, multiple times upto MAX_COUNT_PER_ADAPTER on multiple threads in same process
 TEST_F(CTestMA, TestMTLoadMultipleAdaptersMultipleTimes)
 {
-    ThreadInParams InParams[9];
-    uint32_t       i = 0;
+    uint32_t i = 0, j = 0, k = 0;
+    uint32_t AdapterCount = 0, RefCount = 0;
 
-    InParams[0].AdapterIdx = 0;
-    InParams[0].CountIdx   = 0;
+    memset(InParams, 0, sizeof(InParams));
 
-    InParams[1].AdapterIdx = 1;
-    InParams[1].CountIdx   = 0;
-
-    InParams[2].AdapterIdx = 2;
-    InParams[2].CountIdx   = 0;
-
-    InParams[3].AdapterIdx = 0;
-    InParams[3].CountIdx   = 1;
-
-    InParams[4].AdapterIdx = 1;
-    InParams[4].CountIdx   = 1;
-
-    InParams[5].AdapterIdx = 2;
-    InParams[5].CountIdx   = 1;
-
-    InParams[6].AdapterIdx = 0;
-    InParams[6].CountIdx   = 2;
-
-    InParams[7].AdapterIdx = 1;
-    InParams[7].CountIdx   = 2;
-
-    InParams[8].AdapterIdx = 2;
-    InParams[8].CountIdx   = 2;
-
-    int       Status;       /* return value                           */
-    pthread_t thread_id[9]; /* thread's ID (just an integer)          */
-
-    for(i = 0; i < 9; i++)
+    //Populate the Inparams array with the MAX_NUM_ADAPTERS*MAX_COUNT_PER_ADAPTER indices
+    //Such that Each Adapter corresponds to its max mumber of clients in a sequential order
+    for(i = 0; i < (MAX_NUM_ADAPTERS * MAX_COUNT_PER_ADAPTER); i++)
     {
-        Status = pthread_create(&thread_id[i], NULL, Thread1, (void *)&InParams[i]);
-        ASSERT_TRUE((!Status));
+        for(j = 0; j < MAX_NUM_ADAPTERS; j++)
+        {
+            for(k = 0; k < MAX_COUNT_PER_ADAPTER; k++)
+            {
+                InParams[i].AdapterIdx = AdapterCount;
+                InParams[i].CountIdx   = RefCount++;
+                i++;
+            }
+            RefCount = 0;
+            AdapterCount++;
+        }
     }
 
-    /* wait for threads to terminate */
-    for(i = 0; i < 9; i++)
-    {
-        Status = pthread_join(thread_id[i], NULL);
-        ASSERT_TRUE((!Status));
-    }
-
+    // Create threads to load MAX_NUM_ADAPTERS, MAX_COUNT_PER_ADAPTER times
+    // Thread Count = MAX_NUM_ADAPTERS * MAX_COUNT_PER_ADAPTER
+    CreateMAThread(MAX_NUM_ADAPTERS * MAX_COUNT_PER_ADAPTER);
 }
 
 #endif // GMM_LIB_DLL_MA
