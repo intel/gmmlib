@@ -1377,7 +1377,7 @@ namespace GmmLib
                 {
                     if (GetResFlags().Info.TiledYf || GMM_IS_64KB_TILE(GetResFlags()))
                     {
-                        HAlign = 1; // Ignored, but we'll retrun valid encoding nonetheless.
+                        HAlign = 1; // Ignored, but we'll return valid encoding nonetheless.
                     }
                     else
                     {

@@ -144,6 +144,15 @@ if(CMAKE_CONFIGURATION_TYPES)
   set( CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING
        "Reset the configurations to what we need"
        FORCE)
+else()
+  if("${BUILD_TYPE}" STREQUAL "release")
+     set(CMAKE_BUILD_TYPE "Release")
+  elseif("${BUILD_TYPE}" STREQUAL "release-internal")
+    set(CMAKE_BUILD_TYPE "ReleaseInternal")
+  elseif("${BUILD_TYPE}" STREQUAL "debug")
+    set(CMAKE_BUILD_TYPE "Debug")
+  endif()
+
 endif()
 
 set(GMMLIB_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
@@ -151,14 +160,6 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set (GMMLIB_ARCH "64")
 else()
     set (GMMLIB_ARCH "32")
-endif()
-
-if ("${BUILD_TYPE}" STREQUAL "release")
-    set(CMAKE_BUILD_TYPE "Release")
-elseif ("${BUILD_TYPE}" STREQUAL "release-internal")
-    set(CMAKE_BUILD_TYPE "ReleaseInternal")
-elseif ("${BUILD_TYPE}" STREQUAL "debug")
-    set(CMAKE_BUILD_TYPE "Debug")
 endif()
 
 if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^aarch")
