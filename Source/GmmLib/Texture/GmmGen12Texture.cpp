@@ -241,7 +241,8 @@ GMM_STATUS GmmLib::GmmGen12TextureCalc::FillTexCCS(GMM_TEXTURE_INFO *pSurf,
                     //MSAA Qpitch is sample-distance, multiply NumSamples in a tile
                     pAuxTexInfo->Size *= GFX_MIN(Surf.MSAA.NumSamples, 4);
                 }
-            }
+                pAuxTexInfo->Size = (GFX_ALIGN(Surf.Size, GMM_KBYTE(16)) >> 8);
+	    }
             else
             {
                 pAuxTexInfo->Size = (GFX_ALIGN(Surf.Size, GMM_KBYTE(16)) >> 8);
