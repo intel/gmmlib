@@ -321,13 +321,6 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo,GMM_LI
             UnitAlignWidth  = 4;
             UnitAlignHeight = 4;
         }
-        #ifndef _WIN32
-        else if(pTexInfo->Flags.Gpu.NoRestriction)
-        {
-            UnitAlignWidth  = 1;
-            UnitAlignHeight = 1;
-        }
-        #endif
         else /// All Other ////////////////////////////////////////////////
         {
             UnitAlignWidth  = pPlatform->TexAlign.AllOther.Width;
