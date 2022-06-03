@@ -39,11 +39,31 @@ GMM_MUTEX_HANDLE      GmmLib::Context::SingletonContextSyncMutex = PTHREAD_MUTEX
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// GMM lib DLL Multi Adapter Functions
+/// 1. This is the main holder of the Gmmlib Context
+/// 2. There is only one Multi-Adpater Context object created per process.
+/// 3. Gmmlib dll is loaded only once per process, This done by the first UMD client
+///    requesting Libcontext on a first Adpater to be registered with Gmmlib.
+/// 4. Gmmlib dll is Unloaded only once per process, this is done by the last client
+///    destroying the LibContext on the only last registered Adapter with Gmmlib.
+/// 5. The LibContext for an Adapter is same across all the N clients and is always
+///    equal.
+/// 6. The ClientContext for all the N clients on particaluar Adapter is unique and
+///    never equal.
+/// 7  Ex: N UMD clients querying GmmLib for an GPU Adapter's Properties will have the
+///    Same/Single LibContext and Unique N ClientContexts for that same adpater, on
+///    same process.
+/// 8. GmmLib is dynamically scalable for any number of GPU Adapters and any number
+///    of Clients per Adapter.
+/// 9. In Multiprocessing, for a process, the Gmmlib Multi-Adpater Context
+///    object is protected/syncronized using the Lock/UnLockMAContextSyncMutex
+/// 9. In Multiprocessing, for a process with Gmmlib Multi-Adpater Context the
+///    LibContetxt is protected/syncronized using Lock/unLockSingletonContextSyncMutex
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_MA_LIB_CONTEXT *pGmmMALibContext = NULL;
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// Function to create GmmMultiAdapterContext Object
+/// Called only during dll load time.
 /// Since Linux doesnt have DLL Main equivalent, adding __attribute__((constructor))
 /// for this GmmCreateMultiAdapterContext()
 /////////////////////////////////////////////////////////////////////////////////////
@@ -51,12 +71,15 @@ extern "C" GMM_LIB_API_CONSTRUCTOR void GmmCreateMultiAdapterContext()
 {
     if(!pGmmMALibContext)
     {
-        pGmmMALibContext = new GMM_MA_LIB_CONTEXT();
+        // This is called only during dll load
+        // Initializes the MA context.
+	pGmmMALibContext = new GMM_MA_LIB_CONTEXT();
     }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// Function to Destroy GmmMultiAdapterContext Object
+/// Called Only during Dll Unload.
 /// Since Linux doesnt have DLL Main equivalent, adding __attribute__((destructor))
 /// for this GmmDestroyMultiAdapterContext()
 /////////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +89,8 @@ extern "C" GMM_LIB_API_DESTRUCTOR void GmmDestroyMultiAdapterContext()
     {
         // Before destroying GmmMultiAdapterContext, check if all the Adapters have
         // their GmmLibContext destroyed.
-        if(!pGmmMALibContext->GetNumAdapters())
+        // At this point the linked list is empty and pHeadNode = NULL & NumAdapter=0.
+	if(!pGmmMALibContext->GetNumAdapters())
         {
             delete pGmmMALibContext;
             pGmmMALibContext = NULL;
@@ -129,7 +153,8 @@ extern "C" GMM_STATUS GMM_STDCALL GmmCreateLibContext(const PLATFORM Platform,
     GMM_STATUS SyncLockStatus = pGmmMALibContext->LockMAContextSyncMutex();
     if(SyncLockStatus == GMM_SUCCESS)
     {
-        Status = pGmmMALibContext->IntializeAdapterInfo(sBdf);
+        // Create the dynamic vectored linked list to register each new BDF.
+	Status = pGmmMALibContext->IntializeAdapterInfo(sBdf);
         if(GMM_SUCCESS != Status)
         {
             pGmmMALibContext->UnLockMAContextSyncMutex();
@@ -139,11 +164,14 @@ extern "C" GMM_STATUS GMM_STDCALL GmmCreateLibContext(const PLATFORM Platform,
         int32_t ContextRefCount = pGmmMALibContext->IncrementRefCount(sBdf);
         if(ContextRefCount)
         {
-            pGmmMALibContext->UnLockMAContextSyncMutex();
+            // The requested Adapter is already registered.
+            // Do not create new LibContext.
+            // Use the one already created.
+	    pGmmMALibContext->UnLockMAContextSyncMutex();
             return GMM_SUCCESS;
         }
-
-        pGmmLibContext = new GMM_LIB_CONTEXT();
+        // Requested Adapter is new, Lets create a new LibContext
+	pGmmLibContext = new GMM_LIB_CONTEXT();
         if(!pGmmLibContext)
         {
             pGmmMALibContext->DecrementRefCount(sBdf);
@@ -156,7 +184,7 @@ extern "C" GMM_STATUS GMM_STDCALL GmmCreateLibContext(const PLATFORM Platform,
 
 #if LHDM
         // Intialize SingletonContext Data.
-        // ProcessHeap creation requires size and GfxAddress parameters. These parameters are contants
+        // ProcessHeap creation requires size and GfxAddress parameters. These parameters are constants
         // and are given by GMM lib internally by PageTableMgr. Hence pHeapObj should be created here at the
         // time of SingletonContext creation. But untill all UMD clients have moved to GMM DLL, then we will
         // create this here.
@@ -189,7 +217,7 @@ extern "C" GMM_STATUS GMM_STDCALL GmmCreateLibContext(const PLATFORM Platform,
 /////////////////////////////////////////////////////////////////////////////////////
 /// GMM lib DLL function for deleting the Singleton Context.
 /// Reference Count will be decremented and once the reference count reaches 0,
-/// Singleton Context will be freeed in memory
+/// Singleton Context will be freed in memory
 ///
 /// @param[in] sbdf: Adapter's BDF info that needs its SingletonContext to be freed
 /////////////////////////////////////////////////////////////////////////////////////
@@ -202,13 +230,21 @@ extern "C" void GMM_STDCALL GmmLibContextFree(ADAPTER_BDF sBdf)
         GMM_STATUS SyncLockStatus = pGmmMALibContext->LockMAContextSyncMutex();
         if(SyncLockStatus == GMM_SUCCESS)
         {
+            // Decrement the Refcount on sBdf
             int32_t ContextRefCount = pGmmMALibContext->DecrementRefCount(sBdf);
+
+            // Refount = 0, It means that it the last client on this adapter
+            // Lets free the LibContext and the Adapter Node
             if(!ContextRefCount && pGmmMALibContext->GetAdapterLibContext(sBdf))
             {
                 pGmmMALibContext->GetAdapterLibContext(sBdf)->DestroyContext();
+                // Delete/free the LibContext object
                 delete pGmmMALibContext->GetAdapterLibContext(sBdf);
+                // Delete/free the AdapterNode from the Linked List
                 pGmmMALibContext->ReleaseAdapterInfo(sBdf);
             }
+            // RefCount !=0
+            // Retain the same LibContext and the Adapter Node
 
             pGmmMALibContext->UnLockMAContextSyncMutex();
         }
@@ -222,30 +258,20 @@ extern "C" void GMM_STDCALL GmmLibContextFree(ADAPTER_BDF sBdf)
 /////////////////////////////////////////////////////////////////////////////////////
 GmmLib::GmmMultiAdapterContext::GmmMultiAdapterContext()
 {
-    uint32_t i = 0;
-
-    memset(AdapterInfo, 0, sizeof(AdapterInfo));
-    NumAdapters = 0;
+    NumAdapters     = 0;
     pCpuReserveBase = NULL;
     CpuReserveSize  = 0;
+    // The Multi-Adapter Initialization is done dynamiclly using a Single Linked list Vector
+    // pHeadNode points to the root node of the linked list and registers the first
+    // adapter received from UMD.
+    // Initializing to NULL at DLL load.
+    pHeadNode = NULL;
 
+    // Initializes the GmmLib::GmmMultiAdapterContext sync Mutex
+    // This is required whenever any update has to be done Multiadapter context
+    // This includes Addition, deletion and search operations of the GMM_ADAPTER_INFO linked list
 
-    for(i = 0; i < MAX_NUM_ADAPTERS; i++)
-    {
-        // Initiaze bdf to 0xFF, as {0,0,0} can be valid bdf
-        AdapterInfo[i].sBdf = {0xFF, 0xFF, 0xFF, 0};
-#ifdef _WIN32
-        AdapterInfo[i].SyncMutex = ::CreateMutex(NULL, FALSE, NULL);
-#else
-        AdapterInfo[i].SyncMutex = PTHREAD_MUTEX_INITIALIZER;
-#endif // _WIN32
-    }
-
-#ifdef _WIN32
-    MAContextSyncMutex = ::CreateMutex(NULL, FALSE, NULL);
-#else
-    MAContextSyncMutex           = PTHREAD_MUTEX_INITIALIZER;
-#endif // _WIN32
+    MAContextSyncMutex = PTHREAD_MUTEX_INITIALIZER;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -253,30 +279,8 @@ GmmLib::GmmMultiAdapterContext::GmmMultiAdapterContext()
 /////////////////////////////////////////////////////////////////////////////////////
 GmmLib::GmmMultiAdapterContext::~GmmMultiAdapterContext()
 {
-    uint32_t i = 0;
-
-    for(i = 0; i < MAX_NUM_ADAPTERS; i++)
-    {
-#ifdef _WIN32
-        if(AdapterInfo[i].SyncMutex)
-        {
-            ::CloseHandle(AdapterInfo[i].SyncMutex);
-            AdapterInfo[i].SyncMutex = NULL;
-        }
-#else
-        pthread_mutex_destroy(&AdapterInfo[i].SyncMutex);
-#endif // _WIN32
-    }
-
-#ifdef _WIN32
-    if(MAContextSyncMutex)
-    {
-        ::CloseHandle(MAContextSyncMutex);
-        MAContextSyncMutex = NULL;
-    }
-#else
+// Un-initializes the GmmLib::GmmMultiAdapterContext sync Mutex
     pthread_mutex_destroy(&MAContextSyncMutex);
-#endif // _WIN32
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -287,40 +291,103 @@ GmmLib::GmmMultiAdapterContext::~GmmMultiAdapterContext()
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::IntializeAdapterInfo(ADAPTER_BDF sBdf)
 {
-    GMM_STATUS Status = GMM_SUCCESS;
-    uint32_t   i      = 0;
+    GMM_STATUS        Status = GMM_SUCCESS;
+    uint32_t          i      = 0;
+    GMM_ADAPTER_INFO *pNode = NULL, *pPrev = NULL;
 
-    for(i = 0; i < MAX_NUM_ADAPTERS; i++)
+    // Create the Root Node
+    // If the list is empty, this is the first adapter initialization. This node will
+    // be root node of the list. Any further Adapter additions will be appeneded to this
+    // list i.e pNext
+    if(!pHeadNode)
     {
-        if((sBdf.Bus == AdapterInfo[i].sBdf.Bus) &&
-           (sBdf.Device == AdapterInfo[i].sBdf.Device) &&
-           (sBdf.Function == AdapterInfo[i].sBdf.Function))
+        pNode = (GMM_ADAPTER_INFO *)malloc(sizeof(GMM_ADAPTER_INFO));
+        if(pNode)
         {
-            break;
-        }
-    }
+            NumAdapters++;
 
-    if(i < MAX_NUM_ADAPTERS)
-    {
-        // Already intialized, do nothing
-    }
-    else
-    {
-        // error check if NumAdapters is greater than MAX_NUM_ADAPTERS, then fail this call
-        if(NumAdapters == MAX_NUM_ADAPTERS)
-        {
-            Status = GMM_ERROR;
+            pNode->sBdf.Bus      = sBdf.Bus;
+            pNode->sBdf.Device   = sBdf.Device;
+            pNode->sBdf.Function = sBdf.Function;
+
+            //Protect this adapter node with the sync mutex. Initialize sync mutex
+            pNode->SyncMutex     = PTHREAD_MUTEX_INITIALIZER;
+
+            pNode->pGmmLibContext = NULL;
+            pNode->RefCount       = 0;
+            pNode->pNext          = NULL;
+
+            pHeadNode = pNode;
         }
         else
         {
-            // Search for a free slot in the AdapterInfo Array to add this BDF
-            ADAPTER_BDF FreeSlotBdf = {0xFF, 0xFF, 0xFF, 0};
-            uint32_t    AdapterIdx  = GetAdapterIndex(FreeSlotBdf);
+            // No memory for new node, return error
+            Status = GMM_ERROR;
+        }
+    }
+    else
+    {
+        // This happens if atleast 1 adapter is still registered in a Gmmlib
+        // MA context.
 
-            AdapterInfo[AdapterIdx].sBdf.Bus      = sBdf.Bus;
-            AdapterInfo[AdapterIdx].sBdf.Device   = sBdf.Device;
-            AdapterInfo[AdapterIdx].sBdf.Function = sBdf.Function;
-            NumAdapters++;
+        pNode = pHeadNode;
+        // Check if the Adapter Node already exists in the list
+        // Search the list if the Adapter is already registerted or not.
+        while(pNode)
+        {
+            if((sBdf.Bus == pNode->sBdf.Bus) &&
+               (sBdf.Device == pNode->sBdf.Device) &&
+               (sBdf.Function == pNode->sBdf.Function))
+            {
+                break;
+            }
+            else
+            {
+                pPrev = pNode;
+                pNode = pNode->pNext;
+            }
+        }
+
+        // New Adapter adding to the list, add it to the end
+        // After search, If pNode = NULL, It means that
+        // The requested adapter is not yet registered before. An UMD might have
+        // requested this for the first time on a new GPU adpater, Or
+        // Requested Adapter LibContext have been already destroyed/Un-registered
+        // for the same adpater before.
+        if(!pNode)
+        {
+            pNode = (GMM_ADAPTER_INFO *)malloc(sizeof(GMM_ADAPTER_INFO));
+            if(pNode)
+            {
+                NumAdapters++;
+
+                pNode->sBdf.Bus      = sBdf.Bus;
+                pNode->sBdf.Device   = sBdf.Device;
+                pNode->sBdf.Function = sBdf.Function;
+
+                //Protect this adapter node with the sync mutex. Initialize sync mutex
+                pNode->SyncMutex = PTHREAD_MUTEX_INITIALIZER;
+
+                pNode->pGmmLibContext = NULL;
+                pNode->RefCount       = 0;
+                pNode->pNext          = NULL;
+
+                // Add the new node at the end
+                // Appending the newly created Adapter Node to the end of the list.
+                pPrev->pNext = pNode;
+            }
+            else
+            {
+                // No memory for new node, return error
+                Status = GMM_ERROR;
+            }
+        }
+        else // Adapter node already exists in the list
+        {
+            // Already intialized, do nothing
+            // Adapter is already active in MA context.
+            // Going forward, Lets just incremnent the number of clients using this libContext
+            // i.e Increment the RefCount in on this sBdf Adapter Node
         }
     }
 
@@ -328,19 +395,65 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::IntializeAdapterInfo(ADAP
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// Member function of GmmMultiAdapterContext class for releasing Adapter details
+/// Member function of GmmMultiAdapterContext class for releasing Adapter Node
 ///
 /// @param[in]  sBdf       : Adpater Bus, Device and Fucntion details
-/// @return     GMM_STATUS
+/// @return     Void       : Deletes the Adpter Node either at Head, Tail or in between
 /////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmLib::GmmMultiAdapterContext::ReleaseAdapterInfo(ADAPTER_BDF sBdf)
 {
-    uint32_t AdapterIdx = GetAdapterIndex(sBdf);
-    if(AdapterIdx < MAX_NUM_ADAPTERS)
+    GMM_ADAPTER_INFO *pNode = NULL, *pPrev = NULL;
+
+    pNode = pHeadNode;
+
+    // Search the linked list for the node with the sBdf value to be freed
+    while(pNode)
     {
-        AdapterInfo[AdapterIdx].sBdf           = {0xFF, 0xFF, 0xFF, 0};
-        AdapterInfo[AdapterIdx].pGmmLibContext = NULL;
-        NumAdapters--;
+        if((sBdf.Bus == pNode->sBdf.Bus) &&
+           (sBdf.Device == pNode->sBdf.Device) &&
+           (sBdf.Function == pNode->sBdf.Function))
+        {
+            // If sBdf was registered as the first Node i.e HeadNode
+            // Delete the first Node and make the second node as HeadNode
+            if(pNode == pHeadNode)
+            {
+                pHeadNode = pNode->pNext;
+            }
+            else
+            {
+                // If Adapter sBdf was registered as second Node or any in-between node or the Tail Node,
+                // Delete this Adapter Node and connect the adjacent Nodes if second or Middle
+                // i.e pNode->pNext != NULL,
+                // Or
+                // Completely delete the tail Node, i.e. pNode->pNext = NULL, if its a Tail Node.
+                pPrev->pNext = pNode->pNext;
+            }
+            // Decrement the Adapter Node count tracker variable
+            NumAdapters--;
+
+            break;
+        }
+        else
+        {
+            // If sBdf is not registered as this pNode, then search next Node
+            // Do this till the end of the list if necessary
+            pPrev = pNode;
+            pNode = pNode->pNext;
+        }
+    }
+
+    // Free the deleted Node above.
+    // This can either be HeadNode, TailNode or Any node between Head and Tail
+    if(pNode)
+    {
+        pNode->pGmmLibContext = NULL;
+        pNode->pNext          = NULL;
+        pNode->RefCount       = 0;
+
+        // Close the Mutex protecting thsi Adapter node
+        pthread_mutex_destroy(&pNode->SyncMutex);
+
+        free(pNode);
     }
 }
 
@@ -374,14 +487,17 @@ uint32_t GMM_STDCALL GmmLib::GmmMultiAdapterContext::GetAdapterIndex(ADAPTER_BDF
 //////////////////////////////////////////////////////////////////////////////////////
 GmmLib::Context *GMM_STDCALL GmmLib::GmmMultiAdapterContext::GetAdapterLibContext(ADAPTER_BDF sBdf)
 {
-    uint32_t AdapterIdx = GetAdapterIndex(sBdf);
-    if(AdapterIdx < MAX_NUM_ADAPTERS)
+    GMM_ADAPTER_INFO *pNode = NULL;
+
+    //Search the list and get the Adapter Node
+    pNode = (GMM_ADAPTER_INFO *)GetAdapterNode(sBdf);
+    if(pNode)
     {
-        return AdapterInfo[AdapterIdx].pGmmLibContext;
+        return pNode->pGmmLibContext;
     }
     else
     {
-        return NULL;
+        return NULL; //return Null if not found
     }
 }
 
@@ -394,10 +510,12 @@ GmmLib::Context *GMM_STDCALL GmmLib::GmmMultiAdapterContext::GetAdapterLibContex
 /////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmLib::GmmMultiAdapterContext::SetAdapterLibContext(ADAPTER_BDF sBdf, GmmLib::Context *pGmmLibContext)
 {
-    uint32_t AdapterIdx = GetAdapterIndex(sBdf);
-    if(AdapterIdx < MAX_NUM_ADAPTERS)
+    GMM_ADAPTER_INFO *pNode = NULL;
+
+    pNode = (GMM_ADAPTER_INFO *)GetAdapterNode(sBdf);
+    if(pNode)
     {
-        AdapterInfo[AdapterIdx].pGmmLibContext = pGmmLibContext;
+        pNode->pGmmLibContext = pGmmLibContext;
     }
 }
 
@@ -453,17 +571,19 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::UnLockMAContextSyncMutex(
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// Member function of GmmMultiAdapterContext class for Locking Adpater's Mutex
+/// Member function of GmmMultiAdapterContext class for Locking Adpater Node Mutex
 /// SyncMutex to protect access of GmmLibContext
 ///
 /// @return     GMM_STATUS.
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::LockSingletonContextSyncMutex(ADAPTER_BDF sBdf)
 {
-    uint32_t AdapterIdx = GetAdapterIndex(sBdf);
-    if(AdapterIdx < MAX_NUM_ADAPTERS)
+    GMM_ADAPTER_INFO *pNode = NULL;
+
+    pNode = (GMM_ADAPTER_INFO *)GetAdapterNode(sBdf);
+    if(pNode)
     {
-        GMM_MUTEX_HANDLE SyncMutex = AdapterInfo[AdapterIdx].SyncMutex;
+        GMM_MUTEX_HANDLE SyncMutex = pNode->SyncMutex;
 
         if(SyncMutex)
         {
@@ -483,17 +603,19 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::LockSingletonContextSyncM
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// Member function of GmmMultiAdapterContext class for UnLocking Adpater's Mutex
+/// Member function of GmmMultiAdapterContext class for UnLocking Adpater Node Mutex
 /// SyncMutex to protect access of GmmLibContext
 ///
 /// @return     GMM_STATUS.
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::UnlockSingletonContextSyncMutex(ADAPTER_BDF sBdf)
 {
-    uint32_t AdapterIdx = GetAdapterIndex(sBdf);
-    if(AdapterIdx < MAX_NUM_ADAPTERS)
+    GMM_ADAPTER_INFO *pNode = NULL;
+
+    pNode = (GMM_ADAPTER_INFO *)GetAdapterNode(sBdf);
+    if(pNode)
     {
-        GMM_MUTEX_HANDLE SyncMutex = AdapterInfo[AdapterIdx].SyncMutex;
+        GMM_MUTEX_HANDLE SyncMutex = pNode->SyncMutex;
         if(SyncMutex)
         {
             ::ReleaseMutex(SyncMutex);
@@ -541,11 +663,14 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::UnLockMAContextSyncMutex(
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::LockSingletonContextSyncMutex(ADAPTER_BDF sBdf)
 {
-    uint32_t AdapterIdx = GetAdapterIndex(sBdf);
-    if(AdapterIdx < MAX_NUM_ADAPTERS)
+
+    GMM_ADAPTER_INFO *pNode = NULL;
+
+    pNode = (GMM_ADAPTER_INFO *)GetAdapterNode(sBdf);
+    if(pNode)
     {
-        pthread_mutex_lock(&AdapterInfo[AdapterIdx].SyncMutex);
-        return GMM_SUCCESS;
+        pthread_mutex_lock(&(pNode->SyncMutex));
+	return GMM_SUCCESS;
     }
     else
     {
@@ -560,11 +685,13 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::LockSingletonContextSyncM
 /////////////////////////////////////////////////////////////////////////////////////
 GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::UnlockSingletonContextSyncMutex(ADAPTER_BDF sBdf)
 {
-    uint32_t AdapterIdx = GetAdapterIndex(sBdf);
-    if(AdapterIdx < MAX_NUM_ADAPTERS)
+    GMM_ADAPTER_INFO *pNode = NULL;
+
+    pNode = (GMM_ADAPTER_INFO *)GetAdapterNode(sBdf);
+    if(pNode)
     {
-        pthread_mutex_unlock(&AdapterInfo[AdapterIdx].SyncMutex);
-        return GMM_SUCCESS;
+        pthread_mutex_unlock(&(pNode->SyncMutex));
+	return GMM_SUCCESS;
     }
     else
     {
@@ -575,21 +702,62 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::UnlockSingletonContextSyn
 #endif //#ifdef _WIN32
 
 /////////////////////////////////////////////////////////////////////////////////////
-/// Member function of GmmMultiAdapterContext class for Incrementing Adpater's Ref
+/// Member function of GmmMultiAdapterContext class for returning the Adapter Node
+///
+/// @param[in]  sBdf       : Adpater Bus, Device and Fucntion details
+/// @return     Adpater Node corresponding the given BDF or return NULL if not found
+/////////////////////////////////////////////////////////////////////////////////////
+void *GMM_STDCALL GmmLib::GmmMultiAdapterContext::GetAdapterNode(ADAPTER_BDF sBdf)
+{
+    GMM_ADAPTER_INFO *pNode = NULL;
+
+    pNode = pHeadNode;
+    // Search the entire linked list if the Adapter Node with sBdf is found or not
+    while(pNode)
+    {
+        if((sBdf.Bus == pNode->sBdf.Bus) &&
+           (sBdf.Device == pNode->sBdf.Device) &&
+           (sBdf.Function == pNode->sBdf.Function))
+        {
+            // Yes, Found!. This is the Adapter Node
+            // pNode != NULL, will be valid pointer.
+            break;
+        }
+        else
+        {
+            // Not found, Search Next
+            // pNode = NULL if traversed till the tail and not found
+            pNode = pNode->pNext;
+        }
+    }
+
+    return pNode;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of GmmMultiAdapterContext class for Incrementing Adpater Node Ref
 /// Count
+/// RefCount indicates the number of UMD clients using a particaluar Adapter.
+/// RefCount is incremented when a client requests LibContext on already registered
+/// adapter.
+/// RefCount = 0, when no clients are using an adapter's LibContext
+/// RefCount > 0, when at least one client is using the adapter's LibContext
+//
 /// @param1     sBdf        Adpater's Bus, Device and Fucntion
 /// @return     Current value of the ref count.
 /////////////////////////////////////////////////////////////////////////////////////
 int32_t GMM_STDCALL GmmLib::GmmMultiAdapterContext::IncrementRefCount(ADAPTER_BDF sBdf)
 {
-    uint32_t AdapterIdx = GetAdapterIndex(sBdf);
-    if(AdapterIdx < MAX_NUM_ADAPTERS)
-    {
-        int32_t *Ref = &AdapterInfo[AdapterIdx].RefCount;
+    GMM_ADAPTER_INFO *pNode = NULL;
 
-#if defined(_WIN32)
-        return (InterlockedIncrement((LONG *)Ref) - 1); //InterLockedIncrement() returns incremented value
-#elif defined(__linux__) 
+    pNode = (GMM_ADAPTER_INFO *)GetAdapterNode(sBdf);
+    if(pNode)
+    {
+        int32_t *Ref = &pNode->RefCount;
+
+#if defined(__linux__)
+        // returns 0 only when registering the first client
         return (__sync_fetch_and_add(Ref, 1));
 #endif
     }
@@ -602,16 +770,24 @@ int32_t GMM_STDCALL GmmLib::GmmMultiAdapterContext::IncrementRefCount(ADAPTER_BD
 /////////////////////////////////////////////////////////////////////////////////////
 /// Member function of GmmMultiAdapterContext class for Decrementing Adpater's Ref
 /// Count
+/// RefCount indicates the number of UMD clients using a particaluar Adapter.
+/// RefCount is decremented when a clients requests LibContext destroy on already
+/// registered adapter.
+/// RefCount = 0, when no clients are using an adapter's LibContext
+/// RefCount > 0, when at least one client is using the adapter's LibContext
+//
 /// @param1     sBdf        Adpater's Bus, Device and Fucntion
 /// @return     Current value of the ref count.
 /////////////////////////////////////////////////////////////////////////////////////
 int32_t GMM_STDCALL GmmLib::GmmMultiAdapterContext::DecrementRefCount(ADAPTER_BDF sBdf)
 {
-    uint32_t AdapterIdx = GetAdapterIndex(sBdf);
-    if(AdapterIdx < MAX_NUM_ADAPTERS)
+    GMM_ADAPTER_INFO *pNode = NULL;
+
+    pNode = (GMM_ADAPTER_INFO *)GetAdapterNode(sBdf);
+    if(pNode)
     {
-        int32_t *Ref          = &AdapterInfo[AdapterIdx].RefCount;
-        int      CurrentValue = 0;
+        int32_t *Ref          = &pNode->RefCount;
+	int      CurrentValue = 0;
         int      TargetValue  = 0;
         do
         {

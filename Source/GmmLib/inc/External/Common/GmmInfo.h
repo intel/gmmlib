@@ -580,6 +580,8 @@ typedef struct _GMM_ADAPTER_INFO_
     int32_t             RefCount;                           // Ref Count for the number of Gmm UMD Lib process Singleton Context created per Process
     GMM_MUTEX_HANDLE    SyncMutex;                          // SyncMutex to protect access of Gmm UMD Lib process Singleton Context 
     ADAPTER_BDF         sBdf;                               // Adpater's Bus, Device and Function info for which Gmm UMD Lib process Singleton Context is created
+    _GMM_ADAPTER_INFO_  *pNext;                             // Linked List Next pointer to point to the Next Adapter node in the List
+
 }GMM_ADAPTER_INFO;
     
 ////////////////////////////////////////////////////////////////////////////////////
@@ -589,12 +591,15 @@ typedef struct _GMM_ADAPTER_INFO_
     class NON_PAGED_SECTION GmmMultiAdapterContext : public GmmMemAllocator
     {
     private:
-        GMM_ADAPTER_INFO                AdapterInfo[MAX_NUM_ADAPTERS];
+        GMM_ADAPTER_INFO                AdapterInfo[MAX_NUM_ADAPTERS];// For Static Initialization of adapter.
         GMM_MUTEX_HANDLE                MAContextSyncMutex;         // SyncMutex to protect access of GmmMultiAdpaterContext
         uint32_t                        NumAdapters;
 	void*                           pCpuReserveBase;
 	uint64_t                        CpuReserveSize;
-
+        GMM_ADAPTER_INFO                *pHeadNode;// For dynamic Initialization of adapter.
+                                                   // The Multi-Adapter Initialization is done dynamiclly using a Linked list Vector
+                                                   // pHeadNode points to the root node of the linked list and registers the first
+                                                   // adapter received from UMD.
     public:
         //Constructors and destructors
         GmmMultiAdapterContext();
@@ -614,6 +619,7 @@ typedef struct _GMM_ADAPTER_INFO_
         int32_t GMM_STDCALL             DecrementRefCount(ADAPTER_BDF sBdf);
         GMM_STATUS GMM_STDCALL          LockSingletonContextSyncMutex(ADAPTER_BDF sBdf);
         GMM_STATUS GMM_STDCALL          UnlockSingletonContextSyncMutex(ADAPTER_BDF sBdf);
+        void *GMM_STDCALL               GetAdapterNode(ADAPTER_BDF sBdf); // Replacemet for GetAdapterIndex, now get adapter info from a node in the linked list
     }; // GmmMultiAdapterContext
 
 } //namespace
