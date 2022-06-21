@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "stdafx.h"
 #include "GmmCommonULT.h"
 
-#define MAX_COUNT_PER_ADAPTER       5
+#define MAX_COUNT_PER_ADAPTER       3
 
 #ifdef _WIN32
 #define GMM_DLL_HANDLE      HINSTANCE

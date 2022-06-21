@@ -566,7 +566,7 @@ namespace GmmLib
     };
 
 // Max number of Multi-Adapters allowed in the system
-#define MAX_NUM_ADAPTERS      32
+#define MAX_NUM_ADAPTERS      9
 //===========================================================================
 // typedef:
 //      _GMM_ADAPTER_INFO_
