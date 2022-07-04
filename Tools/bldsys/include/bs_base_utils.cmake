@@ -44,8 +44,19 @@ if(NOT DEFINED _bs_include_base_utils)
     elseif ("${_bs_compare_var}" STREQUAL "Debug" OR "${_bs_compare_var}" STREQUAL "debug")
         set(T_CMAKE_BUILD_TYPE "Debug")
         set(BUILD_TYPE "debug")
+    elseif ("${_bs_compare_var}" STREQUAL "RelWithDebInfo" OR "${_bs_compare_var}" STREQUAL "RELWITHDEBINFO" OR
+            "${_bs_compare_var}" STREQUAL "relwithdebinfo")
+        set(T_CMAKE_BUILD_TYPE "RelWithDebInfo")
+        set(BUILD_TYPE "RelWithDebInfo")
+    elseif ("${_bs_compare_var}" STREQUAL "MinSizeRel" OR "${_bs_compare_var}" STREQUAL "MINSIZEREL" OR
+            "${_bs_compare_var}" STREQUAL "minsizerel")
+        set(T_CMAKE_BUILD_TYPE "MinSizeRel")
+        set(BUILD_TYPE "MinSizeRel")
     else()
-        message(FATAL_ERROR "Build Type: ${_bs_compare_var} is undefined, Please enter correct value - exiting!")
+	#Pass the flag as received from user, Could be a custom flag setting
+        message("Build Type: ${_bs_compare_var} is a custom build type")
+        set(T_CMAKE_BUILD_TYPE "${_bs_compare_var}")
+        set(BUILD_TYPE "${_bs_compare_var}")
     endif()  
   endmacro()  
 
@@ -60,7 +71,8 @@ if(NOT DEFINED _bs_include_base_utils)
   # to UFO_BUILD_TYPE and BUILD_TYPE.
   function(bs_check_build_type)
 
-    if(DEFINED CMAKE_BUILD_TYPE AND NOT "${CMAKE_BUILD_TYPE}" STREQUAL "")
+    if(DEFINED CMAKE_BUILD_TYPE AND NOT "${CMAKE_BUILD_TYPE}" STREQUAL ""
+        AND NOT "${CMAKE_BUILD_TYPE}" STREQUAL "None")
 
 	set(_bs_check_build_type_done 1 PARENT_SCOPE)
 
