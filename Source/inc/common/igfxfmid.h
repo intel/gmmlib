@@ -1780,6 +1780,8 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_4F82                             0x4F82
 #define DEV_ID_4F83                             0x4F83
 #define DEV_ID_4F84                             0x4F84
+#define DEV_ID_4F85                             0x4F85
+#define DEV_ID_4F86                             0x4F86
 #define DEV_ID_4F87                             0x4F87
 #define DEV_ID_4F88                             0x4F88
 #define DEV_ID_5690                             0x5690
@@ -1788,15 +1790,23 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_5693                             0x5693
 #define DEV_ID_5694                             0x5694
 #define DEV_ID_5695                             0x5695
+#define DEV_ID_5696                             0x5696
+#define DEV_ID_5697                             0x5697
+#define DEV_ID_5698                             0x5698
 #define DEV_ID_56A0                             0x56A0
 #define DEV_ID_56A1                             0x56A1
 #define DEV_ID_56A2                             0x56A2
+#define DEV_ID_56A3                             0x56A3
+#define DEV_ID_56A4                             0x56A4
 #define DEV_ID_56A5                             0x56A5
 #define DEV_ID_56A6                             0x56A6
 #define DEV_ID_56B0                             0x56B0
 #define DEV_ID_56B1                             0x56B1
+#define DEV_ID_56B2                             0x56B2
+#define DEV_ID_56B3                             0x56B3
 #define DEV_ID_56C0                             0x56C0
 #define DEV_ID_56C1                             0x56C1
+
 
 // RPL-P
 #define DEV_ID_A7A0                             0xA7A0
@@ -1821,6 +1831,7 @@ typedef enum __NATIVEGTTYPE
                                  ( d == DEV_ID_56A6 )             ||   \
                                  ( d == DEV_ID_5693 )             ||   \
                                  ( d == DEV_ID_5694 )             ||   \
+                                 ( d == DEV_ID_5695 )             ||   \
                                  ( d == DEV_ID_56B0 )             ||   \
                                  ( d == DEV_ID_56B1 )             ||   \
                                  ( d == DEV_ID_56C1 )             ||   \
@@ -1839,6 +1850,15 @@ typedef enum __NATIVEGTTYPE
                                       ( d == DEV_ID_4F82 )                              ||   \
                                       ( d == DEV_ID_4F83 )                              ||   \
                                       ( d == DEV_ID_4F84 ))
+
+#define GFX_IS_DG2_G12_CONFIG(d)   ( ( d == DEV_ID_4F85 )                              ||   \
+                                      ( d == DEV_ID_4F86 )                              ||   \
+                                      ( d == DEV_ID_56A3 )                              ||   \
+                                      ( d == DEV_ID_56A4 )                              ||   \
+                                      ( d == DEV_ID_5696 )                              ||   \
+                                      ( d == DEV_ID_5697 )                              ||   \
+                                      ( d == DEV_ID_56B2 )                              ||   \
+                                      ( d == DEV_ID_56B3 ))
 
 //we define the highest cap and lower cap of stepping IDs
 #define SI_REV_ID(lo,hi) (lo | hi<<16)
