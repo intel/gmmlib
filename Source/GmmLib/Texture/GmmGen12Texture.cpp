@@ -166,6 +166,7 @@ GMM_STATUS GmmLib::GmmGen12TextureCalc::FillTexCCS(GMM_TEXTURE_INFO *pSurf,
         GMM_SET_4KB_TILE(pAuxTexInfo->Flags, 0, pGmmLibContext);
 
         pAuxTexInfo->ArraySize    = Surf.ArraySize;
+        pAuxTexInfo->Alignment    = {0};
         pAuxTexInfo->BitsPerPixel = 8;
         uint32_t ExpandedArraySize =
         GFX_MAX(Surf.ArraySize, 1) *
@@ -207,6 +208,7 @@ GMM_STATUS GmmLib::GmmGen12TextureCalc::FillTexCCS(GMM_TEXTURE_INFO *pSurf,
 
             pAuxTexInfo->OffsetInfo.Plane.ArrayQPitch = YCcsSize + UVCcsSize;
             pAuxTexInfo->Size                         = pAuxTexInfo->OffsetInfo.Plane.ArrayQPitch * ((Surf.ArraySize > 1) ? (Surf.ArraySize) : 1);
+            pAuxTexInfo->Alignment.QPitch = GFX_ULONG_CAST(pAuxTexInfo->Size) / ExpandedArraySize;
         }
         else if(GmmIsPlanar(Surf.Format))
         {
@@ -226,33 +228,35 @@ GMM_STATUS GmmLib::GmmGen12TextureCalc::FillTexCCS(GMM_TEXTURE_INFO *pSurf,
             pAuxTexInfo->OffsetInfo.Plane.ArrayQPitch = CcsSize;
             pAuxTexInfo->Size                         = pAuxTexInfo->OffsetInfo.Plane.ArrayQPitch *
                                 ((Surf.ArraySize > 1) ? (Surf.ArraySize) : 1);
+            pAuxTexInfo->Alignment.QPitch = GFX_ULONG_CAST(pAuxTexInfo->Size) / ExpandedArraySize;
         }
         else
         {
+       	    pAuxTexInfo->Size = (GFX_ALIGN(Surf.Size, GMM_KBYTE(16)) >> 8);
+
+            uint32_t qPitch;
             if(ExpandedArraySize > 1)
             {
-                pAuxTexInfo->Size = ((GFX_ALIGN(Surf.Pitch * Surf.Alignment.QPitch, GMM_KBYTE(16)) >> 8));
-                //pAuxTexInfo->Size = GFX_ALIGN(pAuxTexInfo->Size, PAGE_SIZE);               //Uncomment to pad CCS to start at tile-boundary eg. for media/display CCS requirement
-                pAuxTexInfo->Alignment.QPitch = GFX_ULONG_CAST(pAuxTexInfo->Size); //HW doesn't use QPitch for Aux except MCS, how'd AMFS get sw-filled non-zero QPitch?
+                uint64_t sliceSize = ((GFX_ALIGN(Surf.Pitch * Surf.Alignment.QPitch, GMM_KBYTE(16)) >> 8));
+                qPitch             = GFX_ULONG_CAST(sliceSize); //HW doesn't use QPitch for Aux except MCS, how'd AMFS get sw-filled non-zero QPitch?
 
-                pAuxTexInfo->Size *= ExpandedArraySize;
+               
                 if(Surf.MSAA.NumSamples && !pGmmLibContext->GetSkuTable().FtrTileY)
                 {
                     //MSAA Qpitch is sample-distance, multiply NumSamples in a tile
-                    pAuxTexInfo->Size *= GFX_MIN(Surf.MSAA.NumSamples, 4);
+                    qPitch *= GFX_MIN(Surf.MSAA.NumSamples, 4);
                 }
-                pAuxTexInfo->Size = (GFX_ALIGN(Surf.Size, GMM_KBYTE(16)) >> 8);
 	    }
             else
             {
-                pAuxTexInfo->Size = (GFX_ALIGN(Surf.Size, GMM_KBYTE(16)) >> 8);
+                qPitch = GFX_ULONG_CAST(pAuxTexInfo->Size);
             }
+            
+            pAuxTexInfo->Alignment.QPitch = qPitch;
         }
+        __GMM_ASSERT(ExpandedArraySize || (pAuxTexInfo->Size == 0));
         pAuxTexInfo->Pitch                   = 0;
         pAuxTexInfo->Type                    = RESOURCE_BUFFER;
-        pAuxTexInfo->Alignment               = {0};
-        __GMM_ASSERT(ExpandedArraySize || (pAuxTexInfo->Size == 0));
-        pAuxTexInfo->Alignment.QPitch        = GFX_ULONG_CAST(pAuxTexInfo->Size) / ExpandedArraySize;
         pAuxTexInfo->Alignment.BaseAlignment = GMM_KBYTE(4);                            //TODO: TiledResource?
         pAuxTexInfo->Size                    = GFX_ALIGN(pAuxTexInfo->Size, PAGE_SIZE); //page-align final size
 
