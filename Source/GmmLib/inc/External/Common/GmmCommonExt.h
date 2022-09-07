@@ -135,6 +135,11 @@ typedef uint32_t GMM_GLOBAL_GFX_ADDRESS, GMM_GLOBAL_GFX_SIZE_T;
 
 #define GMM_BIT_RANGE(endbit, startbit)     ((endbit)-(startbit)+1)
 #define GMM_BIT(bit)                        (1)
+#define GMM_GET_PTE_BITS_FROM_PAT_IDX(idx)         ((((idx)&__BIT(4))   ? __BIT64(61)   : 0) |  \
+                                                    (((idx)&__BIT(3))   ? __BIT64(62)   : 0) |  \
+                                                    (((idx)&__BIT(2))   ? __BIT64(7)    : 0) |  \
+                                                    (((idx)&__BIT(1))   ? __BIT64(4)    : 0) |  \
+                                                    (((idx)&__BIT(0))   ? __BIT64(3)    : 0) )
 
 //===========================================================================
 // typedef:

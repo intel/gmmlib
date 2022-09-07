@@ -24,17 +24,22 @@ OTHER DEALINGS IN THE SOFTWARE.
 #ifdef __cplusplus
 #include "../GmmCachePolicyCommon.h"
 
+#define GMM_NUM_PAT_ENTRIES_Xe_HPC (8)
 namespace GmmLib
 {
     class NON_PAGED_SECTION GmmGen12dGPUCachePolicy :
         public GmmGen12CachePolicy
     {
+    protected:
+        uint32_t CurrentMaxPATIndex;
         public:
 
             /* Constructors */
             GmmGen12dGPUCachePolicy(GMM_CACHE_POLICY_ELEMENT *pCachePolicy, Context *pGmmLibContext)
                 : GmmGen12CachePolicy(pCachePolicy, pGmmLibContext)
 	    {
+	        NumPATRegisters    = GMM_NUM_PAT_ENTRIES_Xe_HPC;
+                CurrentMaxPATIndex = 0;
             }
             virtual ~GmmGen12dGPUCachePolicy()
             {
@@ -44,7 +49,8 @@ namespace GmmLib
             GMM_STATUS InitCachePolicy();
             void       SetUpMOCSTable();
             int32_t    IsSpecialMOCSUsage(GMM_RESOURCE_USAGE_TYPE Usage, bool& UpdateMOCS);
-
+	    GMM_STATUS SetupPAT();
+            uint32_t GMM_STDCALL CachePolicyGetPATIndex(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage, bool *pCompressionEnable, bool IsCpuCacheable);
     };
 }
 #endif // #ifdef __cplusplus

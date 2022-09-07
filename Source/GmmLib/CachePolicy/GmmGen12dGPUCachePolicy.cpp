@@ -95,6 +95,7 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
 
 #define L3_UNCACHEABLE (0x1)
 #define L3_WB_CACHEABLE (0x3)
+#define L3_PAT_UNCACHEABLE (0x0)
 
 #define DISABLE_SKIP_CACHING_CONTROL (0x0)
 #define ENABLE_SKIP_CACHING_CONTROL (0x1)
@@ -104,6 +105,11 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
 #define GMM_GEN12_MAX_NUMBER_MOCS_INDEXES (60) // On TGL last four (#60-#63) are reserved by h/w, few? are sw configurable though (#60)
     {
         SetUpMOCSTable();
+    }
+    
+    if(GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) == IGFX_PVC)
+    {
+        SetupPAT();
     }
 
     {
@@ -121,11 +127,12 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
         {
             bool                         CachePolicyError = false;
             bool                         SpecialMOCS      = false;
-            int32_t                      CPTblIdx         = -1;
-            uint32_t                     j                = 0;
-            uint64_t                     PTEValue         = 0;
-            GMM_CACHE_POLICY_TBL_ELEMENT UsageEle         = {0};
-            uint32_t                     StartMocsIdx     = 0;
+            int32_t                      CPTblIdx = -1, PATIdx = -1;
+            uint32_t                     j = 0, i = 0;
+            uint64_t                     PTEValue        = 0;
+            GMM_CACHE_POLICY_TBL_ELEMENT UsageEle        = {0};
+            uint32_t                     StartMocsIdx    = 0;
+            GMM_PRIVATE_PAT              UsagePATElement = {0};
 
 
             switch(GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform))
@@ -278,6 +285,44 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
             {
                 GMM_ASSERTDPF("Cache Policy Init Error: Invalid Cache Programming - Element %d", Usage);
             }
+            
+            if(GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) == IGFX_PVC)
+            {
+                // PAT data
+                {
+                    UsagePATElement.Xe_HPC.Reserved = 0;
+
+                    UsagePATElement.Xe_HPC.MemoryType = pCachePolicy[Usage].L3 ? L3_WB_CACHEABLE : L3_PAT_UNCACHEABLE;
+                    
+                    // try to find a match in static PAT table
+                    for(i = 0; i <= CurrentMaxPATIndex; i++)
+                    {
+                        GMM_PRIVATE_PAT PAT = GetPrivatePATEntry(i);
+                        if(UsagePATElement.Xe_HPC.MemoryType == PAT.Xe_HPC.MemoryType)
+                        {
+                            PATIdx = i;
+                            break;
+                        }
+                    }
+
+                    if(PATIdx == -1)
+                    {
+                         GMM_ASSERTDPF(
+                         "Cache Policy Init Error: Invalid Cache Programming, too many unique caching combinations"
+                         "(we only support NumPATRegisters = %d)",
+                         CurrentMaxPATIndex);
+                         CachePolicyError = true;
+                         // add rterror here <ToDo>
+                          PATIdx = PAT0; // default to uncached PAT index 0: GMM_CP_NON_COHERENT_UC
+                                           // Log Error using regkey to indicate the above error
+                        
+                    }
+                }
+
+                pCachePolicy[Usage].PATIndex           = PATIdx;
+                pCachePolicy[Usage].PTE.DwordValue     = GMM_GET_PTE_BITS_FROM_PAT_IDX(PATIdx) & 0xFFFFFFFF;
+                pCachePolicy[Usage].PTE.HighDwordValue = GMM_GET_PTE_BITS_FROM_PAT_IDX(PATIdx) >> 32;
+            }
         }
     }
 
@@ -414,4 +459,93 @@ void GmmLib::GmmGen12dGPUCachePolicy::SetUpMOCSTable()
 
 
 #undef GMM_DEFINE_MOCS
+}
+
+//=============================================================================
+//
+// Function: SetupPAT
+//
+// Desc:
+//
+// Parameters:
+//
+// Return: GMM_STATUS
+//
+//-----------------------------------------------------------------------------
+GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::SetupPAT()
+{
+    GMM_PRIVATE_PAT *pPATTlbElement = &(pGmmLibContext->GetPrivatePATTable()[0]);
+
+#define L3_UC (0x0)
+#define L3_WC (0x1)
+#define L3_WT (0x2)
+#define L3_WB (0x3)
+
+#define GMM_DEFINE_PAT_ELEMENT(indx, CLOS, L3Caching)       \
+    {                                                       \
+        pPATTlbElement[indx].Xe_HPC.MemoryType = L3Caching; \
+        pPATTlbElement[indx].Xe_HPC.L3CLOS     = CLOS;      \
+        pPATTlbElement[indx].Xe_HPC.Reserved   = 0;         \
+    }
+
+    // clang-format off
+
+    // Default PAT Table
+    for (uint32_t i = 0; i < NumPATRegisters; i++)
+    {   //                      Index      CLOS       CachingPolicy
+        GMM_DEFINE_PAT_ELEMENT( i,          0              , L3_UC );
+    }
+
+    // Fixed PAT Table
+    // Group: CLOS0
+    //                      Index CLOS          CachingPolicy
+    GMM_DEFINE_PAT_ELEMENT( 0    , 0              , L3_UC )    // PATRegValue = 0x0
+     GMM_DEFINE_PAT_ELEMENT( 1    , 0              , L3_WC )    // PATRegValue = 0x1
+    GMM_DEFINE_PAT_ELEMENT( 2    , 0              , L3_WT )    // PATRegValue = 0x2
+    GMM_DEFINE_PAT_ELEMENT( 3    , 0              , L3_WB )    // PATRegValue = 0x3
+    //Group: CLOS1
+    GMM_DEFINE_PAT_ELEMENT( 4    , 1              , L3_WT )    // PATRegValue = 0x6
+    GMM_DEFINE_PAT_ELEMENT( 5    , 1              , L3_WB )    // PATRegValue = 0x7
+    //Group: CLOS2
+    GMM_DEFINE_PAT_ELEMENT( 6    , 2              , L3_WT )    // PATRegValue = 0xA
+    GMM_DEFINE_PAT_ELEMENT( 7    , 2              , L3_WB )    // PATRegValue = 0xB
+
+    CurrentMaxPATIndex = 7;
+
+// clang-format on
+#undef GMM_DEFINE_PAT_ELEMENT
+#undef L3_UC
+#undef L3_WC
+#undef L3_WT
+#undef L3_WB
+    return GMM_SUCCESS;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+///      A simple getter function returning the PAT (cache policy) for a given
+///      use Usage of the named resource pResInfo.
+///      Typically used to populate PPGTT/GGTT.
+///
+/// @param[in]     pResInfo: Resource info for resource, can be NULL.
+/// @param[in]     Usage: Current usage for resource.
+///
+/// @return        PATIndex
+/////////////////////////////////////////////////////////////////////////////////////
+uint32_t GMM_STDCALL GmmLib::GmmGen12dGPUCachePolicy::CachePolicyGetPATIndex(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage, bool *pCompressionEnable, bool IsCpuCacheable)
+{
+    __GMM_ASSERT(pGmmLibContext->GetCachePolicyElement(Usage).Initialized);
+    GMM_UNREFERENCED_PARAMETER(pCompressionEnable);
+    GMM_UNREFERENCED_PARAMETER(IsCpuCacheable);
+    
+
+    // Prevent wrong Usage for XAdapter resources. UMD does not call GetMemoryObject on shader resources but,
+    // when they add it someone could call it without knowing the restriction.
+    if(pResInfo &&
+       pResInfo->GetResFlags().Info.XAdapter &&
+       Usage != GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE)
+    {
+        __GMM_ASSERT(false);
+    }
+
+    return pGmmLibContext->GetCachePolicyElement(Usage).PATIndex;
 }

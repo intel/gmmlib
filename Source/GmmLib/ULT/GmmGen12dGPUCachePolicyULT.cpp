@@ -218,5 +218,22 @@ TEST_F(CTestXe_HP_CachePolicy, Test_PVC_CachePolicy)
 {
     SetUpPlatformVariant(IGFX_PVC);
     CheckL3CachePolicy();
+    CheckPAT();
     TearDownPlatformVariant();
+}
+
+void CTestXe_HP_CachePolicy::CheckPAT()
+{
+    // Check Usage PAT index against PAT settings
+    for(unsigned long Usage = GMM_RESOURCE_USAGE_UNKNOWN; Usage < GMM_RESOURCE_USAGE_MAX; Usage++)
+    {
+        GMM_CACHE_POLICY_ELEMENT ClientRequest = pGmmULTClientContext->GetCachePolicyElement((GMM_RESOURCE_USAGE_TYPE)Usage);
+        if(ClientRequest.Initialized == false) // undefined resource in platform
+        {
+            continue;
+        }
+        unsigned long PATIndex = pGmmULTClientContext->CachePolicyGetPATIndex(NULL, (GMM_RESOURCE_USAGE_TYPE)Usage, NULL, false); 
+        //printf("Xe HPG: Usage: %d --> PAT Index: [%d]\n", Usage, PATIndex);
+        EXPECT_NE(PATIndex, GMM_PAT_ERROR) << "Usage# " << Usage << ": No matching PAT Index";
+    }
 }

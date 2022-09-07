@@ -93,6 +93,19 @@ MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmClientContext::CachePolicyGet
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
+/// Member function of ClientContext class for returning
+/// PAT Index for a given Resource Usage Type
+///
+/// @param[in]  GMM_RESOURCE_INFO       : Pointer to ResInfo object
+/// @param[in]  GMM_RESOURCE_USAGE_TYPE : Resource Usage Type
+/// @return     PAT index for the resource of "Usage" type.
+/////////////////////////////////////////////////////////////////////////////////////
+uint32_t GMM_STDCALL GmmLib::GmmClientContext::CachePolicyGetPATIndex(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage, bool *pCompressionEnable, bool IsCpuCacheable)
+{
+    return pGmmLibContext->GetCachePolicyObj()->CachePolicyGetPATIndex(pResInfo, Usage, pCompressionEnable, IsCpuCacheable);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
 /// Member function of ClientContext class for checking if PTE is cached  for a
 /// given resource usage type
 ///

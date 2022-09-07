@@ -49,6 +49,7 @@ protected:
     virtual void SetUpPlatformVariant(PRODUCT_FAMILY);
     virtual void TearDownPlatformVariant();
     virtual void CheckL3CachePolicy();
+    virtual void CheckPAT();
 
 public:
     static void SetUpTestCase();

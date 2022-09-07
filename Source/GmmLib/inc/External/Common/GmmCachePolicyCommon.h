@@ -48,7 +48,8 @@ namespace GmmLib
         public GmmMemAllocator
     {
         protected:
-            Context *         pGmmLibContext;
+            Context * pGmmLibContext;
+            uint32_t  NumPATRegisters;
 
         public:
             GMM_CACHE_POLICY_ELEMENT *pCachePolicy;
@@ -98,6 +99,7 @@ namespace GmmLib
             virtual ~GmmCachePolicyCommon()
             {
             }
+            virtual uint32_t GMM_STDCALL CachePolicyGetPATIndex(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage, bool *pCompressionEnable, bool IsCpuCacheable);
     };
 }
 #endif // #ifdef __cplusplus

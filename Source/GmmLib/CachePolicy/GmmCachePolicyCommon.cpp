@@ -117,6 +117,25 @@ MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmCachePolicyCommon::CachePolic
 
     return CachePolicy[GMM_RESOURCE_USAGE_UNKNOWN].MemoryObjectOverride;
 }
+/////////////////////////////////////////////////////////////////////////////////////
+///      A simple getter function returning the PAT (cache policy) for a given
+///      use Usage of the named resource pResInfo.
+///      Typically used to populate PPGTT/GGTT.
+///
+/// @param[in]     pResInfo: Resource info for resource, can be NULL.
+/// @param[in]     Usage: Current usage for resource.
+///
+/// @return        PATIndex
+/////////////////////////////////////////////////////////////////////////////////////
+uint32_t GMM_STDCALL GmmLib::GmmCachePolicyCommon::CachePolicyGetPATIndex(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage, bool *pCompressionEnable, bool IsCpuCacheable)
+{
+    GMM_UNREFERENCED_PARAMETER(pResInfo);
+    GMM_UNREFERENCED_PARAMETER(Usage);
+    GMM_UNREFERENCED_PARAMETER(pCompressionEnable);
+    GMM_UNREFERENCED_PARAMETER(IsCpuCacheable);
+
+    return GMM_PAT_ERROR;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// Generates PTE based on resource usage

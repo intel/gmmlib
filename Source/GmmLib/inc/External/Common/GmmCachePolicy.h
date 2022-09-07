@@ -64,10 +64,17 @@ typedef struct GMM_CACHE_POLICY_ELEMENT_REC
     };
 
     MEMORY_OBJECT_CONTROL_STATE               MemoryObjectOverride;
-    MEMORY_OBJECT_CONTROL_STATE               MemoryObjectNoOverride;
-    GMM_PTE_CACHE_CONTROL_BITS                PTE;
+  
+    union
+    {
+        MEMORY_OBJECT_CONTROL_STATE           MemoryObjectNoOverride;
+        uint32_t                              PATIndex;
+    };
+    
+    GMM_PTE_CACHE_CONTROL_BITS                PTE; 
     uint32_t                                  Override;
     uint32_t                                  IsOverridenByRegkey; // Flag to indicate If usage settings are overridden by regkey
+    
 }GMM_CACHE_POLICY_ELEMENT;
 
 // One entry in the SKL/CNL cache lookup table
@@ -182,6 +189,13 @@ typedef union GMM_PRIVATE_PAT_REC {
         uint32_t MemoryType : 2;
         uint32_t Reserved   : 30;
     }Gen12;
+    
+     struct
+    {
+        uint32_t MemoryType : 2;  //L3
+        uint32_t L3CLOS : 2;
+        uint32_t Reserved : 28;
+    } Xe_HPC;
 
     uint32_t   Value;
 

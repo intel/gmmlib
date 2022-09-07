@@ -171,9 +171,13 @@ namespace GmmLib
                                                         GmmClientAllocationCallbacks* pAllocCbs);
         GMM_VIRTUAL GMM_STATUS GMM_STDCALL              GmmSetDeviceInfo(GMM_DEVICE_INFO* DeviceInfo);
         GMM_VIRTUAL GMM_RESOURCE_INFO* GMM_STDCALL      CreateCustomResInfoObject(GMM_RESCREATE_CUSTOM_PARAMS* pCreateParams);
+        
+        
 #ifndef __GMM_KMD__
         GMM_VIRTUAL GMM_RESOURCE_INFO *GMM_STDCALL      CreateCustomResInfoObject_2(GMM_RESCREATE_CUSTOM_PARAMS_2 *pCreateParams);
 #endif
+
+	GMM_VIRTUAL uint32_t GMM_STDCALL CachePolicyGetPATIndex(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage, bool *pCompressionEnable, bool IsCpuCacheable);
     };
 }
 

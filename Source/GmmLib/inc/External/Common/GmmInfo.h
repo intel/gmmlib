@@ -117,7 +117,7 @@ namespace GmmLib
         // Mutex Object used for synchronization of ProcessSingleton Context
         static GMM_MUTEX_HANDLE           SingletonContextSyncMutex;
 #endif
-
+	GMM_PRIVATE_PAT PrivatePATTable[GMM_NUM_PAT_ENTRIES];
     public :
         //Constructors and destructors
         Context();
@@ -560,9 +560,20 @@ namespace GmmLib
     GMM_CACHE_POLICY* GMM_STDCALL CreateCachePolicyCommon();
     GMM_TEXTURE_CALC* GMM_STDCALL CreateTextureCalc(PLATFORM Platform, bool Override);
     GMM_PLATFORM_INFO_CLASS *GMM_STDCALL CreatePlatformInfo(PLATFORM Platform, bool Override);
-    
+
     private: 
         void GMM_STDCALL OverrideSkuWa();
+        
+    public:
+    /////////////////////////////////////////////////////////////////////////
+    /// Returns private PAT table array ptr
+    /// @return   PAT array ptr
+    /////////////////////////////////////////////////////////////////////////
+    GMM_INLINE GMM_PRIVATE_PAT *GMM_STDCALL GetPrivatePATTable()
+    {
+        return (&PrivatePATTable[0]);
+    }
+    
     };
 
 // Max number of Multi-Adapters allowed in the system
