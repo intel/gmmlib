@@ -40,6 +40,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define GMM_INTERNAL_RESOURCE                           0       // Used for Alloc Tag Mapping
 #define GMM_MAX_NUMBER_MOCS_INDEXES                    (64)
 #define GMM_GEN9_MAX_NUMBER_MOCS_INDEXES               (62)     // On SKL there are 64 MOCS indexes, but the last two are reserved by h/w.
+#define GMM_NUM_PAT_ENTRIES_LEGACY                     (8)
 #define GMM_NUM_PAT_ENTRIES                             8
 #define GMM_NUM_MEMORY_TYPES                            4
 #define GMM_NUM_GFX_PAT_TYPES                           6

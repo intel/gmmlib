@@ -31,6 +31,7 @@ GmmLib::GmmCachePolicyCommon::GmmCachePolicyCommon(GMM_CACHE_POLICY_ELEMENT *pCa
 {
     this->pCachePolicy   = pCachePolicy;
     this->pGmmLibContext = pGmmLibContext;
+    NumPATRegisters      = GMM_NUM_PAT_ENTRIES_LEGACY;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
