@@ -1770,9 +1770,21 @@ typedef enum __NATIVEGTTYPE
 //PVC Device ID
 #define DEV_ID_0BD0                            0x0BD0
 #define DEV_ID_0BD5                            0x0BD5
+#define DEV_ID_0BD6                            0x0BD6
+#define DEV_ID_0BD7                            0x0BD7
+#define DEV_ID_0BD8                            0x0BD8
+#define DEV_ID_0BD9                            0x0BD9
+#define DEV_ID_0BDA                            0x0BDA
+#define DEV_ID_0BDB                            0x0BDB
 
 // Macro to identify PVC device ID
-#define GFX_IS_XT_CONFIG(d) (d == DEV_ID_0BD5)
+#define GFX_IS_XT_CONFIG(d) ((d == DEV_ID_0BD5)             ||  \
+                             (d == DEV_ID_0BD6)             ||  \
+                             (d == DEV_ID_0BD7)             ||  \
+                             (d == DEV_ID_0BD8)             ||  \
+                             (d == DEV_ID_0BD9)             ||  \
+                             (d == DEV_ID_0BDA)             ||  \
+                             (d == DEV_ID_0BDB))
 
 //DG2 Device IDs
 #define DEV_ID_4F80                             0x4F80
