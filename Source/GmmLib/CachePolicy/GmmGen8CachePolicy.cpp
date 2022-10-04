@@ -159,7 +159,7 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetupPAT()
     }
 
     // Set values for GmmGlobalInfo PrivatePATTable
-    for(i = 0; i < GMM_NUM_PAT_ENTRIES; i++)
+    for(i = 0; i < NumPATRegisters; i++)
     {
         GMM_PRIVATE_PAT PAT = {0};
 
@@ -334,7 +334,7 @@ uint32_t GmmLib::GmmGen8CachePolicy::BestMatchingPATIdx(GMM_CACHE_POLICY_ELEMENT
         WantedTC = GMM_GFX_TC_ELLC_ONLY; // Note: this overrides the MOCS target cache selection.
     }
 
-    for(i = 1; i < GMM_NUM_PAT_ENTRIES; i++)
+    for(i = 1; i < NumPATRegisters; i++)
     {
         GMM_PRIVATE_PAT PAT1 = GetPrivatePATEntry(PATIdx);
         GMM_PRIVATE_PAT PAT2 = GetPrivatePATEntry(i);
@@ -368,19 +368,14 @@ uint32_t GmmLib::GmmGen8CachePolicy::BestMatchingPATIdx(GMM_CACHE_POLICY_ELEMENT
 /////////////////////////////////////////////////////////////////////////////////////
 bool GmmLib::GmmGen8CachePolicy::SetPrivatePATEntry(uint32_t PATIdx, GMM_PRIVATE_PAT Entry)
 {
-    if(PATIdx >= GMM_NUM_PAT_ENTRIES)
+    if(PATIdx >= NumPATRegisters)
     {
         GMM_ASSERTDPF(false, "CRITICAL ERROR: INVALID PAT IDX");
         return false;
     }
-#if(!defined(__GMM_KMD__))
-    GMM_UNREFERENCED_PARAMETER(Entry);
-    GMM_ASSERTDPF(false, "Should only be called from KMD");
-    return false;
-#else
+    
     pGmmLibContext->GetPrivatePATTable()[PATIdx] = Entry;    
     return true;
-#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -394,17 +389,13 @@ GMM_PRIVATE_PAT GmmLib::GmmGen8CachePolicy::GetPrivatePATEntry(uint32_t PATIdx)
 {
     GMM_PRIVATE_PAT NullPAT = {0};
 
-    if(PATIdx >= GMM_NUM_PAT_ENTRIES)
+    if(PATIdx >= NumPATRegisters)
     {
         GMM_ASSERTDPF(false, "CRITICAL ERROR: INVALID PAT IDX");
         return NullPAT;
     }
 
-#if(!defined(__GMM_KMD__))
-    return NullPAT;
-#else
     return pGmmLibContext->GetPrivatePATTable()[PATIdx];    
-#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

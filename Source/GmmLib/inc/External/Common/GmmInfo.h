@@ -105,13 +105,13 @@ namespace GmmLib
 
     #if(defined(__GMM_KMD__))
         uint64_t           IA32ePATTable;
-        GMM_PRIVATE_PAT     PrivatePATTable[GMM_NUM_PAT_ENTRIES];
-        int32_t                PrivatePATTableMemoryType[GMM_NUM_GFX_PAT_TYPES];
+	GMM_PRIVATE_PAT     PrivatePATTable[GMM_NUM_PAT_ENTRIES];
+	int32_t                PrivatePATTableMemoryType[GMM_NUM_GFX_PAT_TYPES];
     #endif
 
         // Padding Percentage limit on 64KB paged resource
         uint32_t               AllowedPaddingFor64KbPagesPercentage;
-        uint64_t              InternalGpuVaMax;
+        uint64_t               InternalGpuVaMax;
         uint32_t               AllowedPaddingFor64KBTileSurf;
 #ifdef GMM_LIB_DLL
         // Mutex Object used for synchronization of ProcessSingleton Context
