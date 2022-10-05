@@ -286,7 +286,7 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::SetupPAT()
     }
 
     // Set values for GmmGlobalInfo PrivatePATTable
-    for(i = 0; i < GMM_NUM_PAT_ENTRIES; i++)
+    for(i = 0; i < NumPATRegisters; i++)
     {
         GMM_PRIVATE_PAT PAT = {0};
 
