@@ -133,7 +133,6 @@ void MACommonULT::UnLoadGmmDll(uint32_t AdapterIdx, uint32_t CountIdx)
 
 void MACommonULT::GmmInitModule(uint32_t AdapterIdx, uint32_t CountIdx)
 {
-    ASSERT_TRUE(AdapterIdx < MAX_NUM_ADAPTERS);
     GMM_STATUS  Status                                  = GMM_SUCCESS;
     ADAPTER_BDF AdapterBDF                              = GetAdapterBDF(AdapterIdx);
     GfxPlatform[AdapterIdx][CountIdx].eProductFamily    = GetProductFamily(AdapterIdx);
