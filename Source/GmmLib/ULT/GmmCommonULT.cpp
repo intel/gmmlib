@@ -70,11 +70,12 @@ void CommonULT::SetUpTestCase()
 
     AllocateAdapterInfo();
 
-    InArgs.ClientType = GMM_EXCITE_VISTA;
-    InArgs.pGtSysInfo = &pGfxAdapterInfo->SystemInfo;
-    InArgs.pSkuTable  = &pGfxAdapterInfo->SkuTable;
-    InArgs.pWaTable   = &pGfxAdapterInfo->WaTable;
-    InArgs.Platform   = GfxPlatform;
+    InArgs.ClientType     = GMM_EXCITE_VISTA;
+    InArgs.pGtSysInfo     = &pGfxAdapterInfo->SystemInfo;
+    InArgs.pSkuTable      = &pGfxAdapterInfo->SkuTable;
+    InArgs.pWaTable       = &pGfxAdapterInfo->WaTable;
+    InArgs.Platform       = GfxPlatform;
+    InArgs.FileDescriptor = 0;
 #ifdef _WIN32
     InArgs.stAdapterBDF = {0, 2, 0, 0};
 #endif
