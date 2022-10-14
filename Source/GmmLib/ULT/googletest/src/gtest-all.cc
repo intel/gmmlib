@@ -7585,7 +7585,7 @@ namespace testing {
 		}
 
 		bool StackGrowsDown() {
-			int dummy;
+			int dummy=0;
 			bool result;
 			StackLowerThanAddress(&dummy, &result);
 			return result;
