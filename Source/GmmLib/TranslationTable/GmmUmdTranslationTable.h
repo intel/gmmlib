@@ -76,17 +76,19 @@ static inline int _BitScanForward(uint32_t *index, uint32_t mask)
 #endif
 #endif
 
-#define GMM_L1_SIZE(TTType, pGmmLibContext)  GMM_AUX_L1_SIZE(pGmmLibContext)
-#define GMM_L1_SIZE_DWORD(TTType, pGmmLibContext) GMM_AUX_L1_SIZE_DWORD(pGmmLibContext)
-#define GMM_L2_SIZE(TTType)                       GMM_AUX_L2_SIZE
-#define GMM_L2_SIZE_DWORD(TTType)                 GMM_AUX_L2_SIZE_DWORD 
-#define GMM_L3_SIZE(TTType)                       GMM_AUX_L3_SIZE 
-#define GMM_L1_ENTRY_IDX(TTType, GfxAddress, pGmmLibContext) GMM_AUX_L1_ENTRY_IDX((GfxAddress), (pGmmLibContext)) 
-#define GMM_L2_ENTRY_IDX(TTType, GfxAddress)                 GMM_AUX_L2_ENTRY_IDX((GfxAddress)) 
-#define GMM_L3_ENTRY_IDX(TTType, GfxAddress)                 GMM_AUX_L3_ENTRY_IDX((GfxAddress)) 
+#define GMM_L1_USABLESIZE(TTType, pGmmLibContext)  (GMM_AUX_L1_USABLESIZE(pGmmLibContext))
+#define GMM_L1_SIZE(TTType, pGmmLibContext) (GMM_AUX_L1_SIZE(pGmmLibContext))
+#define GMM_L1_SIZE_DWORD(TTType, pGmmLibContext) (GMM_AUX_L1_SIZE_DWORD(pGmmLibContext))
+#define GMM_L2_SIZE(TTType)          (GMM_AUX_L2_SIZE)
+#define GMM_L2_SIZE_DWORD(TTType)    (GMM_AUX_L2_SIZE_DWORD)
+#define GMM_L3_SIZE(TTType)          (GMM_AUX_L3_SIZE)
+#define GMM_L1_ENTRY_IDX(TTType, GfxAddress, pGmmLibContext) (GMM_AUX_L1_ENTRY_IDX((GfxAddress), (pGmmLibContext)))
+#define GMM_L2_ENTRY_IDX(TTType, GfxAddress)    (GMM_AUX_L2_ENTRY_IDX(GfxAddress))
+#define GMM_L3_ENTRY_IDX(TTType, GfxAddress)    (GMM_AUX_L3_ENTRY_IDX(GfxAddress))
 
 #ifdef GMM_ULT
-#define GMM_L1_ENTRY_IDX_EXPORTED(TTType, GfxAddress, WA64KEx)    GMM_AUX_L1_ENTRY_IDX_EXPORTED((GfxAddress), WA64KEx) 
+#define GMM_L1_ENTRY_IDX_EXPORTED(TTType, GfxAddress, WA64KEx) GMM_AUX_L1_ENTRY_IDX_EXPORTED((GfxAddress), WA64KEx)
+#define GMM_L1_ENTRY_IDX_EXPORTED_2(TTType, GfxAddress, WA64KEx, WA16KEx) (GMM_AUX_L1_ENTRY_IDX_EXPORTED_2((GfxAddress), WA64KEx, WA16KEx))
 #endif
 
 #ifdef __cplusplus
@@ -118,7 +120,8 @@ namespace GmmLib
 #define PAGETABLE_POOL_SIZE_IN_DWORD     PAGETABLE_POOL_MAX_NODES / 32
 #define PAGETABLE_POOL_SIZE              PAGETABLE_POOL_MAX_NODES * PAGE_SIZE   //Pool for L2/L1 table allocation
 #define AUX_L2TABLE_SIZE_IN_POOLNODES    8                                 //Aux L2 is 32KB
-#define AUX_L1TABLE_SIZE_IN_POOLNODES    2                                 //Aux L1 is 8KB
+#define AUX_L1TABLE_SIZE_IN_POOLNODES 2 //Aux L1 is 8KB
+#define AUX_L1TABLE_SIZE_IN_POOLNODES_2(pGmmLibContext) (pGmmLibContext ? ((WA64K(pGmmLibContext) || WA16K(pGmmLibContext)) ? 2 : 1) : 2) //Aux L1 is 8KB / 4K (MTL)
 #define PAGETABLE_POOL_MAX_UNUSED_SIZE   GMM_MBYTE(16)                     //Max. size of unused pool, driver keeps resident
 
 
@@ -173,23 +176,24 @@ namespace GmmLib
         GmmPageTablePool(HANDLE hAlloc, GMM_RESOURCE_INFO* pGmmRes, GMM_GFX_ADDRESS SysMem, POOL_TYPE Type) :
             GmmPageTablePool()
         {
-            PoolHandle = hAlloc;
-            pGmmResInfo = pGmmRes;
+            int              DwordPoolSize;
+            GMM_LIB_CONTEXT *pGmmLibContext;
+            PoolHandle     = hAlloc;
+            pGmmResInfo    = pGmmRes;
             PoolGfxAddress = SysMem;
-            CPUAddress = PoolGfxAddress;
-            NextPool = NULL;
-            NumFreeNodes = PAGETABLE_POOL_MAX_NODES;
-            PoolType = Type;
-            int DwordPoolSize = (Type == POOL_TYPE_AUXTTL1) ? PAGETABLE_POOL_SIZE_IN_DWORD / AUX_L1TABLE_SIZE_IN_POOLNODES
-                                        : (Type == POOL_TYPE_AUXTTL2) ? PAGETABLE_POOL_SIZE_IN_DWORD / AUX_L2TABLE_SIZE_IN_POOLNODES
-                                        : PAGETABLE_POOL_SIZE_IN_DWORD;
-            NodeUsage = new uint32_t[DwordPoolSize]();
-            NodeBBInfo = new SyncInfo[DwordPoolSize * 32]();
-            if (pGmmResInfo)
+            CPUAddress     = PoolGfxAddress;
+            NextPool       = NULL;
+            NumFreeNodes   = PAGETABLE_POOL_MAX_NODES;
+            PoolType       = Type;
+            if(pGmmResInfo)
             {
                 pClientContext = pGmmResInfo->GetGmmClientContext();
             }
-        }
+            pGmmLibContext = pClientContext ? pClientContext->GetLibContext() : NULL;
+            DwordPoolSize  = (Type == POOL_TYPE_AUXTTL1) ? PAGETABLE_POOL_SIZE_IN_DWORD / AUX_L1TABLE_SIZE_IN_POOLNODES_2(pGmmLibContext) : (Type == POOL_TYPE_AUXTTL2) ? PAGETABLE_POOL_SIZE_IN_DWORD / AUX_L2TABLE_SIZE_IN_POOLNODES : PAGETABLE_POOL_SIZE_IN_DWORD;
+            NodeUsage      = new uint32_t[DwordPoolSize]();
+            NodeBBInfo     = new SyncInfo[DwordPoolSize * 32]();
+	}
         GmmPageTablePool(HANDLE hAlloc, GMM_RESOURCE_INFO* pGmmRes, GMM_GFX_ADDRESS GfxAdr, GMM_GFX_ADDRESS CPUAdr, POOL_TYPE Type) :
             GmmPageTablePool(hAlloc, pGmmRes, GfxAdr, Type)
         {
@@ -227,11 +231,10 @@ namespace GmmLib
         uint32_t& GetNodeUsageAtIndex(int j) { return NodeUsage[j]; }
         SyncInfo& GetNodeBBInfoAtIndex(int j)
         {
-            int BBInfoNodeIdx = (PoolType == POOL_TYPE_AUXTTL1) ? j / AUX_L1TABLE_SIZE_IN_POOLNODES
-                : (PoolType == POOL_TYPE_AUXTTL2) ? j / AUX_L2TABLE_SIZE_IN_POOLNODES
-                : j;
-            return NodeBBInfo[BBInfoNodeIdx];
-        }
+            GMM_LIB_CONTEXT *pGmmLibContext = pClientContext ? pClientContext->GetLibContext() : NULL;
+            int              BBInfoNodeIdx  = (PoolType == POOL_TYPE_AUXTTL1) ? j / AUX_L1TABLE_SIZE_IN_POOLNODES_2(pGmmLibContext) : (PoolType == POOL_TYPE_AUXTTL2) ? j / AUX_L2TABLE_SIZE_IN_POOLNODES : j;
+            return NodeBBInfo[BBInfoNodeIdx];	    
+	}
         GMM_GFX_ADDRESS GetGfxAddress() { return PoolGfxAddress; }
         GMM_GFX_ADDRESS GetCPUAddress() { return CPUAddress; }
         GMM_RESOURCE_INFO* &GetGmmResInfo() { return pGmmResInfo; }
@@ -259,7 +262,7 @@ namespace GmmLib
         GMM_PAGETABLEPool *PoolElem;              //L2 Pool ptr different for L2Tables when Pool_nodes <512
         int             PoolNodeIdx;              //pool node idx used for L2 Table
         SyncInfo             BBInfo;              //BB Handle/fence using Table
-        uint32_t*          UsedEntries;              //Tracks which L1/L2 entries are being used
+        uint32_t *          UsedEntries;              //Tracks which L1/L2 entries are being used
                                                   //array size GMM_L1_SIZE_DWORD(TT-type) for LastLevelTable, MidLeveltable(??)
                                                   //array of 1024/32=32 DWs for TR-table, 4096/32 =512 for Aux-Table
     public:
@@ -297,14 +300,14 @@ namespace GmmLib
             pNext = NULL;
         }
 
-        LastLevelTable(GMM_PAGETABLEPool* Elem, int NodeIdx, int DwordL1e, int L2eIndex)
-            : LastLevelTable()
+        LastLevelTable(GMM_PAGETABLEPool *Elem, int NodeIdx, int DwordL1e, int L2eIndex)
+	: LastLevelTable()
         {
-            PoolElem = Elem;
+            PoolElem    = Elem;
             PoolNodeIdx = NodeIdx;
-            BBInfo = Elem->GetNodeBBInfoAtIndex(NodeIdx);
-            L2eIdx = L2eIndex;
-            pNext = NULL;
+            BBInfo      = Elem->GetNodeBBInfoAtIndex(NodeIdx);
+            L2eIdx      = L2eIndex;
+            pNext       = NULL;
             UsedEntries = new uint32_t[DwordL1e]();
         }
         ~LastLevelTable()
@@ -498,9 +501,16 @@ namespace GmmLib
         Table* NullL2Table;
         Table* NullL1Table;
         GMM_GFX_ADDRESS NullCCSTile;
-        AuxTable() : PageTable(8 * PAGE_SIZE, GMM_AUX_L3_SIZE, TT_TYPE::AUXTT),
-            L1Size(2 * PAGE_SIZE)
+        AuxTable(GmmClientContext *pClientContextIn)
+            : PageTable(8 * PAGE_SIZE, GMM_AUX_L3_SIZE, TT_TYPE::AUXTT), L1Size((WA16K(pClientContextIn->GetLibContext()) || WA64K(pClientContextIn->GetLibContext())) ? (2 * PAGE_SIZE) : PAGE_SIZE)
         {
+            NullL2Table = nullptr;
+            NullL1Table = nullptr;
+            NullCCSTile = 0;
+        }
+        AuxTable()
+            : PageTable(8 * PAGE_SIZE, GMM_AUX_L3_SIZE, TT_TYPE::AUXTT), L1Size(2 * PAGE_SIZE)
+	{
             NullL2Table = nullptr;
             NullL1Table = nullptr;
             NullCCSTile = 0;

@@ -584,6 +584,11 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexPitchAndSize(GMM_TEXTURE_INFO * pTexIn
         }
     }
 
+    if((GFX_GET_CURRENT_PRODUCT(pPlatform->Platform) >= IGFX_METEORLAKE))
+    {
+        pTexInfo->OffsetInfo.PlaneXe_LPG.PhysicalPitch = pTexInfo->Pitch;
+    }
+
     { // Surface Sizes
         int64_t Size;
 

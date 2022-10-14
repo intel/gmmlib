@@ -40,6 +40,13 @@ namespace GmmLib
 #ifndef __GMM_KMD__
     #define GMM_MALLOC(size)    malloc(size)
     #define GMM_FREE(p)         free(p)
+
+#define GMM_COMPR_FORMAT_INVALID(pGmmLibContext)                                                                          \
+     ((pGmmLibContext->GetSkuTable().FtrFlatPhysCCS != 0)    ? static_cast<uint8_t>(GMM_FLATCCS_FORMAT_INVALID) :          \
+                                                              static_cast<uint8_t>(GMM_E2ECOMP_FORMAT_INVALID))
+
+#else
+#define GMM_COMPR_FORMAT_INVALID GMM_E2ECOMP_FORMAT_INVALID
 #endif
 
 void GMM_STDCALL GmmGetCacheSizes(GMM_CACHE_SIZES* pCacheSizes);

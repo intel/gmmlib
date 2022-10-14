@@ -31,7 +31,7 @@ int32_t GmmLib::Context::RefCount = 0;
 // Create Mutex Object used for syncronization of ProcessSingleton Context
 #if !GMM_LIB_DLL_MA
 #ifdef _WIN32
-GMM_MUTEX_HANDLE GmmLib::Context::SingletonContextSyncMutex = ::CreateMutex(NULL, FALSE, NULL);
+GMM_MUTEX_HANDLE GmmLib::Context::SingletonContextSyncMutex = ::CreateMutex(NULL, false, NULL);
 #else
 GMM_MUTEX_HANDLE      GmmLib::Context::SingletonContextSyncMutex = PTHREAD_MUTEX_INITIALIZER;
 #endif // _WIN32
@@ -996,10 +996,10 @@ GmmLib::Context::Context()
     AllowedPaddingFor64KbPagesPercentage = 10;
     InternalGpuVaMax                     = 0;
     AllowedPaddingFor64KBTileSurf        = 10;
+
 #if(!defined(__GMM_KMD__) && !defined(GMM_UNIFIED_LIB))
     pGmmGlobalClientContext = NULL;
 #endif
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1104,36 +1104,42 @@ GMM_CACHE_POLICY *GMM_STDCALL GmmLib::Context::CreateCachePolicyCommon()
         return GetCachePolicyObj();
     }
 
-    switch(GFX_GET_CURRENT_RENDERCORE(this->GetPlatformInfo().Platform))
+    if((GFX_GET_CURRENT_PRODUCT(GetPlatformInfo().Platform) == IGFX_METEORLAKE))
     {
-        case IGFX_GEN12LP_CORE:
-        case IGFX_GEN12_CORE:
-        case IGFX_XE_HP_CORE:
-	case IGFX_XE_HPG_CORE:
-        case IGFX_XE_HPC_CORE:
-            if(GetSkuTable().FtrLocalMemory)
-            {
-                pGmmCachePolicy = new GmmLib::GmmGen12dGPUCachePolicy(CachePolicy, this);
-            }
-            else
-            {
-                pGmmCachePolicy = new GmmLib::GmmGen12CachePolicy(CachePolicy, this);
-            }
-            break;
-        case IGFX_GEN11_CORE:
-            pGmmCachePolicy = new GmmLib::GmmGen11CachePolicy(CachePolicy, this);
-            break;
-        case IGFX_GEN10_CORE:
-            pGmmCachePolicy = new GmmLib::GmmGen10CachePolicy(CachePolicy, this);
-            break;
-        case IGFX_GEN9_CORE:
-            pGmmCachePolicy = new GmmLib::GmmGen9CachePolicy(CachePolicy, this);
-            break;
-        default:
-            pGmmCachePolicy = new GmmLib::GmmGen8CachePolicy(CachePolicy, this);
-            break;
+        pGmmCachePolicy = new GmmLib::GmmXe_LPGCachePolicy(CachePolicy, this);
     }
-
+    else
+    {
+        switch(GFX_GET_CURRENT_RENDERCORE(this->GetPlatformInfo().Platform))
+        {
+            case IGFX_GEN12LP_CORE:
+            case IGFX_GEN12_CORE:
+            case IGFX_XE_HP_CORE:
+            case IGFX_XE_HPG_CORE:
+            case IGFX_XE_HPC_CORE:
+                if(GetSkuTable().FtrLocalMemory)
+                {
+                    pGmmCachePolicy = new GmmLib::GmmGen12dGPUCachePolicy(CachePolicy, this);
+                }
+                else
+                {
+                    pGmmCachePolicy = new GmmLib::GmmGen12CachePolicy(CachePolicy, this);
+                }
+                break;
+            case IGFX_GEN11_CORE:
+                pGmmCachePolicy = new GmmLib::GmmGen11CachePolicy(CachePolicy, this);
+                break;
+            case IGFX_GEN10_CORE:
+                pGmmCachePolicy = new GmmLib::GmmGen10CachePolicy(CachePolicy, this);
+                break;
+            case IGFX_GEN9_CORE:
+                pGmmCachePolicy = new GmmLib::GmmGen9CachePolicy(CachePolicy, this);
+                break;
+            default:
+                pGmmCachePolicy = new GmmLib::GmmGen8CachePolicy(CachePolicy, this);
+                break;
+        }
+    }
     if(!pGmmCachePolicy)
     {
         GMM_DPF_CRITICAL("unable to allocate memory for CachePolicy Object");
@@ -1152,32 +1158,39 @@ GMM_TEXTURE_CALC *GMM_STDCALL GmmLib::Context::CreateTextureCalc(PLATFORM Platfo
         }
     }
 
-    switch(GFX_GET_CURRENT_RENDERCORE(Platform))
+    if(GFX_GET_CURRENT_PRODUCT(GetPlatformInfo().Platform) >= IGFX_METEORLAKE)
     {
-        case IGFX_GEN7_CORE:
-        case IGFX_GEN7_5_CORE:
-            return new GmmGen7TextureCalc(this);
-            break;
-        case IGFX_GEN8_CORE:
-            return new GmmGen8TextureCalc(this);
-            break;
-        case IGFX_GEN9_CORE:
-            return new GmmGen9TextureCalc(this);
-            break;
-        case IGFX_GEN10_CORE:
-            return new GmmGen10TextureCalc(this);
-            break;
-        case IGFX_GEN11_CORE:
-            return new GmmGen11TextureCalc(this);
-            break;
-        case IGFX_GEN12LP_CORE:
-        case IGFX_GEN12_CORE:
-        case IGFX_XE_HP_CORE:
-	case IGFX_XE_HPG_CORE:
-        case IGFX_XE_HPC_CORE:
-	default:
-            return new GmmGen12TextureCalc(this);
-            break;
+        return new GmmXe_LPGTextureCalc(this);
+    }
+    else
+    {
+        switch(GFX_GET_CURRENT_RENDERCORE(Platform))
+        {
+            case IGFX_GEN7_CORE:
+            case IGFX_GEN7_5_CORE:
+                return new GmmGen7TextureCalc(this);
+                break;
+            case IGFX_GEN8_CORE:
+                return new GmmGen8TextureCalc(this);
+                break;
+            case IGFX_GEN9_CORE:
+                return new GmmGen9TextureCalc(this);
+                break;
+            case IGFX_GEN10_CORE:
+                return new GmmGen10TextureCalc(this);
+                break;
+            case IGFX_GEN11_CORE:
+                return new GmmGen11TextureCalc(this);
+                break;
+            case IGFX_GEN12LP_CORE:
+            case IGFX_GEN12_CORE:
+            case IGFX_XE_HP_CORE:
+            case IGFX_XE_HPG_CORE:
+            case IGFX_XE_HPC_CORE:
+            default:
+                return new GmmGen12TextureCalc(this);
+                break;
+        }
     }
 }
 

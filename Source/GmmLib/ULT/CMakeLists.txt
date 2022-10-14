@@ -32,6 +32,7 @@ set(GMMULT_HEADERS
      GmmGen12dGPUResourceULT.h
      GmmGen12CachePolicyULT.h
      GmmGen12dGPUCachePolicyULT.h
+     GmmXe_LPGCachePolicyULT.h
      GmmGen9CachePolicyULT.h
      GmmGen9ResourceULT.h
      GmmResourceULT.h
@@ -49,6 +50,7 @@ set(GMMULT_SOURCES
     GmmGen11CachePolicyULT.cpp
     GmmGen12CachePolicyULT.cpp
     GmmGen12dGPUCachePolicyULT.cpp
+    GmmXe_LPGCachePolicyULT.cpp
     GmmGen11ResourceULT.cpp
     GmmGen12ResourceULT.cpp
     GmmGen12dGPUResourceULT.cpp
@@ -68,7 +70,8 @@ source_group("Source Files\\Cache Policy" FILES
             GmmGen11CachePolicyULT.cpp
             GmmGen12CachePolicyULT.cpp
             GmmGen12dGPUCachePolicyULT.cpp
-            )
+            GmmXe_LPGCachePolicyULT.cpp
+	    )
 
 source_group("Source Files\\Resource" FILES
             GmmGen10ResourceULT.cpp
@@ -97,7 +100,8 @@ source_group("Header Files\\Cache Policy" FILES
              GmmGen10CachePolicyULT.h
              GmmGen11CachePolicyULT.h
              GmmGen12CachePolicyULT.h
-             GmmGen12dGPUCachePolicyULT.h
+             GmmXe_LPGCachePolicyULT.h
+	     GmmGen12dGPUCachePolicyULT.h
              GmmGen9CachePolicyULT.h
             )
 

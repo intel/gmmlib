@@ -89,7 +89,7 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
 
     __GMM_ASSERTPTR(pCachePolicy, GMM_ERROR);
 
-#define DEFINE_CACHE_ELEMENT(usage, l3, l3_scc, hdcl1, go, uclookup, l1cc) DEFINE_CP_ELEMENT(usage, 0, 0, l3, 0, 0, 0, 0, l3_scc, 0, 0, 0, hdcl1, 0, 0, go, uclookup, l1cc)
+#define DEFINE_CACHE_ELEMENT(usage, l3, l3_scc, hdcl1, go, uclookup, l1cc) DEFINE_CP_ELEMENT(usage, 0, 0, l3, 0, 0, 0, 0, l3_scc, 0, 0, 0, hdcl1, 0, 0, go, uclookup, l1cc, 0, 0, 0)
 
 #include "GmmGen12dGPUCachePolicy.h"
 
@@ -143,7 +143,7 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
                     StartMocsIdx = 1; // Index 0 is reserved for Error
                     break;
                 case IGFX_DG2:
-                    // DG2 provides 2 wires for MOCS Registers, gives 4(2^2) indexes to program.
+		    // DG2 provides 2 wires for MOCS Registers, gives 4(2^2) indexes to program.
                     StartMocsIdx = 0;
                     break;
                 default:
@@ -536,7 +536,6 @@ uint32_t GMM_STDCALL GmmLib::GmmGen12dGPUCachePolicy::CachePolicyGetPATIndex(GMM
     __GMM_ASSERT(pGmmLibContext->GetCachePolicyElement(Usage).Initialized);
     GMM_UNREFERENCED_PARAMETER(pCompressionEnable);
     GMM_UNREFERENCED_PARAMETER(IsCpuCacheable);
-    
 
     // Prevent wrong Usage for XAdapter resources. UMD does not call GetMemoryObject on shader resources but,
     // when they add it someone could call it without knowing the restriction.

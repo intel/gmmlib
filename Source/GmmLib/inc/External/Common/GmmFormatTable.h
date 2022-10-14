@@ -46,9 +46,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define VLV2            GFX_IS_PRODUCT(Data.Platform,IGFX_VALLEYVIEW)
 #define WA              GMM_FORMAT_WA
 #define x               0
-#define NC              GMM_COMPR_FORMAT_INVALID
+#if(!defined(__GMM_KMD__))
+#define NC GMM_COMPR_FORMAT_INVALID(pGmmLibContext)
+#else
+#define NC GMM_COMPR_FORMAT_INVALID
+#endif
 #define MC(n)           n | (0x1 << 5) //GMM_FLATCCS_MIN_MC_FORMAT - 1
-
 #define FC(ver, bpc, fmtstr, bpcstr, typestr)                               \
     (ver == 1 || (SKU(FtrE2ECompression) && !(SKU(FtrFlatPhysCCS) || SKU(FtrUnified3DMediaCompressionFormats)))) ?\
         ((bpc == 16) ? GMM_E2ECOMP_FORMAT_RGBAFLOAT16 :                     \

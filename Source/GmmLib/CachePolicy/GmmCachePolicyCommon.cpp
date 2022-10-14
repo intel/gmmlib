@@ -150,3 +150,13 @@ GMM_PTE_CACHE_CONTROL_BITS GMM_STDCALL GmmLib::GmmCachePolicyCommon::CachePolicy
     __GMM_ASSERT(pGmmLibContext->GetCachePolicyElement(Usage).Initialized);
     return pGmmLibContext->GetCachePolicyElement(Usage).PTE;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Returns number of PAT entries possible on that platform
+///
+/// @return        uint32_t
+/////////////////////////////////////////////////////////////////////////////////////
+uint32_t GMM_STDCALL GmmLib::GmmCachePolicyCommon::CachePolicyGetNumPATRegisters()
+{
+    return NumPATRegisters;
+}

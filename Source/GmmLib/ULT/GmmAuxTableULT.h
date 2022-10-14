@@ -239,7 +239,7 @@ public:
 
         static inline uint32_t l1Index(GMM_GFX_ADDRESS addr)
         {
-            return GMM_AUX_L1_ENTRY_IDX_EXPORTED(addr, !(const_cast<WA_TABLE &>(pGfxAdapterInfo->WaTable).WaAuxTable16KGranular));
+            return GMM_AUX_L1_ENTRY_IDX_EXPORTED_2(addr, (const_cast<WA_TABLE &>(pGfxAdapterInfo->WaTable).WaAuxTable64KGranular), (const_cast<WA_TABLE &>(pGfxAdapterInfo->WaTable).WaAuxTable16KGranular));
         }
 
     private:

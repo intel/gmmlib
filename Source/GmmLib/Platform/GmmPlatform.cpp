@@ -35,7 +35,6 @@ GmmLib::PlatformInfo::PlatformInfo(PLATFORM &Platform, Context *pGmmLibContext)
 #define GMM_FORMAT_GEN(X) (GFX_GET_CURRENT_RENDERCORE(Data.Platform) >= IGFX_GEN##X##_CORE)
 #define GMM_FORMAT_SKU(FtrXxx) (pGmmLibContext->GetSkuTable().FtrXxx != 0)
 #define GMM_FORMAT_WA(WaXxx) (pGmmLibContext->GetWaTable().WaXxx != 0)
-#define GMM_COMPR_FORMAT_INVALID GMM_E2ECOMP_FORMAT_INVALID
 #define GMM_FORMAT(Name, bpe, _Width, _Height, _Depth, IsRT, IsASTC, RcsSurfaceFormat, SSCompressionFmt, Availability)        \
                                                                                                                          \
     {                                                                                                                    \

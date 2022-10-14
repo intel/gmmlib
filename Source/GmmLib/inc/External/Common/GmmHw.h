@@ -64,7 +64,8 @@ typedef union GMM_AUXTTL2e_REC
     struct
     {
         uint64_t Valid     :  1;
-        uint64_t Reserved0 : 12;
+        uint64_t Reserved0 : 10;
+        uint64_t Reserved2 : 2;  // used for MTL and above
         uint64_t L1GfxAddr : 35;
         uint64_t Reserved1 : 16;
     };
@@ -74,9 +75,15 @@ C_ASSERT(sizeof(GMM_AUXTTL2e) == 8);
 
 // Get the L1GfxAddr bit field as a full L1 graphics address
 #define GMM_FULL_GFXADDR_FROM_AUX_L2e_L1GFXADDR(L1GfxAddr) ((L1GfxAddr) << 16)
+#define GMM_L1TABLE_ADDR_FROM_AUX_L2e_L1GFXADDR(L2e, Is1MBaligned) (Is1MBaligned ? (L2e.L1GfxAddr << 13 | L2e.Reserved2 << 11) : (L2e.L1GfxAddr << 13)) 
 
 // Set the L1GfxAddr bit field given a full L1 graphics address
 #define GMM_TO_AUX_L2e_L1GFXADDR(L1GfxAddress) ((L1GfxAddress) >> 16)
+#define GMM_TO_AUX_L2e_L1GFXADDR_2(GfxAddr, L2e, Is1MBaligned) { \
+                                                                L2e.L1GfxAddr = (GfxAddr >> 13); \
+                                                                L2e.Reserved2 = Is1MBaligned ? (GfxAddr >> 11) : 0;\
+                                                             }
+#define GMM_GET_AUX_CCS_SIZE(Is1MBaligned) (Is1MBaligned? GMM_KBYTE(4): GMM_BYTES(256))
 
 typedef union GMM_AUXTTL1e_REC
 {
@@ -86,13 +93,14 @@ typedef union GMM_AUXTTL1e_REC
         uint64_t Mode       :  2;      //Compression ratio (128B compr ie 2:1 for RC, 256B compr ie 4:n compr for MC)
         uint64_t Lossy      :  1;      //Lossy Compression
         uint64_t Reserved0  :  2;
-        uint64_t Reserved2  :  2;      //LSbs of 64B-aligned CCS chunk/cacheline address
-        uint64_t GfxAddress : 40;      //256B-aligned CCS chunk address
+        uint64_t Reserved2  :  2;       //LSbs of 64B-aligned CCS chunk/cacheline address
+        uint64_t Reserved4  :  4;        //LSbs of 256B-aligned CCS chunk/cacheline address
+        uint64_t GfxAddress : 36;       //4K-aligned CCS chunk address
         uint64_t Reserved1  :  4;
         uint64_t TileMode   :  2;      //Ys = 0, Y=1,  Reserved=(2-3)
         uint64_t Depth      :  3;      //Packed/Planar bit-depth for MC; Bpp for RC
         uint64_t LumaChroma :  1;      //Planar Y=0 or Cr=1
-        uint64_t Format     :  6;      //Format encoding shared with Vivante/Internal CC/DEC units to recognize surafce formats
+        uint64_t Format     :  6;      //Format encoding shared with Vivante/Internal CC/DEC units to recognize surafce formats    
     };
     uint64_t Value;
 } GMM_AUXTTL1e;
@@ -115,12 +123,14 @@ C_ASSERT(sizeof(GMM_AUXTTL1e) == 8);
 
 //For perf, AuxTable granularity changed to 64K
 #define WA16K(pGmmLibContext)                   (pGmmLibContext->GetWaTable().WaAuxTable16KGranular)
+#define WA64K(pGmmLibContext)                   (pGmmLibContext->GetWaTable().WaAuxTable64KGranular)
 
 // #L1 entries, i.e. 1024; 16K-granular ie 4 consequtive pages share Aux-cacheline;
 // HW only tracks the distinct entries;
 // Handle WA where HW chicken bit forces 64K-granularity
-#define GMM_AUX_L1_SIZE(pGmmLibContext)         ((1 << (GMM_AUX_L1_HIGH_BIT - GMM_AUX_L1_LOW_BIT + 1)) / (!(WA16K(pGmmLibContext)) ? 4 : 1))
-#define GMM_AUX_L1_SIZE_DWORD(pGmmLibContext)   (GFX_CEIL_DIV(GMM_AUX_L1_SIZE(pGmmLibContext), 32))
+#define GMM_AUX_L1_SIZE(pGmmLibContext) ((1 << (GMM_AUX_L1_HIGH_BIT - GMM_AUX_L1_LOW_BIT + 1)) / (WA16K(pGmmLibContext) ? 1 : 4))  // MTL : L1 size is 256 entries, but only first 16 entries are used in HW (0-15)
+#define GMM_AUX_L1_USABLESIZE(pGmmLibContext) ((1 << (GMM_AUX_L1_HIGH_BIT - GMM_AUX_L1_LOW_BIT + 1)) / (WA16K(pGmmLibContext) ? 1 : WA64K(pGmmLibContext) ? 4 : 64)) // MTL : L1 size is 256 entries, but only first 16 entries are used in HW (0-15)
+#define GMM_AUX_L1_SIZE_DWORD(pGmmLibContext) (GFX_CEIL_DIV(GMM_AUX_L1_SIZE(pGmmLibContext), 32))                                  // MTL : 256/32 = 8
 
 // #L2 entries, i.e. 4096
 #define GMM_AUX_L2_SIZE         (1 << (GMM_AUX_L2_HIGH_BIT - GMM_AUX_L2_LOW_BIT + 1))
@@ -129,14 +139,17 @@ C_ASSERT(sizeof(GMM_AUXTTL1e) == 8);
 // #L3 entries, i.e. 4096
 #define GMM_AUX_L3_SIZE         (1 << (GMM_AUX_L3_HIGH_BIT - GMM_AUX_L3_LOW_BIT + 1))
 
-#define GMM_AUX_L1_ENTRY_IDX(GfxAddress,pGmmLibContext)                                         \
-    ((((GfxAddress) & GFX_MASK_LARGE(GMM_AUX_L1_LOW_BIT, GMM_AUX_L1_HIGH_BIT)) >> \
-     (uint64_t)GMM_AUX_L1_LOW_BIT) / (!(WA16K(pGmmLibContext)) ? 4 : 1))
-
+#define GMM_AUX_L1_ENTRY_IDX(GfxAddress, pGmmLibContext)                        \
+    ((((GfxAddress)&GFX_MASK_LARGE(GMM_AUX_L1_LOW_BIT, GMM_AUX_L1_HIGH_BIT)) >> \
+      (uint64_t)GMM_AUX_L1_LOW_BIT) /                                           \
+     (WA16K(pGmmLibContext) ? 1 : WA64K(pGmmLibContext) ? 4 : 64)) // MTL and above: L1 size is 256 entries, but only first 16 entries are used in HW 
 
 #define GMM_AUX_L1_ENTRY_IDX_EXPORTED(GfxAddress,WA64KEx)                         \
     ((((GfxAddress) & GFX_MASK_LARGE(GMM_AUX_L1_LOW_BIT, GMM_AUX_L1_HIGH_BIT)) >> \
      (uint64_t)GMM_AUX_L1_LOW_BIT) / ((WA64KEx) ? 4 : 1))
+
+#define GMM_AUX_L1_ENTRY_IDX_EXPORTED_2(GfxAddress, WA64KEx, WA16KEx)             \
+    ((((GfxAddress)&GFX_MASK_LARGE(GMM_AUX_L1_LOW_BIT, GMM_AUX_L1_HIGH_BIT)) >> (uint64_t)GMM_AUX_L1_LOW_BIT) / (WA16KEx ? 1 : WA64KEx ? 4 : 64) )
 
 #define GMM_AUX_L2_ENTRY_IDX(GfxAddress)                                     \
     (((GfxAddress) & GFX_MASK_LARGE(GMM_AUX_L2_LOW_BIT, GMM_AUX_L2_HIGH_BIT)) >> \

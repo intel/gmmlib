@@ -113,11 +113,12 @@ namespace GmmLib
         uint32_t               AllowedPaddingFor64KbPagesPercentage;
         uint64_t               InternalGpuVaMax;
         uint32_t               AllowedPaddingFor64KBTileSurf;
+
 #ifdef GMM_LIB_DLL
         // Mutex Object used for synchronization of ProcessSingleton Context
         static GMM_MUTEX_HANDLE           SingletonContextSyncMutex;
 #endif
-	GMM_PRIVATE_PAT PrivatePATTable[GMM_NUM_PAT_ENTRIES];
+        GMM_PRIVATE_PAT PrivatePATTable[GMM_NUM_PAT_ENTRIES];
     public :
         //Constructors and destructors
         Context();
@@ -648,12 +649,11 @@ typedef struct GmmLibContext GMM_GLOBAL_CONTEXT, GMM_LIB_CONTEXT;
 void GMM_STDCALL GmmLinkKmdContextToGlobalInfo(GMM_GLOBAL_CONTEXT *pGmmLibContext, GMM_CONTEXT *pGmmKmdContext);
 #endif /*__GMM_KMD__*/
 
-
 //Declare all  GMM global context C interfaces.
 #ifdef __cplusplus
 extern "C" {
 #endif /*__cplusplus*/
-
+	
     const GMM_PLATFORM_INFO* GMM_STDCALL GmmGetPlatformInfo(GMM_GLOBAL_CONTEXT *pGmmLibContext);
     const GMM_CACHE_POLICY_ELEMENT* GmmGetCachePolicyUsage(GMM_GLOBAL_CONTEXT *pGmmLibContext);
           GMM_TEXTURE_CALC*         GmmGetTextureCalc(GMM_GLOBAL_CONTEXT *pGmmLibContext);
@@ -661,9 +661,8 @@ extern "C" {
     const WA_TABLE*                 GmmGetWaTable(GMM_GLOBAL_CONTEXT *pGmmLibContext);
     const GT_SYSTEM_INFO*           GmmGetGtSysInfo(GMM_GLOBAL_CONTEXT *pGmmLibContext);
 
-#ifdef __GMM_KMD__
+#ifdef __GMM_KMD__ 
     int32_t             GmmGetPrivatePATTableMemoryType(GMM_GLOBAL_CONTEXT *pGmmLibContext, GMM_GFX_PAT_TYPE PatType);
-    GMM_PRIVATE_PAT     GmmGetPrivatePATEntry(GMM_GLOBAL_CONTEXT *pGmmLibContext, uint32_t  PatIndex);
     GMM_CONTEXT*        GmmGetGmmKmdContext(GMM_GLOBAL_CONTEXT *pGmmLibContext);
     GMM_GTT_CONTEXT*    GmmGetGttContext(GMM_GLOBAL_CONTEXT *pGmmLibContext);
     GMM_CACHE_POLICY_TBL_ELEMENT GmmGetCachePolicyTblElement(GMM_GLOBAL_CONTEXT *pGmmLibContext, GMM_RESOURCE_USAGE_TYPE Usage);
@@ -671,13 +670,13 @@ extern "C" {
     void                GmmSetSkuTable(GMM_GLOBAL_CONTEXT *pGmmLibContext, SKU_FEATURE_TABLE SkuTable);
     void                GmmSetWaTable(GMM_GLOBAL_CONTEXT *pGmmLibContext, WA_TABLE WaTable);
     GMM_PLATFORM_INFO*  GmmKmdGetPlatformInfo(GMM_GLOBAL_CONTEXT *pGmmLibContext);
-
 #if(_DEBUG || _RELEASE_INTERNAL)
     const GMM_PLATFORM_INFO* GmmGetOverridePlatformInfo(GMM_GLOBAL_CONTEXT *pGmmLibContext);
     GMM_TEXTURE_CALC*   GmmGetOverrideTextureCalc(GMM_GLOBAL_CONTEXT *pGmmLibContext);
 #endif
 
 #endif
+    GMM_PRIVATE_PAT GmmGetPrivatePATEntry(GMM_LIB_CONTEXT *pGmmLibContext, uint32_t PatIndex);
 
 #ifdef __cplusplus
 }
@@ -693,6 +692,9 @@ extern "C" {
     #define GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(pTexInfo,pGmmLibContext)    (&((GmmClientContext*)pClientContext)->GetPlatformInfo())
     #define GMM_IS_PLANAR(Format)                            (pClientContext->IsPlanar(Format))
 #endif
+
+#define GMM_IS_1MB_AUX_TILEALIGNEDPLANES(Platform, Surf) \
+    ((GFX_GET_CURRENT_PRODUCT(Platform) >= IGFX_METEORLAKE) && Surf.OffsetInfo.PlaneXe_LPG.Is1MBAuxTAlignedPlanes)
 
 // Reset packing alignment to project default
 #pragma pack(pop)

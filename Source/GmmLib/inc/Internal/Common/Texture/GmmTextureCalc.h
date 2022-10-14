@@ -56,10 +56,6 @@ namespace GmmLib
                                 GMM_TEXTURE_INFO  *pTexInfo,
                                 __GMM_BUFFER_TYPE *pRestrictions);
 
-            uint32_t           GetDisplayFrameOffset(
-                                GMM_TEXTURE_INFO*    pTexInfo,
-                                GMM_REQ_OFFSET_INFO* pReqInfo);
-
         protected:
 	    Context *pGmmLibContext;
 
@@ -164,9 +160,9 @@ namespace GmmLib
         public:
             /* Constructors */
             // "Creates GmmTextureCalc object based on platform ID"
-            void            SetTileMode(GMM_TEXTURE_INFO* pTexInfo);
+            void SetTileMode(GMM_TEXTURE_INFO* pTexInfo);
 
-            GmmTextureCalc(Context *pGmmLibContext)
+	    GmmTextureCalc(Context *pGmmLibContext)
             {
                 this->pGmmLibContext = pGmmLibContext;
             }
@@ -205,7 +201,7 @@ namespace GmmLib
                                 GMM_TEXTURE_INFO*    pTexInfo,
                                 GMM_REQ_OFFSET_INFO* pReqInfo);
 
-            GMM_STATUS      GetTexLockOffset(
+            virtual GMM_STATUS      GetTexLockOffset(
                                 GMM_TEXTURE_INFO* pTexInfo,
                                 GMM_REQ_OFFSET_INFO *pReqInfo);
 
@@ -213,7 +209,7 @@ namespace GmmLib
                                 GMM_TEXTURE_INFO* pTexInfo,
                                 GMM_REQ_OFFSET_INFO *pReqInfo);
 
-            GMM_GFX_SIZE_T  GetMipMapByteAddress(
+            virtual GMM_GFX_SIZE_T  GetMipMapByteAddress(
                                 GMM_TEXTURE_INFO*    pTexInfo,
                                 GMM_REQ_OFFSET_INFO *pReqInfo);
 
@@ -350,6 +346,28 @@ namespace GmmLib
                                                                 GMM_GFX_SIZE_T &WidthBytesPhysical,
                                                                 GMM_GFX_SIZE_T &WidthBytesLock);
             GMM_STATUS MSAACompression(GMM_TEXTURE_INFO *pTexInfo);
+
+            uint32_t GMM_STDCALL GetDisplayFrameOffset(GMM_TEXTURE_INFO    *pTexInfo,
+                                                       GMM_REQ_OFFSET_INFO *pReqInfo);	    
+	    virtual uint32_t GMM_STDCALL IsTileAlignedPlanes(GMM_TEXTURE_INFO *pTexInfo);
+            virtual uint32_t GMM_STDCALL GetNumberOfPlanes(GMM_TEXTURE_INFO *pTexInfo);
+            virtual void GMM_STDCALL     SetPlanarOffsetInfo(GMM_TEXTURE_INFO            *pTexInfo,
+                                                           GMM_RESCREATE_CUSTOM_PARAMS &CreateParams);
+#ifndef __GMM_KMD__
+            virtual void GMM_STDCALL SetPlanarOffsetInfo_2(GMM_TEXTURE_INFO              *pTexInfo,
+                                                          GMM_RESCREATE_CUSTOM_PARAMS_2 &CreateParams);
+#endif
+            virtual void GMM_STDCALL SetPlaneUnAlignedTexOffsetInfo(GMM_TEXTURE_INFO *pTexInfo,
+                                                                    uint32_t YHeight,
+                                                                    uint32_t VHeight);
+            virtual void GMM_STDCALL GetPlaneIdForCpuBlt(GMM_TEXTURE_INFO *pTexInfo,
+                                                          GMM_RES_COPY_BLT *pBlt,
+                                                          uint32_t *PlaneId);
+            virtual void GMM_STDCALL GetBltInfoPerPlane(GMM_TEXTURE_INFO *pTexInfo,
+                                                             GMM_RES_COPY_BLT *pBlt,
+                                                             uint32_t PlaneId);
+
+
 	    /* inline functions */
     };
 

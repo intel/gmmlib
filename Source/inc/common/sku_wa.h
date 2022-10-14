@@ -86,7 +86,7 @@ typedef struct _SKU_FEATURE_TABLE
         unsigned int   FtrUserModeTranslationTable      : 1;  // User mode managed Translation Table support for Tiled Resources.
         unsigned int   FtrNullPages                     : 1;  // Support for PTE-based Null pages for Sparse/Tiled Resources).
         unsigned int   FtrEDram                         : 1;  // embedded DRAM enable
-        unsigned int   FtrLLCBypass                     : 1;  // Partial tunneling of UC memory traffic via CCF (LLC Bypass)
+	unsigned int   FtrLLCBypass                     : 1;  // Partial tunneling of UC memory traffic via CCF (LLC Bypass)
         unsigned int   FtrCrystalwell                   : 1;  // Crystalwell Sku
         unsigned int   FtrCentralCachePolicy            : 1;  // Centralized Cache Policy
         unsigned int   FtrWddm2GpuMmu                   : 1;  // WDDMv2 GpuMmu Model (Set in platform SKU files, but disabled by GMM as appropriate for given system.)

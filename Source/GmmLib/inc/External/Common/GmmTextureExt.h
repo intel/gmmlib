@@ -41,16 +41,38 @@ extern "C" {
 //---------------------------------------------------------------------------
 typedef struct GMM_PLANAR_OFFSET_INFO_REC
 {
-    GMM_GFX_SIZE_T     ArrayQPitch;
-    GMM_GFX_SIZE_T     X[GMM_MAX_PLANE];
-    GMM_GFX_SIZE_T     Y[GMM_MAX_PLANE];
+    GMM_GFX_SIZE_T   ArrayQPitch;
+    GMM_GFX_SIZE_T   X[GMM_MAX_PLANE];
+    GMM_GFX_SIZE_T   Y[GMM_MAX_PLANE];
     struct
     {
-        GMM_GFX_SIZE_T     Height[GMM_MAX_PLANE];
+        GMM_GFX_SIZE_T   Height[GMM_MAX_PLANE];
     } UnAligned, Aligned;
     uint32_t            NoOfPlanes;
     bool                IsTileAlignedPlanes;
 }GMM_PLANAR_OFFSET_INFO;
+
+//===========================================================================
+// typedef:
+//        GMM_PLANAR_OFFSET_INFO
+//
+// Description:
+//     This structure stores the offset address of each level
+//---------------------------------------------------------------------------
+typedef struct GMM_PLANAR_OFFSET_INFO_V2_REC
+{
+    GMM_GFX_SIZE_T ArrayQPitch;
+    GMM_GFX_SIZE_T X[GMM_MAX_PLANE];
+    GMM_GFX_SIZE_T Y[GMM_MAX_PLANE];
+    struct
+    {
+        uint32_t Height[GMM_MAX_PLANE];
+    } UnAligned, Aligned, Physical;
+    uint32_t                      NoOfPlanes;
+    bool                          IsTileAlignedPlanes;
+    bool                          Is1MBAuxTAlignedPlanes;
+    GMM_GFX_SIZE_T PhysicalPitch;
+} GMM_PLANAR_OFFSET_INFO_V2;
 
 //===========================================================================
 // typedef:
@@ -93,6 +115,7 @@ typedef struct GMM_OFFSET_INFO_REC
         GMM_3D_TEXTURE_OFFSET_INFO_T    Texture3DOffsetInfo;
         GMM_2D_TEXTURE_OFFSET_INFO_T    Texture2DOffsetInfo;
         GMM_PLANAR_OFFSET_INFO          Plane;
+        GMM_PLANAR_OFFSET_INFO_V2       PlaneXe_LPG;	
     };
 }GMM_OFFSET_INFO, GMM_OFFSET_INFO_T;
 
@@ -187,6 +210,7 @@ typedef struct GMM_TEXTURE_INFO_REC
         uint8_t          IsGmmAllocated;
         uint8_t          IsPageAligned;
     }                   ExistingSysMem;
+
 }GMM_TEXTURE_INFO;
 
 //***************************************************************************

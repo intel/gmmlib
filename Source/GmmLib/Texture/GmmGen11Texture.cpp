@@ -345,15 +345,22 @@ void GmmLib::GmmGen11TextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTex
     {
         GMM_GFX_SIZE_T TileHeight = pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileHeight;
         GMM_GFX_SIZE_T TileWidth  = pPlatform->TileInfo[pTexInfo->TileMode].LogicalTileWidth;
-
+        GMM_GFX_SIZE_T PhysicalTileHeight = TileHeight;
         if(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) > IGFX_GEN11LP_CORE)
         {
-
             if(pTexInfo->Flags.Gpu.CCS && !pGmmLibContext->GetSkuTable().FtrFlatPhysCCS)
             {
-                //U/V must be aligned to AuxT granularity, for 16K AuxT- 4x pitchalign enforces it,
-                //add extra padding for 64K AuxT
-                TileHeight *= (!GMM_IS_64KB_TILE(pTexInfo->Flags) && !WA16K(pGmmLibContext)) ? 4 : 1;
+                //U/V must be aligned to AuxT granularity, 4x pitchalign enforces 16K-align for 4KB tile,
+                //add extra padding for 64K AuxT, 1MB AuxT
+                if(GMM_IS_64KB_TILE(pTexInfo->Flags))
+                {
+                    TileHeight *= (!WA64K(pGmmLibContext) && !WA16K(pGmmLibContext)) ? 16 : 1; // For 64Kb Tile mode: Multiply TileHeight by 16 for 1 MB alignment
+                }
+                else
+                {
+                    PhysicalTileHeight *= (WA16K(pGmmLibContext) ? 1 : WA64K(pGmmLibContext) ? 4 : 1); //  for 1 MB AuxT granularity, we do 1 MB alignment only in VA space and not in physical space, so do not multiply PhysicalTileHeight with 64 here
+                    TileHeight *= (WA16K(pGmmLibContext) ? 1 : WA64K(pGmmLibContext) ? 4 : 64);        // For 4k Tile:  Multiply TileHeight by 4 and Pitch by 4 for 64kb alignment, multiply TileHeight by 64 and Pitch by 4 for 1 MB alignment
+                }
             }
         }
 
@@ -370,7 +377,7 @@ void GmmLib::GmmGen11TextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTex
             *pVOffsetY = *pUOffsetY;
         }
 
-	// This is needed for FtrDisplayPageTables
+        // This is needed for FtrDisplayPageTables
         if(pGmmLibContext->GetSkuTable().FtrDisplayPageTables)
         {
             pTexInfo->OffsetInfo.Plane.Aligned.Height[GMM_PLANE_Y] = GFX_ALIGN(YHeight, TileHeight);
@@ -383,7 +390,7 @@ void GmmLib::GmmGen11TextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTex
                 pTexInfo->OffsetInfo.Plane.Aligned.Height[GMM_PLANE_U] =
                 pTexInfo->OffsetInfo.Plane.Aligned.Height[GMM_PLANE_V] = GFX_ALIGN(VHeight, TileHeight);
             }
-	}
+        }
     }
 
     //Special case LKF MMC compressed surfaces

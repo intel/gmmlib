@@ -39,7 +39,7 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::InitCachePolicy()
 
     __GMM_ASSERTPTR(pCachePolicy, GMM_ERROR);
 
-#define DEFINE_CACHE_ELEMENT(usage, llc, ellc, l3, wt, age) DEFINE_CP_ELEMENT(usage, llc, ellc, l3, wt, age, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+#define DEFINE_CACHE_ELEMENT(usage, llc, ellc, l3, wt, age) DEFINE_CP_ELEMENT(usage, llc, ellc, l3, wt, age, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 #include "GmmGen8CachePolicy.h"
 
     {
@@ -394,7 +394,6 @@ GMM_PRIVATE_PAT GmmLib::GmmGen8CachePolicy::GetPrivatePATEntry(uint32_t PATIdx)
         GMM_ASSERTDPF(false, "CRITICAL ERROR: INVALID PAT IDX");
         return NullPAT;
     }
-
     return pGmmLibContext->GetPrivatePATTable()[PATIdx];    
 }
 

@@ -58,12 +58,9 @@ namespace GmmLib
             GmmCachePolicyCommon(GMM_CACHE_POLICY_ELEMENT *pCachePolicy, Context *pGmmLibContext);
 
             /* Function prototypes */
-            #if _WIN32
-            void OverrideCachePolicy();
-            #endif
             GMM_GFX_MEMORY_TYPE GetWantedMemoryType(GMM_CACHE_POLICY_ELEMENT CachePolicy);
 
-            #define DEFINE_CP_ELEMENT(Usage, llc, ellc, l3, wt, age, aom, lecc_scc, l3_scc, scf, sso, cos, hdcl1, l3evict, segov, glbgo, uclookup, l1cc)               \
+            #define DEFINE_CP_ELEMENT(Usage, llc, ellc, l3, wt, age, aom, lecc_scc, l3_scc, scf, sso, cos, hdcl1, l3evict, segov, glbgo, uclookup, l1cc, l2cc, l4cc, coherency)\
             do {                                                                                                                                           \
                     pCachePolicy[Usage].LLC         = (llc);                                                                                               \
                     pCachePolicy[Usage].ELLC        = (ellc);                                                                                              \
@@ -83,6 +80,9 @@ namespace GmmLib
                     pCachePolicy[Usage].UcLookup    = (uclookup);                                                                                          \
                     pCachePolicy[Usage].L1CC        = (l1cc);                                                                                              \
                     pCachePolicy[Usage].Initialized = 1;                                                                                                   \
+		    pCachePolicy[Usage].L2CC        = (l2cc);                                                                                              \
+		    pCachePolicy[Usage].L4CC        = (l4cc);                                                                                              \
+		    pCachePolicy[Usage].Coherency   = (coherency);                                                                                         \
             } while(0)
 
             MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL CachePolicyGetOriginalMemoryObject(GMM_RESOURCE_INFO *pResInfo);
@@ -100,6 +100,8 @@ namespace GmmLib
             {
             }
             virtual uint32_t GMM_STDCALL CachePolicyGetPATIndex(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage, bool *pCompressionEnable, bool IsCpuCacheable);
+            uint32_t GMM_STDCALL CachePolicyGetNumPATRegisters();
+
     };
 }
 #endif // #ifdef __cplusplus

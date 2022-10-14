@@ -75,6 +75,7 @@ typedef enum {
     IGFX_XE_HP_SDV = 1250,
     IGFX_DG2 = 1270,
     IGFX_PVC = 1271,
+    IGFX_METEORLAKE = 1272,
 
     IGFX_MAX_PRODUCT,
     IGFX_GENNEXT               = 0x7ffffffe,
@@ -105,7 +106,8 @@ typedef enum {
     PCH_ADL_S,          // ADL_S PCH
     PCH_ADL_P,          // ADL_P PCH
     PCH_TGL_H,          // TGL H PCH
-    PCH_ADL_N,          // ADL_N PCH
+    PCH_ADL_N,          // ADL_N PCHDL
+    PCH_MTL,            // MTL PCH
     PCH_PRODUCT_FAMILY_FORCE_ULONG = 0x7fffffff
 } PCH_PRODUCT_FAMILY;
 
@@ -200,6 +202,7 @@ typedef struct PLATFORM_STR {
     // GT Type
     // Note: Is valid only till Gen9. From Gen10 SKUs are not identified by any GT flags. 'GT_SYSTEM_INFO' should be used instead.
     GTTYPE              eGTType;
+
 } PLATFORM;
 
 // add enums at the end
@@ -1767,6 +1770,73 @@ typedef enum __NATIVEGTTYPE
 #define PCH_DEV_ID_54FE         0x54FE
 #define PCH_DEV_ID_54FF         0x54FF
 
+// MTL PCH Dev IDs
+#define PCH_DEV_ID_7E00         0x7E00
+#define PCH_DEV_ID_7E01         0x7E01
+#define PCH_DEV_ID_7E02         0x7E02
+#define PCH_DEV_ID_7E03         0x7E03
+#define PCH_DEV_ID_7E04         0x7E04
+#define PCH_DEV_ID_7E05         0x7E05
+#define PCH_DEV_ID_7E06         0x7E06
+#define PCH_DEV_ID_7E07         0x7E07
+#define PCH_DEV_ID_7E08         0x7E08
+#define PCH_DEV_ID_7E09         0x7E09
+#define PCH_DEV_ID_7E0A         0x7E0A
+#define PCH_DEV_ID_7E0B         0x7E0B
+#define PCH_DEV_ID_7E0C         0x7E0C
+#define PCH_DEV_ID_7E0D         0x7E0D
+#define PCH_DEV_ID_7E0E         0x7E0E
+#define PCH_DEV_ID_7E0F         0x7E0F
+#define PCH_DEV_ID_7E10         0x7E10
+#define PCH_DEV_ID_7E11         0x7E11
+#define PCH_DEV_ID_7E12         0x7E12
+#define PCH_DEV_ID_7E13         0x7E13
+#define PCH_DEV_ID_7E14         0x7E14
+#define PCH_DEV_ID_7E15         0x7E15
+#define PCH_DEV_ID_7E16         0x7E16
+#define PCH_DEV_ID_7E17         0x7E17
+#define PCH_DEV_ID_7E18         0x7E18
+#define PCH_DEV_ID_7E19         0x7E19
+#define PCH_DEV_ID_7E1A         0x7E1A
+#define PCH_DEV_ID_7E1B         0x7E1B
+#define PCH_DEV_ID_7E1C         0x7E1C
+#define PCH_DEV_ID_7E1D         0x7E1D
+#define PCH_DEV_ID_7E1E         0x7E1E
+#define PCH_DEV_ID_7E1F         0x7E1F
+
+#define PCH_DEV_ID_AE00         0xAE00
+#define PCH_DEV_ID_AE01         0xAE01
+#define PCH_DEV_ID_AE02         0xAE02
+#define PCH_DEV_ID_AE03         0xAE03
+#define PCH_DEV_ID_AE04         0xAE04
+#define PCH_DEV_ID_AE05         0xAE05
+#define PCH_DEV_ID_AE06         0xAE06
+#define PCH_DEV_ID_AE07         0xAE07
+#define PCH_DEV_ID_AE08         0xAE08
+#define PCH_DEV_ID_AE09         0xAE09
+#define PCH_DEV_ID_AE0A         0xAE0A
+#define PCH_DEV_ID_AE0B         0xAE0B
+#define PCH_DEV_ID_AE0C         0xAE0C
+#define PCH_DEV_ID_AE0D         0xAE0D
+#define PCH_DEV_ID_AE0E         0xAE0E
+#define PCH_DEV_ID_AE0F         0xAE0F
+#define PCH_DEV_ID_AE10         0xAE10
+#define PCH_DEV_ID_AE11         0xAE11
+#define PCH_DEV_ID_AE12         0xAE12
+#define PCH_DEV_ID_AE13         0xAE13
+#define PCH_DEV_ID_AE14         0xAE14
+#define PCH_DEV_ID_AE15         0xAE15
+#define PCH_DEV_ID_AE16         0xAE16
+#define PCH_DEV_ID_AE17         0xAE17
+#define PCH_DEV_ID_AE18         0xAE18
+#define PCH_DEV_ID_AE19         0xAE19
+#define PCH_DEV_ID_AE1A         0xAE1A
+#define PCH_DEV_ID_AE1B         0xAE1B
+#define PCH_DEV_ID_AE1C         0xAE1C
+#define PCH_DEV_ID_AE1D         0xAE1D
+#define PCH_DEV_ID_AE1E         0xAE1E
+#define PCH_DEV_ID_AE1F         0xAE1F
+
 //PVC Device ID
 #define DEV_ID_0BD0                            0x0BD0
 #define DEV_ID_0BD5                            0x0BD5
@@ -1832,6 +1902,13 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_46D0                            0x46D0
 #define DEV_ID_46D1                            0x46D1
 #define DEV_ID_46D2                            0x46D2
+
+// MTL
+#define DEV_ID_7D40                            0x7D40
+#define DEV_ID_7D55                            0x7D55
+#define DEV_ID_7DD5                            0x7DD5
+#define DEV_ID_7D45                            0x7D45
+#define DEV_ID_7D60                            0x7D60
 
 #define MGM_HAS     0
 

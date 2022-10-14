@@ -1,5 +1,5 @@
 /*==============================================================================
-Copyright(c) 2017 Intel Corporation
+Copyright(c) 2022 Intel Corporation
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files(the "Software"),
@@ -19,29 +19,20 @@ OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
-
 #pragma once
 
-#include "GmmInfo.h"
+#include "GmmCachePolicyULT.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif /*__cplusplus*/
+class CTestXe_LPGCachePolicy : public CTestCachePolicy
+{
+protected:
+    virtual void SetUpXe_LPGVariant(PRODUCT_FAMILY);
+    virtual void TearDownXe_LPGVariant();
+    virtual void CheckVirtualL3CachePolicy();
+    virtual void CheckPAT();
 
-// Set packing alignment
-#pragma pack(push, 8)
-
-//***************************************************************************
-//
-//                      GMM_GLOBAL_CONTEXT API
-//
-//***************************************************************************
-void GMM_STDCALL GmmGetCacheSizes(GMM_LIB_CONTEXT *pGmmLibContext, GMM_CACHE_SIZES *CacheSizes);
-
-const GMM_PLATFORM_INFO* GMM_STDCALL GmmGetPlatformInfo(GMM_GLOBAL_CONTEXT* pGmmLibContext);
-// Reset packing alignment to project default
-#pragma pack(pop)
-
-#ifdef __cplusplus
-}
-#endif /*__cplusplus*/
+public:
+    static void SetUpTestCase();
+    static void TearDownTestCase();
+};
+#pragma once

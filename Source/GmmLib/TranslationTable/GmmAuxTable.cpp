@@ -49,7 +49,7 @@ Description: AUX-Table management functions
 GMM_STATUS GmmLib::AuxTable::MapNullCCS(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX_ADDRESS BaseAdr, GMM_GFX_SIZE_T Size, uint64_t PartialL1e, uint8_t DoNotWait)
 {
     GMM_STATUS      Status       = GMM_SUCCESS;
-    GMM_GFX_SIZE_T  L1TableSize  = (GMM_L1_SIZE(AUXTT, GetGmmLibContext())) * (!WA16K(GetGmmLibContext()) ? GMM_KBYTE(64) : GMM_KBYTE(16)); //Each AuxTable entry maps 16K main-surface
+    GMM_GFX_SIZE_T  L1TableSize  = ((GMM_GFX_SIZE_T)GMM_L1_SIZE(AUXTT, GetGmmLibContext())) * (WA16K(GetGmmLibContext()) ? GMM_KBYTE(16) : GMM_KBYTE(64)); // TGL and above : L1TableSize =  256x64K OR 16x1M
     GMM_GFX_ADDRESS Addr         = 0;
     GMM_GFX_ADDRESS L3GfxAddress = 0;
     GMM_CLIENT      ClientType;
@@ -126,7 +126,7 @@ GMM_STATUS GmmLib::AuxTable::MapNullCCS(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX
                     GMM_GFX_ADDRESS TableAddr = NullL2Table->GetCPUAddress();
                     GMM_AUXTTL2e    L2e       = {0};
                     L2e.Valid                 = 1;
-                    L2e.L1GfxAddr             = (NullL1Table->GetPool()->GetGfxAddress() + PAGE_SIZE * NullL1Table->GetNodeIdx()) >> 13;
+                    GMM_TO_AUX_L2e_L1GFXADDR_2((NullL1Table->GetPool()->GetGfxAddress() + PAGE_SIZE * NullL1Table->GetNodeIdx()), L2e, (!WA64K(GetGmmLibContext()) && !WA16K(GetGmmLibContext()))) // populate L2e.L1GfxAddr
                     for(int i = 0; i < GMM_AUX_L2_SIZE; i++)
                     {
                         //initialize L2e ie clear Valid bit for all entries
@@ -137,8 +137,17 @@ GMM_STATUS GmmLib::AuxTable::MapNullCCS(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX
 
                     GMM_AUXTTL1e L1e = {0};
                     L1e.Valid        = 1;
-                    L1e.GfxAddress   = (NullCCSTile >> 8);
-                    for(int i = 0; i < GMM_AUX_L1_SIZE(GetGmmLibContext()); i++)
+                    if(!WA64K(GetGmmLibContext()))
+                    {
+                        L1e.GfxAddress = (NullCCSTile >> 12); /*********** 4kb-aligned CCS adr *****/
+                    }
+                    else
+                    {
+                        L1e.Reserved4  = (NullCCSTile >> 8);  /*********** 4 lsbs of 256B-aligned CCS adr *****/
+                        L1e.GfxAddress = (NullCCSTile >> 12); /*********** 4kb-aligned CCS adr *****/
+                    }
+
+		    for(int i = 0; i < GMM_AUX_L1_SIZE(GetGmmLibContext()); i++)
                     {
                         //initialize L1e with null ccs tile
                         ((GMM_AUXTTL1e *)TableAddr)[i].Value = L1e.Value;
@@ -157,9 +166,9 @@ GMM_STATUS GmmLib::AuxTable::MapNullCCS(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX
             {
                 GMM_AUXTTL2e L2e = {0};
                 L2e.Valid        = 1;
-                L2e.L1GfxAddr    = (NullL1Table->GetPool()->GetGfxAddress() + PAGE_SIZE * NullL1Table->GetNodeIdx()) >> 13;
-                Data             = L2e.Value;
-            }
+                GMM_TO_AUX_L2e_L1GFXADDR_2((NullL1Table->GetPool()->GetGfxAddress() + PAGE_SIZE * NullL1Table->GetNodeIdx()), L2e, (!WA64K(GetGmmLibContext()) && !WA16K(GetGmmLibContext())))
+                Data = L2e.Value;
+	    }
 
             if(DoNotWait)
             {
@@ -190,9 +199,9 @@ GMM_STATUS GmmLib::AuxTable::MapNullCCS(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX
                 ((GMM_AUXTTL3e *)(TTL3.CPUAddress))[L3eIdx].Valid     = 1; //set Valid bit
                 ((GMM_AUXTTL3e *)(TTL3.CPUAddress))[L3eIdx].L2GfxAddr = L2GfxAddress >> 15;
 
-                ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx].Valid     = 1; //set Valid bit
-                ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx].L1GfxAddr = L1GfxAddress >> 13;
-            }
+                ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx].Valid = 1; //set Valid bit
+                GMM_TO_AUX_L2e_L1GFXADDR_2(L1GfxAddress, ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx], (!WA64K(GetGmmLibContext()) && !WA16K(GetGmmLibContext())))
+	    }
             else
             {
                 GMM_AUXTTL3e L3e = {0};
@@ -207,8 +216,8 @@ GMM_STATUS GmmLib::AuxTable::MapNullCCS(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX
 
                 GMM_AUXTTL2e L2e = {0};
                 L2e.Valid        = 1;
-                L2e.L1GfxAddr    = L1GfxAddress >> 13;
-                PageTableMgr->TTCb.pfWriteL2L3Entry(
+                GMM_TO_AUX_L2e_L1GFXADDR_2(L1GfxAddress, L2e, (!WA64K(GetGmmLibContext()) && !WA16K(GetGmmLibContext())))
+		PageTableMgr->TTCb.pfWriteL2L3Entry(
                 UmdContext->pCommandQueueHandle,
                 L2GfxAddress + (L2eIdx * GMM_AUX_L2e_SIZE),
                 L2e.Value);
@@ -218,7 +227,7 @@ GMM_STATUS GmmLib::AuxTable::MapNullCCS(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX
         // For each 64KB or 16KB of main surface (entry) in L1 table
         for(TileAddr = StartAddress;
             TileAddr < EndAddress;
-            TileAddr += (!WA16K(GetGmmLibContext()) ? GMM_KBYTE(64) : GMM_KBYTE(16)))
+            TileAddr += (WA16K(GetGmmLibContext()) ? GMM_KBYTE(16) : WA64K(GetGmmLibContext()) ? GMM_KBYTE(64) : GMM_MBYTE(1)))
         {
             uint64_t                Data   = PartialL1e | NullCCSTile | __BIT(0);
             GMM_GFX_SIZE_T          L1eIdx = GMM_L1_ENTRY_IDX(AUXTT, TileAddr, GetGmmLibContext());
@@ -230,8 +239,7 @@ GMM_STATUS GmmLib::AuxTable::MapNullCCS(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX
             {
                 //Sync update on CPU
                 ((GMM_AUXTTL1e *)L1CPUAddress)[L1eIdx].Value = Data;
-
-                GMM_DPF(GFXDBG_NORMAL, "Null-Map | Table Entry: [0x%06x] L2Addr[0x%016llX] Value[0x%016llX] :: [0x%06x] L1Addr[0x%016llX] Value[0x%016llX]\n", L2eIdx, ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx], ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx].L1GfxAddr << 13, L1eIdx, &((GMM_AUXTTL1e *)L1CPUAddress)[L1eIdx], Data);
+                GMM_DPF(GFXDBG_NORMAL, "##### Null-Map | Table Entry:  TileAddress[0x%llX] L2eIdx[%d]  :: L1eIdx[%d] L1Addr[0x%llX] L1Value[00x%llX]\n", TileAddr, L2eIdx, L1eIdx, &((GMM_AUXTTL1e *)L1CPUAddress)[L1eIdx], Data);
             }
             else
             {
@@ -256,9 +264,9 @@ GMM_STATUS GmmLib::AuxTable::MapNullCCS(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX
 
                 pL1Tbl = pTTL2[GMM_L3_ENTRY_IDX(AUXTT, TileAddr)].GetL1Table(L2eIdx, &Prev);
                 // Map L2-entry to Null-L1Table
-                L2e.Valid     = 1;
-                L2e.L1GfxAddr = (NullL1Table->GetPool()->GetGfxAddress() + PAGE_SIZE * NullL1Table->GetNodeIdx()) >> 13;
-                if(DoNotWait)
+                L2e.Valid = 1;
+                GMM_TO_AUX_L2e_L1GFXADDR_2((NullL1Table->GetPool()->GetGfxAddress() + PAGE_SIZE * NullL1Table->GetNodeIdx()), L2e, (!WA64K(GetGmmLibContext()) && !WA16K(GetGmmLibContext()))) // populate L2e.L1GfxAddress/Le2.Reserved2
+		if(DoNotWait)
                 {
                     //Sync update on CPU
                     ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx].Value = L2e.Value;
@@ -280,7 +288,7 @@ GMM_STATUS GmmLib::AuxTable::MapNullCCS(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX
                         {
                             PoolElem->GetNodeBBInfoAtIndex(pL1Tbl->GetNodeIdx()) = pL1Tbl->GetBBInfo();
                         }
-                        DEASSIGN_POOLNODE(PageTableMgr, UmdContext, PoolElem, pL1Tbl->GetNodeIdx(), AUX_L1TABLE_SIZE_IN_POOLNODES)
+                        DEASSIGN_POOLNODE(PageTableMgr, UmdContext, PoolElem, pL1Tbl->GetNodeIdx(), AUX_L1TABLE_SIZE_IN_POOLNODES_2(GetGmmLibContext()))
                     }
                     pTTL2[GMM_L3_ENTRY_IDX(AUXTT, TileAddr)].DeleteFromList(pL1Tbl, Prev);
                 }
@@ -320,7 +328,7 @@ GMM_STATUS GmmLib::AuxTable::MapNullCCS(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX
 GMM_STATUS GmmLib::AuxTable::InvalidateTable(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_GFX_ADDRESS BaseAdr, GMM_GFX_SIZE_T Size, uint8_t DoNotWait)
 {
     GMM_STATUS      Status       = GMM_SUCCESS;
-    GMM_GFX_SIZE_T  L1TableSize  = (GMM_L1_SIZE(AUXTT, GetGmmLibContext())) * (!WA16K(GetGmmLibContext()) ? GMM_KBYTE(64) : GMM_KBYTE(16)); //Each AuxTable entry maps 16K main-surface
+    GMM_GFX_SIZE_T  L1TableSize  = ((GMM_GFX_SIZE_T)GMM_L1_SIZE(AUXTT, GetGmmLibContext())) * (WA16K(GetGmmLibContext()) ? GMM_KBYTE(16) : GMM_KBYTE(64)); //Each AuxTable entry maps 16K main-surface
     GMM_GFX_ADDRESS Addr         = 0;
     GMM_GFX_ADDRESS L3GfxAddress = 0;
     uint8_t         isTRVA       = 0; 
@@ -402,8 +410,8 @@ GMM_STATUS GmmLib::AuxTable::InvalidateTable(GMM_UMD_SYNCCONTEXT *UmdContext, GM
                 {
                     GMM_AUXTTL2e L2e = {0};
                     L2e.Valid        = 1;
-                    L2e.L1GfxAddr    = (NullL1Table->GetPool()->GetGfxAddress() + PAGE_SIZE * NullL1Table->GetNodeIdx()) >> 13;
-                    Data             = L2e.Value;
+                    GMM_TO_AUX_L2e_L1GFXADDR_2((NullL1Table->GetPool()->GetGfxAddress() + PAGE_SIZE * NullL1Table->GetNodeIdx()), L2e, (!WA64K(GetGmmLibContext()) && !WA16K(GetGmmLibContext())))
+                    Data = L2e.Value;
                 }
                 L2e.Value = Data;
             }
@@ -440,9 +448,9 @@ GMM_STATUS GmmLib::AuxTable::InvalidateTable(GMM_UMD_SYNCCONTEXT *UmdContext, GM
                 ((GMM_AUXTTL3e *)(TTL3.CPUAddress))[L3eIdx].Valid     = 1; //set Valid bit
                 ((GMM_AUXTTL3e *)(TTL3.CPUAddress))[L3eIdx].L2GfxAddr = L2GfxAddress >> 15;
 
-                ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx].Valid     = 1; //set Valid bit
-                ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx].L1GfxAddr = L1GfxAddress >> 13;
-            }
+                ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx].Valid = 1; //set Valid bit
+                GMM_TO_AUX_L2e_L1GFXADDR_2(L1GfxAddress, ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx], (!WA64K(GetGmmLibContext()) && !WA16K(GetGmmLibContext())))
+	    }
             else
             {
                 GMM_AUXTTL3e L3e = {0};
@@ -457,18 +465,18 @@ GMM_STATUS GmmLib::AuxTable::InvalidateTable(GMM_UMD_SYNCCONTEXT *UmdContext, GM
 
                 GMM_AUXTTL2e L2e = {0};
                 L2e.Valid        = 1;
-                L2e.L1GfxAddr    = L1GfxAddress >> 13;
-                PageTableMgr->TTCb.pfWriteL2L3Entry(
+                GMM_TO_AUX_L2e_L1GFXADDR_2(L1GfxAddress, L2e, (!WA64K(GetGmmLibContext()) && !WA16K(GetGmmLibContext())))
+		PageTableMgr->TTCb.pfWriteL2L3Entry(
                 UmdContext->pCommandQueueHandle,
                 L2GfxAddress + (L2eIdx * GMM_AUX_L2e_SIZE),
                 L2e.Value);
             }
         }
 
-        // For each 64KB or 16KB of main surface (entry) in L1 table
+        // For each 64KB or 16KB or 1MB of main surface (entry) in L1 table
         for(TileAddr = StartAddress;
             TileAddr < EndAddress;
-            TileAddr += (!WA16K(GetGmmLibContext()) ? GMM_KBYTE(64) : GMM_KBYTE(16)))
+            TileAddr += (WA16K(GetGmmLibContext()) ? GMM_KBYTE(16) : WA64K(GetGmmLibContext()) ? GMM_KBYTE(64) : GMM_MBYTE(1)))
         {
             //Invalidation of requested range irrespective of TRVA
             uint64_t                Data   = GMM_INVALID_AUX_ENTRY;
@@ -481,8 +489,8 @@ GMM_STATUS GmmLib::AuxTable::InvalidateTable(GMM_UMD_SYNCCONTEXT *UmdContext, GM
             {
                 //Sync update on CPU
                 ((GMM_AUXTTL1e *)L1CPUAddress)[L1eIdx].Value = Data;
+                GMM_DPF(GFXDBG_NORMAL, "~~UnMap | Table Entry: L2addressBase[0x%llX] :: L2Valid[%d] :: L2eidx[%d]  L1addressBase[0x%llX] :: L1eidx[%d]  L1Valid[%d] :: DerivedCCS[0x%llX] ", (GMM_AUXTTL2e *)L2CPUAddress, ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx].Valid, L2eIdx, GMM_L1TABLE_ADDR_FROM_AUX_L2e_L1GFXADDR(((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx], true), L1eIdx, ((GMM_AUXTTL1e *)L1CPUAddress)[L1eIdx].Valid, (((GMM_AUXTTL1e *)L1CPUAddress)[L1eIdx].GfxAddress << 12));
 
-                GMM_DPF(GFXDBG_NORMAL, "UnMap | Table Entry: [0x%06x] L2Addr[0x%016llX] Value[0x%016llX] :: [0x%06x] L1Addr[0x%016llX] Value[0x%016llX]\n", L2eIdx, ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx], ((GMM_AUXTTL2e *)L2CPUAddress)[L2eIdx].L1GfxAddr << 13, L1eIdx, &((GMM_AUXTTL1e *)L1CPUAddress)[L1eIdx], Data);
             }
             else
             {
@@ -491,8 +499,8 @@ GMM_STATUS GmmLib::AuxTable::InvalidateTable(GMM_UMD_SYNCCONTEXT *UmdContext, GM
                 /*                PageTableMgr->TTCb.pfWriteL1Entries(
                     UmdContext->pCommandQueueHandle,
                     2,
-                    L1GfxAddress + (L1eIdx * GMM_AUX_L1e_SIZE),
-                    (uint32_t*)(&Data));*/ //**********REQUIRE UMD CHANGE TO UPDATE 64-bit ENTRY - both DWORDs must be updated atomically*******/
+                    (uint32_t*)(&Data));*/
+                //**********REQUIRE UMD CHANGE TO UPDATE 64-bit ENTRY - both DWORDs must be updated atomically*******/
                 PageTableMgr->TTCb.pfWriteL2L3Entry(
                 UmdContext->pCommandQueueHandle,
                 L1GfxAddress + (L1eIdx * GMM_AUX_L1e_SIZE),
@@ -512,9 +520,9 @@ GMM_STATUS GmmLib::AuxTable::InvalidateTable(GMM_UMD_SYNCCONTEXT *UmdContext, GM
                     (TileAddr > GFX_ALIGN_FLOOR(BaseAdr + Size, L1TableSize) && TileAddr < GFX_ALIGN_NP2(BaseAdr + Size, L1TableSize))))
                 {
                     //Invalidation affects entries out of requested range, null-map for TR
-                    L2e.Valid     = 1;
-                    L2e.L1GfxAddr = (NullL1Table->GetPool()->GetGfxAddress() + PAGE_SIZE * NullL1Table->GetNodeIdx()) >> 13;
-                }
+                    L2e.Valid = 1;
+                    GMM_TO_AUX_L2e_L1GFXADDR_2((NullL1Table->GetPool()->GetGfxAddress() + PAGE_SIZE * NullL1Table->GetNodeIdx()), L2e, (!WA64K(GetGmmLibContext()) && !WA16K(GetGmmLibContext())))
+		}
                 else
                 {
                     // Clear valid bit of L2 entry
@@ -543,8 +551,8 @@ GMM_STATUS GmmLib::AuxTable::InvalidateTable(GMM_UMD_SYNCCONTEXT *UmdContext, GM
                         {
                             PoolElem->GetNodeBBInfoAtIndex(pL1Tbl->GetNodeIdx()) = pL1Tbl->GetBBInfo();
                         }
-                        DEASSIGN_POOLNODE(PageTableMgr, UmdContext, PoolElem, pL1Tbl->GetNodeIdx(), AUX_L1TABLE_SIZE_IN_POOLNODES)
-                    }
+                        DEASSIGN_POOLNODE(PageTableMgr, UmdContext, PoolElem, pL1Tbl->GetNodeIdx(), AUX_L1TABLE_SIZE_IN_POOLNODES_2(GetGmmLibContext()))
+		    }
                     pTTL2[GMM_L3_ENTRY_IDX(AUXTT, TileAddr)].DeleteFromList(pL1Tbl, Prev);
                 }
 
@@ -591,7 +599,7 @@ GMM_STATUS GmmLib::AuxTable::MapValidEntry(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_
 {
     GMM_STATUS      Status = GMM_SUCCESS;
     GMM_GFX_ADDRESS Addr = 0, L3TableAdr = GMM_NO_TABLE;
-    GMM_GFX_SIZE_T  L1TableSize = GMM_AUX_L1_SIZE(GetGmmLibContext()) * (!WA16K(GetGmmLibContext()) ? GMM_KBYTE(64) : GMM_KBYTE(16));
+    GMM_GFX_SIZE_T  L1TableSize = GMM_AUX_L1_SIZE(GetGmmLibContext()) * (WA16K(GetGmmLibContext()) ? GMM_KBYTE(16) : GMM_KBYTE(64)); // L1TableSize maps to 16MB address space for TGL and above: 256x64k | 16x1MB
     GMM_GFX_SIZE_T  CCS$Adr     = AuxVA;
     uint8_t         isTRVA    =0  ;
 
@@ -616,7 +624,7 @@ GMM_STATUS GmmLib::AuxTable::MapValidEntry(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_
             PageTableMgr->TTCb.pfPrologTranslationTable(UmdContext->pCommandQueueHandle);
         }
 
-        GMM_DPF(GFXDBG_NORMAL, "Mapping surface: GPUVA=0x%016llX Size=0x%08X Aux_GPUVA=0x%016llX\n", BaseAdr, BaseSize, AuxVA);
+        // GMM_DPF(GFXDBG_CRITICAL, "Mapping surface: GPUVA=0x%016llX Size=0x%08X Aux_GPUVA=0x%016llX\n", BaseAdr, BaseSize, AuxVA);
         for(Addr = GFX_ALIGN_FLOOR(BaseAdr, L1TableSize); Addr < BaseAdr + BaseSize; Addr += L1TableSize)
         {
             GMM_GFX_ADDRESS StartAdr, EndAdr, TileAdr;
@@ -654,9 +662,9 @@ GMM_STATUS GmmLib::AuxTable::MapValidEntry(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_
                     InvalidEntry.Value = 0;
                     if(isTRVA && NullL1Table)
                     {
-                        InvalidEntry.Valid     = 1;
-                        InvalidEntry.L1GfxAddr = (NullL1Table->GetPool()->GetGfxAddress() + PAGE_SIZE * NullL1Table->GetNodeIdx()) >> 13;
-                    }
+                        InvalidEntry.Valid = 1;
+                        GMM_TO_AUX_L2e_L1GFXADDR_2((NullL1Table->GetPool()->GetGfxAddress() + PAGE_SIZE * NullL1Table->GetNodeIdx()), InvalidEntry, (!WA16K(GetGmmLibContext()) && !WA64K(GetGmmLibContext())))
+		    }
 
                     if(DoNotWait)
                     {
@@ -702,9 +710,10 @@ GMM_STATUS GmmLib::AuxTable::MapValidEntry(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_
                         L2TableCPUAdr = pTTL2[L3eIdx].GetCPUAddress();
                         L1TableCPUAdr = pL1Tbl->GetCPUAddress();
                         //Sync update on CPU
-                        ((GMM_AUXTTL2e *)L2TableCPUAdr)[L2eIdx].Value     = 0;
-                        ((GMM_AUXTTL2e *)L2TableCPUAdr)[L2eIdx].L1GfxAddr = L1TableAdr >> 13;
-                        ((GMM_AUXTTL2e *)L2TableCPUAdr)[L2eIdx].Valid     = 1;
+                        ((GMM_AUXTTL2e *)L2TableCPUAdr)[L2eIdx].Value = 0;
+                        GMM_TO_AUX_L2e_L1GFXADDR_2(L1TableAdr, ((GMM_AUXTTL2e *)L2TableCPUAdr)[L2eIdx], (!WA64K(GetGmmLibContext()) && !WA16K(GetGmmLibContext()))) // populate L2e.L1GfxAddr
+                        ((GMM_AUXTTL2e *)L2TableCPUAdr)[L2eIdx]
+                        .Valid = 1;
                         for(i = 0; i < (uint32_t)GMM_AUX_L1_SIZE(GetGmmLibContext()); i++)
                         {
                             //initialize L1e ie mark all entries with Null tile value
@@ -715,8 +724,9 @@ GMM_STATUS GmmLib::AuxTable::MapValidEntry(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_
                     {
                         GMM_AUXTTL2e L2e = {0};
                         L2e.Valid        = 1;
-                        L2e.L1GfxAddr    = L1TableAdr >> 13;
-                        pTTL2[L3eIdx].UpdatePoolFence(UmdContext, false);
+                        GMM_TO_AUX_L2e_L1GFXADDR_2(L1TableAdr, L2e, (!WA64K(GetGmmLibContext()) && !WA16K(GetGmmLibContext())))
+                        pTTL2[L3eIdx]
+                        .UpdatePoolFence(UmdContext, false);
                         PageTableMgr->TTCb.pfWriteL2L3Entry(UmdContext->pCommandQueueHandle,
                                                             L2TableAdr + L2eIdx * GMM_AUX_L2e_SIZE,
                                                             L2e.Value);
@@ -731,36 +741,50 @@ GMM_STATUS GmmLib::AuxTable::MapValidEntry(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_
                     }
                 }
             }
-
-            GMM_DPF(GFXDBG_NORMAL, "Mapping surface: GPUVA=0x%016llx Size=0x%08x Aux_GPUVA=0x%016llx", StartAdr, BaseSize, CCS$Adr);
-
-            for(TileAdr = StartAdr; TileAdr < EndAdr; TileAdr += (!WA16K(pClientContext->GetLibContext()) ? GMM_KBYTE(64) : GMM_KBYTE(16)),
+   
+	    //GMM_DPF(GFXDBG_NORMAL, "Mapping surface: GPUVA=0x%016llx Size=0x%08x Aux_GPUVA=0x%016llx", StartAdr, BaseSize, CCS$Adr);
+            for(TileAdr = StartAdr; TileAdr < EndAdr; TileAdr += (WA16K(GetGmmLibContext()) ? GMM_KBYTE(16) : WA64K(GetGmmLibContext()) ? GMM_KBYTE(64) : GMM_MBYTE(1)),
             CCS$Adr += (pClientContext->GetLibContext()->GetSkuTable().FtrLinearCCS ?
-                        (!WA16K(pClientContext->GetLibContext()) ? GMM_BYTES(256) : GMM_BYTES(64)) :
+                        (WA16K(pClientContext->GetLibContext()) ? GMM_BYTES(64) : WA64K(pClientContext->GetLibContext()) ? GMM_BYTES(256) : GMM_KBYTE(4)) :
                         0))
-            {
+	    {
                 GMM_GFX_SIZE_T L1eIdx = GMM_L1_ENTRY_IDX(AUXTT, TileAdr, GetGmmLibContext());
                 GMM_AUXTTL1e   L1e    = {0};
                 L1e.Value             = PartialData;
                 L1e.Valid             = 1;
 
+                if(L1eIdx == 15 || L1eIdx == 14)
+                {
+                    GMM_DPF(GFXDBG_NORMAL, "\n****** switching over L1*******\n");
+                }
+		
                 CCS$Adr = (pClientContext->GetLibContext()->GetSkuTable().FtrLinearCCS ? CCS$Adr :
 				__GetCCSCacheline(BaseResInfo, BaseAdr, AuxResInfo, AuxVA, TileAdr - BaseAdr));
 
-                if(!WA16K(GetGmmLibContext()))
+                if(WA16K(GetGmmLibContext()))
+                {
+                    L1e.Reserved2  = CCS$Adr >> 6;  /*********** 2 lsbs of 64B-aligned CCS adr *****/
+                    L1e.Reserved4  = CCS$Adr >> 8;  /*********** 256B-aligned CCS adr *****/
+                    L1e.GfxAddress = CCS$Adr >> 12; /*********** 4KB-aligned CCS adr *****/
+                }
+                else if(WA64K(GetGmmLibContext()))
                 {
                     __GMM_ASSERT((CCS$Adr & 0xFF) == 0x0);
                     __GMM_ASSERT(GFX_IS_ALIGNED(CCS$Adr, GMM_BYTES(256)));
                     __GMM_ASSERT(GFX_IS_ALIGNED(TileAdr, GMM_KBYTE(64)));
-                    L1e.GfxAddress = CCS$Adr >> 8; /*********** 256B-aligned CCS adr *****/
+                    L1e.Reserved4  = CCS$Adr >> 8;  /*********** 4 lsbs of 256B-aligned CCS adr *****/
+                    L1e.GfxAddress = CCS$Adr >> 12; /*********** 4KB-aligned CCS adr *****/
                 }
-                else
+                else // 1MB aligned address
                 {
-                    L1e.Reserved2  = CCS$Adr >> 6; /*********** 2 lsbs of 64B-aligned CCS adr *****/
-                    L1e.GfxAddress = CCS$Adr >> 8; /*********** 256B-aligned CCS adr *****/
+                    __GMM_ASSERT((CCS$Adr & 0xFF) == 0x0);
+                    __GMM_ASSERT(GFX_IS_ALIGNED(CCS$Adr, GMM_KBYTE(4)));
+                    __GMM_ASSERT(GFX_IS_ALIGNED(TileAdr, GMM_MBYTE(1)));
+                    L1e.GfxAddress = CCS$Adr >> 12; /*********** 4KB-aligned CCS adr *****/
                 }
 
-                //GMM_DPF(GFXDBG_CRITICAL, "Map | L1=0x%016llx[0x%016llx] L1e=[0x%016llx] | [ GPUVA=0x%016llx[0x%08x] Aux_GPUVA=0x%016llx [%s]", L1TableAdr + L1eIdx << 3, L1eIdx << 3, L1e.Value, TileAdr, TileAdr - StartAdr, CCS$Adr, L1e.Valid ? "V" : " ");
+
+                GMM_DPF(GFXDBG_NORMAL, "--------------------------------MAP AuxTT Map Address: TileAddr[0x%llX], Size[0x%x], CCSAddr[0x%llX], L3eIdx[%d], L2eIdx[%d], L1eIdx[%d], \n L1CCSAddres[0x%llX] \n", TileAdr, BaseSize, CCS$Adr, L3eIdx, L2eIdx, L1eIdx, L1e.GfxAddress);
 
                 GmmLib::LastLevelTable *pL1Tbl = NULL;
 
@@ -771,7 +795,6 @@ GMM_STATUS GmmLib::AuxTable::MapValidEntry(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_
                     //Sync update on CPU
                     ((GMM_AUXTTL1e *)L1TableCPUAdr)[L1eIdx].Value = L1e.Value;
 
-                    //GMM_DPF(GFXDBG_CRITICAL, "Map | Table Entry: [0x%06x] L2Addr[0x%016llX] Value[0x%016llX] :: [0x%06x] L1Addr[0x%016llX] Value[0x%016llX] -> GPUVA: 0x%016llX[0x%06X] Aux_GPUVA: 0x%016llX [%s]\n", L2eIdx, &((GMM_AUXTTL2e *)L2TableCPUAdr)[L2eIdx], ((GMM_AUXTTL2e *)L2TableCPUAdr)[L2eIdx].L1GfxAddr << 13, L1eIdx, &((GMM_AUXTTL1e *)L1TableCPUAdr)[L1eIdx] /*L1TableAdr + L1eIdx * GMM_AUX_L1e_SIZE*/, L1e.Value, TileAdr, TileAdr - BaseAdr, ((GMM_AUXTTL1e *)L1TableCPUAdr)[L1eIdx].GfxAddress << 6, ((GMM_AUXTTL1e *)L1CPUAdr)[L1eIdx].Valid ? "V" : " ");
                 }
                 else
                 {
@@ -780,6 +803,10 @@ GMM_STATUS GmmLib::AuxTable::MapValidEntry(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_
                                                         L1TableAdr + L1eIdx * GMM_AUX_L1e_SIZE,
                                                         L1e.Value);
                 }
+                GMM_DPF(GFXDBG_NORMAL, "Map | L3 Table Entry: L3AddressBase[0x%llX] :: L3.L2GfxAddr[0x%llX] :: L3Valid[0x%llX] \n", (GMM_AUXTTL3e *)(TTL3.CPUAddress), ((GMM_AUXTTL3e *)(TTL3.CPUAddress))[L3eIdx].L2GfxAddr, ((GMM_AUXTTL3e *)(TTL3.CPUAddress))[L3eIdx].Valid);
+                GMM_DPF(GFXDBG_NORMAL, "Map | L2 Table Entry: L2addressBase[0x%llX] :: L2.L1GfxAddr[0x%llX] :: L2Valid[0x%llX] \n", ((GMM_AUXTTL2e *)pTTL2[L3eIdx].GetCPUAddress()), ((GMM_AUXTTL2e *)pTTL2[L3eIdx].GetCPUAddress())[L2eIdx].L1GfxAddr, ((GMM_AUXTTL2e *)pTTL2[L3eIdx].GetCPUAddress())[L2eIdx].Valid);
+                GMM_DPF(GFXDBG_NORMAL, "Map | L1 Table Entry: L1addressBase[0x%llX] :: L1.CCSAddr[0x%llX] :: L1ValueReserved4[0x%llX] ::L1ValueReserved2[0x%llX] :: L1Valid[0x%llX] :: DerivedCCS[0x%llX] \n\n", ((GMM_AUXTTL1e *)L1TableCPUAdr), ((GMM_AUXTTL1e *)L1TableCPUAdr)[L1eIdx].GfxAddress, ((GMM_AUXTTL1e *)L1TableCPUAdr)[L1eIdx].Reserved4, ((GMM_AUXTTL1e *)L1TableCPUAdr)[L1eIdx].Reserved2, ((GMM_AUXTTL1e *)L1TableCPUAdr)[L1eIdx].Valid, (((GMM_AUXTTL1e *)L1TableCPUAdr)[L1eIdx].GfxAddress << 12));
+                GMM_DPF(GFXDBG_NORMAL, "**Map | Table Entry: L2addressBase[0x%llX] :: L2Valid[%d] :: L2eidx[%d]  L1addressBase[0x%llX] :: L1eidx[%d]  L1Valid[0x%llX] :: DerivedCCS[0x%llX]", ((GMM_AUXTTL2e *)pTTL2[L3eIdx].GetCPUAddress()), ((GMM_AUXTTL2e *)pTTL2[L3eIdx].GetCPUAddress())[L2eIdx].Valid, L2eIdx, GMM_L1TABLE_ADDR_FROM_AUX_L2e_L1GFXADDR(((GMM_AUXTTL2e *)pTTL2[L3eIdx].GetCPUAddress())[L2eIdx], true), L1eIdx, ((GMM_AUXTTL1e *)L1TableCPUAdr)[L1eIdx].Valid, (((GMM_AUXTTL1e *)L1TableCPUAdr)[L1eIdx].GfxAddress << 12));
 
                 // Since we are mapping a non-null entry, no need to check whether
                 // L1 table is unused.

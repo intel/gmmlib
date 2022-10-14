@@ -57,7 +57,11 @@ typedef struct GMM_CACHE_POLICY_ELEMENT_REC
             uint64_t                   UcLookup    : 1; // Snoop L3 for uncached 
             uint64_t                   L1CC        : 3; // L1 Cache Control
 	    uint64_t                   Initialized : 1;
-            uint64_t                   Reserved    : 34;
+            uint64_t                   L2CC        : 2; // media internal cache 0:UC, 1:WB
+            uint64_t                   L4CC        : 2; // ADM memory cache 0: UC, 1:WB, 2: WT
+            uint64_t                   Coherency   : 2; // 0 non-coh, 1: 1 way coh IA snoop 2: 2 way coh IA GPU snopp
+	    uint64_t                   CoherentPATIndex : 5;
+	    uint64_t                   Reserved    : 23;
 
 	};
         uint64_t Value;    
@@ -74,7 +78,6 @@ typedef struct GMM_CACHE_POLICY_ELEMENT_REC
     GMM_PTE_CACHE_CONTROL_BITS                PTE; 
     uint32_t                                  Override;
     uint32_t                                  IsOverridenByRegkey; // Flag to indicate If usage settings are overridden by regkey
-    
 }GMM_CACHE_POLICY_ELEMENT;
 
 // One entry in the SKL/CNL cache lookup table
@@ -94,7 +97,24 @@ typedef struct GMM_CACHE_POLICY_TBL_ELEMENT_REC {
             uint32_t SelfSnoop           : 2; // Self Snoop override or not MIDI settings - CNL+
             uint32_t Reserved            : 13;
         } ;
+	
         uint32_t DwordValue;
+
+	union {
+            struct
+            {
+                uint32_t Reserved0       : 2;
+                uint32_t L4CC            : 2;
+                uint32_t Reserved1       : 2;
+                uint32_t Reserved2       : 2;
+                uint32_t igPAT           : 1; // selection between MOCS and PAT
+                uint32_t Reserved3       : 23;
+            };
+	    
+	    uint32_t DwordValue;
+
+        } Xe_LPG;
+
     } LeCC;
 
     union {
@@ -109,7 +129,9 @@ typedef struct GMM_CACHE_POLICY_TBL_ELEMENT_REC {
         } ;
         uint16_t UshortValue;
     } L3;
+
     uint8_t    HDCL1;
+
 } GMM_CACHE_POLICY_TBL_ELEMENT;
 
 typedef enum GMM_IA32e_MEMORY_TYPE_REC
@@ -130,6 +152,22 @@ typedef enum GMM_GFX_MEMORY_TYPE_REC
     GMM_GFX_WB              = 0x3
 } GMM_GFX_MEMORY_TYPE;
 
+typedef enum GMM_L4_CACHING_POLICY_REC
+{
+    GMM_CP_COHERENT_WB                    = 0x0,
+    GMM_CP_NON_COHERENT_WB                = 0x0,
+    GMM_CP_NON_COHERENT_WT                = 0x1,
+    GMM_CP_NON_COHERENT_UC                = 0x3,
+} GMM_L4_CACHING_POLICY;
+
+typedef enum GMM_GFX_COHERENCY_TYPE_REC
+{
+    GMM_GFX_NON_COHERENT_NO_SNOOP           = 0x0,
+    GMM_GFX_NON_COHERENT                    = 0x1,
+    GMM_GFX_COHERENT_ONE_WAY_IA_SNOOP       = 0x2,
+    GMM_GFX_COHERENT_TWO_WAY_IA_GPU_SNOOP   = 0x3
+} GMM_GFX_COHERENCY_TYPE;
+
 typedef enum GMM_GFX_PAT_TYPE_REC
 {
     GMM_GFX_PAT_WB_COHERENT     = 0x0, // WB + Snoop : Atom
@@ -149,7 +187,16 @@ typedef enum GMM_GFX_PAT_IDX_REC
     PAT4,           // Will be tied to GMM_GFX_PAT_WT
     PAT5,           // Will be tied to GMM_GFX_PAT_WC
     PAT6,           // Will be tied to GMM_GFX_PAT_WC
-    PAT7            // Will be tied to GMM_GFX_PAT_WC
+    PAT7,           // Will be tied to GMM_GFX_PAT_WC
+    // Additional registers
+    PAT8,
+    PAT9,
+    PAT10,
+    PAT11,
+    PAT12,
+    PAT13,
+    PAT14,
+    PAT15	    
 }GMM_GFX_PAT_IDX;
 
 #define GFX_IS_ATOM_PLATFORM(pGmmLibContext) (GmmGetSkuTable(pGmmLibContext)->FtrLCIA)
@@ -171,7 +218,6 @@ typedef union GMM_PRIVATE_PAT_REC {
         uint32_t Snoop : 1;
         uint32_t Reserved : 1;
     }PreGen10;
-
 #if (IGFX_GEN >= IGFX_GEN10)
     struct
     {
@@ -183,7 +229,6 @@ typedef union GMM_PRIVATE_PAT_REC {
         uint32_t Reserved2 : 22;
     }Gen10;
 #endif
-
     struct
     {
         uint32_t MemoryType : 2;
@@ -196,6 +241,13 @@ typedef union GMM_PRIVATE_PAT_REC {
         uint32_t L3CLOS : 2;
         uint32_t Reserved : 28;
     } Xe_HPC;
+
+    struct
+    {
+        uint32_t Coherency          : 2;     
+        uint32_t L4CC               : 2;    
+        uint32_t Reserved           : 28;
+    }Xe_LPG;
 
     uint32_t   Value;
 

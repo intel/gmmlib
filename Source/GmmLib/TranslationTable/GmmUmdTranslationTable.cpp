@@ -144,6 +144,8 @@ void GmmLib::PageTable::AllocateL1L2Table(GMM_GFX_ADDRESS TileAddr, GMM_GFX_ADDR
     uint32_t                L2eIdx     = static_cast<uint32_t>(GMM_L2_ENTRY_IDX(TTType, TileAddr));
     GmmLib::LastLevelTable *pL1Tbl     = NULL;
 
+    __GMM_ASSERTPTR(pClientContext, VOIDRETURN); // void return
+
     *L2TableAdr = GMM_NO_TABLE;
     *L1TableAdr = GMM_NO_TABLE;
 
@@ -201,8 +203,8 @@ void GmmLib::PageTable::AllocateL1L2Table(GMM_GFX_ADDRESS TileAddr, GMM_GFX_ADDR
                 *L1TableAdr = PoolElem->GetGfxAddress() + PAGE_SIZE * PoolNodeIdx; //PoolNodeIdx should reflect 1 node per Tr-table and 2 nodes per AUX L1 TABLE
                 if(PoolNodeIdx != PAGETABLE_POOL_MAX_NODES)
                 {
-                    uint32_t PerTableNodes = (TTType == AUXTT) ? AUX_L1TABLE_SIZE_IN_POOLNODES : 1;
-                    ASSIGN_POOLNODE(PoolElem, PoolNodeIdx, PerTableNodes)
+                    uint32_t PerTableNodes = (TTType == AUXTT) ? AUX_L1TABLE_SIZE_IN_POOLNODES_2(GetGmmLibContext()) : 1;
+		    ASSIGN_POOLNODE(PoolElem, PoolNodeIdx, PerTableNodes)
                 }
                 pTTL2[L3eIdx].InsertInList(pL1Tbl);
             }
@@ -227,6 +229,8 @@ void GmmLib::PageTable::AllocateDummyTables(GmmLib::Table **L2Table, GmmLib::Tab
 {
     GMM_GFX_ADDRESS         L3TableAdr = GMM_NO_TABLE;
     GmmLib::LastLevelTable *pL1Tbl     = NULL;
+
+    __GMM_ASSERTPTR(pClientContext, VOIDRETURN);
 
     if(TTL3.L3Handle)
     {
@@ -266,7 +270,7 @@ void GmmLib::PageTable::AllocateDummyTables(GmmLib::Table **L2Table, GmmLib::Tab
             {
                 if(PoolNodeIdx != PAGETABLE_POOL_MAX_NODES)
                 {
-                    uint32_t PerTableNodes = (TTType == AUXTT) ? AUX_L1TABLE_SIZE_IN_POOLNODES : 1;
+                    uint32_t PerTableNodes = (TTType == AUXTT) ? AUX_L1TABLE_SIZE_IN_POOLNODES_2(GetGmmLibContext()) : 1;
                     ASSIGN_POOLNODE(PoolElem, PoolNodeIdx, PerTableNodes)
                 }
             }
@@ -293,6 +297,8 @@ void GmmLib::PageTable::GetL1L2TableAddr(GMM_GFX_ADDRESS TileAddr, GMM_GFX_ADDRE
     GMM_GFX_ADDRESS L3TableAdr = GMM_NO_TABLE;
     *L2TableAdr                = GMM_NO_TABLE;
     *L1TableAdr                = GMM_NO_TABLE;
+
+    __GMM_ASSERTPTR(pClientContext, VOIDRETURN);
 
     L3eIdx = GMM_L3_ENTRY_IDX(TTType, TileAddr);
     L2eIdx = GMM_L2_ENTRY_IDX(TTType, TileAddr);
@@ -322,7 +328,7 @@ void GmmLib::PageTable::GetL1L2TableAddr(GMM_GFX_ADDRESS TileAddr, GMM_GFX_ADDRE
             Pool = pL1Tbl->GetPool();
             if(Pool)
             {
-                uint32_t PerTableNodes = (TTType == AUXTT) ? AUX_L1TABLE_SIZE_IN_POOLNODES : 1;
+                uint32_t PerTableNodes = (TTType == AUXTT) ? AUX_L1TABLE_SIZE_IN_POOLNODES_2(GetGmmLibContext()) : 1;
                 __GMM_ASSERT(Pool->GetNumFreeNode() != PAGETABLE_POOL_MAX_NODES);
                 __GMM_ASSERT(pL1Tbl->GetNodeIdx() < PAGETABLE_POOL_MAX_NODES);
                 __GMM_ASSERT(Pool->GetNodeUsageAtIndex(pL1Tbl->GetNodeIdx() / (32 * PerTableNodes)) != 0);
@@ -349,6 +355,7 @@ void GmmLib::PageTable::GetL1L2TableAddr(GMM_GFX_ADDRESS TileAddr, GMM_GFX_ADDRE
 uint8_t GmmLib::PageTable::GetMappingType(GMM_GFX_ADDRESS GfxVA, GMM_GFX_SIZE_T Size, GMM_GFX_ADDRESS &LastAddr)
 {
     GMM_GFX_SIZE_T  L3eIdx, L2eIdx, L1eIdx, L1EntrySize;
+    uint32_t        L1Size, L2Size;
     uint8_t         MapType      = 0; //true for non-null, false for null mapped
     bool            bFoundLastVA = false, bTerminate = false;
     GMM_GFX_ADDRESS TileAddr = GfxVA;
@@ -356,7 +363,7 @@ uint8_t GmmLib::PageTable::GetMappingType(GMM_GFX_ADDRESS GfxVA, GMM_GFX_SIZE_T 
     L3eIdx      = GMM_L3_ENTRY_IDX(TTType, GfxVA);
     L2eIdx      = GMM_L2_ENTRY_IDX(TTType, GfxVA);
     L1eIdx      = GMM_L1_ENTRY_IDX(TTType, GfxVA, GetGmmLibContext());
-    L1EntrySize = (!WA16K(GetGmmLibContext())) ? GMM_KBYTE(64) : GMM_KBYTE(16);
+    L1EntrySize = WA16K(GetGmmLibContext()) ? GMM_KBYTE(16) : WA64K(GetGmmLibContext()) ? GMM_KBYTE(64) : GMM_MBYTE(1);
 
     EnterCriticalSection(&TTLock);
     __GMM_ASSERT(TTL3.L3Handle);
@@ -439,7 +446,7 @@ uint8_t GmmLib::PageTable::GetMappingType(GMM_GFX_ADDRESS GfxVA, GMM_GFX_SIZE_T 
                 }
                 else
                 {
-                    GMM_GFX_SIZE_T NumTiles = GMM_L1_SIZE(TTType, GetGmmLibContext());
+                    GMM_GFX_SIZE_T NumTiles = GMM_L1_USABLESIZE(TTType, GetGmmLibContext());			
                     if(GfxVA == TileAddr)
                     {
                         MapType = false;
@@ -463,11 +470,15 @@ uint8_t GmmLib::PageTable::GetMappingType(GMM_GFX_ADDRESS GfxVA, GMM_GFX_SIZE_T 
                 if(GfxVA == TileAddr)
                 {
                     MapType  = false;
-                    NumTiles = (GMM_L2_SIZE(TTType) - L2eIdx) * (GMM_L1_SIZE(TTType, GetGmmLibContext()) - L1eIdx);
+                    L1Size   = GMM_L1_USABLESIZE(TTType, GetGmmLibContext()) - L1eIdx;
+                    L2Size   = GMM_L2_SIZE(TTType) - L2eIdx;
+                    NumTiles = ((uint64_t)L1Size * L2Size);
                 }
                 else
                 {
-                    NumTiles = ((GMM_L2_SIZE(TTType)) * (GMM_L1_SIZE(TTType, GetGmmLibContext())));
+                    L1Size   = GMM_L1_USABLESIZE(TTType, GetGmmLibContext());
+                    L2Size   = GMM_L2_SIZE(TTType);
+                    NumTiles = ((uint64_t)L1Size * L2Size);
                 }
                 TileAddr += NumTiles * L1EntrySize;
                 GET_NEXT_L2TABLE(L1eIdx, L2eIdx, L3eIdx)

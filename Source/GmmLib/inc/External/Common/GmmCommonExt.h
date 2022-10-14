@@ -126,7 +126,6 @@ typedef uint32_t GMM_GLOBAL_GFX_ADDRESS, GMM_GLOBAL_GFX_SIZE_T;
     #define GMM_GLOBAL_GFX_SIZE_T_CAST(x)   ((GMM_GLOBAL_GFX_SIZE_T)(x))
 #endif
 
-
 #define GMM_GFX_ADDRESS_CANONIZE(a)     (((int64_t)(a) << (64 - 48)) >> (64 - 48)) // TODO(Minor): When GMM adds platform-dependent VA size caps, change from 48.
 #define GMM_GFX_ADDRESS_DECANONIZE(a)   ((uint64_t)(a) & (((uint64_t) 1 << 48) - 1)) // "
 
@@ -141,6 +140,29 @@ typedef uint32_t GMM_GLOBAL_GFX_ADDRESS, GMM_GLOBAL_GFX_SIZE_T;
                                                     (((idx)&__BIT(1))   ? __BIT64(4)    : 0) |  \
                                                     (((idx)&__BIT(0))   ? __BIT64(3)    : 0) )
 
+#define GMM_GET_PAT_IDX_FROM_PTE_BITS(Entry)       ((((Entry) & __BIT64(61))    ? __BIT(4) : 0) |  \
+                                                    (((Entry) & __BIT64(62))    ? __BIT(3) : 0) |  \
+                                                    (((Entry) & __BIT64(7))     ? __BIT(2) : 0) |  \
+                                                    (((Entry) & __BIT64(4))     ? __BIT(1) : 0) |  \
+                                                    (((Entry) & __BIT64(3))     ? __BIT(0) : 0) )
+
+#define GMM_GET_PAT_IDX_FROM_PTE_BITS_GGTT(Entry)  ((((Entry) & __BIT64(53))    ? __BIT(1) : 0) | \
+                                                    (((Entry) & __BIT64(52))    ? __BIT(0) : 0) )
+
+#define GMM_GET_PTE_BITS_FROM_PAT_IDX(idx)         ((((idx)&__BIT(4))   ? __BIT64(61)   : 0) |  \
+                                                    (((idx)&__BIT(3))   ? __BIT64(62)   : 0) |  \
+                                                    (((idx)&__BIT(2))   ? __BIT64(7)    : 0) |  \
+                                                    (((idx)&__BIT(1))   ? __BIT64(4)    : 0) |  \
+                                                    (((idx)&__BIT(0))   ? __BIT64(3)    : 0) )
+
+#define GMM_GET_PTE_BITS_FROM_PAT_IDX_LEAF_PD(idx) ((((idx)&__BIT(4))   ? __BIT64(61)   : 0) |  \
+                                                    (((idx)&__BIT(3))   ? __BIT64(62)   : 0) |  \
+                                                    (((idx)&__BIT(2))   ? __BIT64(12)   : 0) |  \
+                                                    (((idx)&__BIT(1))   ? __BIT64(4)    : 0) |  \
+                                                    (((idx)&__BIT(0))   ? __BIT64(3)    : 0) )
+
+#define GMM_GET_PTE_BITS_FROM_PAT_IDX_GGTT(idx)    ((((idx)&__BIT(1))   ? __BIT64(53)   : 0) |  \
+                                                    (((idx)&__BIT(0))   ? __BIT64(52)   : 0) )
 //===========================================================================
 // typedef:
 //      GMM_STATUS_ENUM
@@ -442,7 +464,7 @@ typedef enum GMM_E2ECOMP_FORMAT_ENUM
     GMM_E2ECOMP_FORMAT_YCRCB_SWAPUV = GMM_E2ECOMP_FORMAT_SWAPY,
     GMM_E2ECOMP_FORMAT_YCRCB_SWAPUVY = GMM_E2ECOMP_FORMAT_SWAPUV,
     GMM_E2ECOMP_FORMAT_YCRCB_SWAPY = GMM_E2ECOMP_FORMAT_SWAPUVY,
-
+    
     GMM_E2ECOMP_FORMAT_RGB10b,     //Eh  --Which media format is it?
     GMM_E2ECOMP_FORMAT_NV12,       //Fh
 

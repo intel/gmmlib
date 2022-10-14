@@ -155,7 +155,7 @@ namespace GmmLib
                 MultiTileArch()
             {
                 pClientContext = pClientContextIn;
-            }
+			}
 #endif
 
             GmmResourceInfoCommon& operator=(const GmmResourceInfoCommon& rhs)
@@ -229,6 +229,7 @@ namespace GmmLib
                 pClientContext = pGmmClientContext;
                 GET_GMM_CLIENT_TYPE(pGmmClientContext, ClientType);
             }
+
 #endif
 
 
@@ -356,6 +357,7 @@ namespace GmmLib
             {
                 return Surf.BaseHeight;
             }
+
 
             /////////////////////////////////////////////////////////////////////////////////////
             /// Returns the resource depth
@@ -683,6 +685,7 @@ namespace GmmLib
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL SetMmcMode(GMM_RESOURCE_MMC_INFO Mode, uint32_t ArrayIndex)
             {
                 __GMM_ASSERT((Mode == GMM_MMC_DISABLED) || (Mode == GMM_MMC_HORIZONTAL) || (Mode == GMM_MMC_VERTICAL));
+                
                 __GMM_ASSERT(ArrayIndex < GMM_MAX_MMC_INDEX);
 
                 if (ArrayIndex < GMM_MAX_MMC_INDEX)
@@ -988,6 +991,7 @@ namespace GmmLib
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T  GMM_STDCALL GetSize(GMM_SIZE_PARAM GmmSizeParam)
             {
                 GMM_GFX_SIZE_T Size = 0;
+
                 switch (GmmSizeParam)
                 {
                     case GMM_MAIN_SURF:
@@ -1003,6 +1007,31 @@ namespace GmmLib
                             Size = GFX_ALIGN(Surf.Size + AuxSurf.Size + AuxSecSurf.Size, GMM_KBYTE(64));
                         }
                         break;
+                    case GMM_TOTAL_SURF_PHYSICAL:
+                        if(GMM_IS_PLANAR(Surf.Format) && Is1MBAlignedAuxTPlanarSurface())
+                        {
+                            Size = (Surf.OffsetInfo.PlaneXe_LPG.Physical.Height[GMM_PLANE_Y] + Surf.OffsetInfo.PlaneXe_LPG.Physical.Height[GMM_PLANE_U] + Surf.OffsetInfo.PlaneXe_LPG.Physical.Height[GMM_PLANE_V]) * Surf.OffsetInfo.PlaneXe_LPG.PhysicalPitch;
+                            Size *= GFX_MAX(Surf.ArraySize, 1);
+                            Size += AuxSurf.Size + AuxSecSurf.Size;
+                        }
+                        else
+                        {
+                            // Physical Size = VA Size
+                            Size = GetSize(GMM_TOTAL_SURF);
+                        }
+                        break;
+                    case GMM_MAIN_SURF_PHYSICAL:
+                        if(GMM_IS_PLANAR(Surf.Format) && Is1MBAlignedAuxTPlanarSurface())
+                        {
+                            Size = (Surf.OffsetInfo.PlaneXe_LPG.Physical.Height[GMM_PLANE_Y] + Surf.OffsetInfo.PlaneXe_LPG.Physical.Height[GMM_PLANE_U] + Surf.OffsetInfo.PlaneXe_LPG.Physical.Height[GMM_PLANE_V]) * Surf.OffsetInfo.PlaneXe_LPG.PhysicalPitch;
+                            Size *= GFX_MAX(Surf.ArraySize, 1);
+                        }
+                        else
+                        {
+                            // Physical Size = VA Size
+                            Size = GetSize(GMM_MAIN_SURF);
+                        }
+                        break;			
                     default:
                         __GMM_ASSERT(0);
                 }
@@ -1017,8 +1046,8 @@ namespace GmmLib
             {
                 return Surf.Size;
             }
-
-            /////////////////////////////////////////////////////////////////////////////////////
+            
+	    /////////////////////////////////////////////////////////////////////////////////////
             /// Returns the number of bytes that are required to back this padded and aligned
             /// resource. The calculation takes into consideration more than simply width
             /// height and bits per pixel. Width padding (stride), pixel formats, inter-plane
@@ -1856,8 +1885,8 @@ namespace GmmLib
             {
                 return MultiTileArch;
             }
-
-            /////////////////////////////////////////////////////////////////////////////////////
+	    
+	    /////////////////////////////////////////////////////////////////////////////////////
             /// Returns the Flat Phys CCS Size for the resource
             /// @return     CCS size in bytes
             /////////////////////////////////////////////////////////////////////////////////////
@@ -1920,6 +1949,64 @@ namespace GmmLib
 #ifndef __GMM_KMD__
             GMM_VIRTUAL GMM_STATUS GMM_STDCALL CreateCustomRes_2(Context &GmmLibContext, GMM_RESCREATE_CUSTOM_PARAMS_2 &CreateParams);
 #endif
+
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Returns physical size of the main surface only. Aux surface size not included.
+            /// @return     Physical Size of main surface
+            /////////////////////////////////////////////////////////////////////////////////////	    
+	    GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T GMM_STDCALL GetSizeMainSurfacePhysical()
+            {
+                GMM_GFX_SIZE_T Size;
+                if(GMM_IS_PLANAR(Surf.Format) && Is1MBAlignedAuxTPlanarSurface())
+                {
+                    Size = ((Surf.OffsetInfo.PlaneXe_LPG.Physical.Height[GMM_PLANE_Y] + Surf.OffsetInfo.PlaneXe_LPG.Physical.Height[GMM_PLANE_U] + Surf.OffsetInfo.PlaneXe_LPG.Physical.Height[GMM_PLANE_V]) * Surf.OffsetInfo.PlaneXe_LPG.PhysicalPitch);
+                    Size *= GFX_MAX(Surf.ArraySize, 1);
+                }
+                else
+                {
+                    // Physical Size = VA Size
+                    Size = GetSizeMainSurface();
+                }
+                return Size;
+            }
+
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Returns total physical size of surface.
+            /// @return     Surface Size
+            /////////////////////////////////////////////////////////////////////////////////////	    
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T GMM_STDCALL GetSizeSurfacePhysical()
+            {
+                GMM_GFX_SIZE_T Size;
+                if(GMM_IS_PLANAR(Surf.Format) && Is1MBAlignedAuxTPlanarSurface())
+                {
+                    Size = (Surf.OffsetInfo.PlaneXe_LPG.Physical.Height[GMM_PLANE_Y] + Surf.OffsetInfo.PlaneXe_LPG.Physical.Height[GMM_PLANE_U] + Surf.OffsetInfo.PlaneXe_LPG.Physical.Height[GMM_PLANE_V]) * Surf.OffsetInfo.PlaneXe_LPG.PhysicalPitch;
+                    Size *= GFX_MAX(Surf.ArraySize, 1);
+                    Size += AuxSurf.Size + AuxSecSurf.Size;
+                }
+                else
+                {
+                    // Physical Size = VA Size
+                    Size = GetSizeSurface();
+                };
+                return Size;
+            }
+
+            /////////////////////////////////////////////////////////////////////////////////////
+            /// Returns if a resource is 1MB aligned AuxT enabled planar surface
+            /// @return              Is1MBAuxTAlignedPlanes Flag
+
+            /////////////////////////////////////////////////////////////////////////////////////
+            GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED uint32_t GMM_STDCALL Is1MBAlignedAuxTPlanarSurface()
+            {
+		const GMM_PLATFORM_INFO *pPlatform = (GMM_PLATFORM_INFO *)GMM_OVERRIDE_EXPORTED_PLATFORM_INFO(&Surf, GetGmmLibContext());
+		
+		if(GMM_IS_1MB_AUX_TILEALIGNEDPLANES(pPlatform->Platform, Surf))
+		{
+		    return Surf.OffsetInfo.PlaneXe_LPG.Is1MBAuxTAlignedPlanes;
+		}
+		
+		return 0;          
+            }
 
     };
 

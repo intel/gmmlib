@@ -258,7 +258,7 @@ typedef struct GT_SYSTEM_INFO
     // VEBox/VDBox info
     GT_VDBOX_INFO   VDBoxInfo;                      // VDBoxInfo provides details(enabled/disabled) of all VDBox instances.
     GT_VEBOX_INFO   VEBoxInfo;                      // VEBoxInfo provides details(enabled/disabled) of all VEBox instances.
-    
+
     // SliceInfo provides the detailed breakdown of the Slice/Subslice/EU configuration. It is useful
     // for various WA that depend on the specific SSEU components enabled or disabled, but it is not
     // considered critically important to driver function at this time and may not be validly populated

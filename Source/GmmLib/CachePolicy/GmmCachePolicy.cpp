@@ -39,6 +39,22 @@ GMM_PTE_CACHE_CONTROL_BITS GMM_STDCALL GmmCachePolicyGetPteType(void *pLibContex
     return pGmmLibContext->GetCachePolicyObj()->CachePolicyGetPteType(Usage);
 }
 /////////////////////////////////////////////////////////////////////////////////////
+/// C Wrapper function for GmmLib::GmmCachePolicyGetPATIndex
+/// @see           GmmLib::GmmCachePolicyCommon::CachePolicyGetPATIndex()
+///
+/// @param[in]          pLibContext: pGmmLibContext
+/// @param[in]          Usage: type of usage
+/// @param[Optional]    Usage: for Compression Enable
+///
+/// @return       uint32_t
+///
+/////////////////////////////////////////////////////////////////////////////////////
+uint32_t GMM_STDCALL GmmCachePolicyGetPATIndex(void *pLibContext, GMM_RESOURCE_USAGE_TYPE Usage, bool  *pCompressionEnable, bool IsCpuCacheable)
+{
+    GMM_LIB_CONTEXT *pGmmLibContext = (GMM_LIB_CONTEXT *)pLibContext;
+    return pGmmLibContext->GetCachePolicyObj()->CachePolicyGetPATIndex(NULL, Usage, pCompressionEnable, IsCpuCacheable);
+}
+/////////////////////////////////////////////////////////////////////////////////////
 /// C Wrapper function for GmmLib::GmmCachePolicyIsUsagePTECached
 /// @see           GmmLib::GmmCachePolicyCommon::CachePolicyIsUsagePTECached()
 ///
@@ -66,6 +82,18 @@ uint8_t GMM_STDCALL GmmGetSurfaceStateL1CachePolicy(void *pLibContext, GMM_RESOU
     return pGmmLibContext->GetCachePolicyElement(Usage).L1CC;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+/// C Wrapper function to return L2 Cache Control on MTL for a given resource type
+///
+/// @param[in]     pLibContext: pGmmLibContext
+/// @param[in]     Usage: type of usage
+///Value of L2 Cache support
+/////////////////////////////////////////////////////////////////////////////////////
+uint8_t GMM_STDCALL GmmGetSurfaceStateL2CachePolicy(void *pLibContext, GMM_RESOURCE_USAGE_TYPE Usage)
+{
+    GMM_LIB_CONTEXT *pGmmLibContext = (GMM_LIB_CONTEXT *)pLibContext;
+    return pGmmLibContext->GetCachePolicyElement(Usage).L2CC;
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /// C wrapper for GmmLib::GmmResourceInfoCommon::GetCachePolicyUsage.
 /// @see        GmmLib::GmmResourceInfoCommon::GetCachePolicyUsage()

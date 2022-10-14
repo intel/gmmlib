@@ -25,14 +25,14 @@ project(igfx_gmmumd)
 
 # GmmLib Api Version used for so naming
 set(GMMLIB_API_MAJOR_VERSION 12)
-set(GMMLIB_API_MINOR_VERSION 2)
+set(GMMLIB_API_MINOR_VERSION 3)
 
 if(NOT DEFINED MAJOR_VERSION)
 	set(MAJOR_VERSION 12)
 endif()
 
 if(NOT DEFINED MINOR_VERSION)
-	set(MINOR_VERSION 2)
+	set(MINOR_VERSION 3)
 endif()
 
 if(NOT DEFINED PATCH_VERSION)
@@ -204,13 +204,15 @@ set(HEADERS_
 	${BS_DIR_GMMLIB}/CachePolicy/GmmGen10CachePolicy.h
 	${BS_DIR_GMMLIB}/CachePolicy/GmmGen11CachePolicy.h
 	${BS_DIR_GMMLIB}/CachePolicy/GmmGen12CachePolicy.h
-        ${BS_DIR_GMMLIB}/CachePolicy/GmmGen12dGPUCachePolicy.h
+        ${BS_DIR_GMMLIB}/CachePolicy/GmmXe_LPGCachePolicy.h
+	${BS_DIR_GMMLIB}/CachePolicy/GmmGen12dGPUCachePolicy.h
 	${BS_DIR_GMMLIB}/CachePolicy/GmmGen8CachePolicy.h
 	${BS_DIR_GMMLIB}/CachePolicy/GmmGen9CachePolicy.h
 	${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen10.h
 	${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen11.h
 	${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen12.h
-        ${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen12dGPU.h
+	${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyXe_LPG.h
+	${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen12dGPU.h
 	${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen8.h
 	${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen9.h
 	${BS_DIR_GMMLIB}/inc/External/Common/GmmCachePolicy.h
@@ -244,6 +246,7 @@ set(HEADERS_
 	${BS_DIR_GMMLIB}/inc/Internal/Common/Texture/GmmGen10TextureCalc.h
 	${BS_DIR_GMMLIB}/inc/Internal/Common/Texture/GmmGen11TextureCalc.h
 	${BS_DIR_GMMLIB}/inc/Internal/Common/Texture/GmmGen12TextureCalc.h
+	${BS_DIR_GMMLIB}/inc/Internal/Common/Texture/GmmXe_LPGTextureCalc.h
 	${BS_DIR_GMMLIB}/inc/Internal/Common/Texture/GmmGen7TextureCalc.h
 	${BS_DIR_GMMLIB}/inc/Internal/Common/Texture/GmmGen8TextureCalc.h
 	${BS_DIR_GMMLIB}/inc/Internal/Common/Texture/GmmGen9TextureCalc.h
@@ -272,6 +275,7 @@ set(SOURCES_
   ${BS_DIR_GMMLIB}/CachePolicy/GmmGen10CachePolicy.cpp
   ${BS_DIR_GMMLIB}/CachePolicy/GmmGen11CachePolicy.cpp
   ${BS_DIR_GMMLIB}/CachePolicy/GmmGen12CachePolicy.cpp
+  ${BS_DIR_GMMLIB}/CachePolicy/GmmXe_LPGCachePolicy.cpp
   ${BS_DIR_GMMLIB}/CachePolicy/GmmGen12dGPUCachePolicy.cpp
   ${BS_DIR_GMMLIB}/Platform/GmmGen11Platform.cpp
   ${BS_DIR_GMMLIB}/Platform/GmmGen12Platform.cpp
@@ -290,6 +294,7 @@ set(SOURCES_
   ${BS_DIR_GMMLIB}/Texture/GmmGen10Texture.cpp
   ${BS_DIR_GMMLIB}/Texture/GmmGen11Texture.cpp
   ${BS_DIR_GMMLIB}/Texture/GmmGen12Texture.cpp
+  ${BS_DIR_GMMLIB}/Texture/GmmXe_LPGTexture.cpp
   ${BS_DIR_GMMLIB}/Texture/GmmTexture.cpp
   ${BS_DIR_GMMLIB}/Texture/GmmTextureAlloc.cpp
   ${BS_DIR_GMMLIB}/Texture/GmmTextureSpecialCases.cpp
@@ -314,7 +319,8 @@ source_group("Source Files\\Cache Policy\\Client Files" FILES
 			${BS_DIR_GMMLIB}/CachePolicy/GmmGen10CachePolicy.h
 			${BS_DIR_GMMLIB}/CachePolicy/GmmGen11CachePolicy.h
 			${BS_DIR_GMMLIB}/CachePolicy/GmmGen12CachePolicy.h
-                        ${BS_DIR_GMMLIB}/CachePolicy/GmmGen12dGPUCachePolicy.h
+                        ${BS_DIR_GMMLIB}/CachePolicy/GmmXe_LPGCachePolicy.h
+			${BS_DIR_GMMLIB}/CachePolicy/GmmGen12dGPUCachePolicy.h
 			${BS_DIR_GMMLIB}/CachePolicy/GmmGen8CachePolicy.h
 			${BS_DIR_GMMLIB}/CachePolicy/GmmGen9CachePolicy.h
 			)
@@ -376,6 +382,7 @@ source_group("Header Files\\External\\Common\\Cache Policy" FILES
 			${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen10.h
 			${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen11.h
 			${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen12.h
+			${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyXe_LPG.h
                         ${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen12dGPU.h
 			${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen8.h
 			${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen9.h
@@ -403,6 +410,7 @@ source_group("Header Files\\Internal\\Common\\Texture" FILES
 			${BS_DIR_GMMLIB}/inc/Internal/Common/Texture/GmmGen10TextureCalc.h
 			${BS_DIR_GMMLIB}/inc/Internal/Common/Texture/GmmGen11TextureCalc.h
 			${BS_DIR_GMMLIB}/inc/Internal/Common/Texture/GmmGen12TextureCalc.h
+			${BS_DIR_GMMLIB}/inc/Internal/Common/Texture/GmmXe_LPGTextureCalc.h
 			${BS_DIR_GMMLIB}/inc/Internal/Common/Texture/GmmGen7TextureCalc.h
 			${BS_DIR_GMMLIB}/inc/Internal/Common/Texture/GmmGen8TextureCalc.h
 			${BS_DIR_GMMLIB}/inc/Internal/Common/Texture/GmmGen9TextureCalc.h

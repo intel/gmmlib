@@ -47,7 +47,7 @@ typedef union GMM_PTE_CACHE_CONTROL_BITS_REC
 {
     struct
     {
-	uint64_t Valid          : 1;
+        uint64_t Valid          : 1;
         uint64_t CacheControl   : 2;
         uint64_t GFDT           : 1;
         uint64_t                : 28;
@@ -73,57 +73,66 @@ typedef union GMM_PTE_CACHE_CONTROL_BITS_REC
         uint64_t                : 24;
         uint64_t                : 32;
     } Gen8;
-
+    struct
+    {
+        uint64_t Valid          : 1;
+        uint64_t                : 2;
+        uint64_t PAT0           : 1;
+        uint64_t PAT1           : 1;
+        uint64_t                : 2;
+        uint64_t PAT2           : 1;
+        uint64_t                : 24;
+        uint64_t                : 30;
+        uint64_t PAT3           : 1;
+        uint64_t                : 1;
+    } XE_LPG;       
     struct
     {
         uint32_t DwordValue;
         uint32_t HighDwordValue;
     };
-}GMM_PTE_CACHE_CONTROL_BITS;
+} GMM_PTE_CACHE_CONTROL_BITS;
 
-typedef union MEMORY_OBJECT_CONTROL_STATE_REC
-{
+typedef union MEMORY_OBJECT_CONTROL_STATE_REC {
     struct
     {
-        uint32_t CacheControl : 2;
-        uint32_t GFDT : 1;
-    uint32_t: 1;
-    uint32_t: 28;
-    }Gen6;
+        uint32_t CacheControl   : 2;
+        uint32_t GFDT           : 1;
+        uint32_t                : 1;
+        uint32_t                : 28;
+    } Gen6;
     struct
     {
-        uint32_t L3 : 1;
-        uint32_t CacheControl : 1;
-        uint32_t GFDT : 1;
-        uint32_t EncryptedData : 1;
-    uint32_t: 28;
-    }Gen7;
+        uint32_t L3             : 1;
+        uint32_t CacheControl   : 1;
+        uint32_t GFDT           : 1;
+        uint32_t EncryptedData  : 1;
+        uint32_t                : 28;
+    } Gen7;
     struct
     {
-        uint32_t L3 : 1;
-        uint32_t CacheControl : 2;
-        uint32_t EncryptedData : 1;
-    uint32_t: 28;
-    }Gen7_5;
+        uint32_t L3             : 1;
+        uint32_t CacheControl   : 2;
+        uint32_t EncryptedData  : 1;
+        uint32_t                : 28;
+    } Gen7_5;
     struct
     {
-        uint32_t Age : 2;
-        uint32_t EncryptedData : 1;
-        uint32_t TargetCache : 2;
-        uint32_t CacheControl : 2;
-    uint32_t: 25;
-    }Gen8;
+        uint32_t Age            : 2;
+        uint32_t EncryptedData  : 1;
+        uint32_t TargetCache    : 2;
+        uint32_t CacheControl   : 2;
+        uint32_t                : 25;
+    } Gen8;
     struct
     {
-        uint32_t EncryptedData : 1;
-        uint32_t Index         : 6 ;
-        uint32_t               : 25;
-    }Gen9, Gen10, Gen11,Gen12, XE_HP;
+        uint32_t EncryptedData  : 1;
+        uint32_t Index          : 6;
+        uint32_t                : 25;
+    } Gen9, Gen10, Gen11, Gen12, XE_HP, XE_LPG;
 
-    uint32_t                       DwordValue;
-}MEMORY_OBJECT_CONTROL_STATE;
-
-//===========================================================================
+    uint32_t DwordValue;
+} MEMORY_OBJECT_CONTROL_STATE;
 // typedef:
 //        GMM_CACHE_POLICY
 //
