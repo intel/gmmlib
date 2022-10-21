@@ -479,6 +479,8 @@ void GmmLib::GmmTextureCalc::FindMipTailStartLod(GMM_TEXTURE_INFO *pTexInfo)
             MipHeight = GFX_CEIL_DIV(MipHeight, CompressHeight);
             MipDepth  = GFX_CEIL_DIV(MipDepth, CompressDepth);
         }
+	
+	__GMM_ASSERT(pTexInfo->TileMode < GMM_TILE_MODES);
 
         while((Level < pTexInfo->MaxLod) &&
               (((pTexInfo->Type == RESOURCE_1D) &&
