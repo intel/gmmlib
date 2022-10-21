@@ -36,7 +36,6 @@ if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^aarch")
     -Wno-sign-compare
     -Werror=address
     -Werror=format-security
-    -Werror=non-virtual-dtor
     -Werror=return-type
 
     # General optimization options
@@ -74,7 +73,6 @@ else()
     -Wno-enum-compare
     -Werror=address
     -Werror=format-security
-    -Werror=non-virtual-dtor
     -Werror=return-type
 
     # General optimization options
@@ -134,6 +132,7 @@ SET (GMMLIB_COMPILER_CXX_FLAGS_COMMON
     -fcheck-new
     -std=c++11
     -pthread
+    -Werror=non-virtual-dtor
     )
 
 SET (GMMLIB_COMPILER_FLAGS_DEBUG
