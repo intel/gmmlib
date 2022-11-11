@@ -3331,6 +3331,8 @@ TEST_F(CTestResource, TestPlanar2D_IMC4)
             EXPECT_EQ(YHeight, ResourceInfo->GetPlanarYOffset(GMM_PLANE_U));
             EXPECT_EQ(YHeight, ResourceInfo->GetPlanarYOffset(GMM_PLANE_V));
         }
+        
+        pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
     }
 }
 
