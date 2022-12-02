@@ -33,6 +33,8 @@ void GmmLib::GmmTextureCalc::SetTileMode(GMM_TEXTURE_INFO *pTexInfo)
     const GMM_PLATFORM_INFO *pPlatform;
 
     pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
+    
+    pTexInfo->TileMode = TILE_NONE;
 
     if(pTexInfo->Flags.Info.TiledYf || GMM_IS_64KB_TILE(pTexInfo->Flags))
     {
@@ -161,6 +163,8 @@ void GmmLib::GmmTextureCalc::SetTileMode(GMM_TEXTURE_INFO *pTexInfo)
     {
         GMM_ASSERTDPF(0, "No tiling preference set!");
     }
+    
+    GMM_ASSERTDPF(pTexInfo->TileMode < GMM_TILE_MODES, "Invalid Tile Mode Set");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
