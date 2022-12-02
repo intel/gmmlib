@@ -553,10 +553,6 @@ void GmmLib::GmmTextureCalc::GetResRestrictions(GMM_TEXTURE_INFO * pTexinfo,
             Restrictions.PitchAlignment = GFX_ALIGN(Restrictions.PitchAlignment, GMM_KBYTE(64));
         }
 
-        if(GFX_GET_CURRENT_RENDERCORE(pPlatform->Platform) >= IGFX_GEN9_CORE)
-        {
-            pGmmLibContext->GetPlatformInfo().SurfaceMaxSize = GMM_TBYTE(1);
-        }
     }
 
     // SKL TileY Display needs 1MB alignment.

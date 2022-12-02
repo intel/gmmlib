@@ -797,6 +797,10 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexPitchAndSize(GMM_TEXTURE_INFO * pTexIn
         {
             SurfaceMaxSize = pPlatform->NoRestriction.MaxWidth;
         }
+        else if(pTexInfo->Flags.Gpu.TiledResource)
+        {
+            SurfaceMaxSize = GMM_TBYTE(1);
+        }
         else
         {
             SurfaceMaxSize = pPlatform->SurfaceMaxSize;
