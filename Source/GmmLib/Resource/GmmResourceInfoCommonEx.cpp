@@ -288,6 +288,8 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
         {
             GMM_SET_64KB_TILE(Surf.Flags, 0, GetGmmLibContext());
             GMM_SET_4KB_TILE(Surf.Flags, 1, GetGmmLibContext());
+            GMM_SET_64KB_TILE(CreateParams.Flags, 0, GetGmmLibContext());
+            GMM_SET_4KB_TILE(CreateParams.Flags, 1, GetGmmLibContext());
         }
     }
 
