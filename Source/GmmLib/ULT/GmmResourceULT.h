@@ -306,7 +306,7 @@ protected:
             { { 256, 256 },{ 512, 128 },{ 512, 128 },{ 1024, 64 },{ 1024, 64 } },   //TileYs
             { { 64, 64 },{ 128, 32 },{ 128, 32 },{ 256, 16 },{ 256, 16 } }     //TileYf
         };
-        uint32_t WMul, HMul;
+        uint32_t WMul = 1, HMul = 1;
 
         HAlign = 16;                              // RT H/VAlign
         VAlign = 4;
