@@ -78,6 +78,8 @@ void CommonULT::SetUpTestCase()
     InArgs.Platform   = GfxPlatform;
 #ifdef _WIN32
     InArgs.stAdapterBDF = {0, 2, 0, 0};
+#else
+    InArgs.FileDescriptor = 512;  // Initializing BDF to {0,2,0,0} which corresponds to decimal 512 for AdapterBDF.Data
 #endif
 
     hGmmLib = dlopen(GMM_UMD_DLL, RTLD_LAZY);
