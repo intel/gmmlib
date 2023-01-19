@@ -1237,7 +1237,6 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmTextureCalc::FillTexPlanar(GMM_TEXTURE_INFO * 
        pTexInfo->Flags.Info.TiledY)
     {
         uint32_t TileHeight = pGmmLibContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileHeight;
-        uint32_t TileWidth  = pGmmLibContext->GetPlatformInfo().TileInfo[pTexInfo->TileMode].LogicalTileWidth;
 
         Height = GFX_ALIGN(YHeight, TileHeight) + GFX_ALIGN(VHeight, TileHeight);
     }
