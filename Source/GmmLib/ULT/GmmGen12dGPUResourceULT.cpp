@@ -453,8 +453,6 @@ TEST_F(CTestGen12dGPUResource, DISABLED_Test2DTile64MippedResourceOptimization)
         uint32_t Mip1Height    = 0;
         uint32_t Mip2Height    = 0;
         uint32_t Mip3Height    = 0;
-        uint32_t Mip4Height    = 0;
-        uint32_t Mip5Height    = 0;
         uint32_t Mip2Higher    = 0; // Sum of aligned heights of Mip2 and above
         uint32_t MipTailHeight = 0;
         // Haligned Mip Widths
@@ -2456,8 +2454,6 @@ TEST_F(CTestGen12dGPUResource, DISABLED_Test2DTileYfMippedCompressedResource)
         uint32_t Mip1Height    = 0;
         uint32_t Mip2Height    = 0;
         uint32_t Mip3Height    = 0;
-        uint32_t Mip4Height    = 0;
-        uint32_t Mip5Height    = 0;
         uint32_t Mip2Higher    = 0; // Sum of aligned heights of Mip2 and above
         uint32_t MipTailHeight = 0;
         // Haligned Mip Widths
