@@ -23,9 +23,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define _SN 0x1
 #define _IA_GPU_SN 0x2
 #define _WT 0x2
-
-
-
+#define _L1_WB 0x2
 
 // Cache Policy Definition
 // L3_SCC       : L3 skip caching control (disabled if L3_SCC = 0)
@@ -87,7 +85,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_DYNAMIC_STATE                      
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_GENERAL_STATE                                    , 1  ,  0   ,      0,   1,        1,      0    , 1      ,  0     );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_GENERAL_STATE_UC                                 , 0  ,  0   ,      0,   1,        1,      0    , 0      ,  0     );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_STATELESS_DATA_PORT                              , 1  ,  0   ,      0,   1,        1,      0    , 1      ,  0     );
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_STATELESS_DATA_PORT_L1_CACHED                    , 1  ,  0   ,      0,   1,        0,      0    , 1      ,  0     );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_STATELESS_DATA_PORT_L1_CACHED                    , 1  ,  0   ,      0,   1,        _L1_WB, 0    , 1      ,  0     );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_INDIRECT_OBJECT                                  , 1  ,  0   ,      0,   1,        1,      0    , 1      ,  0     );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HEAP_INSTRUCTION                                      , 1  ,  0   ,      0,   1,        1,      0    , 1      ,  0     );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HIZ                                                   , 1  ,  0   ,      0,   1,        1,      0    , 1      ,  0     );
