@@ -6,4 +6,6 @@ endif (NOT DEFINED RUN_TEST_SUITE)
 
 project(igfx_gmmumd)
 
+enable_testing()
+
 add_subdirectory(Source/GmmLib)

@@ -171,3 +171,8 @@ add_custom_command(
     COMMAND echo running ULTs
     COMMAND "${CMAKE_COMMAND}" -E env "LD_LIBRARY_PATH=$<TARGET_FILE_DIR:igfx_gmmumd_dll>" ${CMAKE_CFG_INTDIR}/${EXE_NAME} --gtest_filter=CTest*
 )
+
+add_test(
+    NAME ULT
+    COMMAND env "LD_LIBRARY_PATH=$<TARGET_FILE_DIR:igfx_gmmumd_dll>" $<TARGET_FILE:${EXE_NAME}> --gtest_filter=CTest*
+)
