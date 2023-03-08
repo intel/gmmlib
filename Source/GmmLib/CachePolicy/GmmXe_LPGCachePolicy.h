@@ -234,7 +234,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VP_INTERNAL_READ_FF                     
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VP_INTERNAL_WRITE_FF                            , 0   , 0    ,     1,     0,      1,      0,      1,       0        );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VP_INTERNAL_READ_WRITE_FF                       , 0   , 0    ,     1,     0,      1,      0,      1,       0        );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VP_OUTPUT_PICTURE_FF                            , 1   , 0    ,     0,     1,      1,      0,      _WT,     0        );
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VP_INPUT_PICTURE_RENDER                         , 0   , 0    ,     1,     0,      1,      0,      1,       0        );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VP_INPUT_PICTURE_RENDER                         , 1   , 0    ,     0,     1,      1,      0,      1,       0        );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VP_INPUT_REFERENCE_RENDER                       , 0   , 0    ,     1,     0,      1,      0,      1,       0        );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VP_INTERNAL_READ_RENDER                         , 0   , 0    ,     1,     0,      1,      0,      1,       0        );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VP_INTERNAL_WRITE_RENDER                        , 1   , 0    ,     0,     1,      1,      0,      1,       0        );
