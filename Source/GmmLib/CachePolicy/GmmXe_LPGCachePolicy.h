@@ -210,7 +210,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_INTERNAL_READ                    
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_INTERNAL_WRITE                           , 0   , 0    ,     1,     0,      1,      0,      0,         0        );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_INTERNAL_READ_WRITE_CACHE                , 0   , 0    ,     1,     0,      1,      0,      0,         0        ); 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_INTERNAL_READ_WRITE_NOCACHE              , 0   , 0    ,     1,     0,      1,      0,      0,         0        );
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_OUTPUT_PICTURE                           , 1   , 0    ,     0,     1,      1,      0,      _WT,       0        );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_OUTPUT_PICTURE                           , 0   , 0    ,     0,     1,      1,      0,      0,         0        );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_OUTPUT_STATISTICS_WRITE                  , 0   , 0    ,     1,     0,      1,      0,      0,        _SN       );  
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_OUTPUT_STATISTICS_READ_WRITE             , 0   , 0    ,     1,     0,      1,      0,      0,         0        );
 // ENCODE
