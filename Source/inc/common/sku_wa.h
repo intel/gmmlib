@@ -527,6 +527,12 @@ typedef struct _WA_TABLE
         WA_BUG_TYPE_PERF,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
 
+        WA_DECLARE(
+        Wa_22016140776,
+        "[PVC] operation unexpectedly results in NAN",
+        WA_BUG_TYPE_UNKNOWN,
+        WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_UNKNOWN)
+
 } WA_TABLE, *PWA_TABLE;
 
 //********************************** SKU/WA Macros *************************************
