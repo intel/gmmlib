@@ -93,12 +93,17 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
                         uint8_t IsYUVSurface = GmmIsPlanar(CreateParams.Format) ||
                                                 (GmmIsYUVPacked(CreateParams.Format));
 
+                        //YCRCB* formats
+                        uint8_t IsYCrCbSurface = ((CreateParams.Format == GMM_FORMAT_YCRCB_NORMAL) ||
+                                                  (CreateParams.Format == GMM_FORMAT_YCRCB_SWAPUV) ||
+                                                  (CreateParams.Format == GMM_FORMAT_YCRCB_SWAPUVY) || (CreateParams.Format == GMM_FORMAT_YCRCB_SWAPY));
+
 			CreateParams.Flags.Info.Tile4 = ((!GMM_IS_SUPPORTED_BPP_ON_TILE_64_YF_YS(BitsPerPixel)) ||            // 24,48,96 bpps are not supported on Tile64, Tile4 is bpp independent
                                                          ((CreateParams.Type == RESOURCE_3D) && (CreateParams.Flags.Gpu.Depth || CreateParams.Flags.Gpu.SeparateStencil)) ||
                                                          ((!GetGmmLibContext()->GetSkuTable().FtrDisplayDisabled) &&
                                                           (CreateParams.Flags.Gpu.FlipChain || CreateParams.Flags.Gpu.Overlay)
                                                           ) ||
-							  IsYUVSurface);
+							  IsYUVSurface || IsYCrCbSurface);
 
 			CreateParams.Flags.Info.Tile64 = !CreateParams.Flags.Info.Tile4;
                         // Optimize only when GMM makes tiling decision on behalf of UMD clients.
