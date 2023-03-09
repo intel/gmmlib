@@ -90,9 +90,8 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
                     if((!GetGmmLibContext()->GetWaTable().WaDefaultTile4) || (!GetGmmLibContext()->GetSkuTable().FtrForceTile4))
                     {
                         // Default Tiling is set to Tile64 on FtrTileY disabled platforms
-                        uint8_t IsYUVSurface = ((GmmIsPlanar(CreateParams.Format) &&
-                                                 (!((CreateParams.Format == GMM_FORMAT_BGRP) || (CreateParams.Format == GMM_FORMAT_RGBP)))) ||
-                                                (GmmIsYUVPacked(CreateParams.Format)));
+                        uint8_t IsYUVSurface = GmmIsPlanar(CreateParams.Format) ||
+                                                (GmmIsYUVPacked(CreateParams.Format));
 
 			CreateParams.Flags.Info.Tile4 = ((!GMM_IS_SUPPORTED_BPP_ON_TILE_64_YF_YS(BitsPerPixel)) ||            // 24,48,96 bpps are not supported on Tile64, Tile4 is bpp independent
                                                          ((CreateParams.Type == RESOURCE_3D) && (CreateParams.Flags.Gpu.Depth || CreateParams.Flags.Gpu.SeparateStencil)) ||
