@@ -482,7 +482,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmXe_LPGTextureCalc::FillTexPlanar(GMM_TEXTURE_I
     {
         if(false == RedescribeTexturePlanes(pTexInfo, &WidthBytesPhysical))
         {
-            __GMM_ASSERT(FALSE);
+            __GMM_ASSERT(false);
         }
     }
     if((Status = // <-- Note assignment.

@@ -246,7 +246,7 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
                                      GMM_GTT_CACHETYPE_UNCACHED;
     }
 
-    if(GetGmmLibContext()->GetSkuTable().FtrCameraCaptureCaching == FALSE &&
+    if(GetGmmLibContext()->GetSkuTable().FtrCameraCaptureCaching == false &&
        CreateParams.Flags.Gpu.CameraCapture)
     {
         Surf.Flags.Info.Cacheable = 0;

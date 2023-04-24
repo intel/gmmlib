@@ -1258,7 +1258,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmTextureCalc::FillTexPlanar(GMM_TEXTURE_INFO * 
     {
         if(false == RedescribeTexturePlanes(pTexInfo, &WidthBytesPhysical))
         {
-            __GMM_ASSERT(FALSE);
+            __GMM_ASSERT(false);
         }
     }
 
