@@ -284,14 +284,20 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
     }
 
     // Memory optimization for 64KB tiled Surface.
-    if(GetGmmLibContext()->GetWaTable().WaTile64Optimization && Optimize64KBTile)
+    if (!GetGmmLibContext()->GetSkuTable().FtrTileY)
     {
-        if(pTextureCalc->SurfaceRequires64KBTileOptimization(&Surf))
+        if ((GetGmmLibContext()->GetWaTable().WaTile64Optimization || GetGmmLibContext()->GetSkuTable().FtrTile64Optimization) && Optimize64KBTile)
         {
-            GMM_SET_64KB_TILE(Surf.Flags, 0, GetGmmLibContext());
-            GMM_SET_4KB_TILE(Surf.Flags, 1, GetGmmLibContext());
-            GMM_SET_64KB_TILE(CreateParams.Flags, 0, GetGmmLibContext());
-            GMM_SET_4KB_TILE(CreateParams.Flags, 1, GetGmmLibContext());
+            if (pTextureCalc->SurfaceRequires64KBTileOptimization(&Surf))
+            {
+                GMM_SET_64KB_TILE(Surf.Flags, 0, GetGmmLibContext());
+                GMM_SET_4KB_TILE(Surf.Flags, 1, GetGmmLibContext());
+
+                //Also update CreateParams, if client reuses the modified struct, it'd see final tile-selection by Gmm.
+                //Gmm's auto-tile-selection & tile-mode for size-optimization doesn't work for explicit tile-selection
+                GMM_SET_64KB_TILE(CreateParams.Flags, 0, GetGmmLibContext());
+                GMM_SET_4KB_TILE(CreateParams.Flags, 1, GetGmmLibContext());
+            }
         }
     }
 

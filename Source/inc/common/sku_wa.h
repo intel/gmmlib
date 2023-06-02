@@ -108,6 +108,7 @@ typedef struct _SKU_FEATURE_TABLE
         unsigned int   Ftr57bGPUAddressing              : 1;  // 57b GPUVA support eg: PVC
 	unsigned int   FtrUnified3DMediaCompressionFormats : 1; // DG2 has unified Render/media compression(versus TGLLP/XeHP_SDV 's multiple instances) and requires changes to RC format h/w encodings.
         unsigned int   FtrForceTile4                    : 1;  // Flag to force Tile4 usage as default in Tile64 supported platforms.
+        unsigned int   FtrTile64Optimization            : 1;
     };
 
 
