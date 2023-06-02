@@ -262,7 +262,7 @@ void *Thread1(void *lpParam)
 
 // Load multiple Adapters in the same process with the Limit up to MAX_NUM_ADAPTERS
 // Increase MAX_NUM_ADAPTERS > 32 if needed
-TEST_F(CTestMA, DISABLED_TestLoadMultipleAdapters)
+TEST_F(CTestMA, TestLoadMultipleAdapters)
 {
     uint32_t AdapterCount = 0;
     uint32_t i            = 0;
@@ -305,7 +305,7 @@ TEST_F(CTestMA, DISABLED_TestLoadMultipleAdapters)
 }
 
 /// Load all adapters(MAX_NUM_ADAPTERS) multiple times up to MAX_COUNT_PER_ADAPTER in same process
-TEST_F(CTestMA, DISABLED_TestLoadAdapterMultipleTimes)
+TEST_F(CTestMA, TestLoadAdapterMultipleTimes)
 {
     uint32_t AdapterCount = 0, RefCount = 0;
 
@@ -357,7 +357,7 @@ TEST_F(CTestMA, DISABLED_TestLoadAdapterMultipleTimes)
 }
 
 /// Test Init-Destroy multiple times Upto MAX_COUNT_PER_ADAPTER before Unloading DLL, on Same Adapter upto MAX_NUM_ADAPTERS
-TEST_F(CTestMA, DISABLED_TestInitDestroyMultipleTimesOnSameAdapter)
+TEST_F(CTestMA, TestInitDestroyMultipleTimesOnSameAdapter)
 {
     uint32_t AdapterCount = 0, RefCount = 0;
 
@@ -411,7 +411,7 @@ TEST_F(CTestMA, DISABLED_TestInitDestroyMultipleTimesOnSameAdapter)
 }
 
 /// Test Init-Destroy multiple times before Unloading DLL, on Multiple Adapters
-TEST_F(CTestMA, DISABLED_TestInitDestroyMultipleTimesOnMultiAdapter)
+TEST_F(CTestMA, TestInitDestroyMultipleTimesOnMultiAdapter)
 {
     uint32_t AdapterCount = 0, RefCount = 0;
 
@@ -464,7 +464,7 @@ in parallel and in random order.
 
 // Load Multiple Adapters upto MAX_NUM_ADAPTERS on multiple threads in same process at the same time
 // Here the number of client per adapter is 1 .i.e 0th count Index
-TEST_F(CTestMA, DISABLED_TestMTLoadMultipleAdapters)
+TEST_F(CTestMA, TestMTLoadMultipleAdapters)
 {
     uint32_t AdapterCount = 0;
 
@@ -482,7 +482,7 @@ TEST_F(CTestMA, DISABLED_TestMTLoadMultipleAdapters)
 }
 
 // Load a Single Adapter multiple times upto MAX_COUNT_PER_ADAPTER on multiple threads in same process
-TEST_F(CTestMA, DISABLED_TestMTLoadAdaptersMultipleTimes)
+TEST_F(CTestMA, TestMTLoadAdaptersMultipleTimes)
 {
     uint32_t RefCount = 0;
 
@@ -499,7 +499,7 @@ TEST_F(CTestMA, DISABLED_TestMTLoadAdaptersMultipleTimes)
 }
 
 // Load Multiple Adapters upto MAX_NUM_ADAPTERS, multiple times upto MAX_COUNT_PER_ADAPTER on multiple threads in same process
-TEST_F(CTestMA, DISABLED_TestMTLoadMultipleAdaptersMultipleTimes)
+TEST_F(CTestMA, TestMTLoadMultipleAdaptersMultipleTimes)
 {
     uint32_t i = 0, j = 0, k = 0;
     uint32_t AdapterCount = 0, RefCount = 0;
