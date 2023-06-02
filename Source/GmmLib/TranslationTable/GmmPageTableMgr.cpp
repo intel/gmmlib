@@ -522,7 +522,7 @@ GMM_STATUS GmmLib::GmmPageTableMgr::UpdateAuxTable(const GMM_DDI_UPDATEAUXTABLE 
             {
                 GMM_UNIFIED_AUX_TYPE AuxType = GMM_AUX_CCS;
                 AuxType                      = (UpdateReq->BaseResInfo->GetResFlags().Gpu.Depth && UpdateReq->BaseResInfo->GetResFlags().Gpu.CCS) ? GMM_AUX_ZCS : AuxType;
-                AuxVA                        = UpdateReq->BaseGpuVA + GmmResGetAuxSurfaceOffset(UpdateReq->BaseResInfo, AuxType);
+                AuxVA                        = UpdateReq->BaseGpuVA + GmmResGetAuxSurfaceOffset64(UpdateReq->BaseResInfo, AuxType);
             }
 
         }
@@ -541,7 +541,7 @@ GMM_STATUS GmmLib::GmmPageTableMgr::UpdateAuxTable(const GMM_DDI_UPDATEAUXTABLE 
                           GMM_AUX_ZCS :
                           AuxType;
 
-                AuxVA = UpdateReq->BaseGpuVA + GmmResGetAuxSurfaceOffset(UpdateReq->BaseResInfo, AuxType);
+                AuxVA = UpdateReq->BaseGpuVA + GmmResGetAuxSurfaceOffset64(UpdateReq->BaseResInfo, AuxType);
 
                 //For UV Packed, Gen12 e2e compr supported formats have 2 planes per surface
                 //Each has distinct Aux surface, Y-plane/UV-plane must be mapped to respective Y/UV Aux surface
@@ -555,7 +555,7 @@ GMM_STATUS GmmLib::GmmPageTableMgr::UpdateAuxTable(const GMM_DDI_UPDATEAUXTABLE 
                     UpdateReq->BaseResInfo->GetOffset(ReqInfo);
                     YPlaneSize = ReqInfo.Render.Offset64;
 
-                    UVAuxVA = UpdateReq->BaseGpuVA + GmmResGetAuxSurfaceOffset(UpdateReq->BaseResInfo, GMM_AUX_UV_CCS);
+                    UVAuxVA = UpdateReq->BaseGpuVA + GmmResGetAuxSurfaceOffset64(UpdateReq->BaseResInfo, GMM_AUX_UV_CCS);
                 }
             }
 
