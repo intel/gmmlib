@@ -87,7 +87,7 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
                 {
                     GMM_ASSERTDPF(!CreateParams.Flags.Info.StdSwizzle, "StdSwizzle not supported on current platform");
 
-                    if((!GetGmmLibContext()->GetWaTable().WaDefaultTile4) || (!GetGmmLibContext()->GetSkuTable().FtrForceTile4))
+                    if(!GetGmmLibContext()->GetSkuTable().FtrForceTile4) // FtrForceTile4 should never be set by default, used for debug purpose only
                     {
                         // Default Tiling is set to Tile64 on FtrTileY disabled platforms
                         uint8_t IsYUVSurface = GmmIsPlanar(CreateParams.Format) ||
@@ -125,7 +125,7 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
                     GMM_ASSERTDPF(0, "Tile Yf/Ys not supported on given platform");
 
                     // Overrides the flags.
-                    if((GetGmmLibContext()->GetWaTable().WaDefaultTile4) || (GetGmmLibContext()->GetSkuTable().FtrForceTile4))
+                    if(GetGmmLibContext()->GetSkuTable().FtrForceTile4)// FtrForceTile4 should never be set by default, used for debug purpose only.
                     {
                         CreateParams.Flags.Info.Tile64 = CreateParams.Flags.Info.TiledYs ||
                                                          (CreateParams.MSAA.NumSamples > 1) || CreateParams.Flags.Gpu.TiledResource; // Colour & Depth/Stencil(IMS) MSAA should use Tile64
@@ -148,8 +148,7 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
 
                 // On Xe_HP onwards translate UMD's TileY/TileYs request to Tile4/Tile64 respectively
                 // Exclude TileX, Linear from override
-                if((GetGmmLibContext()->GetWaTable().WaDefaultTile4 || GetGmmLibContext()->GetSkuTable().FtrForceTile4) && (CreateParams.Flags.Info.TiledYs ||
-                                                                       CreateParams.Flags.Info.TiledY))
+                if((GetGmmLibContext()->GetSkuTable().FtrForceTile4) && (CreateParams.Flags.Info.TiledYs || CreateParams.Flags.Info.TiledY))
                 {
                     CreateParams.Flags.Info.Tile64 =
                     CreateParams.Flags.Info.TiledYs ||
