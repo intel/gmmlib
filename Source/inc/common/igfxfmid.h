@@ -1901,16 +1901,18 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_A721                             0xA721
 
 // ADL-N
-#define DEV_ID_46D0                            0x46D0
-#define DEV_ID_46D1                            0x46D1
-#define DEV_ID_46D2                            0x46D2
+#define DEV_ID_46D0                             0x46D0
+#define DEV_ID_46D1                             0x46D1
+#define DEV_ID_46D2                             0x46D2
 
 // MTL
-#define DEV_ID_7D40                            0x7D40
-#define DEV_ID_7D55                            0x7D55
-#define DEV_ID_7DD5                            0x7DD5
-#define DEV_ID_7D45                            0x7D45
-#define DEV_ID_7D60                            0x7D60
+#define DEV_ID_7D40                             0x7D40
+#define DEV_ID_7D45                             0x7D45
+#define DEV_ID_7D55                             0x7D55
+#define DEV_ID_7D57                             0x7D57
+#define DEV_ID_7D60                             0x7D60
+#define DEV_ID_7DD5                             0x7DD5
+#define DEV_ID_7DD7                             0x7DD7
 
 #define MGM_HAS     0
 
