@@ -422,11 +422,11 @@ uint8_t GmmLib::PlatformInfoGen12::ValidateCCS(GMM_TEXTURE_INFO &Surf)
 uint8_t GmmLib::PlatformInfoGen12::ValidateUnifiedAuxSurface(GMM_TEXTURE_INFO &Surf)
 {
 
-    if((Surf.Flags.Gpu.UnifiedAuxSurface) &&
-       !( //--- Legitimate UnifiedAuxSurface Case ------------------------------------------
-       Surf.Flags.Gpu.CCS &&
-       ((Surf.MSAA.NumSamples <= 1 && (Surf.Flags.Gpu.RenderTarget || Surf.Flags.Gpu.Texture)) ||
-        ((Surf.Flags.Gpu.Depth || Surf.Flags.Gpu.SeparateStencil || Surf.MSAA.NumSamples > 1)))))
+    if ((Surf.Flags.Gpu.UnifiedAuxSurface) &&
+        !( //--- Legitimate UnifiedAuxSurface Case ------------------------------------------
+        (Surf.Flags.Gpu.CCS &&
+         (Surf.MSAA.NumSamples <= 1 && (Surf.Flags.Gpu.RenderTarget || Surf.Flags.Gpu.Texture))) ||
+        (Surf.Flags.Gpu.Depth || Surf.Flags.Gpu.SeparateStencil || Surf.MSAA.NumSamples > 1)))
     {
         GMM_ASSERTDPF(0, "Invalid UnifiedAuxSurface usage!");
         return 0;
@@ -434,7 +434,6 @@ uint8_t GmmLib::PlatformInfoGen12::ValidateUnifiedAuxSurface(GMM_TEXTURE_INFO &S
 
     return 1;
 }
-
 //=============================================================================
 //
 // Function: CheckFmtDisplayDecompressible
