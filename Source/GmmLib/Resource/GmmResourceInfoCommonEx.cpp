@@ -318,7 +318,13 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
             AuxSurf.Type                         = (AuxSurf.Flags.Gpu.HiZ) ? AuxSurf.Type : RESOURCE_INVALID;
             AuxSurf.Flags.Info.RenderCompressed = AuxSurf.Flags.Info.MediaCompressed = 0;
         }
-        else if(Surf.Flags.Gpu.SeparateStencil && Surf.Flags.Gpu.CCS) //Stencil compression
+        else if(Surf.Flags.Gpu.Depth && Surf.Flags.Gpu.HiZ && !Surf.Flags.Gpu.CCS) // Depth + HiZ only, CCS is disabled
+        {
+            // main surface is depth, AuxSurf is HiZ
+            Surf.Flags.Gpu.HiZ                   = 0; //depth buffer, clear HiZ
+            AuxSurf.Flags.Gpu.IndirectClearColor = 0; //Clear fastClear from HiZ
+        }
+	else if(Surf.Flags.Gpu.SeparateStencil && Surf.Flags.Gpu.CCS) //Stencil compression
         {
             AuxSurf.Flags.Gpu.SeparateStencil = 0;
             Surf.Flags.Gpu.CCS                = 0;

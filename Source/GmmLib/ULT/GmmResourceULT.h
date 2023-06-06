@@ -449,6 +449,21 @@ protected:
     }
 
     /////////////////////////////////////////////////////////////////////////////////////
+    /// Verifies if AuxCCSize matches the expected value.  Fails test if value doesn't match
+    ///
+    /// @param[in]  ResourceInfo: ResourceInfo returned by GmmLib
+    /// @param[in]  ExpectedValue: expected value to check against
+    /////////////////////////////////////////////////////////////////////////////////////
+    template <bool Verify>
+    void VerifyResourceAuxCCSize(GMM_RESOURCE_INFO *ResourceInfo, uint64_t ExpectedValue)
+    {
+        if(Verify)
+        {
+            EXPECT_EQ(ExpectedValue, ResourceInfo->GetSizeAuxSurface(GMM_AUX_CC));
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////
     /// Verifies if QPitch matches the expected value.  Fails test if value doesn't match
     ///
     /// @param[in]  ResourceInfo: ResourceInfo returned by GmmLib

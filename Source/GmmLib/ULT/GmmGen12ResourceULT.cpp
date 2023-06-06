@@ -2202,6 +2202,184 @@ TEST_F(CTestGen12Resource, TestLosslessMSAACompressedResource)
 {
 }
 
+TEST_F(CTestGen12Resource, TestDepthHiZNotCompressedResource)
+{
+    const uint32_t HAlign = 8; //HiZ alignment (16x4 ie general alignment), [Depth 16bit: 8x8; ow 8x4]
+    uint32_t       VAlign = 4; 
+    
+    const uint32_t AllocTileSize[1][2] = {128, 32}; //HiZ is TileY
+
+    GMM_RESCREATE_PARAMS gmmParams        = {};
+    gmmParams.NoGfxMemory                 = 1;
+    gmmParams.Flags.Info.TiledY           = 1; //Not supported for Depth buffer, but HiZ output is TileY
+    gmmParams.Flags.Gpu.Depth             = 1; //GPU Flags= Depth + HiZ
+    gmmParams.Flags.Gpu.HiZ               = 1;
+    gmmParams.Flags.Gpu.CCS               = 0;
+    gmmParams.Flags.Info.RenderCompressed = 0;
+    gmmParams.Flags.Gpu.UnifiedAuxSurface = 1;
+
+    for(uint32_t k = 0; k <= 1; k++)
+    {
+        gmmParams.Flags.Gpu.IndirectClearColor = k;
+
+        // Allocate 1x1 surface so that it occupies 1 Tile in X dimension
+        for(uint32_t j = TEST_BPP_8; j <= TEST_BPP_128; j++) //Depth bpp doesn't matter, Depth px dimensions decide HiZ size in HW
+        {
+            {
+                VAlign = (j == TEST_BPP_16) ? 8 : 4;
+            }
+            gmmParams.Format = SetResourceFormat(static_cast<TEST_BPP>(j)); //Only 16,24,32 supported; But driver creates the resource even for other bpps without failing
+            for(uint32_t i = RESOURCE_2D; i <= RESOURCE_CUBE; i++)          //3D doesn't support HiZ
+            {
+                gmmParams.Type        = static_cast<GMM_RESOURCE_TYPE>(i);
+                gmmParams.BaseWidth64 = 0x1;
+                gmmParams.BaseHeight  = 0x1; //0x24; //not 1 tile
+                                             //gmmParams.MaxLod      = 6; --add expectedheight calc- mip0+max{mip1, sum{mip2,...n}}
+                gmmParams.Depth = 0x1;
+
+                if(i == RESOURCE_1D || i == RESOURCE_3D) // SKL+ 1D and 3D do not support HiZ
+                {
+                    gmmParams.Flags.Gpu.HiZ = 0;
+                }
+                else
+                {
+                    gmmParams.Flags.Gpu.HiZ = 1;
+                }
+
+                GMM_RESOURCE_INFO *ResourceInfo = NULL;
+                ResourceInfo                    = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
+                //EXPECT_NE(NULL, ResourceInfo);
+
+                VerifyResourceHAlign<true>(ResourceInfo, HAlign);
+                VerifyResourceVAlign<true>(ResourceInfo, VAlign);
+                uint32_t ExpectedPitch = AllocTileSize[0][0];
+                VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
+                VerifyResourcePitchInTiles<true>(ResourceInfo, 1); // 1 tileY wide
+                uint32_t ExpectedHeight = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
+
+                if(gmmParams.ArraySize > 1 || gmmParams.Type == RESOURCE_CUBE)
+                {
+                    uint32_t ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign); 
+                    ExpectedHeight *= (gmmParams.Type == RESOURCE_CUBE) ? 6 : 1;
+
+                    VerifyResourceQPitch<true>(ResourceInfo, ExpectedQPitch); // Each face should be VAlign rows apart within a tile, 
+                }
+
+                VerifyResourceSize<true>(ResourceInfo,
+                                         GFX_ALIGN(ExpectedPitch * ExpectedHeight, 1 * PAGE_SIZE)); //1 Tile should be enough
+
+                if(gmmParams.Flags.Gpu.IndirectClearColor)
+                {
+                    VerifyResourceAuxCCSize<true>(ResourceInfo, PAGE_SIZE);
+                }
+                else
+                {
+                    VerifyResourceAuxCCSize<true>(ResourceInfo, 0);
+                }
+
+                pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
+            }
+
+            // Allocate 2 tiles in X dimension. (muti-tiles Tiles in Y dimension for cube/array)
+            for(uint32_t i = RESOURCE_2D; i <= RESOURCE_CUBE; i++)
+            {
+                gmmParams.Type        = static_cast<GMM_RESOURCE_TYPE>(i);
+                gmmParams.BaseWidth64 = AllocTileSize[0][0] + 0x1;
+                gmmParams.BaseHeight  = (gmmParams.Type == RESOURCE_1D) ? 0x1 :
+                                                                         (gmmParams.Type == RESOURCE_CUBE) ? gmmParams.BaseWidth64 :
+                                                                                                             VAlign / 2;
+                gmmParams.ArraySize = (gmmParams.Type != RESOURCE_3D) ? VAlign : 1;
+                gmmParams.Depth     = 0x1;
+
+                if(i == RESOURCE_1D || i == RESOURCE_3D)
+                {
+                    gmmParams.Flags.Gpu.HiZ = 0;
+                }
+                else
+                {
+                    gmmParams.Flags.Gpu.HiZ = 1;
+                }
+
+                GMM_RESOURCE_INFO *ResourceInfo;
+                ResourceInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
+
+                VerifyResourceHAlign<true>(ResourceInfo, HAlign);
+                VerifyResourceVAlign<true>(ResourceInfo, VAlign);
+                uint32_t ExpectedPitch = GFX_ALIGN(gmmParams.BaseWidth * (int)pow(2, j), AllocTileSize[0][0]);
+                VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
+                VerifyResourcePitchInTiles<true>(ResourceInfo, ExpectedPitch / AllocTileSize[0][0]);
+
+                uint32_t ExpectedQPitch = 0;
+                if(gmmParams.ArraySize > 1 || gmmParams.Type == RESOURCE_CUBE)
+                {
+                    ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
+                    VerifyResourceQPitch<true>(ResourceInfo, ExpectedQPitch); // Each face should be VAlign rows apart within a tile.
+                }
+
+                VerifyResourceSize<true>(ResourceInfo, // PitchInBytes * Rows where Rows = (__GMM_MAX_CUBE_FACE x QPitch) /2 (Stencil height = halved due to interleaving), then aligned to tile boundary
+                                         ((gmmParams.Type == RESOURCE_CUBE) ?
+                                          ExpectedPitch * GMM_ULT_ALIGN(ExpectedQPitch * gmmParams.ArraySize * __GMM_MAX_CUBE_FACE, AllocTileSize[0][1]) : //cube
+                                          ((gmmParams.ArraySize > 1) ?
+                                           ExpectedPitch * GMM_ULT_ALIGN(ExpectedQPitch * gmmParams.ArraySize, AllocTileSize[0][1]) : //array
+                                           ExpectedPitch * GMM_ULT_ALIGN(gmmParams.BaseHeight, AllocTileSize[0][1]))));
+
+                if(gmmParams.Flags.Gpu.IndirectClearColor)
+                {
+                    VerifyResourceAuxCCSize<true>(ResourceInfo, PAGE_SIZE); 
+                }
+                else
+                {
+                    VerifyResourceAuxCCSize<true>(ResourceInfo, 0);
+                }
+
+                pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
+            }
+
+            // Allocate 2 tiles in X, 3 tiles in Y dimension (non-arrayed) Multi-tiles for 3D
+            for(uint32_t i = RESOURCE_2D; i <= RESOURCE_3D; i++)
+            {
+                gmmParams.Type        = static_cast<GMM_RESOURCE_TYPE>(i);
+                gmmParams.BaseWidth64 = AllocTileSize[0][0] + 0x1;
+                gmmParams.BaseHeight  = 2 * AllocTileSize[0][1] + 0x1; //Half-Depth Height or QPitch (lod!=0), aligned to 8 required by HW
+                gmmParams.Depth       = (gmmParams.Type == RESOURCE_2D) ? 0x1 :
+                                                                    VAlign + 1;
+                gmmParams.ArraySize = 1;
+
+                if(i == RESOURCE_1D || i == RESOURCE_3D)
+                {
+                    gmmParams.Flags.Gpu.HiZ = 0;
+                }
+                else
+                {
+                    gmmParams.Flags.Gpu.HiZ = 1;
+                }
+
+                GMM_RESOURCE_INFO *ResourceInfo;
+                ResourceInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
+
+                VerifyResourceHAlign<true>(ResourceInfo, HAlign);
+                VerifyResourceVAlign<true>(ResourceInfo, VAlign);
+                uint32_t ExpectedPitch = GFX_ALIGN(gmmParams.BaseWidth * (int)pow(2, j), AllocTileSize[0][0]);
+                VerifyResourcePitch<true>(ResourceInfo, ExpectedPitch);
+                VerifyResourcePitchInTiles<true>(ResourceInfo, ExpectedPitch / AllocTileSize[0][0]); // 2 tile wide
+
+                uint32_t TwoDQPitch, ExpectedQPitch = 0;
+                if(gmmParams.Type == RESOURCE_3D)
+                {
+                    TwoDQPitch     = GMM_ULT_ALIGN(gmmParams.BaseHeight, VAlign);
+                    ExpectedQPitch = GFX_ALIGN(TwoDQPitch, AllocTileSize[0][1]); //Depth slices arranged as 2D-arrayed slices.
+                    VerifyResourceQPitch<true>(ResourceInfo, ExpectedQPitch);
+                }
+                else
+                {
+                    //HiZ for 3D not supported. Driver still allocates like IVB/HSW.
+                    VerifyResourceSize<true>(ResourceInfo, ExpectedPitch * GMM_ULT_ALIGN(gmmParams.BaseHeight, AllocTileSize[0][1]));
+                }
+                pGmmULTClientContext->DestroyResInfoObject(ResourceInfo);
+            }
+        }
+    }
+}
 ///TODO Add MSAA/Depth Compressed Resource tests
 TEST_F(CTestGen12Resource, DISABLED_TestDepthCompressedResource)
 {
