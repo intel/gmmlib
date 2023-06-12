@@ -627,8 +627,8 @@ typedef struct _GMM_ADAPTER_INFO_
         GMM_ADAPTER_INFO *              GetAdapterNode(ADAPTER_BDF sBdf);   // Replacement for GetAdapterIndex, now get adapter node from the linked list
 
         // Mutexes which protect the below thread unsafe functions
-        GMM_STATUS                      LockMAContextSyncMutex();
-        GMM_STATUS                      UnLockMAContextSyncMutex();
+        GMM_STATUS GMM_STDCALL          LockMAContextSyncMutex();
+        GMM_STATUS GMM_STDCALL          UnLockMAContextSyncMutex();
 
         // thread unsafe functions; these must be protected with LockMAContextSyncMutex
         GMM_ADAPTER_INFO *              GetAdapterNodeUnlocked(ADAPTER_BDF sBdf);
