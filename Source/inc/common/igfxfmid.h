@@ -1922,14 +1922,17 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_56C0                             0x56C0
 #define DEV_ID_56C1                             0x56C1
 
-
-// RPL-P
+// RPL-P/U
 #define DEV_ID_A7A0                             0xA7A0
 #define DEV_ID_A7A1                             0xA7A1
 #define DEV_ID_A7A8                             0xA7A8
 #define DEV_ID_A7A9                             0xA7A9
 #define DEV_ID_A720                             0xA720
 #define DEV_ID_A721                             0xA721
+#define DEV_ID_A7AA                             0xA7AA
+#define DEV_ID_A7AB                             0xA7AB
+#define DEV_ID_A7AC                             0xA7AC
+#define DEV_ID_A7AD                             0xA7AD
 
 // ADL-N
 #define DEV_ID_46D0                             0x46D0
