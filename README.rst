@@ -33,7 +33,7 @@ Building
 
 4) Run the cmake command to prepare build files
 
-   ``$ cmake [-DCMAKE_BUILD_TYPE= Release | Debug | ReleaseInternal] [-DARCH= 64 | 32]  ..``
+   ``$ cmake [-DCMAKE_BUILD_TYPE= Release | Debug | ReleaseInternal] ..``
 
 5) Build the project
 
