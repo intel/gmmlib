@@ -294,9 +294,16 @@ typedef enum __NATIVEGTTYPE
 #define GFX_GET_CURRENT_RENDERCORE(p)  ( (p).eRenderCoreFamily )
 
 // This macro returns true if the product family is discrete
-#define GFX_IS_DISCRETE_FAMILY(p)      ( ( GFX_GET_CURRENT_PRODUCT(p) == IGFX_DG1 ) ||  \
-                                         ( GFX_GET_CURRENT_PRODUCT(p) == IGFX_XE_HP_SDV ) || \
-					 ( GFX_GET_CURRENT_PRODUCT(p) == IGFX_DG2 ) )
+#define GFX_IS_DISCRETE_PRODUCT(pf)    ( ( pf == IGFX_DG1 )             ||   \
+                                         ( pf == IGFX_DG2 )             ||   \
+                                         ( pf == IGFX_XE_HP_SDV ) )
+
+#define GFX_IS_DISCRETE_FAMILY(p)      GFX_IS_DISCRETE_PRODUCT(GFX_GET_CURRENT_PRODUCT(p))
+
+#define GFX_IS_INTEGRATED_PRODUCT(pf)  (!GFX_IS_DISCRETE_PRODUCT(pf))
+
+#define GFX_IS_INTEGRATED_FAMILY(p)    (!GFX_IS_DISCRETE_FAMILY(p))
+
 
 // These macros return true/false depending on the current render family.
 #define GFX_IS_NAPA_RENDER_FAMILY(p)   ( ( GFX_GET_CURRENT_RENDERCORE(p) == IGFX_GEN3_CORE )    ||   \
