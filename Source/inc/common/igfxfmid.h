@@ -1928,6 +1928,10 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_56B1                             0x56B1
 #define DEV_ID_56B2                             0x56B2
 #define DEV_ID_56B3                             0x56B3
+#define DEV_ID_56BA                             0x56BA
+#define DEV_ID_56BB                             0x56BB
+#define DEV_ID_56BC                             0x56BC
+#define DEV_ID_56BD                             0x56BD
 #define DEV_ID_56C0                             0x56C0
 #define DEV_ID_56C1                             0x56C1
 
