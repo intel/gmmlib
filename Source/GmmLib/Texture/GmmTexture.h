@@ -230,7 +230,15 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo,GMM_LI
             UnitAlignHeight = pPlatform->TexAlign.YUV422.Height;
 
             // For packed 8/16-bit formats alignment factor of 4 will give us < 16B so expand to 32B
-            SET_ALIGN_FACTOR(Width, 32);
+
+	    if (pTexInfo->Flags.Info.Linear)
+            {
+                SET_ALIGN_FACTOR(Width, 128);
+            }
+            else
+            {
+                SET_ALIGN_FACTOR(Width, 32);
+            }
         }
         else if(GmmIsCompressed(pGmmLibContext, pTexInfo->Format)) /////////////////////////////
         {
