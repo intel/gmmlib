@@ -828,7 +828,11 @@ GMM_STATUS GmmLib::AuxTable::MapValidEntry(GMM_UMD_SYNCCONTEXT *UmdContext, GMM_
 
 GMM_AUXTTL1e GmmLib::AuxTable::CreateAuxL1Data(GMM_RESOURCE_INFO *BaseResInfo)
 {
-    GMM_FORMAT_ENTRY FormatInfo = pClientContext->GetLibContext()->GetPlatformInfo().FormatTable[BaseResInfo->GetResourceFormat()];
+    GMM_RESOURCE_FORMAT Format;
+    Format = BaseResInfo->GetResourceFormat();
+    Format = ((Format > GMM_FORMAT_INVALID) && (Format < GMM_RESOURCE_FORMATS)) ? Format : GMM_FORMAT_INVALID;
+
+    GMM_FORMAT_ENTRY FormatInfo = pClientContext->GetLibContext()->GetPlatformInfo().FormatTable[Format];
     GMM_AUXTTL1e     L1ePartial = {0};
 #define GMM_REGISTRY_UMD_PATH "SOFTWARE\\Intel\\IGFX\\GMM\\"
 #define GMM_E2EC_OVERRIDEDEPTH16BPPTO12 "ForceYUV16To12BPP"
@@ -845,7 +849,7 @@ GMM_AUXTTL1e GmmLib::AuxTable::CreateAuxL1Data(GMM_RESOURCE_INFO *BaseResInfo)
     L1ePartial.TileMode = BaseResInfo->GetResFlags().Info.TiledYs ? 0 : 1;
 
     L1ePartial.Format     = FormatInfo.CompressionFormat.AuxL1eFormat;
-    L1ePartial.LumaChroma = GmmIsPlanar(BaseResInfo->GetResourceFormat());
+    L1ePartial.LumaChroma = GmmIsPlanar(Format);
 
     if(pClientContext->GetLibContext()->GetWaTable().WaUntypedBufferCompression && BaseResInfo->GetResourceType() == RESOURCE_BUFFER)
     {
@@ -886,7 +890,7 @@ GMM_AUXTTL1e GmmLib::AuxTable::CreateAuxL1Data(GMM_RESOURCE_INFO *BaseResInfo)
     }
     else
     {
-        switch(BaseResInfo->GetResourceFormat())
+        switch(Format)
         {
             case GMM_FORMAT_P012:
             case GMM_FORMAT_Y412:
