@@ -115,8 +115,6 @@ MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmCachePolicyCommon::CachePolic
     {
         return CachePolicy[Usage].MemoryObjectNoOverride;
     }
-
-    return CachePolicy[GMM_RESOURCE_USAGE_UNKNOWN].MemoryObjectOverride;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 ///      A simple getter function returning the PAT (cache policy) for a given
