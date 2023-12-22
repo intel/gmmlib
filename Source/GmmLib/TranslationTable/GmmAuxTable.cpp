@@ -938,8 +938,17 @@ GMM_GFX_ADDRESS GMM_INLINE GmmLib::AuxTable::__GetCCSCacheline(GMM_RESOURCE_INFO
     if(BaseIsYF)
     {
         uint32_t PitchIn4YF = BasePitchInTiles / 4; //Base Pitch is physically padded to 4x1 YF width
-        i                   = static_cast<uint32_t>(AdrOffset % PitchIn4YF);
-        j                   = static_cast<uint32_t>(AdrOffset / PitchIn4YF);
+        
+	if (PitchIn4YF != 0)
+        {
+            i = static_cast<uint32_t>(AdrOffset % PitchIn4YF);
+            j = static_cast<uint32_t>(AdrOffset / PitchIn4YF);
+        }
+        else
+        {
+            __GMM_ASSERT(PitchIn4YF != 0);
+            return 0;
+        }
     }
     else if(BasePitchInTiles != 0) //TileYs
     {
