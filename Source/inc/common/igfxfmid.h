@@ -1979,7 +1979,11 @@ typedef enum __NATIVEGTTYPE
                                  ( d == DEV_ID_5695 )             ||   \
                                  ( d == DEV_ID_56B0 )             ||   \
                                  ( d == DEV_ID_56B1 )             ||   \
-                                 ( d == DEV_ID_56C1 )             ||   \
+                                 ( d == DEV_ID_56BA )             ||   \
+                                 ( d == DEV_ID_56BB )             ||   \
+                                 ( d == DEV_ID_56BC )             ||   \
+                                 ( d == DEV_ID_56BD )             ||   \
+				 ( d == DEV_ID_56C1 )             ||   \
                                  ( d == DEV_ID_4F87 )             ||   \
                                  ( d == DEV_ID_4F88 ))
 
