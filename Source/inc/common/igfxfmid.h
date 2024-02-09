@@ -1966,6 +1966,11 @@ typedef enum __NATIVEGTTYPE
 // ARL-S
 #define DEV_ID_7D67                             0x7D67
 
+// ARL-H
+#define DEV_ID_7D41                             0x7D41
+#define DEV_ID_7D51                             0x7D51
+#define DEV_ID_7DD1                             0x7DD1
+
 #define MGM_HAS     0
 
 //#define SDG_HAS      1              //Reserve place for Springdale-G HAS
@@ -2011,6 +2016,11 @@ typedef enum __NATIVEGTTYPE
 
 // Macro to identify ARL-S Device ID
 #define GFX_IS_ARL_S(d)  ( ( d == DEV_ID_7D67 ) )
+
+// Macro to identify ARL-H Device ID
+#define GFX_IS_ARL_H(d)  ( ( d == DEV_ID_7D41 )  ||   \
+                         ( d == DEV_ID_7D51 )    ||   \
+                         ( d == DEV_ID_7DD1 ))
 
 //we define the highest cap and lower cap of stepping IDs
 #define SI_REV_ID(lo,hi) (lo | hi<<16)
