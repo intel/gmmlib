@@ -1953,6 +1953,8 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_46D0                             0x46D0
 #define DEV_ID_46D1                             0x46D1
 #define DEV_ID_46D2                             0x46D2
+#define DEV_ID_46D3                             0x46D3
+#define DEV_ID_46D4                             0x46D4
 
 // MTL
 #define DEV_ID_7D40                             0x7D40
