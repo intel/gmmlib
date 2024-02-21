@@ -1936,6 +1936,7 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_56BD                             0x56BD
 #define DEV_ID_56C0                             0x56C0
 #define DEV_ID_56C1                             0x56C1
+#define DEV_ID_56C2                             0x56C2
 
 // RPL-P/U
 #define DEV_ID_A7A0                             0xA7A0
@@ -2001,6 +2002,7 @@ typedef enum __NATIVEGTTYPE
                                       ( d == DEV_ID_5691 )                              ||   \
                                       ( d == DEV_ID_5692 )                              ||   \
                                       ( d == DEV_ID_56C0 )                              ||   \
+	                              ( d == DEV_ID_56C2 )                              ||   \
                                       ( d == DEV_ID_4F80 )                              ||   \
                                       ( d == DEV_ID_4F81 )                              ||   \
                                       ( d == DEV_ID_4F82 )                              ||   \
