@@ -328,9 +328,11 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTex2D(GMM_TEXTURE_INFO *
     ((pTexInfo->Flags.Gpu.Depth || pTexInfo->Flags.Gpu.SeparateStencil ||
       (GMM_IS_64KB_TILE(pTexInfo->Flags) || pTexInfo->Flags.Info.TiledYf)) ? // MSAA Ys/Yf samples are ALSO stored as array planes, calculate size for single sample and expand it later.
      1 :
-     pTexInfo->MSAA.NumSamples) *                                                                                              // MSAA (non-Depth/Stencil) RT samples stored as array planes.
+     pTexInfo->MSAA.NumSamples) *                                           // MSAA (non-Depth/Stencil) RT samples stored as array planes.
+    ((pTexInfo->Flags.Gpu.Depth || pTexInfo->Flags.Gpu.SeparateStencil) ?   // Depth/Stencil MSAA surface is expanded through Width and Depth
+     1 :    
     ((GMM_IS_64KB_TILE(pTexInfo->Flags) && !pGmmLibContext->GetSkuTable().FtrTileY && (pTexInfo->MSAA.NumSamples == 16)) ? 4 : // MSAA x8/x16 stored as pseudo array planes each with 4x samples
-     (GMM_IS_64KB_TILE(pTexInfo->Flags) && !pGmmLibContext->GetSkuTable().FtrTileY && (pTexInfo->MSAA.NumSamples == 8)) ? 2 : 1);
+     (GMM_IS_64KB_TILE(pTexInfo->Flags) && !pGmmLibContext->GetSkuTable().FtrTileY && (pTexInfo->MSAA.NumSamples == 8)) ? 2 : 1));
 
     if(GMM_IS_64KB_TILE(pTexInfo->Flags) || pTexInfo->Flags.Info.TiledYf)
     {
@@ -497,7 +499,6 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTex2D(GMM_TEXTURE_INFO *
     {
         Fill2DTexOffsetAddress(pTexInfo);
     }
-
     GMM_DPF_EXIT;
 
     return (Status);
