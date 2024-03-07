@@ -1005,6 +1005,10 @@ GMM_CLIENT               ClientType)
     this->GtSysInfo = *pGtSysInfo;
     
     this->pPlatformInfo = CreatePlatformInfo(Platform, false);
+    if(this->pPlatformInfo == NULL)
+    {
+        return GMM_ERROR;
+    }
 
     OverrideSkuWa();
 
