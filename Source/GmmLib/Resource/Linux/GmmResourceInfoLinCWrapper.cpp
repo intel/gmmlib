@@ -22,7 +22,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Internal/Common/GmmLibInc.h"
 
-#if defined(__linux__) && !LHDM
+#if !defined(_WIN32) && !LHDM
 #include "Internal/Linux/GmmResourceInfoLinInt.h"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -176,4 +176,4 @@ GMM_TRANSLATIONTABLE_CALLBACKS DummyTTCB = {
 .pfWriteL3Adr             = DummyWriteL3Adr,
 };
 
-#endif /*__linux__*/
+#endif /*!_WIN32*/
