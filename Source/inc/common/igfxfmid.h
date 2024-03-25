@@ -1934,6 +1934,8 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_56BB                             0x56BB
 #define DEV_ID_56BC                             0x56BC
 #define DEV_ID_56BD                             0x56BD
+#define DEV_ID_56BE                             0x56BE
+#define DEV_ID_56BF                             0x56BF
 #define DEV_ID_56C0                             0x56C0
 #define DEV_ID_56C1                             0x56C1
 #define DEV_ID_56C2                             0x56C2
@@ -2001,7 +2003,9 @@ typedef enum __NATIVEGTTYPE
                                       ( d == DEV_ID_5690 )                              ||   \
                                       ( d == DEV_ID_5691 )                              ||   \
                                       ( d == DEV_ID_5692 )                              ||   \
-                                      ( d == DEV_ID_56C0 )                              ||   \
+                                      ( d == DEV_ID_56BE )                              ||   \
+                                      ( d == DEV_ID_56BF )                              ||   \
+				      ( d == DEV_ID_56C0 )                              ||   \
 	                              ( d == DEV_ID_56C2 )                              ||   \
                                       ( d == DEV_ID_4F80 )                              ||   \
                                       ( d == DEV_ID_4F81 )                              ||   \
