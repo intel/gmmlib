@@ -76,7 +76,10 @@ void GmmLib::GmmResourceInfoCommon::GetRestrictions(__GMM_BUFFER_TYPE &Restricti
 
     GMM_TEXTURE_CALC *pTextureCalc = NULL;
     pTextureCalc                   = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
-    pTextureCalc->GetResRestrictions(&Surf, Restrictions);
+    if (pTextureCalc)
+    {
+        pTextureCalc->GetResRestrictions(&Surf, Restrictions);
+    }
 
     GMM_DPF_EXIT;
 }

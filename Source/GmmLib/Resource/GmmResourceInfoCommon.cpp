@@ -447,6 +447,13 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
     pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf, GetGmmLibContext());
     pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
 
+    if (!pTextureCalc)
+    {
+        Status = GMM_ERROR;
+        GMM_ASSERTDPF(0, "Texture Calculation pointer is NULL.");
+        goto ERROR_CASE;
+    }
+
 #if defined(__GMM_KMD__) || !defined(_WIN32)
     if(!CreateParams.Flags.Info.ExistingSysMem)
 #else
