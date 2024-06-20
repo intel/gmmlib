@@ -108,6 +108,11 @@ namespace GmmLib
                 GMM_UNREFERENCED_PARAMETER(WidthBytesPhysical);
                 GMM_UNREFERENCED_PARAMETER(WidthBytesLock);
             }
+            virtual uint64_t GMM_STDCALL Get2DFCSurfaceWidthFor3DSurface(GMM_TEXTURE_INFO *pTexInfo,
+                                                                 uint64_t          Width);
+            virtual uint64_t GMM_STDCALL Get2DFCSurfaceHeightFor3DSurface(GMM_TEXTURE_INFO *pTexInfo,
+                                                                  uint32_t          Height,
+                                                                  uint32_t          Depth);
 
             /* inline functions */
     };

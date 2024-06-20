@@ -58,12 +58,16 @@ typedef struct GMM_CACHE_POLICY_ELEMENT_REC
             uint64_t                   L1CC        : 3; // L1 Cache Control
 	    uint64_t                   Initialized : 1;
             uint64_t                   L2CC        : 2; // media internal cache 0:UC, 1:WB
-            uint64_t                   L4CC        : 2; // ADM memory cache 0: UC, 1:WB, 2: WT
+            uint64_t                   L4CC        : 2; // L4 memory cache 0: UC, 1:WB, 2: WT
             uint64_t                   Coherency   : 2; // 0 non-coh, 1: 1 way coh IA snoop 2: 2 way coh IA GPU snopp
 	    uint64_t                   CoherentPATIndex : 5;
-	    uint64_t                   Reserved    : 23;
-
-	};
+            uint64_t CoherentPATIndexHigherBit     : 1; // From Xe2 onwards it requires 6 bit to represent PATIndex. Hence using this single bit (MSB) as extension of the above field CoherentPATIndex:5
+            uint64_t PATIndexCompressed            : 6;	    
+            uint64_t L3CC                          : 2; // 0:UC, 1:WB  2:WB_T_Display, 3:WB_T_App
+            uint64_t L3CLOS                        : 2; // Class of service
+	    uint64_t IgnorePAT                     : 1; // Ignore PAT 1 = Override by MOCS, 0 = Defer to PAT
+	    uint64_t Reserved                      : 11;
+       };
         uint64_t Value;    
     };
 
@@ -128,6 +132,19 @@ typedef struct GMM_CACHE_POLICY_TBL_ELEMENT_REC {
             uint16_t Reserved           : 8;
         } ;
         uint16_t UshortValue;
+
+        union
+        {
+            struct
+            {
+                uint16_t Reserved : 2;
+                uint16_t L4CC     : 2;
+                uint16_t L3CC     : 2;
+                uint16_t L3CLOS   : 2;
+                uint16_t igPAT    : 1; // selection between MOCS and PAT
+                uint16_t Reserved0: 7;
+            };
+        } PhysicalL3;
     } L3;
 
     uint8_t    HDCL1;
@@ -159,6 +176,25 @@ typedef enum GMM_L4_CACHING_POLICY_REC
     GMM_CP_NON_COHERENT_WT                = 0x1,
     GMM_CP_NON_COHERENT_UC                = 0x3,
 } GMM_L4_CACHING_POLICY;
+
+// This Enums represent the GMM indicative values for L1/L3/L4 cache attributes.
+typedef enum GMM_CACHING_POLICY_REC
+{
+    GMM_UC   = 0x0, //uncached
+    GMM_WB   = 0x1, // Write back
+    GMM_WT   = 0x2, // write-through
+    GMM_WBTD = 0x3, // WB_T_Display
+    GMM_WBTA = 0x4, // WB_T_App
+    GMM_WBP  = 0x5, // write bypass mode
+    GMM_WS   = 0x6, // Write-Streaming
+} GMM_CACHING_POLICY;
+
+typedef enum GMM_COHERENCY_TYPE_REC
+{
+    GMM_NON_COHERENT_NO_SNOOP         = 0x0,
+    GMM_COHERENT_ONE_WAY_IA_SNOOP     = 0x1,
+    GMM_COHERENT_TWO_WAY_IA_GPU_SNOOP = 0x2
+} GMM_COHERENCY_TYPE;
 
 typedef enum GMM_GFX_COHERENCY_TYPE_REC
 {
@@ -196,8 +232,8 @@ typedef enum GMM_GFX_PAT_IDX_REC
     PAT12,
     PAT13,
     PAT14,
-    PAT15	    
-}GMM_GFX_PAT_IDX;
+    PAT15
+} GMM_GFX_PAT_IDX;
 
 #define GFX_IS_ATOM_PLATFORM(pGmmLibContext) (GmmGetSkuTable(pGmmLibContext)->FtrLCIA)
 
@@ -248,6 +284,18 @@ typedef union GMM_PRIVATE_PAT_REC {
         uint32_t L4CC               : 2;    
         uint32_t Reserved           : 28;
     }Xe_LPG;
+
+    struct
+    {
+        uint32_t Coherency            : 2;
+        uint32_t L4CC                 : 2;
+        uint32_t L3CC                 : 2;
+        uint32_t L3CLOS               : 2;
+        uint32_t Reserved1            : 1;
+        uint32_t LosslessCompressionEn: 1;
+        uint32_t NoCachingPromote     : 1;
+        uint32_t Reserved2            : 21;
+    } Xe2;
 
     uint32_t   Value;
 

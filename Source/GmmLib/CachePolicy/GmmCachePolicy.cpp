@@ -54,6 +54,7 @@ uint32_t GMM_STDCALL GmmCachePolicyGetPATIndex(void *pLibContext, GMM_RESOURCE_U
     GMM_LIB_CONTEXT *pGmmLibContext = (GMM_LIB_CONTEXT *)pLibContext;
     return pGmmLibContext->GetCachePolicyObj()->CachePolicyGetPATIndex(NULL, Usage, pCompressionEnable, IsCpuCacheable);
 }
+
 /////////////////////////////////////////////////////////////////////////////////////
 /// C Wrapper function for GmmLib::GmmCachePolicyIsUsagePTECached
 /// @see           GmmLib::GmmCachePolicyCommon::CachePolicyIsUsagePTECached()
@@ -79,7 +80,7 @@ uint8_t GMM_STDCALL GmmCachePolicyIsUsagePTECached(void *pLibContext, GMM_RESOUR
 uint8_t GMM_STDCALL GmmGetSurfaceStateL1CachePolicy(void *pLibContext, GMM_RESOURCE_USAGE_TYPE Usage)
 {
     GMM_LIB_CONTEXT *pGmmLibContext = (GMM_LIB_CONTEXT *)pLibContext;
-    return pGmmLibContext->GetCachePolicyElement(Usage).L1CC;
+    return (uint8_t)pGmmLibContext->GetCachePolicyObj()->GetSurfaceStateL1CachePolicy(Usage);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

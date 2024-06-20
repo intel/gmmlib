@@ -77,6 +77,7 @@ typedef enum {
     IGFX_PVC = 1271,
     IGFX_METEORLAKE = 1272,
     IGFX_ARROWLAKE = 1273,
+    IGFX_LUNARLAKE = 1275,    
 
     IGFX_MAX_PRODUCT,
     IGFX_GENNEXT               = 0x7ffffffe,
@@ -137,6 +138,7 @@ typedef enum {
     IGFX_XE_HP_CORE      = 0x0c05,  //XE_HP family
     IGFX_XE_HPG_CORE     = 0x0c07,  // XE_HPG Family
     IGFX_XE_HPC_CORE     = 0x0c08,  // XE_HPC Family
+    IGFX_XE2_LPG_CORE    = 0x0c09,  // XE2_LPG Family 
                                 
     //Please add new GENs BEFORE THIS !
     IGFX_MAX_CORE,
@@ -1975,6 +1977,12 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_7D41                             0x7D41
 #define DEV_ID_7D51                             0x7D51
 #define DEV_ID_7DD1                             0x7DD1
+
+// LNL
+#define DEV_ID_64A0                             0x64A0
+#define DEV_ID_6420                             0x6420
+#define DEV_ID_64B0                             0x64B0
+
 
 #define MGM_HAS     0
 

@@ -59,6 +59,9 @@ typedef enum TEST_TILE_TYPE_ENUM
     TEST_TILEY,
     TEST_TILEYS,
     TEST_TILEYF,
+    TEST_TILEY_MAX = TEST_TILEYF,
+    TEST_TILE4,
+    TEST_TILE64,
     TEST_TILE_MAX
 }TEST_TILE_TYPE;
 
@@ -137,12 +140,18 @@ protected:
     {
         switch (Bpp)
         {
-            case TEST_BPP_8:    return GMM_FORMAT_GENERIC_8BIT;
-            case TEST_BPP_16:   return GMM_FORMAT_GENERIC_16BIT;
-            case TEST_BPP_32:   return GMM_FORMAT_GENERIC_32BIT;
-            case TEST_BPP_64:   return GMM_FORMAT_GENERIC_64BIT;
-            case TEST_BPP_128:  return GMM_FORMAT_GENERIC_128BIT;
-            default: break;
+        case TEST_BPP_8:
+            return GMM_FORMAT_GENERIC_8BIT;
+        case TEST_BPP_16:
+            return GMM_FORMAT_GENERIC_16BIT;
+        case TEST_BPP_32:
+            return GMM_FORMAT_GENERIC_32BIT;
+        case TEST_BPP_64:
+            return GMM_FORMAT_GENERIC_64BIT;
+        case TEST_BPP_128:
+            return GMM_FORMAT_GENERIC_128BIT;
+        default:
+            break;
         }
 
         return GMM_FORMAT_INVALID;
@@ -160,12 +169,23 @@ protected:
         uint32_t Bpp = 0;
         switch (bpp)
         {
-            case TEST_BPP_8:    Bpp = 8;    break;
-            case TEST_BPP_16:   Bpp = 16;   break;
-            case TEST_BPP_32:   Bpp = 32;   break;
-            case TEST_BPP_64:   Bpp = 64;   break;
-            case TEST_BPP_128:  Bpp = 128;  break;
-            default: break;
+        case TEST_BPP_8:
+            Bpp = 8;
+            break;
+        case TEST_BPP_16:
+            Bpp = 16;
+            break;
+        case TEST_BPP_32:
+            Bpp = 32;
+            break;
+        case TEST_BPP_64:
+            Bpp = 64;
+            break;
+        case TEST_BPP_128:
+            Bpp = 128;
+            break;
+        default:
+            break;
         }
 
         return Bpp >> 3;
@@ -189,17 +209,32 @@ protected:
                 Params.Flags.Info.TiledX = 1;
                 break;
             case TEST_TILEY:
-                Params.Flags.Info.TiledY = 1;
-                break;
-            case TEST_TILEYF:
-                Params.Flags.Info.TiledY  = 1;
-                Params.Flags.Info.TiledYf = 1;
-                break;
-            case TEST_TILEYS:
+	            if (pGfxAdapterInfo->SkuTable.FtrTileY)
+	            {
+	                Params.Flags.Info.TiledY = 1;
+	            }
+	            else
+	            {
+	                Params.Flags.Info.Tile4 = 1;
+	            }
+	            break;
+        case TEST_TILEYF:
+            Params.Flags.Info.TiledY  = 1;
+            Params.Flags.Info.TiledYf = 1;
+            break;
+        case TEST_TILEYS:
+            if (pGfxAdapterInfo->SkuTable.FtrTileY)
+            {
                 Params.Flags.Info.TiledY  = 1;
                 Params.Flags.Info.TiledYs = 1;
-                break;
-            default: break;
+            }
+            else
+            {
+                Params.Flags.Info.Tile64 = 1;
+            }
+            break;
+        default:
+            break;
         }
     }
 
@@ -221,17 +256,32 @@ protected:
             Params.Flags.Info.TiledX = 1;
             break;
         case TEST_TILEY:
-            Params.Flags.Info.TiledY = 1;
+            if (pGfxAdapterInfo->SkuTable.FtrTileY)
+            {
+                Params.Flags.Info.TiledY = 1;
+            }
+            else
+            {
+                Params.Flags.Info.Tile4 = 1;
+            }
             break;
         case TEST_TILEYF:
             Params.Flags.Info.TiledY = 1;
             Params.Flags.Info.TiledYf = 1;
             break;
         case TEST_TILEYS:
-            Params.Flags.Info.TiledY = 1;
-            Params.Flags.Info.TiledYs = 1;
+            if (pGfxAdapterInfo->SkuTable.FtrTileY)
+            {
+                Params.Flags.Info.TiledY  = 1;
+                Params.Flags.Info.TiledYs = 1;
+            }
+            else
+            {
+                Params.Flags.Info.Tile64 = 1;
+            }
             break;
-        default: break;
+        default:
+            break;
         }
     }
 
@@ -300,12 +350,14 @@ protected:
         uint32_t& ExpectedMCSBpp, uint32_t &MCSHAlign, uint32_t &MCSVAlign)
     {
         const uint32_t MSSTileSize[TEST_TILE_MAX][TEST_BPP_MAX][2] = {
-            { { 64, 1 },{ 64, 1 },{ 64, 1 },{ 64, 1 },{ 64, 1 } },             //Linear - no Tile Size, but min PitchAlign = 64
-            { { 512, 8 },{ 512, 8 },{ 512, 8 },{ 512, 8 },{ 512, 8 } },        //TileX
-            { { 128, 32 },{ 128, 32 },{ 128, 32 },{ 128, 32 },{ 128, 32 } },   //TileY
-            { { 256, 256 },{ 512, 128 },{ 512, 128 },{ 1024, 64 },{ 1024, 64 } },   //TileYs
-            { { 64, 64 },{ 128, 32 },{ 128, 32 },{ 256, 16 },{ 256, 16 } }     //TileYf
-        };
+        {{64, 1}, {64, 1}, {64, 1}, {64, 1}, {64, 1}},                //Linear - no Tile Size, but min PitchAlign = 64
+        {{512, 8}, {512, 8}, {512, 8}, {512, 8}, {512, 8}},           //TileX
+        {{128, 32}, {128, 32}, {128, 32}, {128, 32}, {128, 32}},      //TileY
+        {{256, 256}, {512, 128}, {512, 128}, {1024, 64}, {1024, 64}}, //TileYs
+        {{64, 64}, {128, 32}, {128, 32}, {256, 16}, {256, 16}},       //TileYf
+        {{128, 32}, {128, 32}, {128, 32}, {128, 32}, {128, 32}},      //Tile4
+        {{256, 256}, {512, 128}, {512, 128}, {1024, 64}, {1024, 64}}  //Tile64
+		};
         uint32_t WMul = 1, HMul = 1;
 
         HAlign = 16;                              // RT H/VAlign
@@ -318,10 +370,10 @@ protected:
             MCSHAlign = 4;                            //MCS uses base H/VAlign for 8bpp
         }
 
-        uint32_t Tile[2] = { MSSTileSize[Tiling][Bpp][0], MSSTileSize[Tiling][Bpp][1] };
-        if (Tiling == TEST_TILEYS || Tiling == TEST_TILEYF)
+        uint32_t Tile[2] = {MSSTileSize[Tiling][Bpp][0], MSSTileSize[Tiling][Bpp][1]};
+        if (Tiling == TEST_TILEYS || Tiling == TEST_TILEYF || Tiling == TEST_TILE64)
         {
-            GetInterleaveMSSPattern(MSAA, WMul, HMul);
+            GetInterleaveMSSPattern(MSAA, WMul, HMul, isRT, Bpp);
 
             //Std Tiling interleaves MSAA into 1x, decreasing std Tile size for MSAA'd sample
             //Std Tiling types should have std size alignment always
@@ -353,21 +405,62 @@ protected:
     /// Get the interleave pattern for given Num Samples
     ///
     /// @param[in]  MSAA: Num of Samples
+    /// @param[in]  IsRT: !RT means Depth resource
     /// @param[out] WidthMultiplier: Number of samples arranged side-by-side
     /// @param[out] HeightMultiplier: Number of samples arranged top-bottom
     ///
     /////////////////////////////////////////////////////////////////////////////////////
-    void GetInterleaveMSSPattern(TEST_MSAA MSAA, uint32_t& WidthMultiplier, uint32_t& HeightMultiplier)
+    void GetInterleaveMSSPattern(TEST_MSAA MSAA, uint32_t &WidthMultiplier, uint32_t &HeightMultiplier, bool IsRT, TEST_BPP Bpp)
     {
         WidthMultiplier = 1; HeightMultiplier = 1;
 
         switch (MSAA)
         {
-        case MSAA_2x: WidthMultiplier = 2; break;
-        case MSAA_4x: WidthMultiplier = 2; HeightMultiplier = 2; break;
-        case MSAA_8x: WidthMultiplier = 4; HeightMultiplier = 2; break;
-        case MSAA_16x:WidthMultiplier = 4; HeightMultiplier = 4; break;
-        default: break;
+        case MSAA_2x:
+	            if (IsRT && pGfxAdapterInfo->SkuTable.FtrXe2PlusTiling && (Bpp == TEST_BPP_128))
+	            {
+	                HeightMultiplier = 2;
+	            }
+	            else
+	            {
+	                WidthMultiplier = 2;
+	            }
+                break;
+            case MSAA_4x:
+                WidthMultiplier  = 2;
+                HeightMultiplier = 2;
+                break;
+            case MSAA_8x:
+                WidthMultiplier  = 4;
+                HeightMultiplier = 2;
+	            if (IsRT && pGfxAdapterInfo->SkuTable.FtrXe2PlusTiling && ((Bpp == TEST_BPP_8) || (Bpp == TEST_BPP_32)))
+	            {
+	                WidthMultiplier  = 2;
+	                HeightMultiplier = 4;
+	            }
+	            else if (IsRT && !pGfxAdapterInfo->SkuTable.FtrTileY && !pGfxAdapterInfo->SkuTable.FtrXe2PlusTiling)
+                {
+                    WidthMultiplier  = 2;
+                    HeightMultiplier = 2;
+                }
+                break;
+            case MSAA_16x:
+                WidthMultiplier  = 4;
+                HeightMultiplier = 4;
+	            if (IsRT && pGfxAdapterInfo->SkuTable.FtrXe2PlusTiling && (Bpp == TEST_BPP_64))
+	            {
+	                WidthMultiplier  = 8;
+	                HeightMultiplier = 2;
+	            }
+	            else if (IsRT && !pGfxAdapterInfo->SkuTable.FtrTileY && !pGfxAdapterInfo->SkuTable.FtrXe2PlusTiling)
+                {
+                    WidthMultiplier  = 2;
+                    HeightMultiplier = 2;
+                }
+                break;
+            default:
+                break;
+
         }
     }
 
@@ -529,4 +622,4 @@ public:
 /// @return   Number of tuples in the list
 /// @see      GmmGen9ResourceULT.cpp
 /////////////////////////////////////////////////////////////////////////
-int BuildInputIterator(std::vector<std::tuple<int, int, int, bool, int, int>> &List, int maxTestDimension, int TestArray);
+int BuildInputIterator(std::vector<std::tuple<int, int, int, bool, int, int>> &List, int maxTestDimension, int TestArray, bool XEHPPlus);

@@ -42,7 +42,8 @@ namespace GmmLib
     #define GMM_FREE(p)         free(p)
 
 #define GMM_COMPR_FORMAT_INVALID(pGmmLibContext)                                                                          \
-     ((pGmmLibContext->GetSkuTable().FtrFlatPhysCCS != 0)    ? static_cast<uint8_t>(GMM_FLATCCS_FORMAT_INVALID) :          \
+    ((pGmmLibContext->GetSkuTable().FtrXe2Compression != 0) ? static_cast<uint8_t>(GMM_XE2_UNIFIED_COMP_FORMAT_INVALID) : \
+     (pGmmLibContext->GetSkuTable().FtrFlatPhysCCS != 0)    ? static_cast<uint8_t>(GMM_FLATCCS_FORMAT_INVALID) :          \
                                                               static_cast<uint8_t>(GMM_E2ECOMP_FORMAT_INVALID))
 
 #else

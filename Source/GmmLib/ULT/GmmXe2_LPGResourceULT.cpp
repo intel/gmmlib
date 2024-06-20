@@ -1,5 +1,5 @@
 /*==============================================================================
-Copyright(c) 2017 Intel Corporation
+Copyright(c) 2024 Intel Corporation
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files(the "Software"),
@@ -20,7 +20,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
 
-#include "GmmGen10ResourceULT.h"
+#include "GmmXe2_LPGResourceULT.h"
 
 using namespace std;
 
@@ -29,78 +29,91 @@ using namespace std;
 /// test case before executing all tests under resource fixture test case.
 //  It also calls SetupTestCase from CommonULT to initialize global context and others.
 ///
-/// @see    CTestGen9Resource::SetUpTestCase()
 ///
 /////////////////////////////////////////////////////////////////////////////////////
-void CTestGen10Resource::SetUpTestCase()
+void CTestXe2_LPGResource::SetUpTestCase()
 {
-    printf("%s\n", __FUNCTION__);
-    GfxPlatform.eProductFamily    = IGFX_CANNONLAKE;
-    GfxPlatform.eRenderCoreFamily = IGFX_GEN10_CORE;
-
-    CommonULT::SetUpTestCase();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// cleans up once all the tests finish execution.  It also calls TearDownTestCase
 /// from CommonULT to destroy global context and others.
 ///
-/// @see    CTestGen10Resource::TearDownTestCase()
 /////////////////////////////////////////////////////////////////////////////////////
-void CTestGen10Resource::TearDownTestCase()
+void CTestXe2_LPGResource::TearDownTestCase()
+{
+}
+
+void CTestXe2_LPGResource::SetUp_Xe2Variant(PRODUCT_FAMILY platform)
 {
     printf("%s\n", __FUNCTION__);
 
+    if (platform == IGFX_LUNARLAKE)
+    {
+        GfxPlatform.eProductFamily = IGFX_LUNARLAKE;
+        GfxPlatform.eRenderCoreFamily = IGFX_XE2_LPG_CORE;
+    }
+
+    pGfxAdapterInfo = (ADAPTER_INFO*)malloc(sizeof(ADAPTER_INFO));
+    if (pGfxAdapterInfo)
+    {
+        memset(pGfxAdapterInfo, 0, sizeof(ADAPTER_INFO));
+
+        pGfxAdapterInfo->SkuTable.FtrLinearCCS = 1; //legacy y =>0 
+        pGfxAdapterInfo->SkuTable.FtrStandardMipTailFormat = 1;
+        pGfxAdapterInfo->SkuTable.FtrTileY = 0;
+        pGfxAdapterInfo->SkuTable.FtrXe2PlusTiling = 1;
+        pGfxAdapterInfo->SkuTable.FtrXe2Compression = 1;
+        pGfxAdapterInfo->SkuTable.FtrFlatPhysCCS = 1;
+        pGfxAdapterInfo->SkuTable.FtrLocalMemory = 0;
+        pGfxAdapterInfo->SkuTable.FtrDiscrete = 0;
+        pGfxAdapterInfo->SkuTable.FtrE2ECompression = 1;
+
+        if (platform == IGFX_LUNARLAKE )
+        {
+            pGfxAdapterInfo->WaTable.Wa_14018976079           = 1;
+            pGfxAdapterInfo->WaTable.Wa_14018984349           = 1;
+            pGfxAdapterInfo->SkuTable.FtrL3TransientDataFlush = 1;
+        }
+
+        CommonULT::SetUpTestCase();
+    }
+}
+
+void CTestXe2_LPGResource::TearDown_Xe2Variant()
+{
+    printf("%s\n", __FUNCTION__);
     CommonULT::TearDownTestCase();
 }
 
-/// @brief ULT for 2D TileYs Resource
-TEST_F(CTestGen10Resource, Test2DTileYsResource)
+
+TEST_F(CTestXe2_LPGResource, TestMSAA_LNL)
 {
-    printf("%s\n", __FUNCTION__);
+    SetUp_Xe2Variant(IGFX_LUNARLAKE);
+    TestMSAA();
+    TearDown_Xe2Variant();
 }
 
-/// @brief ULT for 2D TileYf Resource
-TEST_F(CTestGen10Resource, Test2DTileYfResource)
-{
-    printf("%s\n", __FUNCTION__);
-}
-
-TEST_F(CTestGen10Resource, TestMSAA)
-{
-    //Tile dimensions in Bytes
-    const uint32_t MCSTileSize[1][2] = {128, 32}; //MCS is TileY
-
-    //Gen9: MSAA 16x no MCS for width > 8K
-    //No MSAA for YUV/compressed formats
-    //Interleaved MSS (IMS) for Depth/Stencil. Arrayed MSS (CMS) for Color RT
-    //MSS (Arrayed): px_wL, px_hL = pixel width/height of single sample at Lod L
-    //  MSS width = px_wL, MSS height = NumSamples*px_hL
-    //MSS (Interleaved): px_wL, px_hL = pixel width/height of single sample at Lod L
-    // Samples         MSS width                MSS Height
-    //   2x            4*ceil(px_wL/2)             px_hL
-    //   4x            4*ceil(px_wL/2)           4*ceil(px_hL/2)
-    //   8x            8*ceil(px_wL/2)           4*ceil(px_hL/2)
-    //  16x            8*ceil(px_wL/2)           8*ceil(px_hL/2)
-    //MCS (bpp): 2x/4x - bpp_8, 8x - bpp_32, 16x - bpp_64
-
+/// @brief ULT for MSAA Resource - Depth and Colour MSAA verification for Tile64 resources
+//  Note: Verify with and without FtrXe2PlusTiling in Setup, Default: FtrXe2PlusTiling
+void CTestXe2_LPGResource::TestMSAA()
+{	
+    GMM_GFX_SIZE_T AuxCC, AuxCCS, AuxMCS;
     const uint32_t TestDimensions[4][2] = {
     //Input dimensions in #Tiles
-    {15, 20}, //16 Tiles x 20 <Max Width: Depth MSS crosses Pitch limit beyond this>
-    {0, 0},   //1x1x1
-    {1, 0},   //2 Tilesx1
-    {1, 1},   //2 Tiles x 2
+    {16, 4},    //occupies single tile for Depth for all MSAAs and BPPs, multiple tiles for colours
+    {128, 128}, // crosses a tile for > 4X MSAA for depth
+    {128, 257}, // Crosses a tile in Y direction and for >4X MSAA, crosses in X direction too for depth
+    {1, 1},
     };
 
     uint32_t TestArraySize[2] = {1, 5};
     uint32_t MinPitch         = 32;
 
-    uint32_t HAlign = 0, VAlign = 0;
-    uint32_t TileDimX = 0, TileDimY = 0;
-    uint32_t MCSHAlign = 0, MCSVAlign = 0, TileSize = 0;
-    uint32_t ExpectedMCSBpp = 0;
+    uint32_t HAlign, VAlign, TileDimX, TileDimY, MCSHAlign, MCSVAlign, TileSize;
+    uint32_t ExpectedMCSBpp;
     std::vector<tuple<int, int, int, bool, int, int>> List; //TEST_TILE_TYPE, TEST_BPP, TEST_RESOURCE_TYPE, Depth or RT, TestDimension index, ArraySize
-    auto Size = BuildInputIterator(List, 4, 2, false);             // Size of arrays TestDimensions, TestArraySize
+    auto Size = BuildInputIterator(List, 4, 2, true);       // Size of arrays TestDimensions, TestArraySize
 
     for(auto element : List)
     {
@@ -113,12 +126,12 @@ TEST_F(CTestGen10Resource, TestMSAA)
         bool               IsRT       = std::get<3>(element); // True for RT, False for Depth
         int                TestDimIdx = std::get<4>(element); //index into TestDimensions array
         int                ArrayIdx   = std::get<5>(element); //index into TestArraySize
-        TileSize                      = (Tiling == TEST_TILEYS) ? GMM_KBYTE(64) : GMM_KBYTE(4);
+        TileSize                      = (Tiling == TEST_TILE64) ? GMM_KBYTE(64) : GMM_KBYTE(4);
 
         //Discard un-supported Tiling/Res_type/bpp for this test
-        if(ResType != TEST_RESOURCE_2D ||                            //No 1D/3D/Cube. Supported 2D mip-maps/array
-           (!IsRT && (Tiling == TEST_TILEX ||
-                      !(Bpp == TEST_BPP_16 || Bpp == TEST_BPP_32)))) //depth supported on 16bit, 32bit formats only
+        if((ResType != TEST_RESOURCE_2D) || //No 1D/3D/Cube. Supported 2D mip-maps/array
+                                            // depth tested outside this function due to diff in halign/valign
+           (Tiling != TEST_TILE64))         // MSAA not supported on Tile4
             continue;
 
         SetTileFlag(gmmParams, Tiling);
@@ -133,13 +146,14 @@ TEST_F(CTestGen10Resource, TestMSAA)
             GetAlignmentAndTileDimensionsForMSAA(Bpp, IsRT, Tiling, (TEST_MSAA)k,
                                                  TileDimX, TileDimY, HAlign, VAlign,
                                                  ExpectedMCSBpp, MCSHAlign, MCSVAlign);
-
-            gmmParams.BaseWidth64     = TestDimensions[TestDimIdx][0] * TileDimX + 0x1;
-            gmmParams.BaseHeight      = TestDimensions[TestDimIdx][1] * TileDimY + 0x1;
-            gmmParams.Depth           = 0x1;
-            gmmParams.MSAA.NumSamples = static_cast<uint32_t>(pow((double)2, k));
-            gmmParams.Flags.Gpu.MCS   = 0;
-
+            gmmParams.BaseWidth64     = TestDimensions[TestDimIdx][0] * (unsigned int)pow(2.0, Bpp);
+            gmmParams.BaseHeight                   = TestDimensions[TestDimIdx][1];
+            gmmParams.Depth                        = 0x1;
+            gmmParams.MSAA.NumSamples              = static_cast<uint32_t>(pow((double)2, k));
+            gmmParams.Flags.Gpu.MCS                = 1;
+            gmmParams.Flags.Gpu.CCS                = 1;
+            gmmParams.Flags.Gpu.UnifiedAuxSurface  = 1;
+            gmmParams.Flags.Gpu.IndirectClearColor = 1;
             //MSS surface
             GMM_RESOURCE_INFO *MSSResourceInfo;
             MSSResourceInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
@@ -148,10 +162,27 @@ TEST_F(CTestGen10Resource, TestMSAA)
             {
                 VerifyResourceHAlign<true>(MSSResourceInfo, HAlign);
                 VerifyResourceVAlign<true>(MSSResourceInfo, VAlign);
+
+                if (gmmParams.Flags.Gpu.IndirectClearColor && pGfxAdapterInfo->SkuTable.FtrXe2Compression && (gmmParams.MSAA.NumSamples > 1))
+                {
+                    AuxCC  = MSSResourceInfo->GetUnifiedAuxSurfaceOffset(GMM_AUX_CC);
+                    AuxMCS = MSSResourceInfo->GetUnifiedAuxSurfaceOffset(GMM_AUX_MCS);
+                    AuxCCS = MSSResourceInfo->GetUnifiedAuxSurfaceOffset(GMM_AUX_CCS);
+
+                    EXPECT_EQ(AuxCC, AuxMCS);
+                    EXPECT_EQ(AuxCCS, 0);
+
+                    AuxCC  = MSSResourceInfo->GetSizeAuxSurface(GMM_AUX_CC);
+                    AuxMCS = MSSResourceInfo->GetSizeAuxSurface(GMM_AUX_MCS);
+                    AuxCCS = MSSResourceInfo->GetSizeAuxSurface(GMM_AUX_CCS);
+
+                    EXPECT_EQ(AuxCC, AuxMCS);
+                    EXPECT_EQ(AuxCCS, 0);
+                }
                 if(IsRT) //Arrayed MSS
                 {
-                    uint32_t ExpectedPitch = 0, ExpectedQPitch = 0;
-                    ExpectedPitch = GMM_ULT_ALIGN(GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign) * (uint32_t)pow(2.0, Bpp), TileDimX); // Aligned width * bpp, aligned to TileWidth
+                    uint32_t ExpectedPitch = 0, ExpectedQPitch = 0, ExpectedHeight = 0;
+                    ExpectedPitch = GMM_ULT_ALIGN(GMM_ULT_ALIGN(gmmParams.BaseWidth64, HAlign) * (unsigned int)pow(2.0, Bpp), TileDimX); // Aligned width * bpp, aligned to TileWidth
                     ExpectedPitch = GFX_MAX(ExpectedPitch, MinPitch);
                     VerifyResourcePitch<true>(MSSResourceInfo, ExpectedPitch);
                     if(Tiling != TEST_LINEAR)
@@ -163,10 +194,11 @@ TEST_F(CTestGen10Resource, TestMSAA)
                         VerifyResourceQPitch<true>(MSSResourceInfo, ExpectedQPitch);
                     }
 
-                    uint32_t ExpectedHeight = GMM_ULT_ALIGN(ExpectedQPitch * gmmParams.MSAA.NumSamples * gmmParams.ArraySize, TileDimY); //Align Height =ExpectedPitch * NumSamples * ExpectedQPitch, to Tile-Height
+                    ExpectedHeight = GMM_ULT_ALIGN(ExpectedQPitch * gmmParams.MSAA.NumSamples * gmmParams.ArraySize, TileDimY); // For Tile64 layout prior to Xe2Tiling, MSAA8x and 16x follows MSAA4x. MSAA4x*2 for MSAA8x and MSAA4x*4 for MSAA16x.
+                                                                                                                                // Height getting multiplied by numsamples here is good enough for these special layouts too
                     VerifyResourceSize<true>(MSSResourceInfo, GMM_ULT_ALIGN(ExpectedPitch * ExpectedHeight, TileSize));
                 }
-                else // Interleaved MSS
+                else
                 {
                     uint32_t WidthMultiplier, HeightMultiplier;
                     GetInterleaveMSSPattern((TEST_MSAA)k, WidthMultiplier, HeightMultiplier, IsRT, Bpp);
@@ -180,46 +212,20 @@ TEST_F(CTestGen10Resource, TestMSAA)
                         VerifyResourcePitchInTiles<true>(MSSResourceInfo, ExpectedPitch / TileDimX);
                     }
 
-                    uint64_t ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight * HeightMultiplier, VAlign);
-                    if(gmmParams.ArraySize > 1)
+                    uint64_t ExpectedQPitch    = GMM_ULT_ALIGN(gmmParams.BaseHeight * HeightMultiplier, VAlign);
+                    uint32_t ExpandedArraySize = gmmParams.ArraySize * (((MSSResourceInfo->GetTileType() == GMM_TILED_64) && !pGfxAdapterInfo->SkuTable.FtrTileY && !pGfxAdapterInfo->SkuTable.FtrXe2PlusTiling && (gmmParams.MSAA.NumSamples == 16)) ? 4 : // MSAA x8/x16 stored as pseudo array planes each with 4x samples
+                                                                        ((MSSResourceInfo->GetTileType() == GMM_TILED_64) && !pGfxAdapterInfo->SkuTable.FtrTileY && !pGfxAdapterInfo->SkuTable.FtrXe2PlusTiling && (gmmParams.MSAA.NumSamples == 8)) ? 2 : 1);
+                    if(ExpandedArraySize > 1)
                     {
                         VerifyResourceQPitch<true>(MSSResourceInfo, ExpectedQPitch);
                     }
-                    uint64_t ExpectedHeight = GMM_ULT_ALIGN(ExpectedQPitch * gmmParams.ArraySize, TileDimY);            //Align Height = ExpectedQPitch*ArraySize, to Tile-Height
+                    uint64_t ExpectedHeight = GMM_ULT_ALIGN(ExpectedQPitch * ExpandedArraySize, TileDimY);              //Align Height = ExpectedQPitch*ArraySize, to Tile-Height
                     VerifyResourceSize<true>(MSSResourceInfo, GMM_ULT_ALIGN(ExpectedPitch * ExpectedHeight, TileSize)); //ExpectedPitch *ExpectedHeight
                 }
             }
 
-            //No MCS surface if MSS creation failed
-            if(MSSResourceInfo)
-            {
-                gmmParams.Flags.Gpu.MCS = 1;
-                GMM_RESOURCE_INFO *MCSResourceInfo;
-                MCSResourceInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
-
-                VerifyResourceHAlign<true>(MCSResourceInfo, MCSHAlign);
-                VerifyResourceVAlign<true>(MCSResourceInfo, MCSVAlign);
-
-                uint32_t ExpectedPitch = GMM_ULT_ALIGN(GMM_ULT_ALIGN(gmmParams.BaseWidth64, MCSHAlign) * ExpectedMCSBpp, MCSTileSize[0][0]); // Align in texels, tehn multiply w/ Bpt
-                VerifyResourcePitch<true>(MCSResourceInfo, ExpectedPitch);
-                VerifyResourcePitchInTiles<true>(MCSResourceInfo, ExpectedPitch / MCSTileSize[0][0]);
-
-                uint32_t ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, MCSVAlign);
-                if(gmmParams.ArraySize > 1)
-                {
-                    ExpectedQPitch = GMM_ULT_ALIGN(gmmParams.BaseHeight, MCSVAlign); //QPitch only for array
-                    VerifyResourceQPitch<true>(MCSResourceInfo, ExpectedQPitch);
-                }
-
-                uint32_t ExpectedHeight = GMM_ULT_ALIGN(ExpectedQPitch * gmmParams.ArraySize, MCSTileSize[0][1]);
-                VerifyResourceSize<true>(MCSResourceInfo, GMM_ULT_ALIGN(ExpectedPitch * ExpectedHeight, GMM_KBYTE(4))); //MCS Tile is TileY
-
-                pGmmULTClientContext->DestroyResInfoObject(MCSResourceInfo);
-            } //MCS
-
             pGmmULTClientContext->DestroyResInfoObject(MSSResourceInfo);
         } //NumSamples = k
-    }     //Iterate through all Input types
+    }     //Iterate through all Input types{
 
-    //Mip-mapped, MSAA case:
 }

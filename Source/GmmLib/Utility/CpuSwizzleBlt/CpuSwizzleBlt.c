@@ -132,6 +132,24 @@ spatial locality for 3D or MSAA sample neighbors can be controlled, also. */
         }               Mask;
     }               SWIZZLE_DESCRIPTOR;
 
+    typedef enum _EXTERNAL_SWIZZLE_NAME
+    {
+        TILEX = 0,
+        TILEY,
+        TILEW,
+        TILEYS,
+        TILEYF
+    }EXTERNAL_SWIZZLE_NAME;
+
+    typedef enum  _EXTERNAL_RES_TYPE{
+        Res_2D = 0,
+        Res_3D = 1,
+        MSAA_2X,
+        MSAA_4X,
+        MSAA_8X,
+        MSAA_16X
+    }EXTERNAL_RES_TYPE;
+
     // Definition Helper Macros...
     #define X ,'x'
     #define Y ,'y'
@@ -256,6 +274,39 @@ spatial locality for 3D or MSAA sample neighbors can be controlled, also. */
     SWIZZLE(( INTEL_TILE_64_3D_32       Z Z Y X Y X Z Y Z X Y Y X X X X ));
     SWIZZLE(( INTEL_TILE_64_3D_16       Z Z Z Y Y X Z Y Z X Y Y X X X X ));
     SWIZZLE(( INTEL_TILE_64_3D_8        Z Z Z X Y Y Z Y Z X Y Y X X X X ));
+
+    //Tile64 updated layout for Render Compression 256B and Physical L3
+
+    SWIZZLE(( INTEL_TILE_64_V2_MSAA2_128   Y X X X Y Y X S X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_V2_MSAA2_64    Y Y X X Y Y X S X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_V2_MSAA2_32    Y Y Y X Y Y X S X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_V2_MSAA2_16    Y Y Y X Y Y X S X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_V2_MSAA2_8     Y Y Y Y Y Y X S X X Y Y X X X X ));
+
+    SWIZZLE(( INTEL_TILE_64_V2_MSAA4_128   Y X X X Y Y S S X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_V2_MSAA4_64    Y X X X Y Y S S X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_V2_MSAA4_32    Y Y X X Y Y S S X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_V2_MSAA4_16    Y Y X X Y Y S S X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_V2_MSAA4_8     Y Y Y X Y Y S S X X Y Y X X X X ));
+
+    SWIZZLE(( INTEL_TILE_64_V2_MSAA8_128   Y Y X X Y X S S S X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_V2_MSAA8_64    Y Y X X Y X S S S X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_V2_MSAA8_32    Y Y X X Y X S S S X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_V2_MSAA8_16    Y Y Y X Y X S S S X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_V2_MSAA8_8     Y Y Y X Y X S S S X Y Y X X X X ));
+
+    SWIZZLE(( INTEL_TILE_64_V2_MSAA16_128   Y X X X Y X S S S S Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_V2_MSAA16_64    Y Y X X Y X S S S S Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_V2_MSAA16_32    Y Y X X Y X S S S S Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_V2_MSAA16_16    Y Y X X Y X S S S S Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_V2_MSAA16_8     Y Y Y X Y X S S S S Y Y X X X X ));
+
+    SWIZZLE(( INTEL_TILE_64_V2_3D_128      Z Z Y X X Y Z Z X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_V2_3D_64       Z Z Y X X Y Z Z X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_V2_3D_32       Z Z Y X Y Y Z Z X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_V2_3D_16       Z Z Z Y Y Y Z Z X X Y Y X X X X ));
+    SWIZZLE(( INTEL_TILE_64_V2_3D_8        Z Z Z Y Y Y Z Z X X Y Y X X X X ));
+
 
     #undef X
     #undef Y

@@ -1339,4 +1339,3 @@ void GmmLib::GmmXe_LPGTextureCalc::GetBltInfoPerPlane(GMM_TEXTURE_INFO *pTexInfo
         pBlt->Sys.pData   = (char *)pBlt->Sys.pData + uint32_t(pBlt->Blt.Height * pBlt->Sys.RowPitch);
     }
 }
-

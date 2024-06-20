@@ -25,14 +25,14 @@ project(igfx_gmmumd)
 
 # GmmLib Api Version used for so naming
 set(GMMLIB_API_MAJOR_VERSION 12)
-set(GMMLIB_API_MINOR_VERSION 3)
+set(GMMLIB_API_MINOR_VERSION 4)
 
 if(NOT DEFINED MAJOR_VERSION)
 	set(MAJOR_VERSION 12)
 endif()
 
 if(NOT DEFINED MINOR_VERSION)
-	set(MINOR_VERSION 3)
+	set(MINOR_VERSION 4)
 endif()
 
 if(NOT DEFINED PATCH_VERSION)
@@ -205,6 +205,7 @@ set(HEADERS_
 	${BS_DIR_GMMLIB}/CachePolicy/GmmGen11CachePolicy.h
 	${BS_DIR_GMMLIB}/CachePolicy/GmmGen12CachePolicy.h
         ${BS_DIR_GMMLIB}/CachePolicy/GmmXe_LPGCachePolicy.h
+        ${BS_DIR_GMMLIB}/CachePolicy/GmmXe2_LPGCachePolicy.h	
 	${BS_DIR_GMMLIB}/CachePolicy/GmmGen12dGPUCachePolicy.h
 	${BS_DIR_GMMLIB}/CachePolicy/GmmGen8CachePolicy.h
 	${BS_DIR_GMMLIB}/CachePolicy/GmmGen9CachePolicy.h
@@ -212,6 +213,7 @@ set(HEADERS_
 	${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen11.h
 	${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen12.h
 	${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyXe_LPG.h
+        ${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyXe2_LPG.h
 	${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen12dGPU.h
 	${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen8.h
 	${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen9.h
@@ -276,6 +278,7 @@ set(SOURCES_
   ${BS_DIR_GMMLIB}/CachePolicy/GmmGen11CachePolicy.cpp
   ${BS_DIR_GMMLIB}/CachePolicy/GmmGen12CachePolicy.cpp
   ${BS_DIR_GMMLIB}/CachePolicy/GmmXe_LPGCachePolicy.cpp
+  ${BS_DIR_GMMLIB}/CachePolicy/GmmXe2_LPGCachePolicy.cpp
   ${BS_DIR_GMMLIB}/CachePolicy/GmmGen12dGPUCachePolicy.cpp
   ${BS_DIR_GMMLIB}/Platform/GmmGen11Platform.cpp
   ${BS_DIR_GMMLIB}/Platform/GmmGen12Platform.cpp
@@ -320,6 +323,7 @@ source_group("Source Files\\Cache Policy\\Client Files" FILES
 			${BS_DIR_GMMLIB}/CachePolicy/GmmGen11CachePolicy.h
 			${BS_DIR_GMMLIB}/CachePolicy/GmmGen12CachePolicy.h
                         ${BS_DIR_GMMLIB}/CachePolicy/GmmXe_LPGCachePolicy.h
+                        ${BS_DIR_GMMLIB}/CachePolicy/GmmXe2_LPGCachePolicy.h
 			${BS_DIR_GMMLIB}/CachePolicy/GmmGen12dGPUCachePolicy.h
 			${BS_DIR_GMMLIB}/CachePolicy/GmmGen8CachePolicy.h
 			${BS_DIR_GMMLIB}/CachePolicy/GmmGen9CachePolicy.h
@@ -383,6 +387,7 @@ source_group("Header Files\\External\\Common\\Cache Policy" FILES
 			${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen11.h
 			${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen12.h
 			${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyXe_LPG.h
+                        ${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyXe2_LPG.h
                         ${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen12dGPU.h
 			${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen8.h
 			${BS_DIR_GMMLIB}/inc/External/Common/CachePolicy/GmmCachePolicyGen9.h

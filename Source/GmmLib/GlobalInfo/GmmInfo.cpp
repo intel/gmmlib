@@ -1066,6 +1066,12 @@ void GMM_STDCALL GmmLib::Context::OverrideSkuWa()
     {
         SkuTable.Ftr57bGPUAddressing = true;
     }
+
+    if (GFX_GET_CURRENT_PRODUCT(this->GetPlatformInfo().Platform) >= IGFX_LUNARLAKE)
+    {
+        // FtrL3TransientDataFlush is always enabled for XE2 adding GMM Override if UMDs might have reset this.
+        SkuTable.FtrL3TransientDataFlush = true;
+    }
 }
 
 GMM_CACHE_POLICY *GMM_STDCALL GmmLib::Context::CreateCachePolicyCommon()
@@ -1073,13 +1079,18 @@ GMM_CACHE_POLICY *GMM_STDCALL GmmLib::Context::CreateCachePolicyCommon()
     GMM_CACHE_POLICY *        pGmmCachePolicy = NULL;
     GMM_CACHE_POLICY_ELEMENT *CachePolicy     = NULL;
     CachePolicy                               = GetCachePolicyUsage();
+    PRODUCT_FAMILY ProductFamily              = GFX_GET_CURRENT_PRODUCT(GetPlatformInfo().Platform);
 
     if(GetCachePolicyObj())
     {
         return GetCachePolicyObj();
     }
-
-    if((GFX_GET_CURRENT_PRODUCT(GetPlatformInfo().Platform) == IGFX_METEORLAKE) || (GFX_GET_CURRENT_PRODUCT(GetPlatformInfo().Platform) == IGFX_ARROWLAKE))
+	
+    if(ProductFamily >= IGFX_LUNARLAKE)
+    {
+        pGmmCachePolicy = new GmmLib::GmmXe2_LPGCachePolicy(CachePolicy, this);
+    }
+    else if((ProductFamily == IGFX_METEORLAKE) || (ProductFamily == IGFX_ARROWLAKE))
     {
         pGmmCachePolicy = new GmmLib::GmmXe_LPGCachePolicy(CachePolicy, this);
     }
@@ -1173,6 +1184,8 @@ GMM_PLATFORM_INFO_CLASS *GMM_STDCALL GmmLib::Context::CreatePlatformInfo(PLATFOR
 {
     GMM_DPF_ENTER;
 
+    PRODUCT_FAMILY ProductFamily = GFX_GET_CURRENT_PRODUCT(Platform);
+
     if(Override == false)
     {
         if(pPlatformInfo != NULL)
@@ -1180,8 +1193,15 @@ GMM_PLATFORM_INFO_CLASS *GMM_STDCALL GmmLib::Context::CreatePlatformInfo(PLATFOR
             return pPlatformInfo;
         }
     }
-   switch(GFX_GET_CURRENT_RENDERCORE(Platform))
+
+    if (ProductFamily >= IGFX_LUNARLAKE)
     {
+        return new GmmLib::PlatformInfoGen12(Platform, (GMM_LIB_CONTEXT *)this);
+    }
+    else
+    {
+        switch (GFX_GET_CURRENT_RENDERCORE(Platform))
+        {
         case IGFX_GEN12LP_CORE:
         case IGFX_GEN12_CORE:
         case IGFX_XE_HP_CORE:
@@ -1201,7 +1221,8 @@ GMM_PLATFORM_INFO_CLASS *GMM_STDCALL GmmLib::Context::CreatePlatformInfo(PLATFOR
         default:
             return new GmmLib::PlatformInfoGen8(Platform, (GMM_LIB_CONTEXT *)this);
             break;
-    }
+        }
+    }    
 }
 
 //C - Wrappers

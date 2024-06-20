@@ -39,7 +39,7 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::InitCachePolicy()
 
     __GMM_ASSERTPTR(pCachePolicy, GMM_ERROR);
 
-#define DEFINE_CACHE_ELEMENT(usage, llc, ellc, l3, wt, age) DEFINE_CP_ELEMENT(usage, llc, ellc, l3, wt, age, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+#define DEFINE_CACHE_ELEMENT(usage, llc, ellc, l3, wt, age) DEFINE_CP_ELEMENT(usage, llc, ellc, l3, wt, age, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 #include "GmmGen8CachePolicy.h"
 
     {

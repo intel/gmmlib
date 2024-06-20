@@ -69,6 +69,7 @@ void GmmLib::PlatformInfo::SetCCSFlag(GMM_RESOURCE_FLAG &Flags)
         Flags.Gpu.CCS = Flags.Gpu.MCS;
     }
     Flags.Info.RenderCompressed = Flags.Info.MediaCompressed = 0;
+    Flags.Info.NotCompressed                                 = 1;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

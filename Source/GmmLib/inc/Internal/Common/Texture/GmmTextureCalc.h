@@ -346,6 +346,20 @@ namespace GmmLib
                                                                 GMM_GFX_SIZE_T &WidthBytesPhysical,
                                                                 GMM_GFX_SIZE_T &WidthBytesLock);
             GMM_STATUS MSAACompression(GMM_TEXTURE_INFO *pTexInfo);
+		virtual uint64_t GMM_STDCALL Get2DFCSurfaceWidthFor3DSurface(GMM_TEXTURE_INFO *pTexInfo,
+		                                                             uint64_t          Width)
+		{
+		    GMM_UNREFERENCED_PARAMETER(pTexInfo);
+		    return Width;
+		}
+		virtual uint64_t GMM_STDCALL Get2DFCSurfaceHeightFor3DSurface(GMM_TEXTURE_INFO *pTexInfo,
+		                                                              uint32_t          Height,
+		                                                              uint32_t          Depth)
+		{
+		    GMM_UNREFERENCED_PARAMETER(pTexInfo);
+		    GMM_UNREFERENCED_PARAMETER(Depth);
+		    return Height;
+		}
 
             uint32_t GMM_STDCALL GetDisplayFrameOffset(GMM_TEXTURE_INFO    *pTexInfo,
                                                        GMM_REQ_OFFSET_INFO *pReqInfo);	    
@@ -366,8 +380,6 @@ namespace GmmLib
             virtual void GMM_STDCALL GetBltInfoPerPlane(GMM_TEXTURE_INFO *pTexInfo,
                                                              GMM_RES_COPY_BLT *pBlt,
                                                              uint32_t PlaneId);
-
-
 	    /* inline functions */
     };
 

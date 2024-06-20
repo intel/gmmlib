@@ -1134,6 +1134,25 @@ GMM_SURFACESTATE_FORMAT GMM_STDCALL GmmGetSurfaceStateFormat(GMM_RESOURCE_FORMAT
            GMM_SURFACESTATE_FORMAT_INVALID;
 }
 
+
+//=============================================================================
+//
+// Function: GmmGetCompressionFormat
+//
+// Desc: See below.
+//
+// Returns:
+//      CompressionFormat.CompressionFormat
+//
+//-----------------------------------------------------------------------------
+uint8_t GMM_STDCALL GmmGetCompressionFormat(GMM_RESOURCE_FORMAT Format, GMM_LIB_CONTEXT *pGmmLibContext)
+{
+    return (((Format > GMM_FORMAT_INVALID) &&
+             (Format < GMM_RESOURCE_FORMATS)) ?
+            pGmmLibContext->GetPlatformInfo().FormatTable[Format].CompressionFormat.CompressionFormat :
+            GMM_UNIFIED_CMF_INVALID);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 /// C wrapper for GmmResourceInfoCommon::GetHAlignSurfaceState
 /// @see    GmmLib::GmmResourceInfoCommon::GetHAlignSurfaceState()
@@ -1696,6 +1715,17 @@ void GMM_STDCALL GmmResSetLibContext(GMM_RESOURCE_INFO *pGmmResource, void *pLib
     {
         pGmmResource->SetGmmLibContext(pLibContext);
     }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// C wrapper for GmmResourceInfoCommon::IsResourceMappedCompressible
+/// @see    GmmLib::GmmResourceInfoCommon::IsResourceMappedCompressible()
+///
+/// @param[in]  pGmmResource: Pointer to GmmResourceInfo class
+/////////////////////////////////////////////////////////////////////////////////////
+uint32_t GMM_STDCALL GmmResIsMappedCompressible(GMM_RESOURCE_INFO *pGmmResource)
+{
+    return pGmmResource->IsResourceMappedCompressible();
 }
 
 //=============================================================================

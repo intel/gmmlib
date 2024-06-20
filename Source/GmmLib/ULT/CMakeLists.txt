@@ -30,6 +30,7 @@ set(GMMULT_HEADERS
      GmmGen11ResourceULT.h
      GmmGen12ResourceULT.h
      GmmGen12dGPUResourceULT.h
+     GmmXe2_LPGResourceULT.h
      GmmGen12CachePolicyULT.h
      GmmGen12dGPUCachePolicyULT.h
      GmmXe_LPGCachePolicyULT.h
@@ -54,6 +55,7 @@ set(GMMULT_SOURCES
     GmmGen11ResourceULT.cpp
     GmmGen12ResourceULT.cpp
     GmmGen12dGPUResourceULT.cpp
+    GmmXe2_LPGResourceULT.cpp    
     GmmGen9CachePolicyULT.cpp
     GmmGen9ResourceULT.cpp
     GmmResourceCpuBltULT.cpp
@@ -78,6 +80,7 @@ source_group("Source Files\\Resource" FILES
             GmmGen11ResourceULT.cpp
             GmmGen12ResourceULT.cpp
             GmmGen12dGPUResourceULT.cpp
+            GmmXe2_LPGResourceULT.cpp
             GmmGen9ResourceULT.cpp
             GmmResourceCpuBltULT.cpp
             GmmResourceULT.cpp
@@ -110,6 +113,7 @@ source_group("Header Files\\Resource" FILES
              GmmGen11ResourceULT.h
              GmmGen12ResourceULT.h
              GmmGen12dGPUResourceULT.h
+             GmmXe2_LPGResourceULT.h	     
              GmmGen9ResourceULT.h
              GmmResourceULT.h
             )
