@@ -31,7 +31,7 @@ Description: Contains functions of internal classes
 
 #if !defined(__GMM_KMD)
 
-#if defined(__linux__)
+#if !defined(_WIN32)
 #include "Internal/Linux/GmmResourceInfoLinInt.h"
 
 #define _aligned_free(ptr) free(ptr)

@@ -30,6 +30,9 @@ OTHER DEALINGS IN THE SOFTWARE.
     #endif
 
     #define __noop
+    #ifdef __fastcall
+        #undef __fastcall
+    #endif
     #define __fastcall
     #if defined __x86_64__
         #define __stdcall       // deprecated for x86-64
