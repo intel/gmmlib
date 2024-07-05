@@ -1057,17 +1057,18 @@ void GMM_STDCALL GmmLib::Context::DestroyContext()
 
 void GMM_STDCALL GmmLib::Context::OverrideSkuWa()
 {
-    if((GFX_GET_CURRENT_PRODUCT(this->GetPlatformInfo().Platform) < IGFX_XE_HP_SDV))
+    const GMM_PLATFORM_INFO &ContextInfo = this->GetPlatformInfo();
+    if((GFX_GET_CURRENT_PRODUCT(ContextInfo.Platform) < IGFX_XE_HP_SDV))
     {
         SkuTable.FtrTileY = true;
     }
 
-    if(GFX_GET_CURRENT_PRODUCT(this->GetPlatformInfo().Platform) == IGFX_PVC)
+    if(GFX_GET_CURRENT_PRODUCT(ContextInfo.Platform) == IGFX_PVC)
     {
         SkuTable.Ftr57bGPUAddressing = true;
     }
 
-    if (GFX_GET_CURRENT_PRODUCT(this->GetPlatformInfo().Platform) >= IGFX_LUNARLAKE)
+    if (GFX_GET_CURRENT_PRODUCT(ContextInfo.Platform) >= IGFX_LUNARLAKE)
     {
         // FtrL3TransientDataFlush is always enabled for XE2 adding GMM Override if UMDs might have reset this.
         SkuTable.FtrL3TransientDataFlush = true;

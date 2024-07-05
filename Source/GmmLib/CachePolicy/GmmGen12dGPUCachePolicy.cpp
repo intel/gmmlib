@@ -106,8 +106,9 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
     {
         SetUpMOCSTable();
     }
-    
-    if(GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) == IGFX_PVC)
+
+    const GMM_PLATFORM_INFO &ContextInfo = pGmmLibContext->GetPlatformInfo();
+    if(GFX_GET_CURRENT_PRODUCT(ContextInfo.Platform) == IGFX_PVC)
     {
         SetupPAT();
     }
@@ -135,7 +136,7 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
             GMM_PRIVATE_PAT              UsagePATElement = {0};
 
 
-            switch(GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform))
+            switch(GFX_GET_CURRENT_PRODUCT(ContextInfo.Platform))
             {
 	        case IGFX_DG1:
                 case IGFX_XE_HP_SDV:
@@ -152,14 +153,14 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
             }
 
             // No Special MOCS handling for next platform
-            if(GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) < IGFX_DG2)
+            if(GFX_GET_CURRENT_PRODUCT(ContextInfo.Platform) < IGFX_DG2)
             {
                 CPTblIdx = IsSpecialMOCSUsage((GMM_RESOURCE_USAGE_TYPE)Usage, SpecialMOCS);
             }
 
             // Applicable upto Xe_HP only
             if(pCachePolicy[Usage].HDCL1 &&
-               (GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) <= IGFX_XE_HP_SDV))
+               (GFX_GET_CURRENT_PRODUCT(ContextInfo.Platform) <= IGFX_XE_HP_SDV))
             {
                 UsageEle.HDCL1 = 1;
             }
@@ -176,7 +177,7 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
                 UsageEle.L3.SCC = (uint16_t)pCachePolicy[Usage].L3_SCC;
             }
 
-	    if(GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) == IGFX_PVC)
+	    if(GFX_GET_CURRENT_PRODUCT(ContextInfo.Platform) == IGFX_PVC)
             {
                 pCachePolicy[Usage].GlbGo    = 0;
                 pCachePolicy[Usage].UcLookup = 0;
@@ -187,7 +188,7 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
             // Applicable for IGFX_XE_HP_SDV and DG2 only
             if(!SpecialMOCS &&
                (FROMPRODUCT(XE_HP_SDV)) &&
-               (GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) != IGFX_PVC))
+               (GFX_GET_CURRENT_PRODUCT(ContextInfo.Platform) != IGFX_PVC))
             {
                 if(pCachePolicy[Usage].L3 == 0)
                 {
@@ -277,7 +278,7 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
             pCachePolicy[Usage].PTE.DwordValue     = PTEValue & 0xFFFFFFFF;
             pCachePolicy[Usage].PTE.HighDwordValue = 0;
 
-	    pCachePolicy[Usage].MemoryObjectOverride.Gen12.Index = CPTblIdx;
+	        pCachePolicy[Usage].MemoryObjectOverride.Gen12.Index = CPTblIdx;
 
             pCachePolicy[Usage].Override = ALWAYS_OVERRIDE;
 
@@ -286,7 +287,7 @@ GMM_STATUS GmmLib::GmmGen12dGPUCachePolicy::InitCachePolicy()
                 GMM_ASSERTDPF("Cache Policy Init Error: Invalid Cache Programming - Element %d", Usage);
             }
             
-            if(GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) == IGFX_PVC)
+            if(GFX_GET_CURRENT_PRODUCT(ContextInfo.Platform) == IGFX_PVC)
             {
                 // PAT data
                 {
@@ -369,7 +370,8 @@ void GmmLib::GmmGen12dGPUCachePolicy::SetUpMOCSTable()
 
     // clang-format off
 
-    if (GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) == IGFX_DG1)
+    const GMM_PLATFORM_INFO &ContextInfo = pGmmLibContext->GetPlatformInfo();
+    if (GFX_GET_CURRENT_PRODUCT(ContextInfo.Platform) == IGFX_DG1)
     {
         //Default MOCS Table
         for(int index = 0; index < GMM_MAX_NUMBER_MOCS_INDEXES; index++)
@@ -399,7 +401,7 @@ void GmmLib::GmmGen12dGPUCachePolicy::SetUpMOCSTable()
         CurrentMaxSpecialMocsIndex  = 63;
 
     }
-    else if (GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) == IGFX_XE_HP_SDV)
+    else if (GFX_GET_CURRENT_PRODUCT(ContextInfo.Platform) == IGFX_XE_HP_SDV)
      {
         //Default MOCS Table
         for(int index = 0; index < GMM_MAX_NUMBER_MOCS_INDEXES; index++)
@@ -425,7 +427,7 @@ void GmmLib::GmmGen12dGPUCachePolicy::SetUpMOCSTable()
         CurrentMaxSpecialMocsIndex  = 63;
 
     }
-    else if ((GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) == IGFX_DG2))
+    else if ((GFX_GET_CURRENT_PRODUCT(ContextInfo.Platform) == IGFX_DG2))
      {
         //Default MOCS Table
         for(int index = 0; index < GMM_MAX_NUMBER_MOCS_INDEXES; index++)
@@ -441,7 +443,7 @@ void GmmLib::GmmGen12dGPUCachePolicy::SetUpMOCSTable()
 
         CurrentMaxMocsIndex         = 3;
     }
-    else if (GFX_GET_CURRENT_PRODUCT(pGmmLibContext->GetPlatformInfo().Platform) == IGFX_PVC) 
+    else if (GFX_GET_CURRENT_PRODUCT(ContextInfo.Platform) == IGFX_PVC)
      {
          //Default MOCS Table
         for(int index = 0; index < GMM_MAX_NUMBER_MOCS_INDEXES; index++)

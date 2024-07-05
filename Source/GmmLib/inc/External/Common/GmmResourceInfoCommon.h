@@ -512,11 +512,12 @@ namespace GmmLib
                     if ((Surf.Flags.Gpu.Depth || Surf.Flags.Gpu.SeparateStencil) &&
                          (Surf.MSAA.NumSamples > 1 && (GMM_IS_64KB_TILE(Surf.Flags) || Surf.Flags.Info.TiledYf)))
                     {
+                        const SKU_FEATURE_TABLE &SkuTable = GetGmmLibContext()->GetSkuTable();
                         switch (Surf.MSAA.NumSamples)
                         {
                             case 2:
 			                    MSAASpecialFactorForDepthAndStencil = 2;
-			                    if (GetGmmLibContext()->GetSkuTable().FtrXe2PlusTiling && (Surf.BitsPerPixel == 128))
+			                    if (SkuTable.FtrXe2PlusTiling && (Surf.BitsPerPixel == 128))
 			                    {
 			                        MSAASpecialFactorForDepthAndStencil = 1;
 			                    }
@@ -526,28 +527,28 @@ namespace GmmLib
                                 break;
                             case 8:
 			                    MSAASpecialFactorForDepthAndStencil = 4;
-			                    if (GetGmmLibContext()->GetSkuTable().FtrXe2PlusTiling)
+			                    if (SkuTable.FtrXe2PlusTiling)
 			                    {
 			                        if (Surf.BitsPerPixel == 32 || Surf.BitsPerPixel == 8)
 			                        {
 			                            MSAASpecialFactorForDepthAndStencil = 2;
 			                        }
 			                    }
-			                    else if (!GetGmmLibContext()->GetSkuTable().FtrTileY && !GetGmmLibContext()->GetSkuTable().FtrXe2PlusTiling)
+			                    else if (!SkuTable.FtrTileY && !SkuTable.FtrXe2PlusTiling)
 			                    {
 			                        MSAASpecialFactorForDepthAndStencil = 2; // same as 4X
 			                    }
 			                    break;
                             case 16:
                                 MSAASpecialFactorForDepthAndStencil = 4;
-			                    if (GetGmmLibContext()->GetSkuTable().FtrXe2PlusTiling)
+			                    if (SkuTable.FtrXe2PlusTiling)
 			                    {
 			                        if (Surf.BitsPerPixel == 64)
 			                        {
 			                            MSAASpecialFactorForDepthAndStencil = 8;
 			                        }
 			                    }
-			                    else if (!GetGmmLibContext()->GetSkuTable().FtrTileY && !GetGmmLibContext()->GetSkuTable().FtrXe2PlusTiling)
+			                    else if (!SkuTable.FtrTileY && !SkuTable.FtrXe2PlusTiling)
 			                    {
 			                        MSAASpecialFactorForDepthAndStencil = 2; // same as 4X
 			                    }
