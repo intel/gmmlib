@@ -750,10 +750,7 @@ GMM_PAGETABLE_MGR* GMM_STDCALL GmmLib::GmmClientContext::CreatePageTblMgrObject(
 /////////////////////////////////////////////////////////////////////////////////////
 void GMM_STDCALL GmmLib::GmmClientContext::DestroyPageTblMgrObject(GMM_PAGETABLE_MGR* pPageTableMgr)
 {
-    if (pPageTableMgr)
-    {
-        delete pPageTableMgr;
-    }
+    delete pPageTableMgr;
 }
 
 #ifdef GMM_LIB_DLL
