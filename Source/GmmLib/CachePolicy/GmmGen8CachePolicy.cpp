@@ -312,7 +312,7 @@ GMM_STATUS GmmLib::GmmGen8CachePolicy::SetPATInitWA()
 ///
 /// @return        PAT Idx to use in the PTE
 /////////////////////////////////////////////////////////////////////////////////////
-uint32_t GmmLib::GmmGen8CachePolicy::BestMatchingPATIdx(GMM_CACHE_POLICY_ELEMENT CachePolicy)
+uint32_t GmmLib::GmmGen8CachePolicy::BestMatchingPATIdx(const GMM_CACHE_POLICY_ELEMENT &CachePolicy)
 {
     uint32_t             i;
     uint32_t             PATIdx           = 0;

@@ -1740,7 +1740,7 @@ uint32_t GMM_STDCALL GmmResIsMappedCompressible(GMM_RESOURCE_INFO *pGmmResource)
 // Returns:
 //
 //-----------------------------------------------------------------------------
-uint8_t __CanSupportStdTiling(GMM_TEXTURE_INFO Surf, GMM_LIB_CONTEXT *pGmmLibContext)
+uint8_t __CanSupportStdTiling(const GMM_TEXTURE_INFO &Surf, GMM_LIB_CONTEXT *pGmmLibContext)
 {
     const __GMM_PLATFORM_RESOURCE *pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(&Surf, pGmmLibContext);
 

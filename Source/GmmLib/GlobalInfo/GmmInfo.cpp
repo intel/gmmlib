@@ -124,7 +124,7 @@ extern "C" GMM_STATUS GMM_STDCALL GmmCreateLibContext(const PLATFORM           P
                                                       const GT_SYSTEM_INFO *   pGtSysInfo,
                                                       ADAPTER_BDF              sBdf)
 #else
-extern "C" GMM_STATUS GMM_STDCALL GmmCreateLibContext(const PLATFORM Platform,
+extern "C" GMM_STATUS GMM_STDCALL GmmCreateLibContext(const PLATFORM &Platform,
                                                       const void *   pSkuTable,
                                                       const void *   pWaTable,
                                                       const void *   pGtSysInfo,
@@ -224,7 +224,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::AddContext(const PLATFORM
                                                                   const char              *DeviceRegistryPath,
                                                                   uint32_t                 PhysicalAdapterIndex)
 #else
-GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::AddContext(const PLATFORM Platform,
+GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::AddContext(const PLATFORM &Platform,
                                                                   const void    *_pSkuTable,
                                                                   const void    *_pWaTable,
                                                                   const void    *_pGtSysInfo,
@@ -1134,7 +1134,7 @@ GMM_CACHE_POLICY *GMM_STDCALL GmmLib::Context::CreateCachePolicyCommon()
     return pGmmCachePolicy;
 }
 
-GMM_TEXTURE_CALC *GMM_STDCALL GmmLib::Context::CreateTextureCalc(PLATFORM Platform, bool Override)
+GMM_TEXTURE_CALC *GMM_STDCALL GmmLib::Context::CreateTextureCalc(const PLATFORM &Platform, bool Override)
 {
     if(!Override)
     {
