@@ -573,7 +573,7 @@ namespace GmmLib
     #endif // __GMM_KMD__
 
     GMM_CACHE_POLICY* GMM_STDCALL CreateCachePolicyCommon();
-    GMM_TEXTURE_CALC* GMM_STDCALL CreateTextureCalc(PLATFORM Platform, bool Override);
+    GMM_TEXTURE_CALC* GMM_STDCALL CreateTextureCalc(const PLATFORM &Platform, bool Override);
     GMM_PLATFORM_INFO_CLASS *GMM_STDCALL CreatePlatformInfo(PLATFORM Platform, bool Override);
 
     private: 
@@ -653,7 +653,7 @@ typedef struct _GMM_ADAPTER_INFO_
                                                    ADAPTER_BDF              sBdf,
                                                    const char *             DeviceRegistryPath);
 #else
-        GMM_STATUS GMM_STDCALL          AddContext(const PLATFORM Platform,
+        GMM_STATUS GMM_STDCALL          AddContext(const PLATFORM &Platform,
                                                    const void *   pSkuTable,
                                                    const void *   pWaTable,
                                                    const void *   pGtSysInfo,
