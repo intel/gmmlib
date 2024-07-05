@@ -350,10 +350,11 @@ void GmmLib::GmmXe2_LPGCachePolicy::GetL3L4(GMM_CACHE_POLICY_TBL_ELEMENT *pUsage
 /////////////////////////////////////////////////////////////////////////////////////
 uint32_t GMM_STDCALL GmmLib::GmmXe2_LPGCachePolicy::CachePolicyGetPATIndex(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage, bool *pCompressionEnable, bool IsCpuCacheable)
 {
-    __GMM_ASSERT(pGmmLibContext->GetCachePolicyElement(Usage).Initialized);
+    const GMM_CACHE_POLICY_ELEMENT &CachePolicyElement = pGmmLibContext->GetCachePolicyElement(Usage);
+    __GMM_ASSERT(CachePolicyElement.Initialized);
 
-    uint32_t                 PATIndex             = pGmmLibContext->GetCachePolicyElement(Usage).PATIndex;
-    GMM_CACHE_POLICY_ELEMENT TempElement          = pGmmLibContext->GetCachePolicyElement(Usage);
+    uint32_t                 PATIndex             = CachePolicyElement.PATIndex;
+    GMM_CACHE_POLICY_ELEMENT TempElement          = CachePolicyElement;
     uint32_t                 TempCoherentPATIndex = 0;
 
     // This is to check if PATIndexCompressed, CoherentPATIndex are valid
@@ -364,7 +365,7 @@ uint32_t GMM_STDCALL GmmLib::GmmXe2_LPGCachePolicy::CachePolicyGetPATIndex(GMM_R
     // Higher bit of CoherentPATIndex would tell us if its a valid or not.0--> valid, 1-->invalid
     uint32_t CoherentPATIndex = (uint32_t)((GET_COHERENT_PATINDEX_HIGHER_BIT(TempCoherentPATIndex) == 1) ? GMM_PAT_ERROR : GET_COHERENT_PATINDEX_VALUE(pGmmLibContext, Usage));
     //For PATIndexCompressed, rollover value would be 0 if its invalid
-    uint32_t PATIndexCompressed = (uint32_t)(TempElement.PATIndexCompressed == 0 ? GMM_PAT_ERROR : pGmmLibContext->GetCachePolicyElement(Usage).PATIndexCompressed);
+    uint32_t PATIndexCompressed = (uint32_t)(TempElement.PATIndexCompressed == 0 ? GMM_PAT_ERROR : CachePolicyElement.PATIndexCompressed);
     uint32_t ReturnPATIndex     = GMM_PAT_ERROR;
     bool     CompressionEnable  = (pCompressionEnable) ? *pCompressionEnable : false;
 

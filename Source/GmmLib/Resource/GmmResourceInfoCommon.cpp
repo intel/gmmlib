@@ -36,13 +36,15 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::Is64KBPageSuitable()
 
     __GMM_ASSERT(Size);
 
+    const SKU_FEATURE_TABLE &SkuTable = GetGmmLibContext()->GetSkuTable();
+
     // All ESM resources and VirtuaPadding are exempt from 64KB paging
     if(Surf.Flags.Info.ExistingSysMem ||
        Surf.Flags.Info.XAdapter ||
        Surf.Flags.Gpu.CameraCapture ||
        Surf.Flags.Info.KernelModeMapped ||
        (Surf.Flags.Gpu.S3d && !Surf.Flags.Gpu.S3dDx &&
-        !GetGmmLibContext()->GetSkuTable().FtrDisplayEngineS3d)
+        !SkuTable.FtrDisplayEngineS3d)
 #if(LHDM)
        || (Surf.Flags.Info.AllowVirtualPadding &&
            ExistingSysMem.hParentAllocation)
@@ -52,11 +54,11 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::Is64KBPageSuitable()
         Ignore64KBPadding = true;
     }
 
-    if(GetGmmLibContext()->GetSkuTable().FtrLocalMemory)
+    if(SkuTable.FtrLocalMemory)
      {
         Ignore64KBPadding |= (Surf.Flags.Info.Shared && !Surf.Flags.Info.NotLockable);
-        Ignore64KBPadding |= ((GetGmmLibContext()->GetSkuTable().FtrLocalMemoryAllows4KB) && Surf.Flags.Info.NoOptimizationPadding);
-        Ignore64KBPadding |= ((GetGmmLibContext()->GetSkuTable().FtrLocalMemoryAllows4KB || Surf.Flags.Info.NonLocalOnly) && (((Size * (100 + (GMM_GFX_SIZE_T)GetGmmLibContext()->GetAllowedPaddingFor64KbPagesPercentage())) / 100) < GFX_ALIGN(Size, GMM_KBYTE(64))));
+        Ignore64KBPadding |= ((SkuTable.FtrLocalMemoryAllows4KB) && Surf.Flags.Info.NoOptimizationPadding);
+        Ignore64KBPadding |= ((SkuTable.FtrLocalMemoryAllows4KB || Surf.Flags.Info.NonLocalOnly) && (((Size * (100 + (GMM_GFX_SIZE_T)GetGmmLibContext()->GetAllowedPaddingFor64KbPagesPercentage())) / 100) < GFX_ALIGN(Size, GMM_KBYTE(64))));
     }
     else
     {
@@ -69,7 +71,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::Is64KBPageSuitable()
     }
 
     // If 64KB paging is enabled pad out the resource to 64KB alignment
-    if(GetGmmLibContext()->GetSkuTable().FtrWddm2_1_64kbPages &&
+    if(SkuTable.FtrWddm2_1_64kbPages &&
        // Ignore the padding for the above VirtualPadding or ESM cases
        (!Ignore64KBPadding) &&
        // Resource must be 64KB aligned
@@ -427,6 +429,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
     pGmmUmdLibContext = reinterpret_cast<uint64_t>(&GmmLibContext);
     __GMM_ASSERTPTR(pGmmUmdLibContext, GMM_ERROR);
 
+    const SKU_FEATURE_TABLE &SkuTable = GetGmmLibContext()->GetSkuTable();
+
     if(CreateParams.Flags.Info.ExistingSysMem &&
        (CreateParams.Flags.Info.TiledW ||
         CreateParams.Flags.Info.TiledX ||
@@ -497,17 +501,17 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
             if(Surf.Flags.Gpu.IndirectClearColor ||
                Surf.Flags.Gpu.ColorDiscard)
             {
-                if(GetGmmLibContext()->GetSkuTable().FtrFlatPhysCCS && AuxSurf.Type == RESOURCE_INVALID)
+                if(SkuTable.FtrFlatPhysCCS && AuxSurf.Type == RESOURCE_INVALID)
                 {
                     //ie only AuxType is CCS, doesn't exist with FlatCCS, enable it for CC
-                    if (!GetGmmLibContext()->GetSkuTable().FtrXe2Compression || (GetGmmLibContext()->GetSkuTable().FtrXe2Compression && (Surf.MSAA.NumSamples > 1)))
+                    if (!SkuTable.FtrXe2Compression || (SkuTable.FtrXe2Compression && (Surf.MSAA.NumSamples > 1)))
                     {
                         AuxSurf.Type = Surf.Type;
                     }
                 }
                 if (!Surf.Flags.Gpu.TiledResource)
                 {
-                    if (!GetGmmLibContext()->GetSkuTable().FtrXe2Compression)
+                    if (!SkuTable.FtrXe2Compression)
                     {
                         AuxSurf.CCSize = PAGE_SIZE; // 128bit Float Value + 32bit RT Native Value + Padding.
                         AuxSurf.Size += PAGE_SIZE;
@@ -524,7 +528,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
                 }
                 else
                 {
-                    if (!GetGmmLibContext()->GetSkuTable().FtrXe2Compression)
+                    if (!SkuTable.FtrXe2Compression)
                     {
                         AuxSurf.CCSize = GMM_KBYTE(64); // 128bit Float Value + 32bit RT Native Value + Padding.
                         AuxSurf.Size += GMM_KBYTE(64);
@@ -660,7 +664,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
         }
     }
 
-    if(Is64KBPageSuitable() && GetGmmLibContext()->GetSkuTable().FtrLocalMemory)
+    if(Is64KBPageSuitable() && SkuTable.FtrLocalMemory)
     {
         // BaseAlignment can be greater than 64KB and needs to be aligned to 64KB
         Surf.Alignment.BaseAlignment = GFX_MAX(GFX_ALIGN(Surf.Alignment.BaseAlignment, GMM_KBYTE(64)), GMM_KBYTE(64));
