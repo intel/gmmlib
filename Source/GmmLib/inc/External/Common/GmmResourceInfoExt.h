@@ -381,8 +381,8 @@ typedef struct GMM_RESCREATE_CUSTOM_PARAMS_2_REC : public GMM_RESCREATE_CUSTOM_P
 {
     struct
     {
-        uint32_t       Pitch;
         GMM_GFX_SIZE_T Size;
+        uint32_t       Pitch;
         uint32_t       BaseAlignment;
         struct
         {
