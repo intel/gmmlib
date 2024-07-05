@@ -235,6 +235,7 @@ TEST_F(CTestAuxTable, TestAuxTableContent)
     Walker *ywalker = new Walker(surf->getGfxAddress(GMM_PLANE_Y),
                                  surf->getAuxGfxAddress(GMM_AUX_CCS),
                                  mgr->GetAuxL3TableAddr());
+    ASSERT_TRUE(ywalker != NULL);
 
     for(size_t i = 0; i < surf->getSurfaceSize(GMM_PLANE_Y); i++)
     {
@@ -247,6 +248,8 @@ TEST_F(CTestAuxTable, TestAuxTableContent)
     Walker *uvwalker = new Walker(surf->getGfxAddress(GMM_PLANE_U),
                                   surf->getAuxGfxAddress(GMM_AUX_UV_CCS),
                                   mgr->GetAuxL3TableAddr());
+
+    ASSERT_TRUE(uvwalker != NULL);
 
     for(size_t i = 0; i < surf->getSurfaceSize(GMM_PLANE_U); i++)
     {
