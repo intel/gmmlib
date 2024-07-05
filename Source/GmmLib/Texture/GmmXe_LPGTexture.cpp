@@ -558,7 +558,6 @@ void GmmLib::GmmXe_LPGTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTe
     pTexInfo->OffsetInfo.PlaneXe_LPG.Y[GMM_PLANE_Y] = 0;
 
     pTexInfo->OffsetInfo.PlaneXe_LPG.UnAligned.Height[GMM_PLANE_Y] = 0;
-    pTexInfo->OffsetInfo.PlaneXe_LPG.UnAligned.Height[GMM_PLANE_Y] = 0;
 
     Height = pTexInfo->BaseHeight;
     if(pTexInfo->Flags.Gpu.__NonMsaaTileYCcs)
