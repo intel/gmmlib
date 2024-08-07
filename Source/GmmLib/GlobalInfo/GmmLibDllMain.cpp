@@ -55,7 +55,7 @@ extern "C" GMM_LIB_API GMM_STATUS GMM_STDCALL InitializeGmm(GMM_INIT_IN_ARGS *pI
 #endif
 
         Status = GmmCreateLibContext(pInArgs->Platform, pInArgs->pSkuTable, pInArgs->pWaTable, 
-			                                   pInArgs->pGtSysInfo, stAdapterBDF);
+                                     pInArgs->pGtSysInfo, stAdapterBDF, pInArgs->ClientType);
 
         if(Status == GMM_SUCCESS)
         {

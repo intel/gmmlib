@@ -1989,8 +1989,15 @@ namespace GmmLib
                         Surf.Flags.Info.ExistingSysMem ||
                         Surf.Flags.Info.NonLocalOnly))
                 {
-                    return GFX_CEIL_DIV(Surf.Size, 256);
-                }
+		    if (GetGmmLibContext()->GetSkuTable().FtrXe2Compression)
+		    {
+			return GFX_CEIL_DIV(Surf.Size, 512);
+		    }
+		    else
+		    {
+			return GFX_CEIL_DIV(Surf.Size, 256);
+		    }
+		}
                 return 0;
             }
 			/////////////////////////////////////////////////////////////////////////////////////

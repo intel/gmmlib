@@ -25,7 +25,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define _WT        0x2
 #define _L1_WB     0x2
 #define dGPU       SKU(FtrDiscrete)
-#define _WA_WB     (WA(Wa_14018443005))
+
+#if (_DEBUG || _RELEASE_INTERNAL)
+#define _WA_WB_Emu (WA(Wa_EmuMufasaSupportOnBmg))
+#else
+#define _WA_WB_Emu 0
+#endif
 
 // GmmLib can apply 2Way WA to GMM_RESOURCE_USAGE_HW_CONTEXT.
 #define _WA_2W (WA(Wa_14018976079) || WA(Wa_14018984349)) ? 2 : 0
@@ -54,6 +59,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 // IgPAT        : Ignore PAT 1 = Override by MOCS, 0 = Defer to PAT
 //Macros for segment-preference
 #define NoP                          0x0
+//Wa_14018443005
+#define COMPRESSED_PAT_WITH_L4WB_L3UC_0 PAT10
+#define COMPRESSED_PAT_WITH_L4WB_L3WB_0 PAT14
+#define COMPRESSED_PAT_WITH_L4UC_L3UC_0 PAT12
+#define COMPRESSED_PAT_WITH_L4UC_L3WB_0 PAT9
+
+#define ISWA_1401844305USAGE(usage)       ((Usage == GMM_RESOURCE_USAGE_BLT_SOURCE) ||      \
+                                           (Usage == GMM_RESOURCE_USAGE_BLT_DESTINATION) || \
+                                           (Usage == GMM_RESOURCE_USAGE_COPY_SOURCE) ||     \
+                                           (Usage == GMM_RESOURCE_USAGE_COPY_DEST))
 //******************************************************************************************************************************************************************/
 //                   USAGE TYPE                                                               L3_CC, L3_CLOS, L1CC,   L2CC,   L4CC,     Coherency,   IgPAT,  SegOv)
 /*******************************************************************************************************************************************************************/
@@ -115,10 +130,10 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_INDEX_BUFFER_L3_CACHED                  
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_MCS                                                   ,  1,     0,     0,      0    , 0		,  0     ,   1,    NoP); 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_PUSH_CONSTANT_BUFFER                                  ,  1,     0,     0,      0    , 0		,  0     ,   1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_PULL_CONSTANT_BUFFER                                  ,  1,     0,     5,      0    , 0		,  0     ,   1,    NoP);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_QUERY                                                 ,  0,     0,     0,      0    , 0		,  1     ,   1,    NoP); 
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_QUERY                                                 ,  _WA_WB_Emu,     0,     0,      0    , 0		,  1     ,   1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_RENDER_TARGET                                         ,  1,     0,     0,      0    , 0		,  0     ,   1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SHADER_RESOURCE                                       ,  1,     0,     5,      0    , 0		,  0     ,   1,    NoP);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_STAGING                                               ,  0,     0,     0,      0    , 0		,  1     ,   1,    NoP);  
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_STAGING                                               ,  _WA_WB_Emu,     0,     0,      0    , 0		,  1     ,   1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_STENCIL_BUFFER                                        ,  1,     0,     0,      0    , 0		,  0     ,   1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_STREAM_OUTPUT_BUFFER                                  ,  1,     0,     0,      0    , 0		,  0     ,   1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_TILE_POOL                                             ,  1,     0,     0,      0    , 0		,  0     ,   1,    NoP);
@@ -201,7 +216,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_SCRATCH                             
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_PRIVATE_MEM                                       ,  1,     0,      0,      0    , 0		,  0       ,  1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_PRINTF_BUFFER                                     ,  1,     0,      0,      0    , 0		,  0       ,  1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_STATE_HEAP_BUFFER                                 ,  1,     0,      0,      0    , 0		,  0       ,  1,    NoP);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_SYSTEM_MEMORY_BUFFER                              ,  1,     0,      0,      0    , 0		,  0       ,  1,    NoP);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_SYSTEM_MEMORY_BUFFER                              ,  1,     0,      0,      0    , 0		,  1       ,  1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_SYSTEM_MEMORY_BUFFER_CACHELINE_MISALIGNED         ,  0,     0,      0,      0    , 0		,  0       ,  1,    NoP); 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_ISH_HEAP_BUFFER                                   ,  1,     0,      0,      0    , 0		,  0       ,  1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_TAG_MEMORY_BUFFER                                 ,  1,     0,      0,      0    , 0		,  0       ,  1,    NoP);
@@ -215,9 +230,9 @@ DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE               
 /**********************************************************************************/
 
 // BCS
-//                   USAGE TYPE                                                                L3_CC,     L3_CLOS, L1CC,   L2CC,   L4CC,     Coherency, IgPAT)
-DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_BLT_SOURCE                                           , _WA_WB,    0,      0,      0    ,  0           ,  0     , 1, NoP);
-DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_BLT_DESTINATION                                      , _WA_WB,    0,      0,      0    ,  0           ,  0     , 1, NoP);
+//                   USAGE TYPE                                                                L3_CC,  L3_CLOS, L1CC,   L2CC,   L4CC,     Coherency, IgPAT)
+DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_BLT_SOURCE                                           ,  0,      0,      0,      0,      0,           0,       1, NoP);
+DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_BLT_DESTINATION                                      ,  0,      0,      0,      0,      0,           0,       1, NoP);
 
 /**********************************************************************************/
 //
@@ -270,8 +285,8 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COMMAND_STREAMER                        
 
 //                   USAGE TYPE                                                        , L3_CC,   L3_CLOS, L1CC,   L2CC,   L4CC,   Coherency, IgPAT)
 // Uncacheable copies
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COPY_SOURCE                                     , _WA_WB,     0,     0 ,    0,		0,       0          , 1,	  NoP);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COPY_DEST                                       , _WA_WB,     0,     0 ,    0,      0,       0          , 1,	  NoP);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COPY_SOURCE                                     , 0,         0,     0 ,      0,	     0,       0,        1,	  NoP);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COPY_DEST                                       , 0,         0,     0 ,      0,      0,       0,        1,	  NoP);
 
 // clang-format on
 

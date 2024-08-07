@@ -48,13 +48,16 @@ void CTestXe_LPGCachePolicy::SetUpXe_LPGVariant(PRODUCT_FAMILY platform)
 
     GfxPlatform.eProductFamily = platform;
 
-    if (platform >= IGFX_LUNARLAKE)
+    if (platform == IGFX_LUNARLAKE)
     {
         GfxPlatform.eRenderCoreFamily = IGFX_XE2_LPG_CORE;
     }
+    else if (platform >= IGFX_BMG)
+    {
+        GfxPlatform.eRenderCoreFamily = IGFX_XE2_HPG_CORE;
+    }
     else
     {
-
         GfxPlatform.eRenderCoreFamily = IGFX_XE_HPG_CORE;
     }
 
@@ -72,12 +75,19 @@ void CTestXe_LPGCachePolicy::SetUpXe_LPGVariant(PRODUCT_FAMILY platform)
         pGfxAdapterInfo->SkuTable.FtrL4Cache               = 1;
         pGfxAdapterInfo->SkuTable.FtrL3TransientDataFlush  = 0;
 
-        if (platform >= IGFX_LUNARLAKE)
+        if (platform == IGFX_BMG)
+        {
+            pGfxAdapterInfo->SkuTable.FtrLocalMemory = 1;
+            pGfxAdapterInfo->SkuTable.FtrDiscrete    = 1;
+        }
+
+        if (platform >= IGFX_BMG)
         {
             pGfxAdapterInfo->SkuTable.FtrL3TransientDataFlush = 1;
 	    pGfxAdapterInfo->WaTable.Wa_14018976079           = 1;
 	    pGfxAdapterInfo->WaTable.Wa_14018984349           = 1;
 	}
+
         CommonULT::SetUpTestCase();
     }
 }
@@ -98,13 +108,23 @@ TEST_F(CTestXe_LPGCachePolicy, TestXe_LPGCachePolicy_FtrL4CacheEnabled)
     TearDownXe_LPGVariant();
 }
 
+/***********************Xe2_HPG***********************************/
+TEST_F(CTestXe_LPGCachePolicy, TestXe2_HPGCachePolicy_FtrL4CacheEnabled)
+{
+    SetUpXe_LPGVariant(IGFX_BMG);
+    CheckXe2_HPGVirtualL3CachePolicy();
+    CheckPAT(); // Has both L3 and PAT within
+    Check_Xe2_HPG_PATCompressed();
+
+    TearDownXe_LPGVariant();
+}
 TEST_F(CTestXe_LPGCachePolicy, TestXe2_LPGCachePolicy_FtrL4CacheEnabled)
 {
     SetUpXe_LPGVariant(IGFX_LUNARLAKE);
 
-    CheckXe2_LPGVirtualL3CachePolicy();
+    CheckXe2_HPGVirtualL3CachePolicy();
     CheckPAT(); // Has both L3 and PAT within
-    Check_Xe2_LPG_PATCompressed();
+    Check_Xe2_HPG_PATCompressed();
 
     TearDownXe_LPGVariant();
 }
@@ -190,7 +210,7 @@ void CTestXe_LPGCachePolicy::CheckPAT()
     }
 }
 
-void CTestXe_LPGCachePolicy::Check_Xe2_LPG_PATCompressed()
+void CTestXe_LPGCachePolicy::Check_Xe2_HPG_PATCompressed()
 {
     bool CompressionEnReq = true;
 
@@ -209,7 +229,7 @@ void CTestXe_LPGCachePolicy::Check_Xe2_LPG_PATCompressed()
     }
 }
 
-void CTestXe_LPGCachePolicy::CheckXe2_LPGVirtualL3CachePolicy()
+void CTestXe_LPGCachePolicy::CheckXe2_HPGVirtualL3CachePolicy()
 {
     const uint32_t L4_WB_CACHEABLE = 0x0;
     const uint32_t L4_WT_CACHEABLE = 0x1;

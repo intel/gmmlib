@@ -30,8 +30,8 @@ protected:
     virtual void TearDownXe_LPGVariant();
     virtual void CheckVirtualL3CachePolicy();
     virtual void CheckPAT();
-    virtual void Check_Xe2_LPG_PATCompressed();
-    virtual void CheckXe2_LPGVirtualL3CachePolicy();
+    virtual void Check_Xe2_HPG_PATCompressed();
+    virtual void CheckXe2_HPGVirtualL3CachePolicy();
 
 public:
     static void SetUpTestCase();

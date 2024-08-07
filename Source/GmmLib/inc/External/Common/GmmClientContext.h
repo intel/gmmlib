@@ -212,7 +212,8 @@ extern "C" {
                                                const void *   pSkuTable,
                                                const void *   pWaTable,
                                                const void *   pGtSysInfo,
-                                               ADAPTER_BDF    sBdf);
+                                               ADAPTER_BDF    sBdf,
+                                               const GMM_CLIENT ClientType);
 #endif
 
     void GMM_STDCALL GmmLibContextFree(ADAPTER_BDF sBdf);

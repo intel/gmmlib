@@ -334,7 +334,16 @@ void GmmLib::GmmXe2_LPGCachePolicy::GetL3L4(GMM_CACHE_POLICY_TBL_ELEMENT *pUsage
         break;
     }
 
-
+    if (pGmmLibContext->GetWaTable().Wa_14018443005 &&
+        (pCachePolicy[Usage].L3CC == GMM_UC) &&
+        (ISWA_1401844305USAGE(Usage)) &&
+        (pGmmLibContext->GetClientType() != GMM_KMD_VISTA) &&
+        (pGmmLibContext->GetClientType() != GMM_OCL_VISTA))
+    {
+        pUsageEle->L3.PhysicalL3.L3CC = GMM_GFX_PHY_L3_MT_WB;
+        pUsagePATElement->Xe2.L3CC    = GMM_GFX_PHY_L3_MT_WB;
+        pCachePolicy[Usage].L3CC      = GMM_WB;
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -433,14 +442,6 @@ uint32_t GMM_STDCALL GmmLib::GmmXe2_LPGCachePolicy::CachePolicyGetPATIndex(GMM_R
     if (pCompressionEnable)
     {
         *pCompressionEnable = CompressionEnable;
-    }
-
-#define COMPRESSED_PAT_WITH_L3_UC_0 10
-#define COMPRESSED_PAT_WITH_L3_UC_1 12
-    //PAT index with compression + L3:UC not allowed.
-    if (pGmmLibContext->GetWaTable().Wa_14018443005 && CompressionEnable)
-    {
-        __GMM_ASSERT(!((ReturnPATIndex == COMPRESSED_PAT_WITH_L3_UC_0) || (ReturnPATIndex == COMPRESSED_PAT_WITH_L3_UC_1)));
     }
 
     return ReturnPATIndex;

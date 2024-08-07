@@ -360,7 +360,7 @@ else
     Data.NoOfBitsSupported                = 39;
     Data.HighestAcceptablePhysicalAddress = GFX_MASK_LARGE(0, 38);
 	
-    if (GFX_GET_CURRENT_PRODUCT(Data.Platform) >= IGFX_LUNARLAKE)
+    if (GFX_GET_CURRENT_PRODUCT(Data.Platform) >= IGFX_BMG)
     {
         Data.NoOfBitsSupported                = 52;
         Data.HighestAcceptablePhysicalAddress = GFX_MASK_LARGE(0, 51);

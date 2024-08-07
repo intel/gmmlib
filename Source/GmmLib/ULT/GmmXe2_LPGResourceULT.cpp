@@ -48,7 +48,12 @@ void CTestXe2_LPGResource::SetUp_Xe2Variant(PRODUCT_FAMILY platform)
 {
     printf("%s\n", __FUNCTION__);
 
-    if (platform == IGFX_LUNARLAKE)
+    if (platform == IGFX_BMG)
+    {
+        GfxPlatform.eProductFamily    = IGFX_BMG;
+        GfxPlatform.eRenderCoreFamily = IGFX_XE2_HPG_CORE;
+    }
+    else if (platform == IGFX_LUNARLAKE)
     {
         GfxPlatform.eProductFamily = IGFX_LUNARLAKE;
         GfxPlatform.eRenderCoreFamily = IGFX_XE2_LPG_CORE;
@@ -69,7 +74,13 @@ void CTestXe2_LPGResource::SetUp_Xe2Variant(PRODUCT_FAMILY platform)
         pGfxAdapterInfo->SkuTable.FtrDiscrete = 0;
         pGfxAdapterInfo->SkuTable.FtrE2ECompression = 1;
 
-        if (platform == IGFX_LUNARLAKE )
+        if (platform == IGFX_BMG)
+        {
+            pGfxAdapterInfo->SkuTable.FtrLocalMemory = 1;
+            pGfxAdapterInfo->SkuTable.FtrDiscrete    = 1;
+        }
+
+        if (platform == IGFX_LUNARLAKE || platform == IGFX_BMG)
         {
             pGfxAdapterInfo->WaTable.Wa_14018976079           = 1;
             pGfxAdapterInfo->WaTable.Wa_14018984349           = 1;
@@ -86,6 +97,12 @@ void CTestXe2_LPGResource::TearDown_Xe2Variant()
     CommonULT::TearDownTestCase();
 }
 
+TEST_F(CTestXe2_LPGResource, TestMSAA_BMG)
+{
+    SetUp_Xe2Variant(IGFX_BMG);
+    TestMSAA();
+    TearDown_Xe2Variant();
+}
 
 TEST_F(CTestXe2_LPGResource, TestMSAA_LNL)
 {
