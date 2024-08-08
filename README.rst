@@ -90,6 +90,8 @@ XE_HPG (DG2, ACM: Alchemist)
 
 Xe_LPG (MTL: Meteor Lake, ARL: Arrow Lake)
 
+Xe2_HPG (BMG: Battlemage, LNL: Lunar Lake)
+
 Release Tags
 ============
 

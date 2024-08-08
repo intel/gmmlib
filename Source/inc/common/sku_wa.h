@@ -563,7 +563,13 @@ typedef struct _WA_TABLE
         Wa_14020040029,
         "Misalignment on Depth buffer for Zplanes",
         WA_BUG_TYPE_UNKNOWN,
-        WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)		
+        WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
+
+        WA_DECLARE(
+        Wa_EmuMufasaSupportOnBmg,
+        "WA for supporting failure seen in BMG with Mufasa",
+        WA_BUG_TYPE_FUNCTIONAL,
+        WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_UNKNOWN)	
 
 } WA_TABLE, *PWA_TABLE;
 
