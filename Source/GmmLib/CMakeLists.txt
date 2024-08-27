@@ -125,14 +125,13 @@ set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 set (GMM_LIB_DLL_NAME igfx_gmmumd_dll)
 
 macro(GmmLibSetTargetConfig libTarget)
-	if (TARGET ${libTarget})
-			set_property(TARGET ${libTarget} APPEND PROPERTY COMPILE_DEFINITIONS
-				$<$<CONFIG:Release>: _RELEASE>
-				$<$<CONFIG:ReleaseInternal>: _RELEASE_INTERNAL>
-				$<$<CONFIG:Debug>: _DEBUG>
-			)
-		endif()
-
+    if(TARGET ${libTarget})
+        set_property(TARGET ${libTarget} APPEND PROPERTY COMPILE_DEFINITIONS
+           $<$<CONFIG:Release>: _RELEASE>
+           $<$<CONFIG:ReleaseInternal>: _RELEASE_INTERNAL>
+           $<$<CONFIG:Debug>: _DEBUG>
+           )
+    endif()
 endmacro()
 
 if(CMAKE_CONFIGURATION_TYPES)
@@ -464,12 +463,13 @@ include(Linux.cmake)
 ###################################################################################
 add_library( ${GMM_LIB_DLL_NAME} SHARED igdgmm.rc ${UMD_SOURCES} ${UMD_HEADERS})
 
+GmmLibSetTargetConfig(${GMM_LIB_DLL_NAME})
+
 if(MSVC)
 
 set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES OUTPUT_NAME "igdgmm${GMMLIB_ARCH}")
 
 bs_set_wdk(${GMM_LIB_DLL_NAME})
-GmmLibSetTargetConfig( ${GMM_LIB_DLL_NAME} )
 
 set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES VS_GLOBAL_DriverTargetPlatform Universal)
 set_target_properties(${GMM_LIB_DLL_NAME} PROPERTIES VS_PLATFORM_TOOLSET WindowsApplicationForDrivers10.0)
