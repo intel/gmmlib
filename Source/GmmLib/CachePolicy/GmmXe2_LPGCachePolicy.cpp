@@ -130,7 +130,17 @@ GMM_STATUS GmmLib::GmmXe2_LPGCachePolicy::InitCachePolicy()
             if ((UsagePATElement.Xe2.L4CC == GMM_GFX_PHY_L4_MT_WT) && (UsagePATElement.Xe2.L3CC == GMM_GFX_PHY_L3_MT_WB_XD))
             {
 
-                PATIdx = 8;
+                // With L3:XD, L4:WT, NC combination
+                if (pGmmLibContext->GetSkuTable().FtrDiscrete)
+                {
+                    // On BMG, L4 is a pass through, demote L4 to UC, keep L3 at XD
+                    PATIdx = PAT6;
+                }
+                else
+                {
+                    // On LNL, L3:XD is not needed
+                    PATIdx = PAT13;
+                }
             }
             else
             {
