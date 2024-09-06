@@ -974,6 +974,11 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
             break;
         }
         default:
+            if (!Surf.BaseWidth || !Surf.BaseHeight)
+            {
+                GMM_ASSERTDPF(0, "Width or Height is 0!");
+                goto ERROR_CASE;
+            }
             break;
     }
 
