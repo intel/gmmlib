@@ -1,10 +1,10 @@
-// Copyright(c) 2018-2024 Intel Corporation
+// Copyright (c) 2024, Intel Corporation
 
 // Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files(the "Software"),
+// copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
 // the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and / or sell copies of the Software, and to permit persons to whom the
+// and/or sell copies of the Software, and to permit persons to whom the
 // Software is furnished to do so, subject to the following conditions:
 
 // The above copyright notice and this permission notice shall be included
@@ -18,10 +18,21 @@
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-cc_library_shared {
+package {
+    default_applicable_licenses: ["external_gmmlib_license"],
+}
 
-    name: "libgmm_umd",
-    proprietary: true,
+license {
+    name: "external_gmmlib_license",
+    visibility: [":__subpackages__"],
+    license_text: [
+        "LICENSE.md",
+    ],
+}
+
+cc_library_shared {
+    name: "libigdgmm_android",
+    vendor: true,
     srcs: [
         "Source/GmmLib/CachePolicy/GmmCachePolicy.cpp",
         "Source/GmmLib/CachePolicy/GmmCachePolicyCommon.cpp",
@@ -31,6 +42,7 @@ cc_library_shared {
         "Source/GmmLib/CachePolicy/GmmGen12dGPUCachePolicy.cpp",
         "Source/GmmLib/CachePolicy/GmmGen8CachePolicy.cpp",
         "Source/GmmLib/CachePolicy/GmmGen9CachePolicy.cpp",
+        "Source/GmmLib/CachePolicy/GmmXe2_LPGCachePolicy.cpp",
         "Source/GmmLib/CachePolicy/GmmXe_LPGCachePolicy.cpp",
         "Source/GmmLib/GlobalInfo/GmmClientContext.cpp",
         "Source/GmmLib/GlobalInfo/GmmInfo.cpp",
@@ -67,14 +79,6 @@ cc_library_shared {
     ],
 
     cflags: [
-        "-Wno-logical-op-parentheses",
-        "-Wno-error",
-        "-Wno-unused-parameter",
-        "-msse2",
-        "-msse3",
-        "-mssse3",
-        "-msse4.1",
-        "-msse4.2",
         "-DGMM_LIB_DLL",
         "-DGMM_LIB_DLL_EXPORTS",
         "-DGMM_UNIFIED_LIB",
@@ -83,6 +87,7 @@ cc_library_shared {
         "-DSMALL_POOL_ALLOC",
         "-DUNUSED_ISTDLIB_MT",
         "-D_ATL_NO_WIN_SUPPORT",
+        "-D_RELEASE",
         "-D_X64",
         "-D__GFX_MACRO_C__",
         "-D__GMM",
@@ -90,72 +95,66 @@ cc_library_shared {
         "-D__STDC_LIMIT_MACROS",
         "-D__UMD",
         "-Digfx_gmmumd_dll_EXPORTS",
-	"-Digfx_gmmumd_dll_EXPORTS",
-	"-O3",
-	"-DNDEBUG",
-	"-fPIC",
-	"-march=core-avx2",
-	"-mpopcnt",
-	"-mfpmath=sse",
-	"-finline-functions",
-	"-fno-short-enums",
-	"-Wa,--noexecstack",
-	"-fno-strict-aliasing",
-	"-DUSE_MMX",
-	"-DUSE_SSE",
-	"-DUSE_SSE2",
-	"-DUSE_SSE3",
-	"-DUSE_SSSE3",
-	"-fstack-protector",
-	"-fdata-sections",
-	"-ffunction-sections",
-	"-fmessage-length=0",
-	"-fvisibility=hidden",
-	"-fPIC",
-	"-g",
-	"-funswitch-loops",
-	"-Wl,--no-undefined",
-	"-Wl,--no-as-needed",
-	"-Wl,--gc-sections",
-	"-O2",
-	"-fno-omit-frame-pointer",
-	"-pthread",
+        "-fvisibility=hidden",
+        "-fno-omit-frame-pointer",
+        "-march=corei7",
+        "-Werror",
+        "-Wno-logical-op-parentheses",
+        "-Wno-shift-negative-value",
+        "-Wno-unused-parameter",
     ],
 
     cppflags: [
         "-Wno-implicit-fallthrough",
         "-Wno-missing-braces",
-        "-Wno-parentheses-equality",
-        "-Wno-logical-not-parentheses",
-        "-Wno-missing-field-initializers",
         "-Wno-unknown-pragmas",
         "-Wno-parentheses",
         "-Wno-pragma-pack",
         "-fexceptions",
         "-std=c++11",
-	"-fvisibility-inlines-hidden",
-	"-fno-use-cxa-atexit",
-	"-fno-rtti",
-	"-fcheck-new",
-	"-pthread",
+        "-fvisibility-inlines-hidden",
+        "-fno-use-cxa-atexit",
+        "-fno-rtti",
+        "-fcheck-new",
+        "-pthread",
     ],
 
     local_include_dirs: [
         "Source/GmmLib",
         "Source/GmmLib/Utility/GmmLog",
+        "Source/GmmLib/inc",
         "Source/GmmLib/Utility",
         "Source/GmmLib/GlobalInfo",
         "Source/GmmLib/Texture",
         "Source/GmmLib/Resource",
         "Source/GmmLib/Platform",
         "Source/util",
+        "Source/inc",
+        "Source/inc/common",
         "Source/inc/umKmInc",
     ],
 
+    enabled: false,
+    arch: {
+        x86_64: {
+            enabled: true,
+        },
+    },
+}
+
+cc_library_headers {
+    name: "libigdgmm_headers",
+    vendor: true,
     export_include_dirs: [
         "Source/GmmLib/inc",
         "Source/inc",
         "Source/inc/common",
     ],
 
+    enabled: false,
+    arch: {
+        x86_64: {
+            enabled: true,
+        },
+    },
 }
