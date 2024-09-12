@@ -20,7 +20,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
 
-#if defined (__linux__) && !defined(__i386__)
+#if !defined (_WIN32) && !defined(__i386__)
 
 #include "GmmAuxTableULT.h"
 
@@ -262,4 +262,4 @@ TEST_F(CTestAuxTable, TestAuxTableContent)
     pGmmULTClientContext->DestroyPageTblMgrObject(mgr);
 }
 
-#endif /* __linux__ */
+#endif /* !_WIN32 */
