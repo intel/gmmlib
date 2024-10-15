@@ -194,7 +194,6 @@ enum WA_COMPONENT
 typedef struct _WA_TABLE
 {
         // struct wa_3d
-        unsigned int : 0;
 
         WA_DECLARE(
         WaAlignIndexBuffer,
@@ -203,7 +202,7 @@ typedef struct _WA_TABLE
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_UNKNOWN)
 
         // struct _wa_Gmm
-        unsigned int : 0;
+        unsigned int Reserved0: 31; // Handle 4bytes alignment boundary to maintain ABI
 
         WA_DECLARE(
         WaValign2ForR8G8B8UINTFormat,
