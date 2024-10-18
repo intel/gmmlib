@@ -439,8 +439,6 @@ include_directories(BEFORE ${PROJECT_SOURCE_DIR})
   ${BS_DIR_INC}
   ${BS_DIR_INC}/common
   ${BS_DIR_INC}/umKmInc
-  ${BS_DIR_INSTALL}
-  #${BS_DIR_ANDROID}/include
   )
 
 if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "^aarch")
