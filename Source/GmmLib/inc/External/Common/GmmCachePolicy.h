@@ -483,7 +483,7 @@ typedef union GMM_PRIVATE_PAT_REC {
 
 // Function Prototypes
 GMM_STATUS  GmmInitializeCachePolicy();
-GMM_GFX_MEMORY_TYPE GmmGetWantedMemoryType(void *pLibContext, GMM_CACHE_POLICY_ELEMENT CachePolicy);
+GMM_GFX_MEMORY_TYPE GmmGetWantedMemoryType(void *pLibContext, const GMM_CACHE_POLICY_ELEMENT &CachePolicy);
 
 // Used for GMM ULT testing.
 #ifdef __GMM_ULT
