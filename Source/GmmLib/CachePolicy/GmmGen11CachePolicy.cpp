@@ -77,7 +77,7 @@ GMM_STATUS GmmLib::GmmGen11CachePolicy::InitCachePolicy()
 {
     __GMM_ASSERTPTR(pCachePolicy, GMM_ERROR);
 
-#define DEFINE_CACHE_ELEMENT(usage, llc, ellc, l3, wt, age, aom, lecc_scc, l3_scc, scf, sso, cos) DEFINE_CP_ELEMENT(usage, llc, ellc, l3, wt, age, aom, lecc_scc, l3_scc, scf, sso, cos, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+#define DEFINE_CACHE_ELEMENT(usage, llc, ellc, l3, wt, age, aom, lecc_scc, l3_scc, scf, sso, cos) DEFINE_CP_ELEMENT(usage, llc, ellc, l3, wt, age, aom, lecc_scc, l3_scc, scf, sso, cos, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 #include "GmmGen11CachePolicy.h"
 
 #define TC_LLC (1)

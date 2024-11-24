@@ -1,5 +1,5 @@
 /*==============================================================================
-Copyright(c) 2022 Intel Corporation
+Copyright(c) 2024 Intel Corporation
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files(the "Software"),
@@ -19,22 +19,20 @@ OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
+
 #pragma once
 
-#include "GmmCachePolicyULT.h"
+#include "GmmGen12dGPUResourceULT.h"
 
-class CTestXe_LPGCachePolicy : public CTestCachePolicy
+class CTestXe2_LPGResource : public CTestGen12dGPUResource
 {
+
 protected:
-    virtual void SetUpXe_LPGVariant(PRODUCT_FAMILY);
-    virtual void TearDownXe_LPGVariant();
-    virtual void CheckVirtualL3CachePolicy();
-    virtual void CheckPAT();
-    virtual void Check_Xe2_HPG_PATCompressed();
-    virtual void CheckXe2_HPGVirtualL3CachePolicy();
+    virtual void SetUp_Xe2Variant(PRODUCT_FAMILY platform);
+    virtual void TearDown_Xe2Variant();
+    virtual void TestMSAA();
 
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
 };
-#pragma once

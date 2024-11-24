@@ -48,7 +48,18 @@ void CTestXe_LPGCachePolicy::SetUpXe_LPGVariant(PRODUCT_FAMILY platform)
 
     GfxPlatform.eProductFamily = platform;
 
-    GfxPlatform.eRenderCoreFamily = IGFX_XE_HPG_CORE;
+    if (platform == IGFX_LUNARLAKE)
+    {
+        GfxPlatform.eRenderCoreFamily = IGFX_XE2_LPG_CORE;
+    }
+    else if (platform >= IGFX_BMG)
+    {
+        GfxPlatform.eRenderCoreFamily = IGFX_XE2_HPG_CORE;
+    }
+    else
+    {
+        GfxPlatform.eRenderCoreFamily = IGFX_XE_HPG_CORE;
+    }
 
     pGfxAdapterInfo = (ADAPTER_INFO *)malloc(sizeof(ADAPTER_INFO));
     if(pGfxAdapterInfo)
@@ -59,7 +70,24 @@ void CTestXe_LPGCachePolicy::SetUpXe_LPGVariant(PRODUCT_FAMILY platform)
         pGfxAdapterInfo->SkuTable.FtrStandardMipTailFormat = 1;
         pGfxAdapterInfo->SkuTable.FtrTileY                 = 0;
         pGfxAdapterInfo->SkuTable.FtrLocalMemory           = 0;
+        pGfxAdapterInfo->SkuTable.FtrDiscrete              = 0;
         pGfxAdapterInfo->SkuTable.FtrIA32eGfxPTEs          = 1;
+        pGfxAdapterInfo->SkuTable.FtrL4Cache               = 1;
+        pGfxAdapterInfo->SkuTable.FtrL3TransientDataFlush  = 0;
+
+        if (platform == IGFX_BMG)
+        {
+            pGfxAdapterInfo->SkuTable.FtrLocalMemory = 1;
+            pGfxAdapterInfo->SkuTable.FtrDiscrete    = 1;
+        }
+
+        if (platform >= IGFX_BMG)
+        {
+            pGfxAdapterInfo->SkuTable.FtrL3TransientDataFlush = 1;
+	    pGfxAdapterInfo->WaTable.Wa_14018976079           = 1;
+	    pGfxAdapterInfo->WaTable.Wa_14018984349           = 1;
+	}
+
         CommonULT::SetUpTestCase();
     }
 }
@@ -80,6 +108,26 @@ TEST_F(CTestXe_LPGCachePolicy, TestXe_LPGCachePolicy_FtrL4CacheEnabled)
     TearDownXe_LPGVariant();
 }
 
+/***********************Xe2_HPG***********************************/
+TEST_F(CTestXe_LPGCachePolicy, TestXe2_HPGCachePolicy_FtrL4CacheEnabled)
+{
+    SetUpXe_LPGVariant(IGFX_BMG);
+    CheckXe2_HPGVirtualL3CachePolicy();
+    CheckPAT(); // Has both L3 and PAT within
+    Check_Xe2_HPG_PATCompressed();
+
+    TearDownXe_LPGVariant();
+}
+TEST_F(CTestXe_LPGCachePolicy, TestXe2_LPGCachePolicy_FtrL4CacheEnabled)
+{
+    SetUpXe_LPGVariant(IGFX_LUNARLAKE);
+
+    CheckXe2_HPGVirtualL3CachePolicy();
+    CheckPAT(); // Has both L3 and PAT within
+    Check_Xe2_HPG_PATCompressed();
+
+    TearDownXe_LPGVariant();
+}
 void CTestXe_LPGCachePolicy::CheckVirtualL3CachePolicy()
 {
     const uint32_t L4_WB_CACHEABLE = 0x0;
@@ -100,7 +148,7 @@ void CTestXe_LPGCachePolicy::CheckVirtualL3CachePolicy()
     for(uint32_t Usage = GMM_RESOURCE_USAGE_UNKNOWN; Usage < GMM_RESOURCE_USAGE_MAX; Usage++)
     {
         GMM_CACHE_POLICY_ELEMENT     ClientRequest   = pGmmULTClientContext->GetCachePolicyElement((GMM_RESOURCE_USAGE_TYPE)Usage);
-        uint32_t                AssignedMocsIdx = ClientRequest.MemoryObjectOverride.Gen12.Index;
+        uint32_t                AssignedMocsIdx = ClientRequest.MemoryObjectOverride.XE_LPG.Index;
         GMM_CACHE_POLICY_TBL_ELEMENT Mocs            = pGmmULTClientContext->GetCachePolicyTlbElement(AssignedMocsIdx);
         uint32_t                     StartMocsIdx    = 0;
 
@@ -118,7 +166,7 @@ void CTestXe_LPGCachePolicy::CheckVirtualL3CachePolicy()
         //printf("Xe LPG: Usage: %d --> Index: [%d]\n", Usage, AssignedMocsIdx);
 
         //L3
-        if(ClientRequest.L3)
+        if (ClientRequest.L3CC)
         {
             EXPECT_EQ(L3_WB_CACHEABLE, Mocs.L3.Cacheability) << "Usage# " << Usage << ": Incorrect L3 cachebility setting";
         }
@@ -127,8 +175,7 @@ void CTestXe_LPGCachePolicy::CheckVirtualL3CachePolicy()
             EXPECT_EQ(L3_UNCACHEABLE, Mocs.L3.Cacheability) << "Usage# " << Usage << ": Incorrect L3 cachebility setting";
         }
 
-        //L4
-        // ADM memory cache 0: UC, 1:WB, 2: WT
+        // L4 cache memory- 0: UC, 1:WB, 2: WT
         switch(ClientRequest.L4CC)
         {
             case 0x1:
@@ -163,3 +210,91 @@ void CTestXe_LPGCachePolicy::CheckPAT()
     }
 }
 
+void CTestXe_LPGCachePolicy::Check_Xe2_HPG_PATCompressed()
+{
+    bool CompressionEnReq = true;
+
+    // Check Usage PAT index against PAT settings
+    for (uint32_t Usage = GMM_RESOURCE_USAGE_UNKNOWN; Usage < GMM_RESOURCE_USAGE_MAX; Usage++)
+    {
+        GMM_CACHE_POLICY_ELEMENT ClientRequest = pGmmULTClientContext->GetCachePolicyElement((GMM_RESOURCE_USAGE_TYPE)Usage);
+        CompressionEnReq                       = true;
+        if (ClientRequest.Initialized == false) // undefined resource in platform
+        {
+            continue;
+        }
+        uint32_t PATIndex = pGmmULTClientContext->CachePolicyGetPATIndex(NULL, (GMM_RESOURCE_USAGE_TYPE)Usage, &CompressionEnReq, false);
+        //printf("Xe HPG: Usage: %d --> Compressed PAT Index: [%d], ComEn: [%d]\n", Usage, PATIndex, CompressionEnReq);
+        EXPECT_NE(PATIndex, GMM_PAT_ERROR) << "Usage# " << Usage << ": No matching PAT Index";
+    }
+}
+
+void CTestXe_LPGCachePolicy::CheckXe2_HPGVirtualL3CachePolicy()
+{
+    const uint32_t L4_WB_CACHEABLE = 0x0;
+    const uint32_t L4_WT_CACHEABLE = 0x1;
+    const uint32_t L4_UNCACHEABLE  = 0x3;
+
+    const uint32_t L3_WB_CACHEABLE = 0x0;
+    const uint32_t L3_XD_CACHEABLE = pGmmULTClientContext->GetSkuTable().FtrL3TransientDataFlush ? 0x1 : 0x0;
+    const uint32_t L3_UNCACHEABLE  = 0x3;
+
+    // Check Usage MOCS index against MOCS settings
+    for (uint32_t Usage = GMM_RESOURCE_USAGE_UNKNOWN; Usage < GMM_RESOURCE_USAGE_MAX; Usage++)
+    {
+        GMM_CACHE_POLICY_ELEMENT     ClientRequest   = pGmmULTClientContext->GetCachePolicyElement((GMM_RESOURCE_USAGE_TYPE)Usage);
+        uint32_t                     AssignedMocsIdx = ClientRequest.MemoryObjectOverride.XE_HP.Index;
+        GMM_CACHE_POLICY_TBL_ELEMENT Mocs            = pGmmULTClientContext->GetCachePolicyTlbElement(AssignedMocsIdx);
+        uint32_t                     StartMocsIdx    = 0;
+
+        EXPECT_EQ(0, Mocs.L3.PhysicalL3.Reserved) << "Usage# " << Usage << ": Reserved field is non-zero";
+        EXPECT_EQ(0, Mocs.L3.PhysicalL3.Reserved0) << "Usage# " << Usage << ": Reserved field is non-zero";
+        EXPECT_EQ(0, Mocs.L3.PhysicalL3.L3CLOS) << "Usage# " << Usage << ": L3CLOS field is non-zero";
+        // Check if Mocs Index is not greater than GMM_MAX_NUMBER_MOCS_INDEXES
+        EXPECT_GT(GMM_XE2_NUM_MOCS_ENTRIES, AssignedMocsIdx) << "Usage# " << Usage << ": MOCS Index greater than MAX allowed (16)";
+
+        //printf("Xe HPG: Usage: %d --> Index: [%d]\n", Usage, AssignedMocsIdx);
+
+        if (ClientRequest.IgnorePAT == true)
+        {
+            EXPECT_EQ(1, Mocs.L3.PhysicalL3.igPAT) << "Usage# " << Usage << ": Incorrect igPAT cachebility setting";
+
+            // L4  memory cache 0: UC, 1:WB, 2: WT
+            switch (ClientRequest.L4CC)
+            {
+            case 0x1:
+                {
+                    EXPECT_EQ(L4_WB_CACHEABLE, Mocs.L3.PhysicalL3.L4CC) << "Usage# " << Usage << ": Incorrect L4CC cachebility setting";
+                    break;
+                }
+            case 0x2:
+                {
+                    EXPECT_EQ(L4_WT_CACHEABLE, Mocs.L3.PhysicalL3.L4CC) << "Usage# " << Usage << ": Incorrect L4CC cachebility setting";
+                    break;
+                }
+            default:
+                EXPECT_EQ(L4_UNCACHEABLE, Mocs.L3.PhysicalL3.L4CC) << "Usage# " << Usage << ": Incorrect L4CC cachebility setting";
+            }
+
+            // 0:UC, 1:WB  2:WB_T_Display, 3:WB_T_App
+            switch (ClientRequest.L3CC)
+            {
+
+            case 0x1:
+                EXPECT_EQ(L3_WB_CACHEABLE, Mocs.L3.PhysicalL3.L3CC) << "Usage# " << Usage << ": Incorrect L3CC cachebility setting";
+                break;
+            case 0x3:
+                {
+                    EXPECT_EQ(L3_XD_CACHEABLE, Mocs.L3.PhysicalL3.L3CC) << "Usage# " << Usage << ": Incorrect L3CC cachebility setting";
+                    break;
+                }
+            default:
+                EXPECT_EQ(L3_UNCACHEABLE, Mocs.L3.PhysicalL3.L3CC) << "Usage# " << Usage << ": Incorrect L3CC cachebility setting";
+            }
+        }
+        else
+        {
+            EXPECT_EQ(0, Mocs.L3.PhysicalL3.igPAT) << "Usage# " << Usage << ": Incorrect igPAT cachebility setting";
+        }
+    }
+}

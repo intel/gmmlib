@@ -657,7 +657,8 @@ typedef struct _GMM_ADAPTER_INFO_
                                                    const void *   pSkuTable,
                                                    const void *   pWaTable,
                                                    const void *   pGtSysInfo,
-                                                   ADAPTER_BDF    sBdf);
+                                                   ADAPTER_BDF    sBdf,
+						   const GMM_CLIENT ClientType);
 #endif
         GMM_STATUS GMM_STDCALL          RemoveContext(ADAPTER_BDF sBdf);
         Context* GMM_STDCALL            GetAdapterLibContext(ADAPTER_BDF sBdf);

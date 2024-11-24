@@ -39,7 +39,7 @@ GMM_STATUS GmmLib::GmmXe_LPGCachePolicy::InitCachePolicy()
 {
     __GMM_ASSERTPTR(pCachePolicy, GMM_ERROR);
 
-#define DEFINE_CACHE_ELEMENT(usage, l3, l3_scc, go, uclookup, l1cc, l2cc, l4cc, coherency) DEFINE_CP_ELEMENT(usage, 0, 0, l3, 0, 0, 0, 0, l3_scc, 0, 0, 0, 0, 0, 0, go, uclookup, l1cc, l2cc, l4cc, coherency)
+#define DEFINE_CACHE_ELEMENT(usage, l3, l3_scc, go, uclookup, l1cc, l2cc, l4cc, coherency) DEFINE_CP_ELEMENT(usage, 0, 0, l3, 0, 0, 0, 0, l3_scc, 0, 0, 0, 0, 0, 0, go, uclookup, l1cc, l2cc, l4cc, coherency, l3, 0, 0)
 
 #include "GmmXe_LPGCachePolicy.h"
 
@@ -245,7 +245,8 @@ GMM_STATUS GmmLib::GmmXe_LPGCachePolicy::InitCachePolicy()
         }
 
         pCachePolicy[Usage].PATIndex                          = PATIdx;
-        pCachePolicy[Usage].CoherentPATIndex                  = CoherentPATIdx;
+        pCachePolicy[Usage].CoherentPATIndex                  = GET_COHERENT_PATINDEX_LOWER_BITS(CoherentPATIdx);
+        pCachePolicy[Usage].CoherentPATIndexHigherBit         = GET_COHERENT_PATINDEX_HIGHER_BIT(CoherentPATIdx);
         pCachePolicy[Usage].PTE.DwordValue                    = GMM_GET_PTE_BITS_FROM_PAT_IDX(PATIdx) & 0xFFFFFFFF;
         pCachePolicy[Usage].PTE.HighDwordValue                = GMM_GET_PTE_BITS_FROM_PAT_IDX(PATIdx) >> 32;
         pCachePolicy[Usage].MemoryObjectOverride.XE_LPG.Index = CPTblIdx;
@@ -260,8 +261,55 @@ GMM_STATUS GmmLib::GmmXe_LPGCachePolicy::InitCachePolicy()
     return GMM_SUCCESS;
 }
 
+//=============================================================================
+//
+// Function: __:SetL1CachePolicy
+//
+// Desc: This function converting indicator values to actual register values and store into pCachePolicy to return to UMD's.
+// Gmm not using this values. UMD's queries for this values.
+//
+// Parameters: Usage
+//
+// Return: VOID
+//
+//-----------------------------------------------------------------------------
+void GmmLib::GmmXe_LPGCachePolicy::SetL1CachePolicy(uint32_t Usage)
+{
 
+// As per HW, L1 cache control(L1CC) values  (0: WBP write bypass mode, 1: 0 uncached, 2: WB Write back, 3:WT write-through, 4: WS Write-Streaming).
+#define L1_WBP_CACHEABLE (0x0)
+#define L1_UNCACHEABLE   (0x1)
+#define L1_WB_CACHEABLE  (0x2)
+#define L1_WT_CACHEABLE  (0x3)
+#define L1_WS_CACHEABLE  (0x4)
 
+    switch (pCachePolicy[Usage].L1CC)
+    {
+    case GMM_UC:
+        pCachePolicy[Usage].L1CC = L1_UNCACHEABLE;
+        break;
+    case GMM_WB:
+        pCachePolicy[Usage].L1CC = L1_WB_CACHEABLE;
+        break;
+    case GMM_WT:
+        pCachePolicy[Usage].L1CC = L1_WT_CACHEABLE;
+        break;
+    case GMM_WBP:
+        pCachePolicy[Usage].L1CC = L1_WBP_CACHEABLE;
+        break;
+    case GMM_WS:
+        pCachePolicy[Usage].L1CC = L1_WS_CACHEABLE;
+        break;
+    default:
+        pCachePolicy[Usage].L1CC = L1_UNCACHEABLE;
+    }
+
+#undef L1_WBP_CACHEABLE
+#undef L1_UNCACHEABLE
+#undef L1_WB_CACHEABLE
+#undef L1_WT_CACHEABLE
+#undef L1_WS_CACHEABLE
+}
 /////////////////////////////////////////////////////////////////////////////////////
 ///      A simple getter function returning the PAT (cache policy) for a given
 ///      use Usage of the named resource pResInfo.
@@ -289,7 +337,7 @@ uint32_t GMM_STDCALL GmmLib::GmmXe_LPGCachePolicy::CachePolicyGetPATIndex(GMM_RE
 
     if(IsCpuCacheable)
     {
-        return pGmmLibContext->GetCachePolicyElement(Usage).CoherentPATIndex;
+        return (uint32_t)(GET_COHERENT_PATINDEX_VALUE(pGmmLibContext, Usage));
     }
     else
     {
@@ -417,4 +465,46 @@ GMM_STATUS GmmLib::GmmXe_LPGCachePolicy::SetupPAT()
     return GMM_SUCCESS;
 }
 
+uint32_t GMM_STDCALL GmmLib::GmmXe_LPGCachePolicy::GetSurfaceStateL1CachePolicy(GMM_RESOURCE_USAGE_TYPE Usage)
+{
+    __GMM_ASSERT(pCachePolicy[Usage].Initialized);
+
+    return pCachePolicy[Usage].L1CC;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+///      A simple getter function returning the MOCS (cache policy) for a given
+///      use Usage of the named resource pResInfo.
+///      Typically used to populate a SURFACE_STATE for a GPU task.
+///
+/// @param[in]     pResInfo: Resource info for resource, can be NULL.
+/// @param[in]     Usage: Current usage for resource.
+///
+/// @return        MEMORY_OBJECT_CONTROL_STATE: Gen adjusted MOCS structure (cache
+///                                             policy) for the given buffer use.
+/////////////////////////////////////////////////////////////////////////////////////
+MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmXe_LPGCachePolicy::CachePolicyGetMemoryObject(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage)
+{
+    __GMM_ASSERT(pCachePolicy[Usage].Initialized);
+
+    // Prevent wrong Usage for XAdapter resources. UMD does not call GetMemoryObject on shader resources but,
+    // when they add it someone could call it without knowing the restriction.
+    if (pResInfo &&
+        pResInfo->GetResFlags().Info.XAdapter &&
+         (Usage != GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE))
+    {
+        __GMM_ASSERT(false);
+    }
+
+    if (!pResInfo ||
+        (pCachePolicy[Usage].Override & pCachePolicy[Usage].IDCode) ||
+        (pCachePolicy[Usage].Override == ALWAYS_OVERRIDE))
+    {
+        return pCachePolicy[Usage].MemoryObjectOverride;
+    }
+    else
+    {
+        return pCachePolicy[Usage].MemoryObjectNoOverride;
+    }
+}
 

@@ -81,8 +81,6 @@ namespace GmmLib
                                                              GMM_RES_COPY_BLT *pBlt,
                                                              uint32_t PlaneId);
 
-            
-
             /* inline functions */
     };
 }

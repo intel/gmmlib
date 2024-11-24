@@ -22,6 +22,8 @@ https://opensource.org/licenses/MIT
 Building
 ========
 1) Get gmmlib repository
+   
+   git clone https://github.com/intel/gmmlib.git
 
 2) Change it to root directory
 
@@ -33,7 +35,11 @@ Building
 
 4) Run the cmake command to prepare build files
 
-   ``$ cmake [-DCMAKE_BUILD_TYPE= Release | Debug | ReleaseInternal] [-DARCH= 64 | 32]  ..``
+|        ``$ cmake [-DCMAKE_BUILD_TYPE=Release | Debug | ReleaseInternal] ..``  
+|        where,
+|        -DCMAKE_BUILD_TYPE can be set to one build type flag at a time.
+|        Example:
+|        ``$ cmake -DCMAKE_BUILD_TYPE=Release ..``, For Release build
 
 5) Build the project
 
@@ -81,6 +87,10 @@ XE_HP (XE_HP_SDV)
 XE_HPC (PVC: Ponte Vecchio)
 
 XE_HPG (DG2, ACM: Alchemist)
+
+Xe_LPG (MTL: Meteor Lake, ARL: Arrow Lake)
+
+Xe2_HPG (BMG: Battlemage, LNL: Lunar Lake)
 
 Release Tags
 ============

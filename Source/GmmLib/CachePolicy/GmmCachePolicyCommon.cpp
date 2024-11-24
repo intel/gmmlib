@@ -32,6 +32,7 @@ GmmLib::GmmCachePolicyCommon::GmmCachePolicyCommon(GMM_CACHE_POLICY_ELEMENT *pCa
     this->pCachePolicy   = pCachePolicy;
     this->pGmmLibContext = pGmmLibContext;
     NumPATRegisters      = GMM_NUM_PAT_ENTRIES_LEGACY;
+    NumMOCSRegisters     = GMM_MAX_NUMBER_MOCS_INDEXES;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -100,7 +101,7 @@ MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmCachePolicyCommon::CachePolic
     // when they add it someone could call it without knowing the restriction.
     if(pResInfo &&
        pResInfo->GetResFlags().Info.XAdapter &&
-       Usage != GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE)
+       (Usage != GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE))
     {
         __GMM_ASSERT(false);
     }
@@ -115,8 +116,6 @@ MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmCachePolicyCommon::CachePolic
     {
         return CachePolicy[Usage].MemoryObjectNoOverride;
     }
-
-    return CachePolicy[GMM_RESOURCE_USAGE_UNKNOWN].MemoryObjectOverride;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 ///      A simple getter function returning the PAT (cache policy) for a given
@@ -159,4 +158,15 @@ GMM_PTE_CACHE_CONTROL_BITS GMM_STDCALL GmmLib::GmmCachePolicyCommon::CachePolicy
 uint32_t GMM_STDCALL GmmLib::GmmCachePolicyCommon::CachePolicyGetNumPATRegisters()
 {
     return NumPATRegisters;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Returns L1 cache attribute based on resource usage
+///
+/// @return        uint32_t
+/////////////////////////////////////////////////////////////////////////////////////
+uint32_t GMM_STDCALL GmmLib::GmmCachePolicyCommon::GetSurfaceStateL1CachePolicy(GMM_RESOURCE_USAGE_TYPE Usage)
+{
+    __GMM_ASSERT(pCachePolicy[Usage].Initialized);
+    return pCachePolicy[Usage].L1CC;
 }

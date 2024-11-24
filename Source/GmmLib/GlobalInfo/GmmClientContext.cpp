@@ -67,7 +67,6 @@ MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmClientContext::CachePolicyGet
 {
     return pGmmLibContext->GetCachePolicyObj()->CachePolicyGetMemoryObject(pResInfo, Usage);
 }
-
 /////////////////////////////////////////////////////////////////////////////////////
 /// Member function of ClientContext class for returning
 /// GMM_PTE_CACHE_CONTROL_BITS for a given Resource Usage Type
@@ -126,7 +125,127 @@ uint8_t GMM_STDCALL GmmLib::GmmClientContext::CachePolicyIsUsagePTECached(GMM_RE
 /////////////////////////////////////////////////////////////////////////////////////
 uint8_t GMM_STDCALL GmmLib::GmmClientContext::GetSurfaceStateL1CachePolicy(GMM_RESOURCE_USAGE_TYPE Usage)
 {
-    return pGmmLibContext->GetCachePolicyElement(Usage).L1CC;
+    return pGmmLibContext->GetCachePolicyObj()->GetSurfaceStateL1CachePolicy(Usage);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Member function of ClientContext class to return Swizzle Descriptor
+/// given Swizzle name , ResType and bpe
+///
+/// @param[in] EXTERNAL_SWIZZLE_NAME
+/// @param[in] EXTERNAL_RES_TYPE
+/// @param[in] bpe
+/// @return  SWIZZLE_DESCRIPTOR*
+/////////////////////////////////////////////////////////////////////////////////////
+const SWIZZLE_DESCRIPTOR *GMM_STDCALL GmmLib::GmmClientContext::GetSwizzleDesc(EXTERNAL_SWIZZLE_NAME ExternalSwizzleName, EXTERNAL_RES_TYPE ResType, uint8_t bpe, bool isStdSwizzle)
+{
+    const SWIZZLE_DESCRIPTOR *pSwizzleDesc;
+    pSwizzleDesc = NULL;
+    /*#define SWITCH_SWIZZLE(Layout, res, bpe) \
+        pSwizzleDesc = &Layout##_##res##bpe;*/
+
+#define CASE_BPP(Layout, Tile, msaa, xD, bpe)       \
+    case bpe:                                       \
+        pSwizzleDesc = &Layout##_##Tile##msaa##bpe; \
+        break;
+
+#define SWITCH_SWIZZLE(Layout, Tile, msaa, bpe) \
+    switch (bpe)                                \
+    {                                           \
+        CASE_BPP(Layout, Tile, msaa, xD, 8);    \
+        CASE_BPP(Layout, Tile, msaa, xD, 16);   \
+        CASE_BPP(Layout, Tile, msaa, xD, 32);   \
+        CASE_BPP(Layout, Tile, msaa, xD, 64);   \
+        CASE_BPP(Layout, Tile, msaa, xD, 128);  \
+    }
+#define SWIZZLE_DESC(pGmmLibContext, ExternalSwizzleName, ResType, bpe, pSwizzleDesc) \
+    switch (ExternalSwizzleName)                                                      \
+    {                                                                                 \
+    case TILEX:                                                                       \
+        pSwizzleDesc = &INTEL_TILE_X;                                                 \
+        break;                                                                        \
+    case TILEY:                                                                       \
+        if (GmmGetSkuTable(pGmmLibContext)->FtrTileY)                                 \
+            pSwizzleDesc = &INTEL_TILE_Y;                                             \
+        else                                                                          \
+            pSwizzleDesc = &INTEL_TILE_4;                                             \
+        break;                                                                        \
+    case TILEYS:                                                                      \
+        if (GmmGetSkuTable(pGmmLibContext)->FtrTileY || isStdSwizzle)                 \
+        {                                                                             \
+            switch (ResType)                                                          \
+            {                                                                         \
+            case 0:                                                                   \
+                SWITCH_SWIZZLE(INTEL_TILE_YS, , , bpe);                               \
+                break;                                                                \
+            case 1:                                                                   \
+                SWITCH_SWIZZLE(INTEL_TILE_YS, 3D_, , bpe);                            \
+                break;                                                                \
+            case 2:                                                                   \
+                SWITCH_SWIZZLE(INTEL_TILE_YS, , MSAA2_, bpe);                         \
+                break;                                                                \
+            case 3:                                                                   \
+                SWITCH_SWIZZLE(INTEL_TILE_YS, , MSAA4_, bpe);                         \
+                break;                                                                \
+            case 4:                                                                   \
+                SWITCH_SWIZZLE(INTEL_TILE_YS, , MSAA8_, bpe);                         \
+                break;                                                                \
+            case 5:                                                                   \
+                SWITCH_SWIZZLE(INTEL_TILE_YS, , MSAA16_, bpe);                        \
+                break;                                                                \
+            }                                                                         \
+        }                                                                             \
+        else if (GmmGetSkuTable(pGmmLibContext)->FtrXe2PlusTiling)                    \
+        {                                                                             \
+            switch (ResType)                                                          \
+            {                                                                         \
+            case 0:                                                                   \
+                SWITCH_SWIZZLE(INTEL_TILE_64, , , bpe);                               \
+                break;                                                                \
+            case 1:                                                                   \
+                SWITCH_SWIZZLE(INTEL_TILE_64_V2, 3D_, , bpe);                         \
+                break;                                                                \
+            case 2:                                                                   \
+                SWITCH_SWIZZLE(INTEL_TILE_64_V2, , MSAA2_, bpe);                      \
+                break;                                                                \
+            case 3:                                                                   \
+                SWITCH_SWIZZLE(INTEL_TILE_64_V2, , MSAA4_, bpe);                      \
+                break;                                                                \
+            case 4:                                                                   \
+                SWITCH_SWIZZLE(INTEL_TILE_64_V2, , MSAA8_, bpe);                      \
+                break;                                                                \
+            case 5:                                                                   \
+                SWITCH_SWIZZLE(INTEL_TILE_64_V2, , MSAA16_, bpe);                     \
+                break;                                                                \
+            }                                                                         \
+        }                                                                             \
+        else                                                                          \
+        {                                                                             \
+            switch (ResType)                                                          \
+            {                                                                         \
+            case 0:                                                                   \
+                SWITCH_SWIZZLE(INTEL_TILE_64, , , bpe);                               \
+                break;                                                                \
+            case 1:                                                                   \
+                SWITCH_SWIZZLE(INTEL_TILE_64, 3D_, , bpe);                            \
+                break;                                                                \
+            case 2:                                                                   \
+                SWITCH_SWIZZLE(INTEL_TILE_64, , MSAA2_, bpe);                         \
+                break;                                                                \
+            case 3:                                                                   \
+            case 4:                                                                   \
+            case 5:                                                                   \
+                SWITCH_SWIZZLE(INTEL_TILE_64, , MSAA_, bpe);                          \
+                break;                                                                \
+            }                                                                         \
+        }                                                                             \
+    case TILEW:                                                                       \
+    case TILEYF:                                                                      \
+    default: break;                                                                   \
+    }                                                                                 \
+
+    SWIZZLE_DESC(pGmmLibContext, ExternalSwizzleName, ResType, bpe, pSwizzleDesc);
+    return pSwizzleDesc;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -355,7 +474,7 @@ GMM_E2ECOMP_FORMAT GMM_STDCALL GmmLib::GmmClientContext::GetLosslessCompressionT
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// Member function of ClientContext class to return InternalGpuVaMax value
-/// stored in pGmmGlobalContext
+/// stored in pGmmLibContext
 ///
 /// @return    GMM_SUCCESS
 /////////////////////////////////////////////////////////////////////////////////////
@@ -843,8 +962,11 @@ extern "C" GMM_CLIENT_CONTEXT *GMM_STDCALL GmmCreateClientContextForAdapter(GMM_
     GMM_CLIENT_CONTEXT *pGmmClientContext = nullptr;
     GMM_LIB_CONTEXT *   pLibContext       = pGmmMALibContext->GetAdapterLibContext(sBdf);
 
-    pGmmClientContext = new GMM_CLIENT_CONTEXT(ClientType, pLibContext);
+    if (pLibContext)
+    {
+        pGmmClientContext = new GMM_CLIENT_CONTEXT(ClientType, pLibContext);
 
+    }
     return pGmmClientContext;
 }
 /////////////////////////////////////////////////////////////////////////////////////

@@ -2692,7 +2692,7 @@ TEST_F(CTestResource, TestMSAA)
     uint32_t ExpectedMCSBpp;
 
     std::vector<std::tuple<int, int, int, bool, int, int>> List; //TEST_TILE_TYPE, TEST_BPP, TEST_RESOURCE_TYPE, Depth or RT, TestDimension index, TestArraySize index
-    auto Size = BuildInputIterator(List, 3, 2);                  // Size of arrays TestDimensions, TestArraySize
+    auto Size = BuildInputIterator(List, 3, 2, false);                  // Size of arrays TestDimensions, TestArraySize
 
     for(auto element : List)
     {
@@ -2762,7 +2762,7 @@ TEST_F(CTestResource, TestMSAA)
                 else // Interleaved MSS
                 {
                     uint32_t WidthMultiplier, HeightMultiplier;
-                    GetInterleaveMSSPattern((TEST_MSAA)k, WidthMultiplier, HeightMultiplier);
+                    GetInterleaveMSSPattern((TEST_MSAA)k, WidthMultiplier, HeightMultiplier, IsRT, Bpp);
                     gmmParams.BaseWidth64 = WidthMultiplier > 1 ? GMM_ULT_ALIGN(gmmParams.BaseWidth64, 2) : gmmParams.BaseWidth64;
                     gmmParams.BaseHeight  = HeightMultiplier > 1 ? GMM_ULT_ALIGN(gmmParams.BaseHeight, 2) : gmmParams.BaseHeight;
 

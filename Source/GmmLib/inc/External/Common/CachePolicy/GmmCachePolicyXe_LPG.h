@@ -52,6 +52,11 @@ namespace GmmLib
             uint32_t GMM_STDCALL CachePolicyGetPATIndex(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage, bool *pCompressionEnable, bool IsCpuCacheable);
             GMM_STATUS SetupPAT();
             void       SetUpMOCSTable();
-    };
+            void GMM_STDCALL                                SetL1CachePolicy(uint32_t Usage);
+            virtual uint32_t GMM_STDCALL                    GetSurfaceStateL1CachePolicy(GMM_RESOURCE_USAGE_TYPE Usage);
+            virtual MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL CachePolicyGetMemoryObject(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage);
+
+};
+
 }
 #endif // #ifdef __cplusplus

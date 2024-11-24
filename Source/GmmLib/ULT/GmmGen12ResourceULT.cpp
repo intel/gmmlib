@@ -2856,7 +2856,7 @@ TEST_F(CTestGen12Resource, TestColorMSAA)
     uint32_t HAlign, VAlign, TileDimX, TileDimY, MCSHAlign, MCSVAlign, TileSize;
     uint32_t ExpectedMCSBpp;
     std::vector<tuple<int, int, int, bool, int, int>> List; //TEST_TILE_TYPE, TEST_BPP, TEST_RESOURCE_TYPE, Depth or RT, TestDimension index, ArraySize
-    auto Size = BuildInputIterator(List, 4, 2);             // Size of arrays TestDimensions, TestArraySize
+    auto Size = BuildInputIterator(List, 4, 2, false);      // Size of arrays TestDimensions, TestArraySize
 
     for(auto element : List)
     {

@@ -128,7 +128,8 @@ extern "C" GMM_STATUS GMM_STDCALL GmmCreateLibContext(const PLATFORM Platform,
                                                       const void *   pSkuTable,
                                                       const void *   pWaTable,
                                                       const void *   pGtSysInfo,
-                                                      ADAPTER_BDF    sBdf)
+                                                      ADAPTER_BDF    sBdf,
+                                                      const GMM_CLIENT ClientType)
 #endif
 {
     __GMM_ASSERTPTR(pSkuTable, GMM_ERROR);
@@ -144,7 +145,7 @@ extern "C" GMM_STATUS GMM_STDCALL GmmCreateLibContext(const PLATFORM Platform,
 #if LHDM
     return pGmmMALibContext->AddContext(Platform, pSkuTable, pWaTable, pGtSysInfo, sBdf, DeviceRegistryPath);
 #else
-    return pGmmMALibContext->AddContext(Platform, pSkuTable, pWaTable, pGtSysInfo, sBdf);
+    return pGmmMALibContext->AddContext(Platform, pSkuTable, pWaTable, pGtSysInfo, sBdf, ClientType);
 #endif
 }
 
@@ -228,7 +229,8 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::AddContext(const PLATFORM
                                                                   const void    *_pSkuTable,
                                                                   const void    *_pWaTable,
                                                                   const void    *_pGtSysInfo,
-                                                                  ADAPTER_BDF    sBdf)
+                                                                  ADAPTER_BDF    sBdf,
+                                                                  const GMM_CLIENT ClientType)
 #endif
 {
     __GMM_ASSERTPTR(_pSkuTable, GMM_ERROR);
@@ -284,7 +286,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmMultiAdapterContext::AddContext(const PLATFORM
 
     pGmmLibContext->IncrementRefCount();
 
-    Status = (pGmmLibContext->InitContext(Platform, pSkuTable, pWaTable, pSysInfo, GMM_KMD_VISTA));
+    Status = (pGmmLibContext->InitContext(Platform, pSkuTable, pWaTable, pSysInfo, ClientType));
     if (Status != GMM_SUCCESS)
     {
         //clean everything and return error
@@ -1005,6 +1007,10 @@ GMM_CLIENT               ClientType)
     this->GtSysInfo = *pGtSysInfo;
     
     this->pPlatformInfo = CreatePlatformInfo(Platform, false);
+    if(this->pPlatformInfo == NULL)
+    {
+        return GMM_ERROR;
+    }
 
     OverrideSkuWa();
 
@@ -1062,6 +1068,12 @@ void GMM_STDCALL GmmLib::Context::OverrideSkuWa()
     {
         SkuTable.Ftr57bGPUAddressing = true;
     }
+
+    if (GFX_GET_CURRENT_PRODUCT(this->GetPlatformInfo().Platform) >= IGFX_BMG)
+    {
+        // FtrL3TransientDataFlush is always enabled for XE2 adding GMM Override if UMDs might have reset this.
+        SkuTable.FtrL3TransientDataFlush = true;
+    }
 }
 
 GMM_CACHE_POLICY *GMM_STDCALL GmmLib::Context::CreateCachePolicyCommon()
@@ -1069,13 +1081,18 @@ GMM_CACHE_POLICY *GMM_STDCALL GmmLib::Context::CreateCachePolicyCommon()
     GMM_CACHE_POLICY *        pGmmCachePolicy = NULL;
     GMM_CACHE_POLICY_ELEMENT *CachePolicy     = NULL;
     CachePolicy                               = GetCachePolicyUsage();
+    PRODUCT_FAMILY ProductFamily              = GFX_GET_CURRENT_PRODUCT(GetPlatformInfo().Platform);
 
     if(GetCachePolicyObj())
     {
         return GetCachePolicyObj();
     }
-
-    if((GFX_GET_CURRENT_PRODUCT(GetPlatformInfo().Platform) == IGFX_METEORLAKE))
+	
+    if(ProductFamily >= IGFX_BMG)
+    {
+        pGmmCachePolicy = new GmmLib::GmmXe2_LPGCachePolicy(CachePolicy, this);
+    }
+    else if((ProductFamily == IGFX_METEORLAKE) || (ProductFamily == IGFX_ARROWLAKE))
     {
         pGmmCachePolicy = new GmmLib::GmmXe_LPGCachePolicy(CachePolicy, this);
     }
@@ -1083,6 +1100,9 @@ GMM_CACHE_POLICY *GMM_STDCALL GmmLib::Context::CreateCachePolicyCommon()
     {
         switch(GFX_GET_CURRENT_RENDERCORE(this->GetPlatformInfo().Platform))
         {
+            case IGFX_XE2_HPG_CORE:
+                pGmmCachePolicy = new GmmLib::GmmXe2_LPGCachePolicy(CachePolicy, this);
+                break;
             case IGFX_GEN12LP_CORE:
             case IGFX_GEN12_CORE:
             case IGFX_XE_HP_CORE:
@@ -1158,8 +1178,11 @@ GMM_TEXTURE_CALC *GMM_STDCALL GmmLib::Context::CreateTextureCalc(PLATFORM Platfo
             case IGFX_XE_HP_CORE:
             case IGFX_XE_HPG_CORE:
             case IGFX_XE_HPC_CORE:
+                 return new GmmGen12TextureCalc(this);
+				 break;
+            case IGFX_XE2_HPG_CORE:
             default:
-                return new GmmGen12TextureCalc(this);
+                return new GmmXe_LPGTextureCalc(this);
                 break;
         }
     }
@@ -1169,6 +1192,8 @@ GMM_PLATFORM_INFO_CLASS *GMM_STDCALL GmmLib::Context::CreatePlatformInfo(PLATFOR
 {
     GMM_DPF_ENTER;
 
+    PRODUCT_FAMILY ProductFamily = GFX_GET_CURRENT_PRODUCT(Platform);
+
     if(Override == false)
     {
         if(pPlatformInfo != NULL)
@@ -1176,13 +1201,21 @@ GMM_PLATFORM_INFO_CLASS *GMM_STDCALL GmmLib::Context::CreatePlatformInfo(PLATFOR
             return pPlatformInfo;
         }
     }
-   switch(GFX_GET_CURRENT_RENDERCORE(Platform))
+
+    if (ProductFamily >= IGFX_LUNARLAKE)
     {
+        return new GmmLib::PlatformInfoGen12(Platform, (GMM_LIB_CONTEXT *)this);
+    }
+    else
+    {
+        switch (GFX_GET_CURRENT_RENDERCORE(Platform))
+        {
         case IGFX_GEN12LP_CORE:
         case IGFX_GEN12_CORE:
         case IGFX_XE_HP_CORE:
         case IGFX_XE_HPG_CORE:
         case IGFX_XE_HPC_CORE:
+        case IGFX_XE2_HPG_CORE:
             return new GmmLib::PlatformInfoGen12(Platform, (GMM_LIB_CONTEXT *)this);
             break;
         case IGFX_GEN11_CORE:
@@ -1197,7 +1230,8 @@ GMM_PLATFORM_INFO_CLASS *GMM_STDCALL GmmLib::Context::CreatePlatformInfo(PLATFOR
         default:
             return new GmmLib::PlatformInfoGen8(Platform, (GMM_LIB_CONTEXT *)this);
             break;
-    }
+        }
+    }    
 }
 
 //C - Wrappers

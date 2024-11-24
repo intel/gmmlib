@@ -91,6 +91,7 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo,GMM_LI
         }                                                       \
     }
 
+
     if (!((pTexInfo->Format > GMM_FORMAT_INVALID) &&
         (pTexInfo->Format < GMM_RESOURCE_FORMATS)))
     {
@@ -149,22 +150,89 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo,GMM_LI
                     {
                         switch(pTexInfo->MSAA.NumSamples)
                         {
-                            case 16: UnitAlignWidth /= 4; UnitAlignHeight /= 4; break;
-                            case 8:  UnitAlignWidth /= 4; UnitAlignHeight /= 2; break;
-                            case 4:  UnitAlignWidth /= 2; UnitAlignHeight /= 2; break;
-                            case 2:  UnitAlignWidth /= 2; break;
-                            default: __GMM_ASSERT(0);
+                        case 16:
+                            UnitAlignWidth /= 4;
+                            UnitAlignHeight /= 4;
+                            break;
+                        case 8:
+                            UnitAlignWidth /= 4;
+                            UnitAlignHeight /= 2;
+                            break;
+                        case 4:
+                            UnitAlignWidth /= 2;
+                            UnitAlignHeight /= 2;
+                            break;
+                        case 2:
+                            UnitAlignWidth /= 2;
+                            break;
+                        default:
+                            __GMM_ASSERT(0);
                         }
                     }
                     else
                     {
-                        switch (pTexInfo->MSAA.NumSamples)
+                        if (pGmmLibContext->GetSkuTable().FtrXe2PlusTiling)
                         {
+                            switch (pTexInfo->MSAA.NumSamples)
+                            {
+                            case 16:
+                                if (pTexInfo->BitsPerPixel == 64)
+                                {
+                                    UnitAlignWidth /= 8;
+                                    UnitAlignHeight /= 2;
+                                }
+                                else
+                                {
+                                    UnitAlignWidth /= 4;
+                                    UnitAlignHeight /= 4;
+                                }
+                                break;
+                            case 8:
+                                if ((pTexInfo->BitsPerPixel == 8) || (pTexInfo->BitsPerPixel == 32))
+                                {
+                                    UnitAlignWidth /= 2;
+                                    UnitAlignHeight /= 4;
+                                }
+                                else
+                                {
+                                    UnitAlignWidth /= 4;
+                                    UnitAlignHeight /= 2;
+                                }
+                                break;
+                            case 4:
+                                UnitAlignWidth /= 2;
+                                UnitAlignHeight /= 2;
+                                break;
+                            case 2:
+                                if (pTexInfo->BitsPerPixel == 128)
+                                {
+                                    UnitAlignHeight /= 2;
+                                }
+                                else
+                                {
+                                    UnitAlignWidth /= 2;
+                                }
+                                break;
+                            default:
+                                __GMM_ASSERT(0);
+                            }
+                        }
+                        else
+                        {
+                            switch (pTexInfo->MSAA.NumSamples)
+                            {
                             case 4:
                             case 8:
-                            case 16: UnitAlignWidth /= 2; UnitAlignHeight /= 2; break;
-                            case 2:  UnitAlignWidth /= 2; break;
-                            default: __GMM_ASSERT(0);
+                            case 16:
+                                UnitAlignWidth /= 2;
+                                UnitAlignHeight /= 2;
+                                break;
+                            case 2:
+                                UnitAlignWidth /= 2;
+                                break;
+                            default:
+                                __GMM_ASSERT(0);
+                            }
                         }
                     }
                 }
@@ -230,7 +298,15 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo,GMM_LI
             UnitAlignHeight = pPlatform->TexAlign.YUV422.Height;
 
             // For packed 8/16-bit formats alignment factor of 4 will give us < 16B so expand to 32B
-            SET_ALIGN_FACTOR(Width, 32);
+
+	    if (pTexInfo->Flags.Info.Linear)
+            {
+                SET_ALIGN_FACTOR(Width, 128);
+            }
+            else
+            {
+                SET_ALIGN_FACTOR(Width, 32);
+            }
         }
         else if(GmmIsCompressed(pGmmLibContext, pTexInfo->Format)) /////////////////////////////
         {

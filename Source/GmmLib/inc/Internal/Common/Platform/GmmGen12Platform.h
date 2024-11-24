@@ -47,6 +47,7 @@ typedef enum _FC_TileType
     FC_TILE_YS,
     FC_TILE_4,
     FC_TILE_64,
+    FC_TILE_64_3D,
     //max equals last supported plus one
     FC_TILE_MAX
 } FC_TILE_TYPE;
@@ -56,11 +57,12 @@ typedef enum _FC_TileType
                            (((x) >= TILE_YF_2D_8bpe && (x) <= TILE_YF_2D_128bpe) ? (FC_TILE_YF) : \
                            (((x) >= TILE_YS_2D_8bpe && (x) <= TILE_YS_2D_128bpe) ? (FC_TILE_YS) : \
                            (((x) >= TILE__64_2D_8bpe && (x) <= TILE__64_2D_128bpe) ? (FC_TILE_64) : \
-                           (FC_TILE_MAX))))))
-#define FCMaxBppModes      5
-#define FCMaxModes         FC_TILE_MAX * FCMaxBppModes
-#define FCBppMode(bpp)     __GmmLog2(bpp) - 3
-#define FCMode(TileMode, bpp)  (FCTilingType(TileMode) < FC_TILE_MAX) ? (FCTilingType(TileMode) * FCMaxBppModes + FCBppMode(bpp)) : FCMaxModes
+                           (((x) >= TILE__64_3D_8bpe && (x) <= TILE__64_3D_128bpe) ? (FC_TILE_64_3D) : \
+                           (FC_TILE_MAX)))))))
+#define FCMaxBppModes         5
+#define FCMaxModes            FC_TILE_MAX *FCMaxBppModes
+#define FCBppMode(bpp)        __GmmLog2(bpp) - 3
+#define FCMode(TileMode, bpp) (FCTilingType(TileMode) < FC_TILE_MAX) ? (FCTilingType(TileMode) * FCMaxBppModes + FCBppMode(bpp)) : FCMaxModes
 
 //===========================================================================
 // typedef:

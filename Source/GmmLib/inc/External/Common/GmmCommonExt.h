@@ -132,8 +132,9 @@ typedef uint32_t GMM_GLOBAL_GFX_ADDRESS, GMM_GLOBAL_GFX_SIZE_T;
 #define GMM_GFX_PLATFORM_VA_SIZE(pClientContext)        (((pClientContext)->GetLibContext()->GetSkuTable().Ftr57bGPUAddressing) ? 57 : 48)
 #define VASize(pCC)                                     GMM_GFX_PLATFORM_VA_SIZE(pCC)
 
-#define GMM_BIT_RANGE(endbit, startbit)     ((endbit)-(startbit)+1)
-#define GMM_BIT(bit)                        (1)
+#define GMM_BIT_RANGE(endbit, startbit) ((endbit) - (startbit) + 1)
+#define GMM_BIT(bit)                    (1)
+
 #define GMM_GET_PTE_BITS_FROM_PAT_IDX(idx)         ((((idx)&__BIT(4))   ? __BIT64(61)   : 0) |  \
                                                     (((idx)&__BIT(3))   ? __BIT64(62)   : 0) |  \
                                                     (((idx)&__BIT(2))   ? __BIT64(7)    : 0) |  \
@@ -414,7 +415,7 @@ C_ASSERT(GMM_FORMAT_INVALID == 0); // GMM_FORMAT_INVALID needs to stay zero--How
 #define GMM_FORMAT_VYUY     GMM_FORMAT_YCRCB_SWAPUVY
 #define GMM_FORMAT_YUY2     GMM_FORMAT_YCRCB_NORMAL
 #define GMM_FORMAT_YVYU     GMM_FORMAT_YCRCB_SWAPUV
-
+#define GMM_UNIFIED_CMF_INVALID 0xD
 
 //===========================================================================
 // typedef:
@@ -436,8 +437,9 @@ typedef enum GMM_SURFACESTATE_FORMAT_ENUM
 typedef enum GMM_E2ECOMP_FORMAT_ENUM
 {
     GMM_E2ECOMP_FORMAT_INVALID = 0,
-    GMM_E2ECOMP_FORMAT_RGB64,       //1h - Reserved
-    GMM_E2ECOMP_FORMAT_RGB32,       //2h - Reserved
+    GMM_E2ECOMP_FORMAT_ML8     = GMM_E2ECOMP_FORMAT_INVALID,
+    GMM_E2ECOMP_FORMAT_RGB64, //1h - Reserved
+    GMM_E2ECOMP_FORMAT_RGB32, //2h - Reserved
 
     GMM_E2ECOMP_MIN_FORMAT = GMM_E2ECOMP_FORMAT_RGB32,
 
@@ -450,7 +452,11 @@ typedef enum GMM_E2ECOMP_FORMAT_ENUM
 
     GMM_E2ECOMP_FORMAT_Y416,       //6h
     GMM_E2ECOMP_FORMAT_P010,       //7h
+    GMM_E2ECOMP_FORMAT_P010_L = GMM_E2ECOMP_FORMAT_P010,
+    GMM_E2ECOMP_FORMAT_P010_C = GMM_E2ECOMP_FORMAT_P010,
     GMM_E2ECOMP_FORMAT_P016,       //8h
+    GMM_E2ECOMP_FORMAT_P016_L = GMM_E2ECOMP_FORMAT_P016,
+    GMM_E2ECOMP_FORMAT_P016_C = GMM_E2ECOMP_FORMAT_P016,
     GMM_E2ECOMP_FORMAT_AYUV,       //9h
 
     GMM_E2ECOMP_FORMAT_ARGB8b,     //Ah
@@ -467,6 +473,8 @@ typedef enum GMM_E2ECOMP_FORMAT_ENUM
     
     GMM_E2ECOMP_FORMAT_RGB10b,     //Eh  --Which media format is it?
     GMM_E2ECOMP_FORMAT_NV12,       //Fh
+    GMM_E2ECOMP_FORMAT_NV12_L = GMM_E2ECOMP_FORMAT_NV12,
+    GMM_E2ECOMP_FORMAT_NV12_C = GMM_E2ECOMP_FORMAT_NV12,
 
     GMM_E2ECOMP_FORMAT_RGBAFLOAT16,            //0x10h
 
@@ -495,6 +503,7 @@ typedef enum GMM_E2ECOMP_FORMAT_ENUM
     GMM_E2ECOMP_FORMAT_RGBA = GMM_E2ECOMP_FORMAT_INVALID,
     GMM_E2ECOMP_FORMAT_R = GMM_E2ECOMP_FORMAT_INVALID,
     GMM_E2ECOMP_FORMAT_RG = GMM_E2ECOMP_FORMAT_INVALID,
+    GMM_E2ECOMP_FORMAT_D    = GMM_E2ECOMP_FORMAT_INVALID,
 
 } GMM_E2ECOMP_FORMAT;
 
@@ -671,3 +680,4 @@ typedef enum GMM_RESOURCE_TYPE_ENUM
 
     GMM_MAX_HW_RESOURCE_TYPE
 } GMM_RESOURCE_TYPE;
+

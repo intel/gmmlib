@@ -134,6 +134,10 @@ typedef struct GMM_RESOURCE_FLAG_REC
         uint32_t __PreWddm2SVM             : 1; // Internal GMM flag--Clients don't set.
         uint32_t Tile4                     : 1; // 4KB tile
         uint32_t Tile64                    : 1; // 64KB tile
+        uint32_t NotCompressed           : 1; // UMD to set this for a resource, this will be a request to GMM which need not be honoured always
+        uint32_t __MapCompressible       : 1; // Internal GMM flag which marks a resource as compressed during map, used for tracking
+        uint32_t __MapUnCompressible     : 1; // Internal GMM flag which marks a resource as not compressed during map, used for tracking
+		
     } Info;
 
     // Wa: Any Surface specific Work Around will go in here

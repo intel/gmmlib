@@ -176,6 +176,7 @@ namespace GmmLib
         GMM_VIRTUAL GMM_RESOURCE_INFO *GMM_STDCALL      CreateCustomResInfoObject_2(GMM_RESCREATE_CUSTOM_PARAMS_2 *pCreateParams);
 #endif
 	GMM_VIRTUAL uint32_t GMM_STDCALL CachePolicyGetPATIndex(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage, bool *pCompressionEnable, bool IsCpuCacheable);
+        GMM_VIRTUAL const SWIZZLE_DESCRIPTOR *GMM_STDCALL GetSwizzleDesc(EXTERNAL_SWIZZLE_NAME ExternalSwizzleName, EXTERNAL_RES_TYPE ResType, uint8_t bpe, bool isStdSwizzle = false);
     };
 }
 
@@ -211,7 +212,8 @@ extern "C" {
                                                const void *   pSkuTable,
                                                const void *   pWaTable,
                                                const void *   pGtSysInfo,
-                                               ADAPTER_BDF    sBdf);
+                                               ADAPTER_BDF    sBdf,
+                                               const GMM_CLIENT ClientType);
 #endif
 
     void GMM_STDCALL GmmLibContextFree(ADAPTER_BDF sBdf);

@@ -20,3 +20,13 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
 #pragma once
+
+// Helper Macros for CoherentPATIndex Value handling.
+#define CONCATENATE_COHERENT_PATINDEX(a, b) (((a & __BIT(0)) << 5) | b) // 'a' ->higher order bits 6th bit [5] MSB, 'b' -> Lower order 5 bits [4:0]
+
+#define GET_COHERENT_PATINDEX_VALUE(pGmmLibContext, usage) (CONCATENATE_COHERENT_PATINDEX(pGmmLibContext->GetCachePolicyElement(usage).CoherentPATIndexHigherBit, \
+                                                                                          pGmmLibContext->GetCachePolicyElement(usage).CoherentPATIndex))
+
+#define GET_COHERENT_PATINDEX_LOWER_BITS(value) (value & (~(~0 << 5)))
+
+#define GET_COHERENT_PATINDEX_HIGHER_BIT(value) ((value >> 5) & __BIT(0))

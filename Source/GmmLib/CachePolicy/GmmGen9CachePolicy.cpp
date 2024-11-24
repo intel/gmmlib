@@ -40,7 +40,7 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::InitCachePolicy()
     __GMM_ASSERTPTR(pCachePolicy, GMM_ERROR);
 
 #if defined(GMM_DYNAMIC_MOCS_TABLE)
-#define DEFINE_CACHE_ELEMENT(usage, llc, ellc, l3, age, i915) DEFINE_CP_ELEMENT(usage, llc, ellc, l3, 0, age, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+#define DEFINE_CACHE_ELEMENT(usage, llc, ellc, l3, age, i915) DEFINE_CP_ELEMENT(usage, llc, ellc, l3, 0, age, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 #else
 // i915 only supports three GEN9 MOCS entires:
 //     MOCS[0]...LLC=0, ELLC=0, L3=0, AGE=0
@@ -51,11 +51,11 @@ GMM_STATUS GmmLib::GmmGen9CachePolicy::InitCachePolicy()
     {                                                                                   \
         if((i915) == 0)                                                                 \
         {                                                                               \
-            DEFINE_CP_ELEMENT(usage, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);\
+            DEFINE_CP_ELEMENT(usage, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);\
         }                                                                               \
         else if((i915) == 2)                                                            \
         {                                                                               \
-            DEFINE_CP_ELEMENT(usage, 1, 1, 1, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);\
+            DEFINE_CP_ELEMENT(usage, 1, 1, 1, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);\
         }                                                                               \
         else                                                                            \
         {                                                                               \

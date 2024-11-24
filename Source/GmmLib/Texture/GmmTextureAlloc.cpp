@@ -104,7 +104,14 @@ void GmmLib::GmmTextureCalc::SetTileMode(GMM_TEXTURE_INFO *pTexInfo)
             }
             else
             {
-                GENERATE_TILE_MODE(_64, 1D, 2D, 2D_2X, 2D_4X, 2D_4X, 2D_4X, 3D);
+                if (pGmmLibContext->GetSkuTable().FtrXe2PlusTiling)
+                {
+                    GENERATE_TILE_MODE(_64, 1D, 2D, 2D_2X, 2D_4X, 2D_8X, 2D_16X, 3D);
+                }
+                else
+                {
+                    GENERATE_TILE_MODE(_64, 1D, 2D, 2D_2X, 2D_4X, 2D_4X, 2D_4X, 3D);
+                }
             }
 
             pTexInfo->Flags.Info.TiledYf = 0;
@@ -714,7 +721,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexPitchAndSize(GMM_TEXTURE_INFO * pTexIn
                 else
                 {
                     //XeHP, DG2
-                    if((pTexInfo->MSAA.NumSamples == 8 || pTexInfo->MSAA.NumSamples == 16))
+                    if (!pGmmLibContext->GetSkuTable().FtrXe2PlusTiling && (pTexInfo->MSAA.NumSamples == 8 || pTexInfo->MSAA.NumSamples == 16))
                     {
                         uint64_t SliceSize = pTexInfo->Pitch * Height;
                         SliceSize *= 4; // multiple by samples per tile
@@ -731,6 +738,13 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexPitchAndSize(GMM_TEXTURE_INFO * pTexIn
             {
                 //Pad align surface to 64KB ie Tile size
                 Size = GFX_ALIGN(Size, GMM_KBYTE(64));
+            }
+
+            if (pGmmLibContext->GetSkuTable().FtrXe2Compression && pTexInfo->Flags.Info.Linear)
+            {
+                Size = GFX_ALIGN(Size, GMM_BYTES(256)); // for all linear resources starting Xe2, align overall size to compression block size. For subresources, 256B alignment is not needed, needed only for overall resource
+                                                        // on older platforms, all linear resources get Halign = 128B which ensures overall size to be a multiple of compression block size of 128B,
+                                                        // so this is needed only for linear resources on Xe2 where HAlign continues to be at 128B, but compression block size has doubled to 256B
             }
 
             // Buffer Sampler Padding...

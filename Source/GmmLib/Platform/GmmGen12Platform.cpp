@@ -151,7 +151,15 @@ GmmLib::PlatformInfoGen12::PlatformInfoGen12(PLATFORM &Platform, Context *pGmmLi
     SET_TILE_MODE_INFO(TILE__64_2D_8bpe,          256,      256,        1,       128,       256,         1)
 
     // TILE__64 2D 2X
-    SET_TILE_MODE_INFO(TILE__64_2D_2X_128bpe,     512,       64,        1,        32,        32,         1)
+    if(pGmmLibContext->GetSkuTable().FtrXe2PlusTiling)
+    {
+        SET_TILE_MODE_INFO(TILE__64_2D_2X_128bpe,     1024,      32,        1,        32,        32,         1) 
+    }
+    else
+    {
+        SET_TILE_MODE_INFO(TILE__64_2D_2X_128bpe,     512,       64,        1,        32,        32,         1) 
+    }
+
     SET_TILE_MODE_INFO(TILE__64_2D_2X_64bpe,      512,       64,        1,        64,        32,         1)
     SET_TILE_MODE_INFO(TILE__64_2D_2X_32bpe,      256,      128,        1,        64,        64,         1)
     SET_TILE_MODE_INFO(TILE__64_2D_2X_16bpe,      256,      128,        1,       128,        64,         1)
@@ -163,6 +171,20 @@ GmmLib::PlatformInfoGen12::PlatformInfoGen12(PLATFORM &Platform, Context *pGmmLi
     SET_TILE_MODE_INFO(TILE__64_2D_4X_32bpe,      256,       64,        1,        32,        64,         1)
     SET_TILE_MODE_INFO(TILE__64_2D_4X_16bpe,      256,       64,        1,        64,        64,         1)
     SET_TILE_MODE_INFO(TILE__64_2D_4X_8bpe,       128,      128,        1,        64,       128,         1)
+
+    // TILE__64 2D 8X
+    SET_TILE_MODE_INFO(TILE__64_2D_8X_128bpe,     256,       32,        1,        8,         32,         1)
+    SET_TILE_MODE_INFO(TILE__64_2D_8X_64bpe,      256,       32,        1,        16,        32,         1)
+    SET_TILE_MODE_INFO(TILE__64_2D_8X_32bpe,      256,       32,        1,        16,        64,         1)
+    SET_TILE_MODE_INFO(TILE__64_2D_8X_16bpe,      128,       64,        1,        32,        64,         1)
+    SET_TILE_MODE_INFO(TILE__64_2D_8X_8bpe,       128,       64,        1,        32,       128,         1)
+
+    // TILE__64 2D 16X
+    SET_TILE_MODE_INFO(TILE__64_2D_16X_128bpe,     256,       16,        1,        8,         16,         1)
+    SET_TILE_MODE_INFO(TILE__64_2D_16X_64bpe,      128,       32,        1,        16,        16,         1)
+    SET_TILE_MODE_INFO(TILE__64_2D_16X_32bpe,      128,       32,        1,        16,        32,         1)
+    SET_TILE_MODE_INFO(TILE__64_2D_16X_16bpe,      128,       32,        1,        32,        32,         1)
+    SET_TILE_MODE_INFO(TILE__64_2D_16X_8bpe,        64,       64,        1,        32,        64,         1)
 
     // TILE__64 3D
     SET_TILE_MODE_INFO(TILE__64_3D_128bpe,        256,       16,       16,         8,        16,         16)
@@ -260,52 +282,89 @@ CCSRTALIGN(TILE_YS_2D_16X_128bpe,  16,     16,      4,          1,         4 );
 #undef CCSRTALIGN
 // clang-format on
 
-#define FCRECTALIGN(TileMode, bpp, HAlign, VAlign, HDownscale, VDownscale) \
-    {                                                                      \
-        FCTileMode[FCMode(TileMode, bpp)].Align.Width      = HAlign;       \
-        FCTileMode[FCMode(TileMode, bpp)].Align.Height     = VAlign;       \
-        FCTileMode[FCMode(TileMode, bpp)].Align.Depth      = 1;            \
-        FCTileMode[FCMode(TileMode, bpp)].Downscale.Width  = HDownscale;   \
-        FCTileMode[FCMode(TileMode, bpp)].Downscale.Height = VDownscale;   \
-        FCTileMode[FCMode(TileMode, bpp)].Downscale.Depth  = 1;            \
+#define FCRECTALIGN(TileMode, bpp, HAlign, VAlign, DAlign, HDownscale, VDownscale) \
+    {                                                                              \
+        FCTileMode[FCMode(TileMode, bpp)].Align.Width      = HAlign;               \
+        FCTileMode[FCMode(TileMode, bpp)].Align.Height     = VAlign;               \
+        FCTileMode[FCMode(TileMode, bpp)].Align.Depth      = DAlign;               \
+        FCTileMode[FCMode(TileMode, bpp)].Downscale.Width  = HDownscale;           \
+        FCTileMode[FCMode(TileMode, bpp)].Downscale.Height = VDownscale;           \
+        FCTileMode[FCMode(TileMode, bpp)].Downscale.Depth  = 1;                    \
     }
 
     // clang-format off
-FCRECTALIGN(LEGACY_TILE_Y    ,   8, 512,  32, 256, 16);
-FCRECTALIGN(LEGACY_TILE_Y    ,  16, 256,  32, 128, 16);
-FCRECTALIGN(LEGACY_TILE_Y    ,  32, 128,  32,  64, 16);
-FCRECTALIGN(LEGACY_TILE_Y    ,  64,  64,  32,  32, 16);
-FCRECTALIGN(LEGACY_TILE_Y    , 128,  32,  32,  16, 16);
+FCRECTALIGN(LEGACY_TILE_Y    ,   8, 512,  32, 1,  256, 16);
+FCRECTALIGN(LEGACY_TILE_Y    ,  16, 256,  32, 1, 128, 16);
+FCRECTALIGN(LEGACY_TILE_Y    ,  32, 128,  32, 1,  64, 16);
+FCRECTALIGN(LEGACY_TILE_Y    ,  64,  64,  32, 1, 32, 16);
+FCRECTALIGN(LEGACY_TILE_Y    , 128,  32,  32, 1, 16, 16);
 
-FCRECTALIGN(TILE_YF_2D_8bpe  ,   8, 256,  64, 128, 32);
-FCRECTALIGN(TILE_YF_2D_16bpe ,  16, 256,  32, 128, 16);
-FCRECTALIGN(TILE_YF_2D_32bpe ,  32, 128,  32,  64, 16);
-FCRECTALIGN(TILE_YF_2D_64bpe ,  64, 128,  16,  64,  8);
-FCRECTALIGN(TILE_YF_2D_128bpe, 128,  64,  16,  32,  8);
+FCRECTALIGN(TILE_YF_2D_8bpe  ,   8, 256,  64, 1, 128, 32);
+FCRECTALIGN(TILE_YF_2D_16bpe ,  16, 256,  32, 1, 128, 16);
+FCRECTALIGN(TILE_YF_2D_32bpe ,  32, 128,  32, 1,  64, 16);
+FCRECTALIGN(TILE_YF_2D_64bpe ,  64, 128,  16, 1,  64,  8);
+FCRECTALIGN(TILE_YF_2D_128bpe, 128,  64,  16, 1,  32,  8);
 
-FCRECTALIGN(TILE_YS_2D_8bpe  ,   8, 128, 128,  64, 64);
-FCRECTALIGN(TILE_YS_2D_16bpe ,  16, 128,  64,  64, 32);
-FCRECTALIGN(TILE_YS_2D_32bpe ,  32,  64,  64,  32, 32);
-FCRECTALIGN(TILE_YS_2D_64bpe ,  64,  64,  32,  32, 16);
-FCRECTALIGN(TILE_YS_2D_128bpe, 128,  32,  32,  16, 16);
+FCRECTALIGN(TILE_YS_2D_8bpe  ,   8, 128, 128,  1, 64, 64);
+FCRECTALIGN(TILE_YS_2D_16bpe ,  16, 128,  64,  1, 64, 32);
+FCRECTALIGN(TILE_YS_2D_32bpe ,  32,  64,  64,  1, 32, 32);
+FCRECTALIGN(TILE_YS_2D_64bpe ,  64,  64,  32,  1, 32, 16);
+FCRECTALIGN(TILE_YS_2D_128bpe, 128,  32,  32,  1, 16, 16);
 
-FCRECTALIGN(TILE4           ,   8, 1024, 16, 1024, 16);
-FCRECTALIGN(TILE4           ,  16,  512, 16,  512, 16);
-FCRECTALIGN(TILE4           ,  32,  256,  16, 256, 16);
-FCRECTALIGN(TILE4           ,  64,  128,  16, 128, 16);
-FCRECTALIGN(TILE4           , 128,   64,  16,  64, 16);
+if(pGmmLibContext->GetSkuTable().FtrXe2Compression)
+{   
 
-FCRECTALIGN(TILE__64_2D_8bpe  ,   8, 128, 128,  128, 128);
-FCRECTALIGN(TILE__64_2D_16bpe ,  16, 128,  64,  128, 64);
-FCRECTALIGN(TILE__64_2D_32bpe ,  32,  64,  64,   64, 64);
-FCRECTALIGN(TILE__64_2D_64bpe ,  64,  64,  32,   64, 32);
-FCRECTALIGN(TILE__64_2D_128bpe, 128,  32,  32,   32, 32);
+    FCRECTALIGN(TILE4           ,   8, 64, 4, 1, 64, 4);
+    FCRECTALIGN(TILE4           ,  16, 32, 4, 1, 32, 4);
+    FCRECTALIGN(TILE4           ,  32, 16, 4, 1, 16, 4);
+    FCRECTALIGN(TILE4           ,  64, 8,  4, 1, 8, 4);
+    FCRECTALIGN(TILE4           , 128, 4,  4, 1, 4, 4);
+
+    FCRECTALIGN(TILE__64_2D_8bpe  ,   8, 64, 4, 1, 64, 4);
+    FCRECTALIGN(TILE__64_2D_16bpe ,  16, 32, 4, 1, 32, 4);
+    FCRECTALIGN(TILE__64_2D_32bpe ,  32, 16, 4, 1, 16, 4);
+    FCRECTALIGN(TILE__64_2D_64bpe ,  64,  8, 4, 1, 8,  4);
+    FCRECTALIGN(TILE__64_2D_128bpe, 128,  4, 4, 1, 4,  4);
+
+    FCRECTALIGN(TILE__64_3D_8bpe  ,   8,  64,  32, 32,  4, 8);
+    FCRECTALIGN(TILE__64_3D_16bpe ,  16,  32,  32, 32,  8, 4);
+    FCRECTALIGN(TILE__64_3D_32bpe ,  32,  32,  32, 16,  4, 4);
+    FCRECTALIGN(TILE__64_3D_64bpe ,  64,  32,  16, 16,  4, 4);
+    FCRECTALIGN(TILE__64_3D_128bpe, 128,  16,  16, 16,  4, 4);
+}
+else
+{
+    FCRECTALIGN(TILE4           ,   8, 1024, 16,  1, 1024, 16);
+    FCRECTALIGN(TILE4           ,  16,  512, 16,  1, 512, 16);
+    FCRECTALIGN(TILE4           ,  32,  256,  16, 1,  256, 16);
+    FCRECTALIGN(TILE4           ,  64,  128,  16, 1, 128, 16);
+    FCRECTALIGN(TILE4           , 128,   64,  16, 1,  64, 16);
+
+    FCRECTALIGN(TILE__64_2D_8bpe  ,   8, 128, 128, 1,  128, 128);
+    FCRECTALIGN(TILE__64_2D_16bpe ,  16, 128,  64, 1,  128, 64);
+    FCRECTALIGN(TILE__64_2D_32bpe ,  32,  64,  64, 1,   64, 64);
+    FCRECTALIGN(TILE__64_2D_64bpe ,  64,  64,  32, 1,  64, 32);
+    FCRECTALIGN(TILE__64_2D_128bpe, 128,  32,  32, 1,  32, 32);
+
+    FCRECTALIGN(TILE__64_3D_8bpe  ,   8,  1,  1, 1,  1, 1);
+    FCRECTALIGN(TILE__64_3D_16bpe ,  16,  1,  1, 1,  1, 1);
+    FCRECTALIGN(TILE__64_3D_32bpe ,  32,  1,  1, 1,  1, 1);
+    FCRECTALIGN(TILE__64_3D_64bpe ,  64,  1,  1, 1,  1, 1);
+    FCRECTALIGN(TILE__64_3D_128bpe, 128,  1,  1, 1,  1, 1);
+
+    
+}
 #undef FCRECTALIGN
 
     // clang-format on
     Data.NoOfBitsSupported                = 39;
     Data.HighestAcceptablePhysicalAddress = GFX_MASK_LARGE(0, 38);
-
+	
+    if (GFX_GET_CURRENT_PRODUCT(Data.Platform) >= IGFX_BMG)
+    {
+        Data.NoOfBitsSupported                = 52;
+        Data.HighestAcceptablePhysicalAddress = GFX_MASK_LARGE(0, 51);
+    }
     if(GFX_GET_CURRENT_PRODUCT(Data.Platform) == IGFX_PVC)
     {
         Data.NoOfBitsSupported                = 52;
@@ -372,21 +431,30 @@ uint8_t GmmLib::PlatformInfoGen12::ValidateMMC(GMM_TEXTURE_INFO &Surf)
 uint8_t GmmLib::PlatformInfoGen12::ValidateCCS(GMM_TEXTURE_INFO &Surf)
 {
 
-    if(!(                                                                          //--- Legitimate CCS Case ----------------------------------------
-       ((Surf.Type >= RESOURCE_2D && Surf.Type <= RESOURCE_BUFFER) &&              ////Not supported: 1D; Supported: Buffer, 2D, 3D, cube, Arrays, mip-maps, MSAA, Depth/Stencil
-        (!(Surf.Flags.Info.RenderCompressed || Surf.Flags.Info.MediaCompressed) || //Not compressed surface eg separate Aux Surf
-         (GMM_IS_4KB_TILE(Surf.Flags) || GMM_IS_64KB_TILE(Surf.Flags)) ||          //Only on Y/Ys
-         (Surf.Flags.Info.Linear && Surf.Type == RESOURCE_BUFFER &&                //Machine-Learning compression on untyped linear buffer
-          Surf.Flags.Info.RenderCompressed)))))
+    if (!(                                    //--- Legitimate CCS Case ----------------------------------------
+        ((Surf.Flags.Gpu.ProceduralTexture || //procedural texture, or compressed surface (no more separate Aux-CCS)
+          Surf.Flags.Info.RenderCompressed || Surf.Flags.Info.MediaCompressed) ||
+         pGmmLibContext->GetSkuTable().FtrXe2Compression && !Surf.Flags.Info.NotCompressed) &&
+        (((Surf.Type >= RESOURCE_2D && Surf.Type <= RESOURCE_CUBE) &&       //Not supported: 1D (until Flat CCS); Others Supported: Buffer, 2D, 3D, cube, Arrays, mip-maps, MSAA, Depth/Stencil
+          (GMM_IS_4KB_TILE(Surf.Flags) || GMM_IS_64KB_TILE(Surf.Flags))) || //Only on 2D + Y/Ys or Lienar buffer (until Flat CCS)
+         (Surf.Flags.Info.Linear && Surf.Type == RESOURCE_BUFFER) ||
+         ((pGmmLibContext->GetSkuTable().FtrFlatPhysCCS) && !Surf.Flags.Info.TiledX))))
     {
         GMM_ASSERTDPF(0, "Invalid CCS usage!");
+        return 0;
+    }
+
+    if (!pGmmLibContext->GetSkuTable().FtrFlatPhysCCS &&
+        Surf.Flags.Info.Linear && Surf.Type == RESOURCE_BUFFER && !Surf.Flags.Info.RenderCompressed)
+    {
+        GMM_ASSERTDPF(0, "Invalid CCS usage - MLC only supported as RC!");
         return 0;
     }
 
     //Compressed resource (main surf) must pre-define MC/RC type
     if(!(Surf.Flags.Gpu.__NonMsaaTileYCcs || Surf.Flags.Gpu.__NonMsaaLinearCCS) &&
        !Surf.Flags.Gpu.ProceduralTexture &&
-       !(Surf.Flags.Info.RenderCompressed || Surf.Flags.Info.MediaCompressed))
+        !(Surf.Flags.Info.RenderCompressed || Surf.Flags.Info.MediaCompressed || !Surf.Flags.Info.NotCompressed))
     {
         GMM_ASSERTDPF(0, "Invalid CCS usage - RC/MC type unspecified!");
         return 0;
@@ -456,7 +524,7 @@ uint8_t GmmLib::PlatformInfoGen12::CheckFmtDisplayDecompressible(GMM_TEXTURE_INF
 {
 
     //Check fmt is display decompressible
-    if(((Surf.Flags.Info.RenderCompressed || Surf.Flags.Info.MediaCompressed) &&
+    if (((Surf.Flags.Info.RenderCompressed || Surf.Flags.Info.MediaCompressed || !Surf.Flags.Info.NotCompressed) &&
         (IsSupportedRGB64_16_16_16_16 ||                             //RGB64 16:16 : 16 : 16 FP16
          IsSupportedRGB32_8_8_8_8 ||                                 //RGB32 8 : 8 : 8 : 8
          IsSupportedRGB32_2_10_10_10)) ||                            //RGB32 2 : 10 : 10 : 10) ||
@@ -489,7 +557,16 @@ uint8_t GmmLib::PlatformInfoGen12::OverrideCompressionFormat(GMM_RESOURCE_FORMAT
 {
 
     uint8_t CompressionFormat = Data.FormatTable[Format].CompressionFormat.CompressionFormat;
-    if(pGmmLibContext->GetSkuTable().FtrFlatPhysCCS || pGmmLibContext->GetSkuTable().FtrUnified3DMediaCompressionFormats)
+    if (pGmmLibContext->GetSkuTable().FtrXe2Compression)
+    {
+        if ((CompressionFormat < GMM_XE2_UNIFIED_COMP_MIN_FORMAT) ||
+            (CompressionFormat > GMM_XE2_UNIFIED_COMP_MAX_FORMAT))
+        {
+            CompressionFormat = GMM_XE2_UNIFIED_COMP_FORMAT_INVALID;
+        }
+        __GMM_ASSERT(CompressionFormat != GMM_XE2_UNIFIED_COMP_FORMAT_INVALID);
+    }
+    else if (pGmmLibContext->GetSkuTable().FtrFlatPhysCCS || pGmmLibContext->GetSkuTable().FtrUnified3DMediaCompressionFormats)
     {
         if(!IsMC &&
            !pGmmLibContext->GetSkuTable().FtrUnified3DMediaCompressionFormats &&

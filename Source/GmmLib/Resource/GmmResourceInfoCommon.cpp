@@ -54,9 +54,9 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::Is64KBPageSuitable()
 
     if(GetGmmLibContext()->GetSkuTable().FtrLocalMemory)
      {
-        Ignore64KBPadding |= (Surf.Flags.Info.NonLocalOnly || (Surf.Flags.Info.Shared && !Surf.Flags.Info.NotLockable));
+        Ignore64KBPadding |= (Surf.Flags.Info.Shared && !Surf.Flags.Info.NotLockable);
         Ignore64KBPadding |= ((GetGmmLibContext()->GetSkuTable().FtrLocalMemoryAllows4KB) && Surf.Flags.Info.NoOptimizationPadding);
-	Ignore64KBPadding |= ((GetGmmLibContext()->GetSkuTable().FtrLocalMemoryAllows4KB) && (((Size * (100 + (GMM_GFX_SIZE_T)GetGmmLibContext()->GetAllowedPaddingFor64KbPagesPercentage())) / 100) < GFX_ALIGN(Size, GMM_KBYTE(64)))); 
+        Ignore64KBPadding |= ((GetGmmLibContext()->GetSkuTable().FtrLocalMemoryAllows4KB || Surf.Flags.Info.NonLocalOnly) && (((Size * (100 + (GMM_GFX_SIZE_T)GetGmmLibContext()->GetAllowedPaddingFor64KbPagesPercentage())) / 100) < GFX_ALIGN(Size, GMM_KBYTE(64))));
     }
     else
     {
@@ -447,6 +447,13 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
     pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf, GetGmmLibContext());
     pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
 
+    if (!pTextureCalc)
+    {
+        Status = GMM_ERROR;
+        GMM_ASSERTDPF(0, "Texture Calculation pointer is NULL.");
+        goto ERROR_CASE;
+    }
+
 #if defined(__GMM_KMD__) || !defined(_WIN32)
     if(!CreateParams.Flags.Info.ExistingSysMem)
 #else
@@ -493,21 +500,47 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
                 if(GetGmmLibContext()->GetSkuTable().FtrFlatPhysCCS && AuxSurf.Type == RESOURCE_INVALID)
                 {
                     //ie only AuxType is CCS, doesn't exist with FlatCCS, enable it for CC
-                    AuxSurf.Type = Surf.Type;
+                    if (!GetGmmLibContext()->GetSkuTable().FtrXe2Compression || (GetGmmLibContext()->GetSkuTable().FtrXe2Compression && (Surf.MSAA.NumSamples > 1)))
+                    {
+                        AuxSurf.Type = Surf.Type;
+                    }
                 }
-                if(!Surf.Flags.Gpu.TiledResource)
+                if (!Surf.Flags.Gpu.TiledResource)
                 {
-                    AuxSurf.CCSize = PAGE_SIZE; // 128bit Float Value + 32bit RT Native Value + Padding.
-                    AuxSurf.Size += PAGE_SIZE;
+                    if (!GetGmmLibContext()->GetSkuTable().FtrXe2Compression)
+                    {
+                        AuxSurf.CCSize = PAGE_SIZE; // 128bit Float Value + 32bit RT Native Value + Padding.
+                        AuxSurf.Size += PAGE_SIZE;
+                    }
+                    else
+                    {
+
+                        if (Surf.MSAA.NumSamples > 1)
+                        {
+                            AuxSurf.UnpaddedSize += PAGE_SIZE;
+                            AuxSurf.Size += PAGE_SIZE;              // Clear Color stored only for MSAA surfaces
+                        }
+                    }
                 }
                 else
                 {
-                    AuxSurf.CCSize = GMM_KBYTE(64); // 128bit Float Value + 32bit RT Native Value + Padding.
-                    AuxSurf.Size += GMM_KBYTE(64);
+                    if (!GetGmmLibContext()->GetSkuTable().FtrXe2Compression)
+                    {
+                        AuxSurf.CCSize = GMM_KBYTE(64); // 128bit Float Value + 32bit RT Native Value + Padding.
+                        AuxSurf.Size += GMM_KBYTE(64);
+                    }
+                    else
+                    {
+                        if (Surf.MSAA.NumSamples > 1)
+                        {
+                            AuxSurf.UnpaddedSize += GMM_KBYTE(64);
+                            AuxSurf.Size += GMM_KBYTE(64);              // Clear Color stored only for MSAA surfaces, stored as part of MCS
+                        }
+                    }
                 }
             }
-	    
-	    if(Surf.Flags.Gpu.ProceduralTexture)
+				    
+  	    if(Surf.Flags.Gpu.ProceduralTexture)
             {
                 //Do not require main surface access either in GPUVA/physical space.
                 Surf.Size = 0;
@@ -520,7 +553,7 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
             // ensure the entire surface can be described with a constant pitch (for GGTT aliasing, clean FENCE'ing and
             // AcquireSwizzlingRange, even though the aux isn't intentionally part of such fencing).
             if(Surf.Flags.Gpu.FlipChain &&
-               !__GMM_IS_ALIGN(TotalSize, Alignment))
+               (!__GMM_IS_ALIGN(TotalSize, Alignment)))
             {
                 AuxSurf.Size += (GFX_ALIGN_NP2(TotalSize, Alignment) - TotalSize);
             }
@@ -869,15 +902,36 @@ uint64_t GmmLib::GmmResourceInfoCommon::GetFastClearWidth(uint32_t MipLevel)
     }
     else if(numSamples == 2 || numSamples == 4)
     {
-        width = GFX_ALIGN(mipWidth, 8) / 8;
+        if (GetGmmLibContext()->GetSkuTable().FtrXe2Compression)
+        {
+            width = GFX_ALIGN(mipWidth, 64) / 64;
+        }
+        else
+        {
+            width = GFX_ALIGN(mipWidth, 8) / 8;
+        }
     }
     else if(numSamples == 8)
     {
-        width = GFX_ALIGN(mipWidth, 2) / 2;
+        if (GetGmmLibContext()->GetSkuTable().FtrXe2Compression)
+        {
+            width = GFX_ALIGN(mipWidth, 16) / 16;
+        }
+        else
+        {
+            width = GFX_ALIGN(mipWidth, 2) / 2;
+        }
     }
     else // numSamples == 16
     {
-        width = mipWidth;
+        if (GetGmmLibContext()->GetSkuTable().FtrXe2Compression)
+        {
+            width = GFX_ALIGN(mipWidth, 8) / 8;
+        }
+        else
+        {
+            width = mipWidth;
+        }
     }
 
     return width;
@@ -904,9 +958,46 @@ uint32_t GmmLib::GmmResourceInfoCommon::GetFastClearHeight(uint32_t MipLevel)
     }
     else
     {
-        height = GFX_ALIGN(mipHeight, 2) / 2;
+        if (GetGmmLibContext()->GetSkuTable().FtrXe2Compression)
+        {
+            height = GFX_ALIGN(mipHeight, 4) / 4;
+        }
+        else
+        {
+            height = GFX_ALIGN(mipHeight, 2) / 2;
+        }
     }
 
+    return height;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// Returns 2D Surface width to be used for fast clear for a given 3D surface
+/// @param[in]  uint32_t : MipLevel
+/// @return     height
+/////////////////////////////////////////////////////////////////////////////////////
+uint64_t GmmLib::GmmResourceInfoCommon::Get2DFastClearSurfaceWidthFor3DSurface(uint32_t MipLevel)
+{
+    uint64_t width    = 0;
+    uint64_t mipWidth = GetMipWidth(MipLevel);
+
+    GMM_TEXTURE_CALC *pTextureCalc;
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
+    width        = pTextureCalc->Get2DFCSurfaceWidthFor3DSurface(&Surf, mipWidth);
+    return width;
+}
+
+
+uint64_t GmmLib::GmmResourceInfoCommon::Get2DFastClearSurfaceHeightFor3DSurface(uint32_t MipLevel)
+{
+    uint64_t          height    = 0;
+    uint32_t          mipHeight = GetMipHeight(MipLevel);
+    uint32_t          mipDepth  = GetMipDepth(MipLevel);
+    GMM_TEXTURE_CALC *pTextureCalc;
+
+    pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
+    height       = pTextureCalc->Get2DFCSurfaceHeightFor3DSurface(&Surf, mipHeight, mipDepth);
     return height;
 }
 
@@ -1655,21 +1746,53 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::CpuBlt(GMM_RES_COPY_BLT *pBlt
                     switch(pTexInfo->MSAA.NumSamples)           \
                     {                                           \
                         case 0:                                 \
-                            SWITCH_BPP(Layout, Tile,  , xD);    \
+                            SWITCH_BPP(Layout, TILE_64, , xD);    \
                             break;                              \
                         case 1:                                 \
-                            SWITCH_BPP(Layout, Tile,  , xD);    \
+                            SWITCH_BPP(Layout, TILE_64, , xD);    \
                             break;                              \
                         case 2:                                 \
-                            SWITCH_BPP(Layout, Tile, MSAA2_, xD);  \
+                            if(GetGmmLibContext()->GetSkuTable().FtrXe2PlusTiling)\
+                            { \
+                                SWITCH_BPP(Layout, TILE_64_V2, MSAA2_, xD); \
+                            }\
+                            else\
+                            { \
+                                SWITCH_BPP(Layout, TILE_64, MSAA2_, xD); \
+                            } \
                             break;                              \
                         case 4:                                 \
+                            if(GetGmmLibContext()->GetSkuTable().FtrXe2PlusTiling)\
+                            { \
+                                SWITCH_BPP(Layout, TILE_64_V2, MSAA4_, xD); \
+                            }\
+                            else\
+                            { \
+                                SWITCH_BPP(Layout, TILE_64, MSAA_, xD); \
+                            } \
+                            break; \
                         case 8:                                 \
+                            if(GetGmmLibContext()->GetSkuTable().FtrXe2PlusTiling)\
+                            { \
+                                SWITCH_BPP(Layout, TILE_64_V2, MSAA8_, xD); \
+                            }\
+                            else\
+                            { \
+                                SWITCH_BPP(Layout, TILE_64, MSAA_, xD); \
+                            } \
+                            break; \
                         case 16:                                \
-                            SWITCH_BPP(Layout, Tile, MSAA_, xD);  \
-                            break;                              \
-                    }\
-                }
+                            if(GetGmmLibContext()->GetSkuTable().FtrXe2PlusTiling)\
+                            { \
+                                SWITCH_BPP(Layout, TILE_64_V2, MSAA16_, xD); \
+                            }\
+                            else\
+                            { \
+                                SWITCH_BPP(Layout, TILE_64, MSAA_, xD); \
+                            } \
+                            break; \
+                    }                                           \
+                } \
 
                 #define SWITCH_MSAA(Layout, Tile, xD)           \
                 {\
@@ -1711,7 +1834,14 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::CpuBlt(GMM_RES_COPY_BLT *pBlt
                         }
                         else
                         {
-                            SWITCH_BPP(INTEL, TILE_64, , 3D_);
+                            if (GetGmmLibContext()->GetSkuTable().FtrXe2PlusTiling)
+                            {
+                                SWITCH_BPP(INTEL, TILE_64_V2, , 3D_);
+                            }
+                            else
+                            {
+                                SWITCH_BPP(INTEL, TILE_64, , 3D_);
+                            }
                         }
                     }
                 }
@@ -1807,9 +1937,11 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetMappingSpanDesc(GMM_GET_MA
         {
             if(pMapping->Scratch.Plane == GMM_NO_PLANE)
             {
+                uint32_t ArrayIndex = pMapping->Scratch.Slice;
                 memset(pMapping, 0, sizeof(*pMapping));
                 pMapping->Type = GMM_MAPPING_YUVPLANAR;
 		pMapping->Scratch.Plane      = GMM_PLANE_Y;
+                pMapping->Scratch.Slice = ArrayIndex;
 
                 SpanPhysicalOffset = SpanVirtualOffset = 0;
                 if(GmmLib::Utility::GmmGetNumPlanes(Surf.Format) == GMM_PLANE_V)
@@ -1833,17 +1965,20 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetMappingSpanDesc(GMM_GET_MA
                 GMM_YUV_PLANE LastPlane = pMapping->Scratch.LastPlane;
                 SpanPhysicalOffset      = pMapping->__NextSpan.PhysicalOffset;
                 SpanVirtualOffset       = pMapping->__NextSpan.VirtualOffset;
+                uint32_t ArrayIndex     = pMapping->Scratch.Slice;
                 memset(pMapping, 0, sizeof(*pMapping));
 
                 pMapping->Type               = GMM_MAPPING_YUVPLANAR;
                 pMapping->Scratch.Plane      = GMM_YUV_PLANE(Plane);
                 pMapping->Scratch.LastPlane  = LastPlane;
+                pMapping->Scratch.Slice     = ArrayIndex;
             }
             {
                 if(pMapping->Scratch.Plane == GMM_PLANE_Y)
                 {
                     ReqInfo.ReqRender = ReqInfo.ReqLock = 1;
                     ReqInfo.Plane                       = GMM_YUV_PLANE(Plane);
+                    ReqInfo.ArrayIndex                  = pMapping->Scratch.Slice;
                     this->GetOffset(ReqInfo);
                     SpanPhysicalOffset = ReqInfo.Lock.Offset64;
                     SpanVirtualOffset  = ReqInfo.Render.Offset64;
@@ -1852,12 +1987,13 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::GetMappingSpanDesc(GMM_GET_MA
                 {
                     NextSpanReqInfo.ReqRender = NextSpanReqInfo.ReqLock = 1;
                     NextSpanReqInfo.Plane                               = GMM_YUV_PLANE(Plane + 1);
+                    NextSpanReqInfo.ArrayIndex                          = pMapping->Scratch.Slice;
                     this->GetOffset(NextSpanReqInfo);
                 }
                 else // last plane of that array
                 {
-                    NextSpanReqInfo.Lock.Offset64   = (GetSizeMainSurfacePhysical() / GFX_MAX(Surf.ArraySize, 1));
-                    NextSpanReqInfo.Render.Offset64 = (GetSizeMainSurface() / GFX_MAX(Surf.ArraySize, 1));
+                    NextSpanReqInfo.Lock.Offset64   = (GetSizeMainSurfacePhysical() / GFX_MAX(Surf.ArraySize, 1)) * (pMapping->Scratch.Slice + 1);
+                    NextSpanReqInfo.Render.Offset64 = (GetSizeMainSurface() / GFX_MAX(Surf.ArraySize, 1)) * (pMapping->Scratch.Slice + 1);
                     WasFinalSpan                    = 1;
                 }
             }

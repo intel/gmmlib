@@ -363,6 +363,19 @@ typedef struct GMM_RESCREATE_CUSTOM_PARAMS__REC
     uint32_t CpTag;
 }GMM_RESCREATE_CUSTOM_PARAMS;
 
+typedef union GMM_DRIVERPROTECTION_BITS
+{
+    struct
+    {
+        uint64_t PATIndex        : 5; // PATIndex
+        uint64_t Reserved        : 25;
+        uint64_t CacheableNoSnoop: 1;  // disregard OS's coherent request in UpdatePageTable
+        uint64_t CompressionEnReq: 1;  // C/NC request from UMD
+        uint64_t Reserved1       : 32; //DO NOT SET !! Reserved for OS Refer: D3DGPU_UNIQUE_DRIVER_PROTECTION
+    };
+    uint64_t Value;
+} GMM_DRIVERPROTECTION;
+
 #ifndef __GMM_KMD__
 typedef struct GMM_RESCREATE_CUSTOM_PARAMS_2_REC : public GMM_RESCREATE_CUSTOM_PARAMS
 {
@@ -382,6 +395,12 @@ typedef struct GMM_RESCREATE_CUSTOM_PARAMS_2_REC : public GMM_RESCREATE_CUSTOM_P
     uint64_t Reserved1;
 }GMM_RESCREATE_CUSTOM_PARAMS_2;
 #endif
+
+typedef struct GMM_OVERRIDE_VALUES_REC
+{
+    uint32_t Usage; // GMM_RESOURCE_USAGE_TYPE
+    uint8_t  CompressionDis;
+} GMM_OVERRIDE_VALUES;
 
 //===========================================================================
 // enum :
@@ -671,9 +690,10 @@ GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetPlanarGetXOffset(GMM_RESOURCE_INFO *pGm
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetPlanarGetYOffset(GMM_RESOURCE_INFO *pGmmResource, GMM_YUV_PLANE Plane);
 GMM_GFX_SIZE_T      GMM_STDCALL GmmResGetPlanarAuxOffset(GMM_RESOURCE_INFO *pGmmResource, uint32_t ArrayIndex, GMM_UNIFIED_AUX_TYPE Plane);
 void                GMM_STDCALL GmmResSetLibContext(GMM_RESOURCE_INFO *pGmmResource, void *pLibContext);
-
+uint32_t            GMM_STDCALL GmmResIsMappedCompressible(GMM_RESOURCE_INFO *pGmmResource);
 // Remove when client moves to new interface
 uint32_t            GMM_STDCALL GmmResGetRenderSize(GMM_RESOURCE_INFO *pResourceInfo);
+uint8_t GMM_STDCALL GmmGetCompressionFormat(GMM_RESOURCE_FORMAT Format, GMM_LIB_CONTEXT *pGmmLibContext);
 
 //=====================================================================================================
 //forward declarations

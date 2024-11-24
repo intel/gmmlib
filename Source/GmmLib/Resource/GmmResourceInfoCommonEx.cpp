@@ -286,17 +286,32 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
     // Memory optimization for 64KB tiled Surface.
     if (!GetGmmLibContext()->GetSkuTable().FtrTileY)
     {
-        if ((GetGmmLibContext()->GetWaTable().WaTile64Optimization || GetGmmLibContext()->GetSkuTable().FtrTile64Optimization) && Optimize64KBTile)
+        if ((GetGmmLibContext()->GetSkuTable().FtrTile64Optimization) && Optimize64KBTile)
         {
-            if (pTextureCalc->SurfaceRequires64KBTileOptimization(&Surf))
+            if ((GetGmmLibContext()->GetWaTable().Wa_14020040029) && (Surf.Flags.Gpu.Depth))
             {
-                GMM_SET_64KB_TILE(Surf.Flags, 0, GetGmmLibContext());
-                GMM_SET_4KB_TILE(Surf.Flags, 1, GetGmmLibContext());
+                // if SW uses Tile4 merely to reduce surface size for Depth buffers,
+                // then use Tile64 instead
+                GMM_SET_64KB_TILE(Surf.Flags, 1, GetGmmLibContext());
+                GMM_SET_4KB_TILE(Surf.Flags, 0, GetGmmLibContext());
 
                 //Also update CreateParams, if client reuses the modified struct, it'd see final tile-selection by Gmm.
                 //Gmm's auto-tile-selection & tile-mode for size-optimization doesn't work for explicit tile-selection
-                GMM_SET_64KB_TILE(CreateParams.Flags, 0, GetGmmLibContext());
-                GMM_SET_4KB_TILE(CreateParams.Flags, 1, GetGmmLibContext());
+                GMM_SET_64KB_TILE(CreateParams.Flags, 1, GetGmmLibContext());
+                GMM_SET_4KB_TILE(CreateParams.Flags, 0, GetGmmLibContext());
+            }
+            else
+            {
+                if (pTextureCalc->SurfaceRequires64KBTileOptimization(&Surf))
+                {
+                    GMM_SET_64KB_TILE(Surf.Flags, 0, GetGmmLibContext());
+                    GMM_SET_4KB_TILE(Surf.Flags, 1, GetGmmLibContext());
+
+                    //Also update CreateParams, if client reuses the modified struct, it'd see final tile-selection by Gmm.
+                    //Gmm's auto-tile-selection & tile-mode for size-optimization doesn't work for explicit tile-selection
+                    GMM_SET_64KB_TILE(CreateParams.Flags, 0, GetGmmLibContext());
+                    GMM_SET_4KB_TILE(CreateParams.Flags, 1, GetGmmLibContext());
+                }
             }
         }
     }
@@ -317,6 +332,7 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
             AuxSurf.Flags.Gpu.CCS                = 0;
             AuxSurf.Type                         = (AuxSurf.Flags.Gpu.HiZ) ? AuxSurf.Type : RESOURCE_INVALID;
             AuxSurf.Flags.Info.RenderCompressed = AuxSurf.Flags.Info.MediaCompressed = 0;
+            AuxSurf.Flags.Info.NotCompressed                                         = 1;
         }
         else if(Surf.Flags.Gpu.Depth && Surf.Flags.Gpu.HiZ && !Surf.Flags.Gpu.CCS) // Depth + HiZ only, CCS is disabled
         {
@@ -343,6 +359,7 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
             AuxSecSurf.Flags.Gpu.MCS            = 0;
             AuxSurf.Flags.Gpu.CCS               = 0;
             AuxSurf.Flags.Info.RenderCompressed = AuxSurf.Flags.Info.MediaCompressed = 0;
+            AuxSurf.Flags.Info.NotCompressed                                         = 1;
         }
         else if(Surf.Flags.Gpu.CCS)
         {
@@ -375,6 +392,13 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
         MultiTileArch = CreateParams.MultiTileArch;
     }
 
+    // For Xe2 RenderCompressed and MediaCompressed to be unset
+    if (GetGmmLibContext()->GetSkuTable().FtrXe2Compression)
+    {
+        //Deny compression
+        Surf.Flags.Info.RenderCompressed = 0;
+        Surf.Flags.Info.MediaCompressed  = 0;
+    }
     return true;
 }
 
@@ -442,6 +466,12 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
 
     pPlatformResource = GMM_OVERRIDE_PLATFORM_INFO(&Surf, GetGmmLibContext());
     pTextureCalc      = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
+
+    if (!pTextureCalc)
+    {
+        GMM_ASSERTDPF(0, "Texture Calculation pointer is NULL.");
+        goto ERROR_CASE;
+    }
 
     __GMM_ASSERT(!(
     Surf.Flags.Gpu.Query &&
@@ -558,6 +588,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
             Surf.Flags.Info.NonLocalOnly = 0;
         }
         if(GetGmmLibContext()->GetSkuTable().FtrFlatPhysCCS &&
+            !GetGmmLibContext()->GetSkuTable().FtrXe2Compression &&
            (Surf.Flags.Info.RenderCompressed ||
             Surf.Flags.Info.MediaCompressed))
         {
@@ -603,6 +634,30 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
     else
     {
         Surf.Flags.Info.LocalOnly = false; //Zero out on iGPU
+        if (GetGmmLibContext()->GetSkuTable().FtrXe2Compression && Surf.Flags.Info.XAdapter)
+        {
+            Surf.Flags.Info.NotCompressed     = 1; // disable compression for XAdapter resources on iGPU,
+            Surf.Flags.Gpu.CCS                = 0;
+            Surf.Flags.Gpu.UnifiedAuxSurface  = 0;
+            Surf.Flags.Gpu.IndirectClearColor = 0;
+            Surf.Flags.Gpu.MCS                = 0;
+        }
+    }
+    if (GetGmmLibContext()->GetSkuTable().FtrXe2Compression)
+    {
+        if (Surf.Flags.Info.TiledX)
+        {
+            if (!(Surf.Flags.Gpu.FlipChain || Surf.Flags.Gpu.Overlay))
+            {
+                GMM_ASSERTDPF(0, "TiledX request for non displayable");
+            }
+            Surf.Flags.Info.NotCompressed = 1; // disable compression for TileX resources
+        }
+
+        if ((Surf.Flags.Gpu.FlipChain || Surf.Flags.Gpu.Overlay) && !Surf.Flags.Info.Tile4)
+        {
+            Surf.Flags.Info.NotCompressed = 1; //Disable compression if displayable are not tile4
+        }
     }
 
     if((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) < IGFX_GEN8_CORE) &&
@@ -837,10 +892,9 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
     // IndirectClearColor Restrictions
     if((Surf.Flags.Gpu.IndirectClearColor) &&
        !( //--- Legitimate IndirectClearColor Case ------------------------------------------
-       ((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) >= IGFX_GEN9_CORE) &&
-        Surf.Flags.Gpu.UnifiedAuxSurface) ||
-       ((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) > IGFX_GEN11_CORE) &&
-        (Surf.Flags.Gpu.HiZ || Surf.Flags.Gpu.SeparateStencil))))
+        (((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) >= IGFX_GEN9_CORE) && Surf.Flags.Gpu.UnifiedAuxSurface) ||
+         ((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) > IGFX_GEN11_CORE) && (Surf.Flags.Gpu.HiZ || Surf.Flags.Gpu.SeparateStencil)))))
+
     {
         GMM_ASSERTDPF(0, "Invalid IndirectClearColor usage!");
         goto ERROR_CASE;
@@ -920,6 +974,11 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
             break;
         }
         default:
+            if (!Surf.BaseWidth || !Surf.BaseHeight)
+            {
+                GMM_ASSERTDPF(0, "Width or Height is 0!");
+                goto ERROR_CASE;
+            }
             break;
     }
 

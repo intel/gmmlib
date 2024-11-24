@@ -1024,12 +1024,12 @@ GMM_STATUS GmmLib::GmmXe_LPGTextureCalc::GetTexLockOffset(GMM_TEXTURE_INFO *   p
                 pReqInfo->Lock.Mip0SlicePitch = GFX_ULONG_CAST(pTexInfo->OffsetInfo.Texture3DOffsetInfo.Mip0SlicePitch);
 
                 // Actual address is offset based on requested slice
-                AddressOffset += SliceRow * MipHeight * Pitch;
+                AddressOffset += (GMM_GFX_SIZE_T)SliceRow * MipHeight * Pitch;
 
                 // Get to particular slice
                 if(Slice % NumberOfMipsInSingleRow)
                 {
-                    AddressOffset += (((Slice % NumberOfMipsInSingleRow) *
+                    AddressOffset += (((GMM_GFX_SIZE_T)(Slice % NumberOfMipsInSingleRow) *
                                        MipWidth * pTexInfo->BitsPerPixel) >>
                                       3);
                 }
@@ -1339,4 +1339,3 @@ void GmmLib::GmmXe_LPGTextureCalc::GetBltInfoPerPlane(GMM_TEXTURE_INFO *pTexInfo
         pBlt->Sys.pData   = (char *)pBlt->Sys.pData + uint32_t(pBlt->Blt.Height * pBlt->Sys.RowPitch);
     }
 }
-
