@@ -386,7 +386,7 @@ void GmmLib::GmmXe_LPGCachePolicy::SetUpMOCSTable()
     }
     // Fixed MOCS Table
     //             Index      LookUp  Go      L3CC       L4CC   ignorePAT
-    GMM_DEFINE_MOCS( 0      , 1     , 0     , L3_WB    , L4_WB , 1)
+    GMM_DEFINE_MOCS( 0      , 1     , 0     , L3_WB    , L4_WB , 0)
     GMM_DEFINE_MOCS( 1      , 1     , 0     , L3_WB    , L4_WB , 1)
     GMM_DEFINE_MOCS( 2      , 1     , 0     , L3_UC    , L4_WB , 1)
     GMM_DEFINE_MOCS( 3      , 1     , 0     , L3_UC    , L4_UC , 1)
