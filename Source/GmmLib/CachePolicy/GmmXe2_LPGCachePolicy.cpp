@@ -43,7 +43,8 @@ GMM_STATUS GmmLib::GmmXe2_LPGCachePolicy::InitCachePolicy()
 
     // Define index of cache element
     uint32_t Usage          = 0;
-    uint32_t ReservedPATIdx = 13; /* Rsvd PAT section 13-19 */
+    uint32_t ReservedPATIdx = 16; /* Rsvd PAT section 16-19 */
+    uint32_t ReservedPATIdxEnd = 20;
 
 #if (_WIN32 && (_DEBUG || _RELEASE_INTERNAL))
     void *pKmdGmmContext = NULL;
