@@ -316,6 +316,11 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTex2D(GMM_TEXTURE_INFO *
     Height = pTexInfo->BaseHeight;
     Width  = GFX_ULONG_CAST(pTexInfo->BaseWidth);
 
+    if((pTexInfo->Format == GMM_FORMAT_R8G8B8_UINT) && (pTexInfo->Flags.Info.Linear || pTexInfo->Flags.Info.TiledX))
+    {
+        Width += GFX_CEIL_DIV(Width, 63);
+    }
+
     pTexInfo->MSAA.NumSamples = GFX_MAX(pTexInfo->MSAA.NumSamples, 1);
 
     if(pTexInfo->Flags.Info.TiledYf || GMM_IS_64KB_TILE(pTexInfo->Flags))

@@ -153,8 +153,12 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen9TextureCalc::FillTex1D(GMM_TEXTURE_INFO * 
     /////////////////////////////
     // Calculate Surface QPitch
     /////////////////////////////
-
-    Width    = __GMM_EXPAND_WIDTH(this, GFX_ULONG_CAST(pTexInfo->BaseWidth), HAlign, pTexInfo);
+    Width = GFX_ULONG_CAST(pTexInfo->BaseWidth);
+    if((pTexInfo->Format == GMM_FORMAT_R8G8B8_UINT) && (pTexInfo->Flags.Info.Linear || pTexInfo->Flags.Info.TiledX))
+    {
+        Width += GFX_CEIL_DIV(Width, 63);
+    }
+    Width    = __GMM_EXPAND_WIDTH(this, Width, HAlign, pTexInfo);
     MipWidth = Width;
 
     if((pTexInfo->Flags.Info.TiledYf || GMM_IS_64KB_TILE(pTexInfo->Flags)) &&
