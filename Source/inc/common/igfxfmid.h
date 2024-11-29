@@ -1937,6 +1937,7 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_56A4                             0x56A4
 #define DEV_ID_56A5                             0x56A5
 #define DEV_ID_56A6                             0x56A6
+#define DEV_ID_56AF                             0x56AF
 #define DEV_ID_56B0                             0x56B0
 #define DEV_ID_56B1                             0x56B1
 #define DEV_ID_56B2                             0x56B2
@@ -2034,7 +2035,8 @@ typedef enum __NATIVEGTTYPE
                                       ( d == DEV_ID_4F81 )                              ||   \
                                       ( d == DEV_ID_4F82 )                              ||   \
                                       ( d == DEV_ID_4F83 )                              ||   \
-                                      ( d == DEV_ID_4F84 ))
+                                      ( d == DEV_ID_4F84 )                              ||   \
+                                      ( d == DEV_ID_56AF ))
 
 #define GFX_IS_DG2_G12_CONFIG(d)   ( ( d == DEV_ID_4F85 )                              ||   \
                                       ( d == DEV_ID_4F86 )                              ||   \
