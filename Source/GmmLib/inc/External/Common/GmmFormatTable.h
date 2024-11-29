@@ -443,7 +443,7 @@ GMM_FORMAT( P010                         ,  16,  1,  1, 1, R, x,   NA , FC(4,  x
 GMM_FORMAT( P012                         ,  16,  1,  1, 1, R, x,   NA , NC                        ,     ALWAYS      )
 GMM_FORMAT( P016                         ,  16,  1,  1, 1, R, x,   NA , FC(4,  x,    P016,   ,_L ),     ALWAYS      )
 GMM_FORMAT( P208                         ,   8,  1,  1, 1, R, x,   NA , NC                        ,     ALWAYS      )
-GMM_FORMAT( R10G10B10_XR_BIAS_A2_UNORM   ,  32,  1,  1, 1, x, x,   NA , FC(4,  x, RGB10A2,   ,   ),     ALWAYS      ) // DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM
+GMM_FORMAT( R10G10B10_XR_BIAS_A2_UNORM   ,  32,  1,  1, 1, R, x,   NA , FC(4,  x, RGB10A2,   ,   ),     ALWAYS      ) // DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM
 GMM_FORMAT( R24G8_TYPELESS               ,  32,  1,  1, 1, x, x,   NA , FC(4, 32,       R, 32,  U),     ALWAYS      ) // DXGI_FORMAT_R24G8_TYPELESS (To differentiate between GENERIC_32BIT.)
 GMM_FORMAT( R32G8X24_TYPELESS            ,  64,  1,  1, 1, x, x,   NA , FC(4, 32,       R, 32,  U),     ALWAYS      ) // DXGI_FORMAT_R32G8X24_TYPELESS (To differentiate between GENERIC_64BIT.)
 GMM_FORMAT( RENDER_8BIT                  ,   8,  1,  1, 1, R, x,   NA , NC                        ,     ALWAYS      )
