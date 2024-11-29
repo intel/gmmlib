@@ -397,9 +397,6 @@ uint32_t GMM_STDCALL GmmLib::GmmXe2_LPGCachePolicy::CachePolicyGetPATIndex(GMM_R
         __GMM_ASSERT(false);
     }
 
-#if (defined __linux__ || defined(WDDM_LINUX))
-    IsCpuCacheable = false;
-#endif
     // requested compressed and coherent
     if (CompressionEnable && IsCpuCacheable)
     {
