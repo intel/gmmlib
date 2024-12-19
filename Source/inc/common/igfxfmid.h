@@ -79,6 +79,7 @@ typedef enum {
     IGFX_ARROWLAKE = 1273,
     IGFX_BMG = 1274,
     IGFX_LUNARLAKE = 1275,
+    IGFX_PTL = 1300,
     
     IGFX_MAX_PRODUCT,
     IGFX_GENNEXT               = 0x7ffffffe,
@@ -141,6 +142,7 @@ typedef enum {
     IGFX_XE_HPC_CORE     = 0x0c08,  // XE_HPC Family
     IGFX_XE2_LPG_CORE    = 0x0c09,  // XE2_LPG Family
     IGFX_XE2_HPG_CORE    = IGFX_XE2_LPG_CORE,  //XE2_HPG Family
+    IGFX_XE3_CORE        = 0x1e00,  // XE3 Family
 
     //Please add new GENs BEFORE THIS !
     IGFX_MAX_CORE,
@@ -1999,6 +2001,16 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_E20C                             0xE20C
 #define DEV_ID_E20D                             0xE20D
 #define DEV_ID_E212                             0xE212
+
+// PTL
+#define DEV_ID_B080                             0xB080
+#define DEV_ID_B081                             0xB081
+#define DEV_ID_B082                             0xB082
+#define DEV_ID_B083                             0xB083
+#define DEV_ID_B08F                             0xB08F
+#define DEV_ID_B090                             0xB090
+#define DEV_ID_B0A0                             0xB0A0
+#define DEV_ID_B0B0                             0xB0B0
 
 #define MGM_HAS     0
 

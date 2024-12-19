@@ -164,6 +164,19 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
 
                 // Displayable surfaces cannot be Tiled4/64.
                 __GMM_ASSERT(!GetGmmLibContext()->GetSkuTable().FtrDisplayYTiling);
+		
+		if (GFX_GET_CURRENT_RENDERCORE(GetGmmLibContext()->GetPlatformInfo().Platform) >= IGFX_XE3_CORE)
+                {
+                    if (CreateParams.Flags.Gpu.FlipChain || CreateParams.Flags.Gpu.Overlay ||
+                        CreateParams.Flags.Gpu.Presentable)
+                    {
+                        if (CreateParams.Flags.Info.TiledX == 1)
+                        {
+                            CreateParams.Flags.Info.TiledX = 0;
+                            CreateParams.Flags.Info.Tile4  = 1;
+                        }
+                    }
+                }
 
                 //override displayable surfaces to TileX
                 if(GetGmmLibContext()->GetSkuTable().FtrDisplayXTiling)

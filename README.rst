@@ -92,6 +92,8 @@ Xe_LPG (MTL: Meteor Lake, ARL: Arrow Lake)
 
 Xe2_HPG (BMG: Battlemage, LNL: Lunar Lake)
 
+Xe3_LPG (Panther Lake)
+
 Release Tags
 ============
 

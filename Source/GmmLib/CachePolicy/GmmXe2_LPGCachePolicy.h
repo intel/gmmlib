@@ -80,11 +80,11 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_CURSOR                                  
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DISPLAY_STATIC_IMG_FOR_SMOOTH_ROTATION_BUFFER         ,  3,     0,     0,      0    ,  0			,  0     , 0,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DUMMY_PAGE                                            ,  0,     0,     0,      0    ,  0			,  0     , 1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_GDI_SURFACE                                           ,  1,     0,     0,      0    ,  0			,  0     , 1,    NoP);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_GENERIC_KMD_RESOURCE                                  ,  1,		0,     0,      0    ,  0    		,  _WA_2W, 1,    NoP);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_GENERIC_KMD_RESOURCE                                  ,  _L3_P,	0,     0,      0    ,  0    		        ,  _WA_2W, 1,    NoP);
 // GMM_RESOURCE_USAGE_GFX_RING is only used if WaEnableRingHostMapping is enabled .
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_GFX_RING                                              ,  0,     0,     0,      0    ,  0			,  0     , 1,	  NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_GTT_TRANSFER_REGION                                   ,  0,     0,     0,      0    ,  0			,  0     , 1,	  NoP);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HW_CONTEXT                                            ,  1,		0,     0,	   0    ,  0			,  _WA_2W, 1,     NoP);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_HW_CONTEXT                                            ,  _L3_P,	0,     0,      0    ,  0			,  _WA_2W, 1,     NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_STATE_MANAGER_KERNEL_STATE                            ,  0,     0,     0,      0    ,  0			,  0     , 1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_KMD_STAGING_SURFACE                                   ,  1,     0,     0,      0    ,  0			,  0     , 1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_MBM_BUFFER                                            ,  0,     0,     0,      0    ,  0			,  0     , 1,    NoP);

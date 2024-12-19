@@ -400,10 +400,10 @@ uint32_t GMM_STDCALL GmmLib::GmmXe2_LPGCachePolicy::CachePolicyGetPATIndex(GMM_R
     // requested compressed and coherent
     if (CompressionEnable && IsCpuCacheable)
     {
-        // return coherent uncompressed
-        ReturnPATIndex    = CoherentPATIndex;
-        CompressionEnable = false;
-        GMM_ASSERTDPF(false, "Coherent Compressed is not supported on Xe2. However, respecting the coherency and returning CoherentPATIndex");
+	// return coherent uncompressed
+	ReturnPATIndex    = CoherentPATIndex;
+	CompressionEnable = false;
+	GMM_ASSERTDPF(false, "Coherent Compressed is not supported on Xe2. However, respecting the coherency and returning CoherentPATIndex");
     }
     // requested compressed only
     else if (CompressionEnable)
