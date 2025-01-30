@@ -72,7 +72,7 @@ GMM_STATUS GmmLib::PageTable::AllocateL3Table(uint32_t L3TableSize, uint32_t L3A
         return Status;
     }
 
-    TTL3.GfxAddress         = GMM_GFX_ADDRESS_CANONIZE(Alloc.GfxVA);
+    TTL3.GfxAddress         = GMM_GFX_ADDRESS_CANONIZE(pClientContext, Alloc.GfxVA);
     TTL3.CPUAddress         = Alloc.CPUVA;
     TTL3.NeedRegisterUpdate = true;
     TTL3.L3Handle           = (HANDLE)(uintptr_t)Alloc.Handle;

@@ -297,11 +297,11 @@ namespace GmmLib
             {
 	        if (IsD3DDdiAllocation)
 	        {
-		    return (void *)GMM_GFX_ADDRESS_CANONIZE(ExistingSysMem.pGfxAlignedVirtAddress);
+		    return (void *)GMM_GFX_ADDRESS_CANONIZE(pClientContext, ExistingSysMem.pGfxAlignedVirtAddress);
 	        }
 	        else
 	        {
-		    return (void *)GMM_GFX_ADDRESS_CANONIZE(ExistingSysMem.pVirtAddress);
+		    return (void *)GMM_GFX_ADDRESS_CANONIZE(pClientContext, ExistingSysMem.pVirtAddress);
 		}
             }
 
@@ -983,7 +983,7 @@ namespace GmmLib
                 // Support for Sparse/Tiled resources will be unified in later
 	        if (SvmAddress)
 	        {
-                    return GMM_GFX_ADDRESS_CANONIZE(SvmAddress);
+                    return GMM_GFX_ADDRESS_CANONIZE(pClientContext, SvmAddress);
 		}
 	        else
 	        {
