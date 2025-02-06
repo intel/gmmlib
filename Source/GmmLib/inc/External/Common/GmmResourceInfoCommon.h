@@ -1160,8 +1160,13 @@ namespace GmmLib
                     else if ((GmmAuxType == GMM_AUX_CC) && (Surf.Flags.Gpu.IndirectClearColor || Surf.Flags.Gpu.ColorDiscard))
                     {
                         Offset = Surf.Size + AuxSurf.UnpaddedSize;
-	                if (GetGmmLibContext()->GetSkuTable().FtrXe2Compression)
-	                {
+			
+			if (GetGmmLibContext()->GetSkuTable().FtrXe2Compression
+#ifndef __GMM_KMD__
+                        && !(((GMM_AIL_STRUCT *)(GetGmmClientContext()->GmmGetAIL()))->AilDisableXe2CompressionRequest)
+#endif
+			)
+			{
 	                    if (Surf.MSAA.NumSamples > 1)
 	                    {
 	                        Offset = Surf.Size; // Beginning of MCS which is first 4K of AuxSurf, Clear colour is stored only for MSAA surfaces
@@ -1248,9 +1253,12 @@ namespace GmmLib
                     }
                     else
                     {
-                    
-                        if (GetGmmLibContext()->GetSkuTable().FtrXe2Compression)
-                        {
+			if (GetGmmLibContext()->GetSkuTable().FtrXe2Compression
+#ifndef __GMM_KMD__
+                            && !(((GMM_AIL_STRUCT *)(GetGmmClientContext()->GmmGetAIL()))->AilDisableXe2CompressionRequest)
+#endif
+			    )
+			    {
                             if (Surf.MSAA.NumSamples > 1)
                             {
                                 return (AuxSurf.UnpaddedSize); // CC is part of MCS

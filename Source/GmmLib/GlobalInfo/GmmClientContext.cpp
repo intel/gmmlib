@@ -39,13 +39,22 @@ extern GMM_MA_LIB_CONTEXT *pGmmMALibContext;
 /////////////////////////////////////////////////////////////////////////////////////
 GmmLib::GmmClientContext::GmmClientContext(GMM_CLIENT ClientType, Context *pLibContext)
     : ClientType(),
-      pUmdAdapter(),
+      pClientContextAilFlags(),
       pGmmUmdContext(),
       DeviceCB(),
       IsDeviceCbReceived(0)
 {
     this->ClientType     = ClientType;
     this->pGmmLibContext = pLibContext;
+    
+    if (NULL != (pClientContextAilFlags = (GMM_AIL_STRUCT *)malloc(sizeof(GMM_AIL_STRUCT))))
+    {
+        memset(pClientContextAilFlags, 0, sizeof(GMM_AIL_STRUCT));
+    }
+    else
+    {
+        pClientContextAilFlags = NULL;
+    }
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /// Destructor to free  GmmLib::GmmClientContext object memory
@@ -53,6 +62,11 @@ GmmLib::GmmClientContext::GmmClientContext(GMM_CLIENT ClientType, Context *pLibC
 GmmLib::GmmClientContext::~GmmClientContext()
 {
     pGmmLibContext = NULL;
+    if (pClientContextAilFlags)
+    {
+        free(pClientContextAilFlags);
+	pClientContextAilFlags = NULL;
+    }    
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -127,6 +141,35 @@ uint8_t GMM_STDCALL GmmLib::GmmClientContext::GetSurfaceStateL1CachePolicy(GMM_R
 {
     return pGmmLibContext->GetCachePolicyObj()->GetSurfaceStateL1CachePolicy(Usage);
 }
+
+////////////////////////////////////////////////////////////////////////////////////
+/// Member function to get the AIL flags associated with Client Context
+/// @param[in] None
+/// @return    GMM_AIL_STRUCT associated with the ClientContext
+
+const uint64_t* GMM_STDCALL GmmLib::GmmClientContext::GmmGetAIL()
+{
+    return (uint64_t*)(this->pClientContextAilFlags);
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+/// Member function to Set the AIL flags associated with Client Context
+///
+/// @param[in] GMM_AIL_STRUCT: Pointer to AIL struct
+/// @return    void
+void GMM_STDCALL GmmLib::GmmClientContext::GmmSetAIL(GMM_AIL_STRUCT* pAilFlags)
+{
+    //Cache the AilXe2CompressionRequest value
+    bool IsClientAilXe2Compression = this->pClientContextAilFlags->AilDisableXe2CompressionRequest;
+
+    memcpy(this->pClientContextAilFlags, pAilFlags, sizeof(GMM_AIL_STRUCT));
+
+    // Update the Current ClientContext flags with whatever was cached earlier before copy
+    this->pClientContextAilFlags->AilDisableXe2CompressionRequest = IsClientAilXe2Compression;
+
+    return;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// Member function of ClientContext class to return Swizzle Descriptor
@@ -952,19 +995,34 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmClientContext::GmmSetDeviceInfo(GMM_DEVICE_INF
 /// @see        Class GmmLib::GmmClientContext
 ///
 /// @param[in]  ClientType : describles the UMD clients such as OCL, DX, OGL, Vulkan etc
-/// @param[in]  sBDF: Adapter's BDF info
+/// @param[in]  sBDF: Adapter's BDF info@param[in]  sBDF: Adapter's BDF info
+/// @param[in]  _pSkuTable: SkuTable Pointer
 ///
 /// @return     Pointer to GmmClientContext, if Context is created
 /////////////////////////////////////////////////////////////////////////////////////
-extern "C" GMM_CLIENT_CONTEXT *GMM_STDCALL GmmCreateClientContextForAdapter(GMM_CLIENT  ClientType,
-                                                                            ADAPTER_BDF sBdf)
+extern "C" GMM_CLIENT_CONTEXT *GMM_STDCALL GmmCreateClientContextForAdapter(GMM_CLIENT ClientType,
+                                                                            ADAPTER_BDF sBdf,
+                                                                            const void *_pSkuTable)
 {
     GMM_CLIENT_CONTEXT *pGmmClientContext = nullptr;
     GMM_LIB_CONTEXT *   pLibContext       = pGmmMALibContext->GetAdapterLibContext(sBdf);
+    SKU_FEATURE_TABLE *pSkuTable;
 
     if (pLibContext)
     {
         pGmmClientContext = new GMM_CLIENT_CONTEXT(ClientType, pLibContext);
+	
+	if (pGmmClientContext)
+	{
+	    pSkuTable = (SKU_FEATURE_TABLE *)_pSkuTable;
+            if (GFX_GET_CURRENT_RENDERCORE(pLibContext->GetPlatformInfo().Platform) >= IGFX_XE2_HPG_CORE && pLibContext->GetSkuTable().FtrXe2Compression && !pSkuTable->FtrXe2Compression)
+            {
+
+                GMM_AIL_STRUCT *pClientAilFlags = (GMM_AIL_STRUCT *)pGmmClientContext->GmmGetAIL();
+
+                pClientAilFlags->AilDisableXe2CompressionRequest = true;
+            }
+        }
 
     }
     return pGmmClientContext;

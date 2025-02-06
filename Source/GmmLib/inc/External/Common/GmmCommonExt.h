@@ -681,3 +681,17 @@ typedef enum GMM_RESOURCE_TYPE_ENUM
     GMM_MAX_HW_RESOURCE_TYPE
 } GMM_RESOURCE_TYPE;
 
+typedef struct
+{
+    union
+    {
+        struct
+        {
+            uint64_t AilDisableXe2CompressionRequest: 1;
+	    uint64_t reserved: 63;
+
+        };
+
+        uint64_t Value;
+    };
+} GMM_AIL_STRUCT;

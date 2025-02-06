@@ -1005,7 +1005,16 @@ GMM_CLIENT               ClientType)
     this->SkuTable  = *pSkuTable;
     this->WaTable   = *pWaTable;
     this->GtSysInfo = *pGtSysInfo;
-    
+   
+    if (GFX_GET_CURRENT_RENDERCORE(Platform) >= IGFX_XE2_HPG_CORE && (pSkuTable->FtrXe2Compression == false))
+    {
+        this->SkuTable.FtrXe2Compression = true;
+        if (!(this->GetSkuTable().FtrFlatPhysCCS) || !(this->GetSkuTable().FtrE2ECompression))
+        {
+            SkuTable.FtrXe2Compression = false;
+        }
+    }
+
     this->pPlatformInfo = CreatePlatformInfo(Platform, false);
     if(this->pPlatformInfo == NULL)
     {

@@ -59,8 +59,8 @@ extern "C" GMM_LIB_API GMM_STATUS GMM_STDCALL InitializeGmm(GMM_INIT_IN_ARGS *pI
 
         if(Status == GMM_SUCCESS)
         {
-            pOutArgs->pGmmClientContext = GmmCreateClientContextForAdapter(pInArgs->ClientType,
-			                                                          stAdapterBDF);
+            pOutArgs->pGmmClientContext = GmmCreateClientContextForAdapter(pInArgs->ClientType, 
+			                                      stAdapterBDF, pInArgs->pSkuTable);		
         }
 
 #endif

@@ -673,6 +673,18 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
         }
     }
 
+#ifndef __GMM_KMD__
+    if (GetGmmLibContext()->GetSkuTable().FtrXe2Compression && (GetGmmClientContext() != NULL))
+    {
+        if (((GMM_AIL_STRUCT *)(GetGmmClientContext()->GmmGetAIL()))->AilDisableXe2CompressionRequest)
+        {
+            //Disable Compression at resource level only, However at adapter level FtrXe2Compression could be still enabled.
+            //AilDisableXe2CompressionRequest helps us to acheive this.
+            Surf.Flags.Info.NotCompressed = 1;
+        }
+    }
+#endif
+
     if((GFX_GET_CURRENT_RENDERCORE(pPlatformResource->Platform) < IGFX_GEN8_CORE) &&
        Surf.Flags.Info.TiledW)
     {
