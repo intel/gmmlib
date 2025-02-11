@@ -124,7 +124,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #else
 
-#ifndef __linux__
+#ifdef _WIN32
     #include "igdKrnlEtwMacros.h"
 #endif
 
