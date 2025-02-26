@@ -213,7 +213,14 @@ TEST_F(CTestAuxTable, DISABLED_TestUpdateAuxTableStress)
     pGmmULTClientContext->DestroyPageTblMgrObject(mgr);
 }
 
+#if defined(__aarch64__)
+// aarch64 systems have VAs where the 48th bit is set but don't have the same
+// canonize semantics as x86_64 where bits 63-49 need to be the same as bit 48.
+// This causes this test to fault, instead we disable it in aarch64.
+TEST_F(CTestAuxTable, DISABLED_TestAuxTableContent)
+#else
 TEST_F(CTestAuxTable, TestAuxTableContent)
+#endif
 {
     GmmPageTableMgr *mgr = pGmmULTClientContext->CreatePageTblMgrObject(&DeviceCBInt, TT_TYPE::AUXTT);
 
