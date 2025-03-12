@@ -848,7 +848,7 @@ void GmmLib::GmmTextureCalc::SetPlanarOffsetInfo(GMM_TEXTURE_INFO *pTexInfo, GMM
     {
         pTexInfo->OffsetInfo.Plane.IsTileAlignedPlanes = true;
     }
-    for(uint8_t i = 1; i <= CreateParams.NoOfPlanes; i++)
+    for(uint32_t i = 1; i <= CreateParams.NoOfPlanes; i++)
     {
         pTexInfo->OffsetInfo.Plane.X[i] = CreateParams.PlaneOffset.X[i];
         pTexInfo->OffsetInfo.Plane.Y[i] = CreateParams.PlaneOffset.Y[i];
@@ -866,7 +866,7 @@ void GmmLib::GmmTextureCalc::SetPlanarOffsetInfo_2(GMM_TEXTURE_INFO *pTexInfo, G
     {
         pTexInfo->OffsetInfo.Plane.IsTileAlignedPlanes = true;
     }
-    for(uint8_t i = 1; i <= CreateParams.NoOfPlanes; i++)
+    for(uint32_t i = 1; i <= CreateParams.NoOfPlanes; i++)
     {
         pTexInfo->OffsetInfo.Plane.X[i] = CreateParams.PlaneOffset.X[i];
         pTexInfo->OffsetInfo.Plane.Y[i] = CreateParams.PlaneOffset.Y[i];

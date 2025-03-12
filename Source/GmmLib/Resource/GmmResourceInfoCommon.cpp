@@ -2364,7 +2364,7 @@ bool GMM_STDCALL GmmLib::GmmResourceInfoCommon::IsMipRCCAligned(uint8_t &MisAlig
     const uint8_t RCCCachelineWidth  = 32;
     const uint8_t RCCCachelineHeight = 4;
 
-    for(uint8_t lod = 0; lod <= GetMaxLod(); lod++)
+    for(uint8_t lod = 0; lod <= ((uint8_t)GetMaxLod()); lod++)
     {
         if(!(GFX_IS_ALIGNED(GetMipWidth(lod), RCCCachelineWidth) &&
              GFX_IS_ALIGNED(GetMipHeight(lod), RCCCachelineHeight)))

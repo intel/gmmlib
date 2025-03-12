@@ -1204,7 +1204,7 @@ void GmmLib::GmmXe_LPGTextureCalc::SetPlanarOffsetInfo(GMM_TEXTURE_INFO *pTexInf
     {
         pTexInfo->OffsetInfo.PlaneXe_LPG.IsTileAlignedPlanes = true;
     }
-    for(uint8_t i = 1; i <= CreateParams.NoOfPlanes; i++)
+    for(uint32_t i = 1; i <= CreateParams.NoOfPlanes; i++)
     {
         pTexInfo->OffsetInfo.PlaneXe_LPG.X[i] = CreateParams.PlaneOffset.X[i];
         pTexInfo->OffsetInfo.PlaneXe_LPG.Y[i] = CreateParams.PlaneOffset.Y[i];
@@ -1222,7 +1222,7 @@ void GmmLib::GmmXe_LPGTextureCalc::SetPlanarOffsetInfo_2(GMM_TEXTURE_INFO *pTexI
     {
         pTexInfo->OffsetInfo.PlaneXe_LPG.IsTileAlignedPlanes = true;
     }
-    for(uint8_t i = 1; i <= CreateParams.NoOfPlanes; i++)
+    for(uint32_t i = 1; i <= CreateParams.NoOfPlanes; i++)
     {
         pTexInfo->OffsetInfo.PlaneXe_LPG.X[i] = CreateParams.PlaneOffset.X[i];
         pTexInfo->OffsetInfo.PlaneXe_LPG.Y[i] = CreateParams.PlaneOffset.Y[i];
