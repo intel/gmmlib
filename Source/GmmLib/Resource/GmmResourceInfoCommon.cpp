@@ -55,7 +55,7 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::Is64KBPageSuitable()
     if(GetGmmLibContext()->GetSkuTable().FtrLocalMemory)
      {
         Ignore64KBPadding |= (Surf.Flags.Info.Shared && !Surf.Flags.Info.NotLockable);
-        Ignore64KBPadding |= ((GetGmmLibContext()->GetSkuTable().FtrLocalMemoryAllows4KB) && Surf.Flags.Info.NoOptimizationPadding);
+	Ignore64KBPadding |= ((GetGmmLibContext()->GetSkuTable().FtrLocalMemoryAllows4KB) && (Surf.Flags.Info.NoOptimizationPadding && !GFX_IS_ALIGNED(Size, GMM_KBYTE(64))));	
         Ignore64KBPadding |= ((GetGmmLibContext()->GetSkuTable().FtrLocalMemoryAllows4KB || Surf.Flags.Info.NonLocalOnly) && (((Size * (100 + (GMM_GFX_SIZE_T)GetGmmLibContext()->GetAllowedPaddingFor64KbPagesPercentage())) / 100) < GFX_ALIGN(Size, GMM_KBYTE(64))));
     }
     else
