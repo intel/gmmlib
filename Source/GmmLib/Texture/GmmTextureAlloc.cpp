@@ -1329,7 +1329,6 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexBlockMem(GMM_TEXTURE_INFO * pTexInfo,
     __GMM_ASSERTPTR(pRestrictions, GMM_ERROR);
     __GMM_ASSERT(pTexInfo->BitsPerPixel == GMM_BITS(8) || (pTexInfo->Flags.Info.AllowVirtualPadding));
     __GMM_ASSERT(pTexInfo->BaseHeight == 1);
-    __GMM_ASSERT(pTexInfo->Flags.Info.Linear == 1);
     __GMM_ASSERT(pTexInfo->Flags.Info.TiledW == 0);
     __GMM_ASSERT(pTexInfo->Flags.Info.TiledX == 0);
     __GMM_ASSERT(pTexInfo->Flags.Info.TiledY == 0);

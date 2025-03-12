@@ -45,7 +45,16 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
         return false;
     }
     {
-        // Promote tiling options if caller does not provide any.
+        if ((GetGmmLibContext()->GetSkuTable().FtrXe2Compression) &&
+            (CreateParams.Type == RESOURCE_BUFFER) &&
+            (CreateParams.Flags.Info.Linear) &&
+            (CreateParams.Flags.Gpu.FlipChain))
+        {
+            CreateParams.Flags.Info.Linear = false;
+            CreateParams.Flags.Info.Tile4  = true;
+        }
+	
+	// Promote tiling options if caller does not provide any.
         // X/Y/W/L are tiling formats, and Yf/Ys are modifiers to the internal
         // ordering for Y and L macro-formats.
         if((CreateParams.Flags.Info.Linear +
@@ -59,7 +68,14 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
                CreateParams.Flags.Info.ExistingSysMem)
             {
                 CreateParams.Flags.Info.Linear = true;
-            }
+
+                if ((GetGmmLibContext()->GetSkuTable().FtrXe2Compression) &&
+                    CreateParams.Flags.Gpu.FlipChain && (CreateParams.Type == RESOURCE_BUFFER))
+                {
+                    CreateParams.Flags.Info.Linear = false;
+                    CreateParams.Flags.Info.Tile4  = true;
+                }
+	    }
 
             if(GetGmmLibContext()->GetSkuTable().FtrTileY)
             {
