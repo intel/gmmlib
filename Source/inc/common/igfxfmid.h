@@ -2000,6 +2000,7 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_E20B                             0xE20B
 #define DEV_ID_E20C                             0xE20C
 #define DEV_ID_E20D                             0xE20D
+#define DEV_ID_E210                             0xE210
 #define DEV_ID_E212                             0xE212
 #define DEV_ID_E216                             0xE216
 
