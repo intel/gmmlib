@@ -28,7 +28,7 @@ if(NOT DEFINED _os_release_info)
 set(_os_release_info TRUE)
 
 # Set cmake policies for at least this level:
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.5)
 
 if(POLICY CMP0054)
     cmake_policy(SET CMP0054 NEW)
