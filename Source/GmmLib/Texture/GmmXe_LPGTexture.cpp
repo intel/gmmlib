@@ -351,6 +351,12 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmXe_LPGTextureCalc::FillTexPlanar(GMM_TEXTURE_I
             pTexInfo->Flags.Gpu.CCS               = 0;
             pTexInfo->Flags.Gpu.UnifiedAuxSurface = 0;
             pTexInfo->Flags.Gpu.__NonMsaaTileYCcs = 0;
+            if (pGmmLibContext->GetSkuTable().FtrXe2Compression)
+            {
+                pTexInfo->Flags.Info.NotCompressed     = 1;
+                pTexInfo->Flags.Gpu.MCS                = 0;
+                pTexInfo->Flags.Gpu.IndirectClearColor = 0;
+            }
         }
     }
 
