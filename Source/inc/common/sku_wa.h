@@ -569,6 +569,12 @@ typedef struct _WA_TABLE
         "WA for supporting failure seen in BMG with Mufasa",
         WA_BUG_TYPE_FUNCTIONAL,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_UNKNOWN)	
+	
+	WA_DECLARE(
+        WaNoCpuCoherentCompression,
+        "Deny compression for coherent surfaces",
+        WA_BUG_TYPE_UNKNOWN,
+        WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_UNKNOWN)
 
 } WA_TABLE, *PWA_TABLE;
 

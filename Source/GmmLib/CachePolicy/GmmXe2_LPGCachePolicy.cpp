@@ -400,10 +400,20 @@ uint32_t GMM_STDCALL GmmLib::GmmXe2_LPGCachePolicy::CachePolicyGetPATIndex(GMM_R
     // requested compressed and coherent
     if (CompressionEnable && IsCpuCacheable)
     {
-	// return coherent uncompressed
-	ReturnPATIndex    = CoherentPATIndex;
-	CompressionEnable = false;
-	GMM_ASSERTDPF(false, "Coherent Compressed is not supported on Xe2. However, respecting the coherency and returning CoherentPATIndex");
+        if (ONE_WAY_COHERENT_COMPRESSION_MODE(pGmmLibContext->GetPlatformInfo().Platform.eProductFamily, pGmmLibContext->GetWaTable().WaNoCpuCoherentCompression))
+        {
+#define COHERENT_COMPRESSED_PATIDX 16
+            // return coherent compressed PAT which is 16
+            ReturnPATIndex    = COHERENT_COMPRESSED_PATIDX;
+            CompressionEnable = true;
+        }
+        else
+        {
+            // return coherent uncompressed
+            ReturnPATIndex    = CoherentPATIndex;
+            CompressionEnable = false;
+            GMM_ASSERTDPF(false, "For Coherent Compressed resources combination on Xe2, respecting the coherency and returning CoherentPATIndex");
+        }
     }
     // requested compressed only
     else if (CompressionEnable)
@@ -604,6 +614,11 @@ GMM_STATUS GmmLib::GmmXe2_LPGCachePolicy::SetupPAT()
     GMM_DEFINE_PAT_ELEMENT( 31      , 3      , L4_UC             , L3_WB           , 3          , 0             , 0)    //          | L3_WB | 2 way coherent 
 
     CurrentMaxPATIndex = 31;
+
+    if (ONE_WAY_COHERENT_COMPRESSION_MODE(pGmmLibContext->GetPlatformInfo().Platform.eProductFamily, pGmmLibContext->GetWaTable().WaNoCpuCoherentCompression))
+    {
+        GMM_DEFINE_PAT_ELEMENT( 16      , 2      , L4_UC              , L3_WB           , 0          , 1             , 0)    //          | L3_WB | 1 way coherent | Compression
+    }
 
 // clang-format on
 #undef GMM_DEFINE_PAT
