@@ -697,14 +697,8 @@ GmmLib::GmmPageTableMgr::~GmmPageTableMgr()
 
         if(AuxTTObj)
         {
-            if(AuxTTObj->NullL1Table)
-            {
-                delete AuxTTObj->NullL1Table;
-            }
-            if(AuxTTObj->NullL2Table)
-            {
-                delete AuxTTObj->NullL2Table;
-            }
+            delete AuxTTObj->NullL1Table;
+            delete AuxTTObj->NullL2Table;
             AuxTTObj->DestroyL3Table();
             delete AuxTTObj;
             AuxTTObj = NULL;
