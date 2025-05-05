@@ -41,7 +41,7 @@ namespace GmmLib
                 uint64_t                    *pPTEDwordValue);
 
             /* Virtual function prototypes */
-            virtual uint32_t BestMatchingPATIdx(GMM_CACHE_POLICY_ELEMENT CachePolicy);
+            virtual uint32_t BestMatchingPATIdx(const GMM_CACHE_POLICY_ELEMENT &CachePolicy);
 
         public:
             /* Constructors */
