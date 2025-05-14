@@ -94,6 +94,20 @@ Xe2_HPG (BMG: Battlemage, LNL: Lunar Lake)
 
 Xe3_LPG (Panther Lake)
 
+No code changes may be introduced knowingly, that would regress for any currently supported hardware.
+All contributions must ensure continued compatibility and functionality across all supported hardware platforms.
+Failure to maintain hardware compatibility may result in the rejection or reversion of the contribution.
+
+Any deliberate modifications or removal of hardware support will be transparently communicated.
+
+API options are solely considered as a stable interface.
+Any debug parameters, environmental variables and internal data structures are not considered as an interface and may be changed or removed at any time.
+
+To contribute, Create a pull request on https://github.com/intel/gmmlib with your changes. Ensure that your modifications build without errors.
+A maintainer will get in touch with you if there are any inquiries or concerns.
+
+If you have any feedback or questions, please open an issue through our repository interface: https://github.com/intel/gmmlib/issues
+
 Release Tags
 ============
 
