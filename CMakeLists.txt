@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.1 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.5)
 
 if (NOT DEFINED RUN_TEST_SUITE)
 option (RUN_TEST_SUITE "run test suite after install" ON)
