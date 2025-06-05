@@ -167,6 +167,8 @@ endif()
 
 if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^aarch")
     set(GMMLIB_MARCH "armv8-a+fp+simd")
+elseif (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^loongarch")
+    set(GMMLIB_MARCH "la464")
 elseif("${GMMLIB_MARCH}" STREQUAL "")
     set(GMMLIB_MARCH "corei7")
 endif()
@@ -443,6 +445,18 @@ include_directories(BEFORE ${PROJECT_SOURCE_DIR})
 
 if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "^aarch")
     include_directories(${GFX_DEVELOPMENT_DIR}/third_party/sse2neon)
+elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "^loongarch")
+    find_path(SIMDE_INCLUDE_DIR
+        NAMES simde/simde-common.h  # A key SIMDE header
+        PATHS /usr/include /usr/local/include  # Default paths
+        DOC "Path to SIMDE headers"
+    )
+    if(SIMDE_INCLUDE_DIR)
+        include_directories(${SIMDE_INCLUDE_DIR})
+        message(STATUS "Found SIMDE: ${SIMDE_INCLUDE_DIR}")
+    else()
+        message(FATAL_ERROR "SIMDE not found. Install it or set SIMDE_INCLUDE_DIR manually.")
+    endif()
 endif()
 
 set(headers
