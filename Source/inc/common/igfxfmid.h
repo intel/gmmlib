@@ -2014,6 +2014,10 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_B090                             0xB090
 #define DEV_ID_B0A0                             0xB0A0
 #define DEV_ID_B0B0                             0xB0B0
+	
+// WCL
+#define DEV_ID_FD80                             0xFD80
+#define DEV_ID_FD81                             0xFD81	
 
 #define MGM_HAS     0
 
