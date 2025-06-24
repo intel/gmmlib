@@ -226,7 +226,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_SELF_SNOOP_BUFFER                   
 
 // Cross Adapter
 //                   USAGE TYPE                                                               ,L3_CC, L3_CLOS,L1CC,   L2CC,   L4CC,     Coherency , IgPAT)
-DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE                             ,  0,     0,     1,      0    ,  0		,  0       , 1, NoP);
+DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE                             ,  1,     0,     1,      0    ,  0		,  0       , 1, NoP);
 /**********************************************************************************/
 
 // BCS
