@@ -827,6 +827,8 @@ GmmLib::Context::Context()
     AllowedPaddingFor64KbPagesPercentage = 10;
     InternalGpuVaMax                     = 0;
     AllowedPaddingFor64KBTileSurf        = 10;
+    UsageBasedPaddingFor64KBTileSurf         = 50;
+    MultiEngineAccessCompressedWAEnable      = 0;
 
 #if(!defined(__GMM_KMD__) && !defined(GMM_UNIFIED_LIB))
     pGmmGlobalClientContext = NULL;

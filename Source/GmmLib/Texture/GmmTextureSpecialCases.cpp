@@ -295,7 +295,7 @@ uint8_t GmmLib::GmmTextureCalc::SurfaceRequires64KBTileOptimization(GMM_TEXTURE_
     GMM_STATUS               Status    = GMM_SUCCESS;
     const GMM_PLATFORM_INFO *pPlatform = GMM_OVERRIDE_PLATFORM_INFO(pTexInfo, pGmmLibContext);
     uint32_t                 Size4KbTile, Size64KbTile;
-
+    uint8_t                  DemoteToTile4 = 0;
     // Discard the surface if not eligible for 4KB Tile.
     // All YUV formats restricted with default Tile64 across clients
     if((pTexInfo->MSAA.NumSamples > 1) ||
@@ -453,10 +453,169 @@ uint8_t GmmLib::GmmTextureCalc::SurfaceRequires64KBTileOptimization(GMM_TEXTURE_
     }
 
     // check if 64KB tiled resource size exceeds memory wastage threshold.
-    if(((Size4KbTile * (100 + (GMM_GFX_SIZE_T)pGmmLibContext->GetAllowedPaddingFor64KBTileSurf())) / 100) < Size64KbTile)
+    if (((Size4KbTile * (100 + (GMM_GFX_SIZE_T)pGmmLibContext->GetAllowedPaddingFor64KBTileSurf())) / 100) < Size64KbTile)
     {
-        return 1;
+        DemoteToTile4 = 1;
     }
 
-    return 0;
+    return DemoteToTile4;
+}
+
+uint32_t GmmLib::GmmTextureCalc::GetWastageTolerentFactorForTile64Surf(GMM_TEXTURE_INFO *pTexInfo)
+{
+    GMM_RESOURCE_USAGE_TYPE Usage = pTexInfo->CachePolicy.Usage;
+
+    // MultiEngine compression 64KB WA
+    if (pGmmLibContext->IsMultiEngineAccessCompressedWAEnabled() &&
+        (!pTexInfo->Flags.Wa.IgnoreMultiEngineCompression64KBWA) &&
+        (pTexInfo->Flags.Info.MediaCompressed || pTexInfo->Flags.Info.RenderCompressed) &&
+        (pTexInfo->Flags.Gpu.RenderTarget || pTexInfo->Flags.Gpu.Depth || pTexInfo->Flags.Gpu.SeparateStencil || Usage == GMM_RESOURCE_USAGE_UAV))
+    {
+        return (uint32_t)pGmmLibContext->GetUsageBasedPaddingFor64KBTileSurf();
+    }
+    else
+    {
+        return (uint32_t)pGmmLibContext->GetAllowedPaddingFor64KBTileSurf();
+    }
+}
+
+uint8_t GmmLib::GmmTextureCalc::DenyComprsnIfSlicePaddingWasteful(GMM_TEXTURE_INFO *pTexInfo)
+{
+    uint32_t tolerateFactor = GetWastageTolerentFactorForTile64Surf(pTexInfo);
+    GMM_TEXTURE_INFO Surf           = {};
+
+    if ((pTexInfo->Depth > 1) || (pTexInfo->ArraySize > 1))
+    {
+        GMM_GFX_SIZE_T sizeSlicePitchPadding64KB = 0, sizeTile4 = 0;
+        Surf                                = *pTexInfo;
+        Surf.Flags.Wa.SlicePitchPadding64KB = 1;
+        Surf.Flags.Info.Tile4               = 1;
+        Surf.Flags.Info.Tile64              = 0;
+        if (AllocateTexture(&Surf))
+        {
+            __GMM_ASSERT(0);
+            return GMM_ERROR;
+        }
+        sizeSlicePitchPadding64KB = Surf.Size;
+
+        Surf                   = *pTexInfo;
+        Surf.Flags.Info.Tile4  = 1;
+        Surf.Flags.Info.Tile64 = 0;
+        if (AllocateTexture(&Surf))
+        {
+            __GMM_ASSERT(0);
+            return GMM_ERROR;
+        }
+        sizeTile4 = Surf.Size;
+
+        if (sizeSlicePitchPadding64KB > (sizeTile4 * (100 + tolerateFactor) / 100))
+        {
+            //deny compression
+            DoDenyCompression(pTexInfo);
+        }
+        else
+        {
+            pTexInfo->Flags.Wa.SlicePitchPadding64KB = 1;
+        }
+    }
+
+    return GMM_SUCCESS;
+}
+
+uint8_t GmmLib::GmmTextureCalc::DenyComprsnIfDisPackedMipTailWasteful(GMM_TEXTURE_INFO *pTexInfo)
+{
+    if (pTexInfo->MaxLod > 1)
+    {
+        uint32_t tolerateFactor = GetWastageTolerentFactorForTile64Surf(pTexInfo);
+        GMM_TEXTURE_INFO Surf           = {};
+
+        if (pTexInfo->Flags.Info.Tile64)
+        {
+            GMM_GFX_SIZE_T sizeDisablePackedMiptail = 0, sizeTile4Kor64K = 0;
+            Surf                               = *pTexInfo;
+            Surf.Flags.Wa.DisablePackedMipTail = 1;
+            if (AllocateTexture(&Surf))
+            {
+                __GMM_ASSERT(0);
+                return GMM_ERROR;
+            }
+            sizeDisablePackedMiptail = Surf.Size;
+
+            Surf = *pTexInfo;
+            if (AllocateTexture(&Surf))
+            {
+                __GMM_ASSERT(0);
+                return GMM_ERROR;
+            }
+            sizeTile4Kor64K = Surf.Size;
+
+            if (sizeDisablePackedMiptail > (sizeTile4Kor64K * (100 + tolerateFactor) / 100))
+            {
+                DoDenyCompression(pTexInfo);
+            }
+            else
+            {
+                // disable packed mip tail, remain compression
+                pTexInfo->Flags.Wa.DisablePackedMipTail = 1;
+            }
+        }
+
+        if (pTexInfo->Flags.Info.Tile4)
+        {
+            //no compression on tile4 mip, deny compression
+            DoDenyCompression(pTexInfo);
+        }
+    }
+
+    return GMM_SUCCESS;
+}
+
+uint8_t GmmLib::GmmTextureCalc::DenyComprsnIf64KBGranularWasteful(GMM_TEXTURE_INFO *pTexInfo)
+{
+    GMM_TEXTURE_INFO Surf            = {};
+    GMM_GFX_SIZE_T   sizeTile4Kor64K = 0, size64KBGranular = 0;
+
+    // if Local does not allow 4KB, padd only
+    if (pGmmLibContext->GetSkuTable().FtrLocalMemory && !pGmmLibContext->GetSkuTable().FtrLocalMemoryAllows4KB && !pTexInfo->Flags.Info.NonLocalOnly)
+    {
+        pTexInfo->Flags.Wa.SizePadding64KB = 1;
+        return GMM_SUCCESS;
+    }
+
+    Surf = *pTexInfo;
+    if (AllocateTexture(&Surf))
+    {
+        __GMM_ASSERT(0);
+        return GMM_ERROR;
+    }
+    sizeTile4Kor64K  = Surf.Size;
+    size64KBGranular = GFX_ALIGN_NP2(sizeTile4Kor64K, GMM_KBYTE(64));
+    if (((sizeTile4Kor64K * (100 + (GMM_GFX_SIZE_T)GetWastageTolerentFactorForTile64Surf(pTexInfo))) / 100) < size64KBGranular)
+    {
+        DoDenyCompression(pTexInfo);
+    }
+    else
+    {
+        pTexInfo->Alignment.BaseAlignment  = GMM_KBYTE(64);
+        pTexInfo->Flags.Wa.SizePadding64KB = 1;
+    }
+    return GMM_SUCCESS;
+}
+
+void GmmLib::GmmTextureCalc::DoDenyCompression(GMM_TEXTURE_INFO *pTexInfo)
+{
+    //deny compression
+    pTexInfo->Flags.Info.MediaCompressed  = 0;
+    pTexInfo->Flags.Info.RenderCompressed = 0;
+
+    pTexInfo->Flags.Gpu.CCS = 0;
+    if (!(pTexInfo->Flags.Gpu.MCS || pTexInfo->Flags.Gpu.HiZ))
+    {
+        pTexInfo->Flags.Gpu.IndirectClearColor = 0;
+        pTexInfo->Flags.Gpu.UnifiedAuxSurface  = 0;
+    }
+
+    GMM_DPF(GFXDBG_CRITICAL, "Denied compression on request GpuFlags: 0x%llX InfoFlag: 0x%llX WaFlag: 0x%x wxhxdxFormatxArrayxMSAAxLod (0x%x x 0x%x x 0x%x x %d x %d x %d x %d) \n", pTexInfo->Flags.Gpu, pTexInfo->Flags.Info, pTexInfo->Flags.Wa,
+            pTexInfo->BaseWidth, pTexInfo->BaseHeight, pTexInfo->Depth, pTexInfo->Format, pTexInfo->ArraySize, pTexInfo->MSAA.NumSamples, pTexInfo->MaxLod);
+
 }

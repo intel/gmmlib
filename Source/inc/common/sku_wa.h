@@ -576,6 +576,12 @@ typedef struct _WA_TABLE
         WA_BUG_TYPE_UNKNOWN,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_UNKNOWN)
 
+        WA_DECLARE(
+        Wa_22015614752,
+        "[DG2] - Handle tile4 when Compressed surface not aligned to 64Kb",
+        WA_BUG_TYPE_CORRUPTION,
+        WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
+
 } WA_TABLE, *PWA_TABLE;
 
 //********************************** SKU/WA Macros *************************************

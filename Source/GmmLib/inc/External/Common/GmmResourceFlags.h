@@ -157,7 +157,9 @@ typedef struct GMM_RESOURCE_FLAG_REC
 	uint32_t MediaPipeUsage                    : 1; // TileHeight Aligned ArrayQPitch on Tile4/TileY
         uint32_t ForceStdAllocAlign                : 1; // Align standard allocation to 2MB, allowing 64K-PageTable. Set by KMD, not be used by UMDs
         uint32_t DeniableLocalOnlyForCompression   : 1; // Align standard allocation to 2MB, allowing 64K-PageTable. Set by KMD, not be used by UMDs
-
+        uint32_t SlicePitchPadding64KB                : 1; // WA for MultiEngine compression, to enable slice pitch padding
+        uint32_t SizePadding64KB                      : 1; // WA for MultiEngine compression, to enable size padding to 64KB
+        uint32_t IgnoreMultiEngineCompression64KBWA   : 1; // ignore multi engine compression 64KB WA
     } Wa;
 
 } GMM_RESOURCE_FLAG;

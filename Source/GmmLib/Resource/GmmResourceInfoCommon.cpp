@@ -559,12 +559,32 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::Create(Context &GmmLibCont
             {
                 AuxSurf.Size += (GFX_ALIGN_NP2(TotalSize, Alignment) - TotalSize);
             }
+        }	    
 
-            if((Surf.Size + AuxSurf.Size + AuxSecSurf.Size) > (GMM_GFX_SIZE_T)(pPlatform->SurfaceMaxSize))
+        // 64KB padding
+        GMM_GFX_SIZE_T TotalSize = Surf.Size + AuxSurf.Size + AuxSecSurf.Size;
+        if (Surf.Flags.Wa.SizePadding64KB && !__GMM_IS_ALIGN(TotalSize, GMM_KBYTE(64)))
+        {
+            GMM_GFX_SIZE_T Paddings = GFX_ALIGN_NP2(TotalSize, GMM_KBYTE(64)) - TotalSize;
+            if (!Surf.Flags.Gpu.UnifiedAuxSurface)
             {
-                GMM_ASSERTDPF(0, "Surface too large!");
-                goto ERROR_CASE;
+                Surf.Size += Paddings;
             }
+            else if (AuxSecSurf.Size)
+            {
+                AuxSecSurf.Size += Paddings;
+            }
+            else
+            {
+                AuxSurf.Size += Paddings;
+            }
+            Surf.Alignment.BaseAlignment = GMM_KBYTE(64);
+        }
+
+        if ((Surf.Size + AuxSurf.Size + AuxSecSurf.Size) > (GMM_GFX_SIZE_T)(pPlatform->SurfaceMaxSize))
+        {
+            GMM_ASSERTDPF(0, "Surface too large!");
+            goto ERROR_CASE;
         }
     }
 
