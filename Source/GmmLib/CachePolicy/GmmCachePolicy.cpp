@@ -160,7 +160,7 @@ MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmCachePolicyGetOriginalMemoryObject(vo
 ///
 /// @return         wanted memory type
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_GFX_MEMORY_TYPE GmmGetWantedMemoryType(void *pLibContext, GMM_CACHE_POLICY_ELEMENT CachePolicy)
+GMM_GFX_MEMORY_TYPE GmmGetWantedMemoryType(void *pLibContext, const GMM_CACHE_POLICY_ELEMENT &CachePolicy)
 {
     GMM_LIB_CONTEXT *pGmmLibContext = (GMM_LIB_CONTEXT *)pLibContext;
     return pGmmLibContext->GetCachePolicyObj()->GetWantedMemoryType(CachePolicy);
