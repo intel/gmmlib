@@ -2839,17 +2839,6 @@ TEST_F(CTestGen12Resource, Test2DTileYfAMFSResource)
 /// @brief ULT for MSAA Resource - TODO adddepth MSAA, MCS surf param verificaton, compression case
 TEST_F(CTestGen12Resource, TestColorMSAA)
 {
-    //Tile dimensions in Bytes
-    const uint32_t MCSTileSize[1][2] = {128, 32}; //MCS is TileY
-
-    const uint32_t TestDimensions[4][2] = {
-    //Input dimensions in #Tiles
-    {15, 20}, //16 Tiles x 20 <Max Width: Depth MSS crosses Pitch limit beyond this>
-    {0, 0},   //1x1x1
-    {1, 0},   //2 Tilesx1
-    {1, 1},   //2 Tiles x 2
-    };
-
     uint32_t TestArraySize[2] = {1, 5};
     uint32_t MinPitch         = 32;
 
