@@ -208,7 +208,7 @@ DEFINE_CACHE_ELEMENT(MHW_RESOURCE_USAGE_Sfc_IefLineBufferSurface,               
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_BUFFER                                            ,  1,     0,      0,      0    , 0		,  0       ,  1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_BUFFER_CONST                                      ,  1,     0,      5,      0    , 0		,  0       ,  1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_BUFFER_CSR_UC                                     ,  0,     0,      0,      0    , 0		,  0       ,  1,    NoP);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_BUFFER_CACHELINE_MISALIGNED                       ,  0,     0,      0,      0    , 0		,  0       ,  1,    NoP); 
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_BUFFER_CACHELINE_MISALIGNED                       , _L3_P,     0,      0,      0    , 0		,  _WA_2W      ,  1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_IMAGE                                             ,  1,     0,      0,      0    , 0		,  0       ,  1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_INLINE_CONST                                      ,  1,     0,      0,      0    , 0		,  0       ,  1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_INLINE_CONST_HDC                                  ,  1,     0,      5,      0    , 0		,  0       ,  1,    NoP);
@@ -217,7 +217,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_PRIVATE_MEM                         
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_PRINTF_BUFFER                                     ,  1,     0,      0,      0    , 0		,  0       ,  1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_STATE_HEAP_BUFFER                                 ,  1,     0,      0,      0    , 0		,  0       ,  1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_SYSTEM_MEMORY_BUFFER                              ,  1,     0,      0,      0    , 0		,  1       ,  1,    NoP);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_SYSTEM_MEMORY_BUFFER_CACHELINE_MISALIGNED         ,  0,     0,      0,      0    , 0		,  0       ,  1,    NoP); 
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_SYSTEM_MEMORY_BUFFER_CACHELINE_MISALIGNED         , _L3_P,     0,      0,      0    , 0		,  _WA_2W       ,  1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_ISH_HEAP_BUFFER                                   ,  1,     0,      0,      0    , 0		,  0       ,  1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_TAG_MEMORY_BUFFER                                 ,  1,     0,      0,      0    , 0		,  0       ,  1,    NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_TEXTURE_BUFFER                                    ,  1,     0,      0,      0    , 0		,  0       ,  1,    NoP);
