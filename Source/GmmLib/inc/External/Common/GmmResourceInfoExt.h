@@ -191,9 +191,6 @@ typedef struct GmmLibContext GMM_LIB_CONTEXT;
 // Place holder for GMM_RESOURCE_FLAG definition.
 //---------------------------------------------------------------------------
 #include "GmmResourceFlags.h"
-#if defined __linux__
-    #include "External/Linux/GmmResourceInfoLinExt.h"
-#endif
 
 //==========================================================================
 // typedef:
@@ -768,6 +765,9 @@ void                    GmmResMemcpyThroughClientCtxt(void *pDst, void *pSrc);
 // Reset packing alignment to project default
 #pragma pack(pop)
 
+#if defined __linux__
+    #include "External/Linux/GmmResourceInfoLinExt.h"
+#endif
 #ifdef __cplusplus
 }
 #endif /*__cplusplus*/
