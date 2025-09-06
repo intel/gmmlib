@@ -560,7 +560,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexPitchAndSize(GMM_TEXTURE_INFO * pTexIn
         uint8_t IsYUVSurface = ((GmmIsPlanar(pTexInfo->Format) &&
                                  (!((pTexInfo->Format == GMM_FORMAT_BGRP) || (pTexInfo->Format == GMM_FORMAT_RGBP)))) ||
                                 (GmmIsYUVPacked(pTexInfo->Format) &&
-                                 !((pTexInfo->Format == GMM_FORMAT_YVYU_2x1) || (pTexInfo->Format == GMM_FORMAT_UYVY_2x1) || (pTexInfo->Format == GMM_FORMAT_UYVY_2x1))));
+                                 !((pTexInfo->Format == GMM_FORMAT_YVYU_2x1) || (pTexInfo->Format == GMM_FORMAT_UYVY_2x1))));
 
         //YCRCB* formats
         uint8_t IsYCrCbSurface = ((pTexInfo->Format == GMM_FORMAT_YCRCB_NORMAL) ||
