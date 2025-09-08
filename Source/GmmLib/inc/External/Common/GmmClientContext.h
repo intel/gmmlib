@@ -214,7 +214,7 @@ extern "C" {
                                                ADAPTER_BDF              sBdf);
 #else
 
-    GMM_STATUS GMM_STDCALL GmmCreateLibContext(const PLATFORM Platform,
+    GMM_STATUS GMM_STDCALL GmmCreateLibContext(const PLATFORM &Platform,
                                                const void *   pSkuTable,
                                                const void *   pWaTable,
                                                const void *   pGtSysInfo,
