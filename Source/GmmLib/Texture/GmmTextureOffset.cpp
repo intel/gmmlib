@@ -979,7 +979,7 @@ void GmmLib::GmmTextureCalc::GetBltInfoPerPlane(GMM_TEXTURE_INFO *pTexInfo, GMM_
     {
         pBlt->Gpu.OffsetX = GFX_ULONG_CAST(pTexInfo->OffsetInfo.Plane.X[GMM_PLANE_V]);
         pBlt->Gpu.OffsetY = GFX_ULONG_CAST(pTexInfo->OffsetInfo.Plane.Y[GMM_PLANE_V]);
-        pBlt->Blt.Height  = GFX_ULONG_CAST(pTexInfo->OffsetInfo.Plane.UnAligned.Height[GMM_PLANE_U]);
+        pBlt->Blt.Height  = GFX_ULONG_CAST(pTexInfo->OffsetInfo.Plane.UnAligned.Height[GMM_PLANE_V]);
         pBlt->Sys.pData   = (char *)pBlt->Sys.pData + uint32_t(pBlt->Blt.Height * pBlt->Sys.RowPitch);
     }
 }
