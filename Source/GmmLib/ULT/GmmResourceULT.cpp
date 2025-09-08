@@ -2488,7 +2488,7 @@ TEST_F(CTestResource, TestSeparateStencil)
     }
 
     // Allocate multi-tiles in X/Y/Z dimension.
-    for(uint32_t i = RESOURCE_3D; i <= RESOURCE_3D; i++)
+    uint32_t i = RESOURCE_3D;
     {
         gmmParams.Type        = static_cast<GMM_RESOURCE_TYPE>(i);
         gmmParams.BaseWidth64 = StencilTileSize[0][0] + 0x1;
