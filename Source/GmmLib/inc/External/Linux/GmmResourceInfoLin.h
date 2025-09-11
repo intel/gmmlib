@@ -25,6 +25,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #ifdef __cplusplus
 #include "../Common/GmmResourceInfoCommon.h"
 
+// Set packing alignment
+#pragma pack(push, 8)
+
 /////////////////////////////////////////////////////////////////////////////////////
 /// @file GmmResourceInfoLin.h
 /// @brief This file contains the functions and members of GmmResourceInfo that is
@@ -57,6 +60,10 @@ namespace GmmLib
     typedef GmmResourceInfoLin GmmResourceInfo;
 
 } // namespace GmmLib
+
+// Reset packing alignment to project default
+#pragma pack(pop)
+
 #else
     typedef struct GmmResourceInfo GmmResourceInfo;
 #endif // #ifdef __cplusplus

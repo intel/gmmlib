@@ -87,12 +87,12 @@ typedef struct GMM_EXISTING_SYS_MEM_REC
 //     Struct describing the attributes and properties of a user mode resource
 //
 //----------------------------------------------------------------------------
+// Reset packing alignment to project default
+#pragma pack(pop)
+
 #ifndef _WIN32
     #include "../Linux/GmmResourceInfoLin.h"
 #endif
-
-// Reset packing alignment to project default
-#pragma pack(pop)
 
 uint8_t     GMM_STDCALL GmmResValidateParams(GMM_RESOURCE_INFO *pResourceInfo);
 void        GMM_STDCALL GmmResGetRestrictions(GMM_RESOURCE_INFO* pResourceInfo, __GMM_BUFFER_TYPE* pRestrictions);
