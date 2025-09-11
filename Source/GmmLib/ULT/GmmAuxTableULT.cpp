@@ -235,6 +235,7 @@ TEST_F(CTestAuxTable, TestAuxTableContent)
     Walker *ywalker = new Walker(surf->getGfxAddress(GMM_PLANE_Y),
                                  surf->getAuxGfxAddress(GMM_AUX_CCS),
                                  mgr->GetAuxL3TableAddr());
+    ASSERT_TRUE(ywalker != NULL);
 
     ASSERT_TRUE(ywalker != NULL);
 
