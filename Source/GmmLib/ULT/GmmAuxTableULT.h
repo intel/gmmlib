@@ -87,13 +87,16 @@ public:
 
             mResInfo = pGmmULTClientContext->CreateResInfoObject(&gmmParams);
 
+			if (!mResInfo)
+                return false;
+
             size = mResInfo->GetSizeSurface();
 
             alignment = mResInfo->GetResFlags().Info.TiledYf ? GMM_KBYTE(16) : GMM_KBYTE(64);
 
             mBuf = aligned_alloc(alignment, ALIGN(size, alignment));
 
-            if(!mResInfo || !mBuf)
+            if(!mBuf)
                 return false;
 
             mYBase      = (GMM_GFX_ADDRESS)mBuf;
