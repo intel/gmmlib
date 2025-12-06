@@ -310,5 +310,11 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COPY_DEST                               
 // Shader resource uncachable, needed for WA_18013889147
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_SHADER_RESOURCE_L1_NOT_CACHED                         , 0   , 1    , 1  , 0  , 0 ,    0,     0,       0,      0,    0,   0,    0,    RO );
 
+//Usages for command streamer instructions.
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DEFAULT												  , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    0,    RO);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COARSE_GRAINED_COHERENT								  , 1   , 1    , 1  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    0,    RO);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_FINE_GRAINED_COHERENT								  , 1   , 0    , 0  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    0,    NA);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_FINE_GRAINED_COHERENT_MULTI_WRITE					  , 1   , 0    , 0  , 0  , 3 ,    0,     0,       0,      0,    0,   0,    0,    NA);
+
 #include "GmmCachePolicyUndefineConditionals.h"
 
