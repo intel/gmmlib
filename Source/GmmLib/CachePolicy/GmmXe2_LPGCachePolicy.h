@@ -240,33 +240,33 @@ DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_BLT_DESTINATION                        
 //                   USAGE TYPE                                                         L3_CC,   L3_CLOS,L1CC,   L2CC,   L4CC,     Coherency,	IgPAT )
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_MEDIA_BATCH_BUFFERS                             ,  0,     0,      0,      0,		0,         0 ,        1,	  NoP	 );
 // DECODE
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_INPUT_BITSTREAM                          ,  dGPU,  0,     0,      0,			1,         0  ,        1,    NoP    );
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_INPUT_REFERENCE                          ,  dGPU,  0,     0,      1,			1,         0  ,        1,    NoP    );
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_INTERNAL_READ                            ,  dGPU,  0,     0,      0,			1,         0  ,        1,    NoP    );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_INPUT_BITSTREAM                          ,  1,     0,     0,      0,			1,         0  ,        1,    NoP    );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_INPUT_REFERENCE                          ,  1,     0,     0,      1,			1,         0  ,        1,    NoP    );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_INTERNAL_READ                            ,  1,     0,     0,      0,			1,         0  ,        1,    NoP    );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_INTERNAL_WRITE                           ,  0,     0,     0,      0,			0,         0  ,        1,    NoP    );
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_INTERNAL_READ_WRITE_CACHE                ,  dGPU,  0,     0,      0,			1,         0  ,        1,    NoP    ); 
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_INTERNAL_READ_WRITE_CACHE                ,  1,     0,     0,      0,			1,         0  ,        1,    NoP    ); 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_INTERNAL_READ_WRITE_NOCACHE              ,  0,     0,     0,      0,			0,         0  ,        1,    NoP    );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_OUTPUT_PICTURE                           ,  3,     0,     0,      0,			2,         0  ,        0,    NoP    );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_OUTPUT_STATISTICS_WRITE                  ,  0,     0,     0,      0,			0,         1  ,        1,    NoP    );  
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_OUTPUT_STATISTICS_READ_WRITE             ,  dGPU,  0,     0,      0,			1,         0  ,        1,    NoP	 );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_OUTPUT_STATISTICS_READ_WRITE             ,  1,     0,     0,      0,			1,         0  ,        1,    NoP	 );
 // ENCODE
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_INPUT_RAW                                ,  dGPU,  0,     0,      0,			1,         0  ,        1,    NoP    );
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_INPUT_RECON                              ,  dGPU,  0,     0,      1,			1,         0  ,        1,    NoP    );
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_INTERNAL_READ                            ,  dGPU,  0,     0,      0,			1,         0  ,        1,    NoP    );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_INPUT_RAW                                ,  1,     0,     0,      0,			1,         0  ,        1,    NoP    );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_INPUT_RECON                              ,  1,     0,     0,      1,			1,         0  ,        1,    NoP    );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_INTERNAL_READ                            ,  1,     0,     0,      0,			1,         0  ,        1,    NoP    );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_INTERNAL_WRITE                           ,  0,     0,     0,      0,			0,         0  ,        1,    NoP    );
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_INTERNAL_READ_WRITE_CACHE                ,  dGPU,  0,     0,      0,			1,         0  ,        1,    NoP    );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_INTERNAL_READ_WRITE_CACHE                ,  1,     0,     0,      0,			1,         0  ,        1,    NoP    );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_INTERNAL_READ_WRITE_NOCACHE              ,  0,     0,     0,      0,			0,         0  ,        1,    NoP    );  
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_EXTERNAL_READ                            ,  0,     0,     0,      0,			0,         0  ,        1,    NoP    );
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_OUTPUT_PICTURE                           ,  dGPU,  0,     0,      0,			1,         0  ,        1,    NoP    );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_OUTPUT_PICTURE                           ,  1,     0,     0,      0,			1,         0  ,        1,    NoP    );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_OUTPUT_BITSTREAM                         ,  0,     0,     0,      0,			0,         1  ,        1,	  NoP    ); 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_OUTPUT_STATISTICS_WRITE                  ,  0,     0,     0,      0,			0,         1  ,        1,	  NoP    ); 
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_OUTPUT_STATISTICS_READ_WRITE             ,  dGPU,  0,     0,      0,			1,         0  ,        1,	  NoP    );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_OUTPUT_STATISTICS_READ_WRITE             ,  1,     0,     0,      0,			1,         0  ,        1,	  NoP    );
 // VP
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VP_INPUT_PICTURE_FF                             ,  dGPU,  0,     0,      0,			1,         0  ,        1,    NoP    );
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VP_INPUT_REFERENCE_FF                           ,  dGPU,  0,     0,      0,			1,         0  ,        1,    NoP    );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VP_INPUT_PICTURE_FF                             ,  1,     0,     0,      0,			1,         0  ,        1,    NoP    );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VP_INPUT_REFERENCE_FF                           ,  1,     0,     0,      0,			1,         0  ,        1,    NoP    );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VP_INTERNAL_READ_FF                             ,  0,     0,     0,      0,			1,         0  ,        1,    NoP    );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VP_INTERNAL_WRITE_FF                            ,  0,     0,     0,      0,			1,         0  ,        1,    NoP    );
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VP_INTERNAL_READ_WRITE_FF                       ,  dGPU,  0,     0,      0,			1,         0  ,        1,    NoP    );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VP_INTERNAL_READ_WRITE_FF                       ,  1,     0,     0,      0,			1,         0  ,        1,    NoP    );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VP_OUTPUT_PICTURE_FF                            ,  3,     0,     0,      0,			2,         0  ,        0,    NoP    );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VP_INPUT_PICTURE_RENDER                         ,  1,     0,     0,      0,			0,         0  ,        1,    NoP    );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_VP_INPUT_REFERENCE_RENDER                       ,  1,     0,     0,      0,			0,         0  ,        1,    NoP    );
