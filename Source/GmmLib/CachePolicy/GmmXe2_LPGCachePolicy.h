@@ -25,6 +25,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define _WT        0x2
 #define _L1_WB     0x2
 #define dGPU       SKU(FtrDiscrete)
+#define iGPU       (!dGPU)
+#define L4_IgPAT   (iGPU & (GFX_GET_CURRENT_PRODUCT((pGmmLibContext->GetPlatformInfo()).Platform) < IGFX_PTL)) // L4 Uncached and IgPAT = 0
 
 #if (_DEBUG || _RELEASE_INTERNAL)
 #define _WA_WB_Emu (WA(Wa_EmuMufasaSupportOnBmg))
@@ -240,7 +242,7 @@ DEFINE_CACHE_ELEMENT( GMM_RESOURCE_USAGE_BLT_DESTINATION                        
 //                   USAGE TYPE                                                         L3_CC,   L3_CLOS,L1CC,   L2CC,   L4CC,     Coherency,	IgPAT )
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_MEDIA_BATCH_BUFFERS                             ,  0,     0,      0,      0,		0,         0 ,        1,	  NoP	 );
 // DECODE
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_INPUT_BITSTREAM                          ,  1,     0,     0,      0,			1,         0  ,        1,    NoP    );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_INPUT_BITSTREAM                          ,  1,     0,     0,      0,  L4_IgPAT,         0  , L4_IgPAT,    NoP    );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_INPUT_REFERENCE                          ,  1,     0,     0,      1,			1,         0  ,        1,    NoP    );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_INTERNAL_READ                            ,  1,     0,     0,      0,			1,         0  ,        1,    NoP    );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_INTERNAL_WRITE                           ,  0,     0,     0,      0,			0,         0  ,        1,    NoP    );
@@ -250,7 +252,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_OUTPUT_PICTURE                   
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_OUTPUT_STATISTICS_WRITE                  ,  0,     0,     0,      0,			0,         1  ,        1,    NoP    );  
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DECODE_OUTPUT_STATISTICS_READ_WRITE             ,  1,     0,     0,      0,			1,         0  ,        1,    NoP	 );
 // ENCODE
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_INPUT_RAW                                ,  1,     0,     0,      0,			1,         0  ,        1,    NoP    );
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_INPUT_RAW                                ,  1,     0,     0,      0,  L4_IgPAT,         0  , L4_IgPAT,    NoP    );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_INPUT_RECON                              ,  1,     0,     0,      1,			1,         0  ,        1,    NoP    );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_INTERNAL_READ                            ,  1,     0,     0,      0,			1,         0  ,        1,    NoP    );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_ENCODE_INTERNAL_WRITE                           ,  0,     0,     0,      0,			0,         0  ,        1,    NoP    );
@@ -298,5 +300,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_FINE_GRAINED_COHERENT_MULTI_WRITE       
 // clang-format on
 
 #undef _WT
+#undef iGPU
+#undef L4_IgPAT
 #include "GmmCachePolicyUndefineConditionals.h"
 
