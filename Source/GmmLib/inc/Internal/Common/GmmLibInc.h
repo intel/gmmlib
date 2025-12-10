@@ -41,6 +41,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "External/Common/CachePolicy/GmmCachePolicyGen12.h"
 #include "External/Common/CachePolicy/GmmCachePolicyXe_LPG.h"
 #include "External/Common/CachePolicy/GmmCachePolicyXe2_LPG.h"
+#include "External/Common/CachePolicy/GmmCachePolicyXe3P_XPC.h"
 #include "External/Common/CachePolicy/GmmCachePolicyGen12dGPU.h"
 #include "External/Common/GmmResourceInfoExt.h"
 #include "../Platform/GmmPlatforms.h"

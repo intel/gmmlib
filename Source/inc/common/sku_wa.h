@@ -114,7 +114,9 @@ typedef struct _SKU_FEATURE_TABLE
         unsigned int   FtrXe2Compression                : 1;  // Xe2 Stateless Compression
 	unsigned int   FtrXe2PlusTiling                 : 1;  // Tile64 MSAA Layout
         unsigned int   FtrL4Cache                       : 1;  // L4 cache support
-        unsigned int   FtrPml5Support                   : 1;  // xe2 page tables		
+        unsigned int   FtrPml5Support                   : 1;  // xe2 page tables
+	unsigned int   Ftr3DSamplerRemoved              : 1;
+	unsigned int   FtrEfficient64BitAddressing      : 1;  //  Efficient 64bit addressing (Xe3P) feature.	
 		
     };
 

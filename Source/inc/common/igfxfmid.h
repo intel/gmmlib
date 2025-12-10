@@ -82,6 +82,7 @@ typedef enum {
     IGFX_PTL = 1300,
     IGFX_NVL_XE3G = 1340,
     IGFX_NVL = 1360,
+    IGFX_CRI = 1380,
 
     IGFX_MAX_PRODUCT,
     IGFX_GENNEXT               = 0x7ffffffe,
@@ -306,7 +307,8 @@ typedef enum __NATIVEGTTYPE
 #define GFX_IS_DISCRETE_PRODUCT(pf)    ( ( pf == IGFX_DG1 )             ||   \
                                          ( pf == IGFX_DG2 )             ||   \
                                          ( pf == IGFX_XE_HP_SDV )       ||   \
-                                         ( pf == IGFX_BMG ) )
+                                         ( pf == IGFX_BMG )             ||   \
+					 ( pf == IGFX_CRI) )
 
 #define GFX_IS_DISCRETE_FAMILY(p)      GFX_IS_DISCRETE_PRODUCT(GFX_GET_CURRENT_PRODUCT(p))
 
@@ -2024,7 +2026,7 @@ typedef enum __NATIVEGTTYPE
 	
 // WCL
 #define DEV_ID_FD80                             0xFD80
-#define DEV_ID_FD81                             0xFD81	
+#define DEV_ID_FD81                             0xFD81
 
 // NVL
 #define DEV_ID_D740                             0xD740
@@ -2033,6 +2035,9 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_D743                             0xD743
 #define DEV_ID_D744                             0xD744
 #define DEV_ID_D745                             0xD745
+
+// CRI
+#define DEV_ID_674C                             0x674C
 
 #define MGM_HAS     0
 
