@@ -94,7 +94,7 @@ Xe2_HPG (BMG: Battlemage, LNL: Lunar Lake)
 
 Xe3_LPG/Xe3P_LPM (Panther Lake, NVL-S: Nova Lake S, NVL-U: Nova Lake U, NVL-H: Nova Lake H, NVL-HX: Nova Lake HX, NVL-UL: Nova Lake UL)
 
-Xe3P-XPC (CRI: Crescent Island)
+Xe3P-XPC/Xe3P_HPM (CRI: Crescent Island)
 
 No code changes may be introduced knowingly, that would regress for any currently supported hardware.
 All contributions must ensure continued compatibility and functionality across all supported hardware platforms.
