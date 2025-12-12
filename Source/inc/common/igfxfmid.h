@@ -81,7 +81,6 @@ typedef enum {
     IGFX_LUNARLAKE = 1275,
     IGFX_PTL = 1300,
     IGFX_NVL_XE3G = 1340,
-    IGFX_NVL = 1360,
     IGFX_CRI = 1380,
 
     IGFX_MAX_PRODUCT,
@@ -147,6 +146,7 @@ typedef enum {
     IGFX_XE2_HPG_CORE    = IGFX_XE2_LPG_CORE,  //XE2_HPG Family
     IGFX_XE3_CORE        = 0x1e00,  // XE3 Family
     IGFX_XE3P_CORE       = 0x2300,  // XE3P Family
+    IGFX_XE3P_HPM        = 0x2301,  // XE3P HPM Family
 
     //Please add new GENs BEFORE THIS !
     IGFX_MAX_CORE,
