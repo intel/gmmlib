@@ -22,7 +22,7 @@
 if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^aarch")
     SET (GMMLIB_COMPILER_FLAGS_COMMON
     #general warnings
-    #-Wall
+    -Wall
     -Winit-self
     -Winvalid-pch
     -Wpointer-arith
