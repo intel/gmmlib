@@ -22,7 +22,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#if defined (__linux__) && !defined(__i386__)
+#if !defined (_WIN32) && !defined(__i386__)
 
 #ifndef _ISOC11_SOURCE
 #define _ISOC11_SOURCE 1
@@ -30,7 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "GmmGen10ResourceULT.h"
 #include <stdlib.h>
-#include <malloc.h>
 
 #ifndef ALIGN
 #define ALIGN(v, a) (((v) + ((a)-1)) & ~((a)-1))
@@ -252,4 +251,4 @@ public:
     };
 };
 
-#endif /* __linux__ */
+#endif /* !_WIN32 */

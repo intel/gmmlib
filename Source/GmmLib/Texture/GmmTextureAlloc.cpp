@@ -826,7 +826,7 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexPitchAndSize(GMM_TEXTURE_INFO * pTexIn
         }
         else
         {
-#if defined(__GMM_KMD__) || defined(__linux__)
+#if defined(__GMM_KMD__) || !defined(_WIN32)
             GMM_ASSERTDPF(0, "Surface too large!");
 #endif
             Status = GMM_ERROR;
