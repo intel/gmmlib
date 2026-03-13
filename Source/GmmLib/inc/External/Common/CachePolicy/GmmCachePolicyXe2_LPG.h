@@ -95,6 +95,8 @@ namespace GmmLib
         void                 SetUpMOCSTable();
         void                 GetL3L4(GMM_CACHE_POLICY_TBL_ELEMENT *pUsageEle, GMM_XE2_PRIVATE_PAT *pUsagePATElement, uint32_t Usage);
         uint32_t GMM_STDCALL CachePolicyGetPATIndex(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage, bool *pCompressionEnable, bool IsCpuCacheable);
+        MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL CachePolicyGetMemoryObject(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage);
+
     };
 } // namespace GmmLib
 #endif // #ifdef __cplusplus

@@ -87,7 +87,7 @@ typedef struct _SKU_FEATURE_TABLE
         unsigned int   FtrUserModeTranslationTable      : 1;  // User mode managed Translation Table support for Tiled Resources.
         unsigned int   FtrNullPages                     : 1;  // Support for PTE-based Null pages for Sparse/Tiled Resources).
         unsigned int   FtrEDram                         : 1;  // embedded DRAM enable
-	unsigned int   FtrLLCBypass                     : 1;  // Partial tunneling of UC memory traffic via CCF (LLC Bypass)
+	    unsigned int   FtrLLCBypass                     : 1;  // Partial tunneling of UC memory traffic via CCF (LLC Bypass)
         unsigned int   FtrCrystalwell                   : 1;  // Crystalwell Sku
         unsigned int   FtrCentralCachePolicy            : 1;  // Centralized Cache Policy
         unsigned int   FtrWddm2GpuMmu                   : 1;  // WDDMv2 GpuMmu Model (Set in platform SKU files, but disabled by GMM as appropriate for given system.)
@@ -105,19 +105,19 @@ typedef struct _SKU_FEATURE_TABLE
         unsigned int   FtrFlatPhysCCS                   : 1;  // XeHP compression ie flat physical CCS
         unsigned int   FtrDisplayXTiling                : 1;  // Fallback to Legacy TileX Display, used for Pre-SI platforms.
         unsigned int   FtrMultiTileArch                 : 1;
-	unsigned int   FtrDisplayPageTables             : 1;  // Display Page Tables: 2-Level Page walk for Displayable Frame buffers in GGTT.
+	    unsigned int   FtrDisplayPageTables             : 1;  // Display Page Tables: 2-Level Page walk for Displayable Frame buffers in GGTT.
         unsigned int   Ftr57bGPUAddressing              : 1;  // 57b GPUVA support eg: PVC
-	unsigned int   FtrUnified3DMediaCompressionFormats : 1; // DG2 has unified Render/media compression(versus TGLLP/XeHP_SDV 's multiple instances) and requires changes to RC format h/w encodings.
+	    unsigned int   FtrUnified3DMediaCompressionFormats : 1; // DG2 has unified Render/media compression(versus TGLLP/XeHP_SDV 's multiple instances) and requires changes to RC format h/w encodings.
         unsigned int   FtrForceTile4                    : 1;  // Flag to force Tile4 usage as default in Tile64 supported platforms.
         unsigned int   FtrTile64Optimization            : 1;
         unsigned int   FtrDiscrete                      : 1;  // Discrete-gfx
         unsigned int   FtrXe2Compression                : 1;  // Xe2 Stateless Compression
-	unsigned int   FtrXe2PlusTiling                 : 1;  // Tile64 MSAA Layout
+	    unsigned int   FtrXe2PlusTiling                 : 1;  // Tile64 MSAA Layout
         unsigned int   FtrL4Cache                       : 1;  // L4 cache support
         unsigned int   FtrPml5Support                   : 1;  // xe2 page tables
-	unsigned int   Ftr3DSamplerRemoved              : 1;
-	unsigned int   FtrEfficient64BitAddressing      : 1;  //  Efficient 64bit addressing (Xe3P) feature.	
-		
+	    unsigned int   Ftr3DSamplerRemoved              : 1;
+	    unsigned int   FtrEfficient64BitAddressing      : 1;  // Efficient 64bit addressing (Xe3P) feature.
+		unsigned int   FtrPATCentricCachePolicy         : 1;  // Flag to enable the PAT centric cache policy.
     };
 
 

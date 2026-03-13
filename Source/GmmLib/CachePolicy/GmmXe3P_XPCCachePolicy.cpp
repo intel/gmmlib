@@ -41,6 +41,9 @@ GMM_STATUS GmmLib::GmmXe3P_XPCCachePolicy::InitCachePolicy()
 #define DEFINE_CACHE_ELEMENT(usage, l3_cc, l3_clos, l1cc, l2cc, l4cc, coherency, igPAT, segov) DEFINE_CP_ELEMENT(usage, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, segov, 0, 0, l1cc, l2cc, l4cc, coherency, l3_cc, l3_clos, igPAT)
 
 #include "GmmXe3P_XPCCachePolicy.h"
+// To support PAT centric approach for "UNKNOWN" resource usage.
+// UMD overrides with "UNKNOWN" usages to get desired cacheability.
+#define MOCS_CENTRIC_UNCACHED_MOCS_INDEX 3
 
     SetUpMOCSTable();
     SetupPAT();
@@ -201,7 +204,7 @@ GMM_STATUS GmmLib::GmmXe3P_XPCCachePolicy::InitCachePolicy()
         pCachePolicy[Usage].PATIndexCompressed                       = PATIdxCompressed;
         pCachePolicy[Usage].PTE.DwordValue                           = GMM_GET_PTE_BITS_FROM_PAT_IDX(PATIdx) & 0xFFFFFFFF;
         pCachePolicy[Usage].PTE.HighDwordValue                       = GMM_GET_PTE_BITS_FROM_PAT_IDX(PATIdx) >> 32;
-        pCachePolicy[Usage].MemoryObjectOverride.XE_HP.Index         = CPTblIdx;
+        pCachePolicy[Usage].MemoryObjectOverride.XE_HP.Index         = (pGmmLibContext->GetSkuTable().FtrPATCentricCachePolicy && (Usage == GMM_RESOURCE_USAGE_UNKNOWN)) ? MOCS_CENTRIC_UNCACHED_MOCS_INDEX : CPTblIdx;
         pCachePolicy[Usage].MemoryObjectOverride.XE_HP.EncryptedData = 0;
         pCachePolicy[Usage].Override                                 = ALWAYS_OVERRIDE;
 
@@ -213,6 +216,8 @@ GMM_STATUS GmmLib::GmmXe3P_XPCCachePolicy::InitCachePolicy()
             return GMM_INVALIDPARAM;
         }
     }
+
+#undef MOCS_CENTRIC_UNCACHED_MOCS_INDEX
     return GMM_SUCCESS;
 }
 

@@ -1930,9 +1930,11 @@ namespace GmmLib
             {
                 const GMM_CACHE_POLICY_ELEMENT *CachePolicy = GetGmmLibContext()->GetCachePolicyUsage();
 
-            GMM_RESOURCE_USAGE_TYPE Usage = GetCachePolicyUsage();
+                GMM_RESOURCE_USAGE_TYPE Usage = GetCachePolicyUsage();
 
 		        __GMM_ASSERT(CachePolicy[Usage].Initialized);
+				
+				MEMORY_OBJECT_CONTROL_STATE ReturnValueMOCSOverride = CachePolicy[Usage].MemoryObjectOverride;
 
                 // Prevent wrong Usage for XAdapter resources. UMD does not call GetMemoryObject on shader resources but,
                 // when they add it someone could call it without knowing the restriction.
@@ -1945,6 +1947,15 @@ namespace GmmLib
                 if((CachePolicy[Usage].Override & CachePolicy[Usage].IDCode) ||
                    (CachePolicy[Usage].Override == ALWAYS_OVERRIDE))
                 {
+					if (GetGmmLibContext()->GetSkuTable().FtrPATCentricCachePolicy && (Usage == GMM_RESOURCE_USAGE_UNKNOWN) && (ClientType == GMM_OCL_VISTA))
+		            {
+// To support PAT centric approach for "UNKNOWN" resource usage.
+// OCL overrides with "UNKNOWN" usages to get desired cacheability.
+#define DEFER_TO_PAT_UNCACHED_MOCS_INDEX 0
+		                ReturnValueMOCSOverride.XE_HP.Index = DEFER_TO_PAT_UNCACHED_MOCS_INDEX;
+		                return ReturnValueMOCSOverride;
+		            }
+
                     return CachePolicy[Usage].MemoryObjectOverride;
                 }
 

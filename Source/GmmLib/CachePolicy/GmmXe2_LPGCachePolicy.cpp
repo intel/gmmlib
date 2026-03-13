@@ -38,6 +38,9 @@ GMM_STATUS GmmLib::GmmXe2_LPGCachePolicy::InitCachePolicy()
 
 #include "GmmXe2_LPGCachePolicy.h"
 
+// To support PAT centric approach for "UNKNOWN" resource usage.
+// UMD overrides with "UNKNOWN" usages to get desired cacheability.
+#define MOCS_CENTRIC_UNCACHED_MOCS_INDEX 3
     SetUpMOCSTable();
     SetupPAT();
 
@@ -248,7 +251,7 @@ GMM_STATUS GmmLib::GmmXe2_LPGCachePolicy::InitCachePolicy()
         pCachePolicy[Usage].PATIndexCompressed                       = PATIdxCompressed;
         pCachePolicy[Usage].PTE.DwordValue                           = GMM_GET_PTE_BITS_FROM_PAT_IDX(PATIdx) & 0xFFFFFFFF;
         pCachePolicy[Usage].PTE.HighDwordValue                       = GMM_GET_PTE_BITS_FROM_PAT_IDX(PATIdx) >> 32;
-        pCachePolicy[Usage].MemoryObjectOverride.XE_HP.Index         = CPTblIdx;
+        pCachePolicy[Usage].MemoryObjectOverride.XE_HP.Index         = (pGmmLibContext->GetSkuTable().FtrPATCentricCachePolicy && (Usage == GMM_RESOURCE_USAGE_UNKNOWN)) ? MOCS_CENTRIC_UNCACHED_MOCS_INDEX : CPTblIdx;
         pCachePolicy[Usage].MemoryObjectOverride.XE_HP.EncryptedData = 0;
         pCachePolicy[Usage].Override                                 = ALWAYS_OVERRIDE;
 
@@ -260,6 +263,9 @@ GMM_STATUS GmmLib::GmmXe2_LPGCachePolicy::InitCachePolicy()
             return GMM_INVALIDPARAM;
         }
     }
+
+#undef MOCS_CENTRIC_UNCACHED_MOCS_INDEX
+
     return GMM_SUCCESS;
 }
 
@@ -463,6 +469,54 @@ uint32_t GMM_STDCALL GmmLib::GmmXe2_LPGCachePolicy::CachePolicyGetPATIndex(GMM_R
     }
 
     return ReturnPATIndex;
+}
+
+#define IS_MEDIA_USAGE(Usage) ((Usage >= GMM_RESOURCE_USAGE_MEDIA_BATCH_BUFFERS && Usage <= GMM_RESOURCE_USAGE_CP_INTERNAL_WRITE) || (Usage >= CM_RESOURCE_USAGE_SurfaceState && Usage <= MHW_RESOURCE_USAGE_Sfc_IefLineBufferSurface))
+/////////////////////////////////////////////////////////////////////////////////////
+///      A simple getter function returning the MOCS (cache policy) for a given
+///      use Usage of the named resource pResInfo.
+///      Typically used to populate a SURFACE_STATE for a GPU task.
+///
+/// @param[in]     pResInfo: Resource info for resource, can be NULL.
+/// @param[in]     Usage: Current usage for resource.
+///
+/// @return        MEMORY_OBJECT_CONTROL_STATE: Gen adjusted MOCS structure (cache
+///                                             policy) for the given buffer use.
+/////////////////////////////////////////////////////////////////////////////////////
+MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmXe2_LPGCachePolicy::CachePolicyGetMemoryObject(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage)
+{
+    __GMM_ASSERT(pCachePolicy[Usage].Initialized);
+    MEMORY_OBJECT_CONTROL_STATE ReturnValueMOCSOverride = pCachePolicy[Usage].MemoryObjectOverride;
+
+    // Prevent wrong Usage for XAdapter resources. Assert if GetMemoryObject is called for cross adapter resources
+    if (pResInfo &&
+        pResInfo->GetResFlags().Info.XAdapter &&
+        (Usage != GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE))
+    {
+        __GMM_ASSERT(false);
+    }
+
+    if (!pResInfo ||
+        (pCachePolicy[Usage].Override & pCachePolicy[Usage].IDCode) ||
+        (pCachePolicy[Usage].Override == ALWAYS_OVERRIDE))
+    {
+
+        ReturnValueMOCSOverride = pCachePolicy[Usage].MemoryObjectOverride;
+
+        if ((pGmmLibContext->GetSkuTable().FtrPATCentricCachePolicy && (Usage == GMM_RESOURCE_USAGE_UNKNOWN)) && ((pResInfo && (pResInfo->GetClientType() == GMM_OCL_VISTA)) || (pGmmLibContext->GetClientType() == GMM_OCL_VISTA)))
+        {
+// To support PAT centric approach for "UNKNOWN" resource usage.
+// OCL overrides with "UNKNOWN" usages to get desired cacheability.
+#define DEFER_TO_PAT_UNCACHED_MOCS_INDEX 0
+            ReturnValueMOCSOverride.XE_HP.Index = DEFER_TO_PAT_UNCACHED_MOCS_INDEX;
+        }
+    }
+    else
+    {
+        ReturnValueMOCSOverride = pCachePolicy[Usage].MemoryObjectNoOverride;
+    }
+
+    return ReturnValueMOCSOverride;
 }
 
 //=============================================================================
