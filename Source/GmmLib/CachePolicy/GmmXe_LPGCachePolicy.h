@@ -258,6 +258,6 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DEFAULT											, 1   , 0    ,   0  , 
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COARSE_GRAINED_COHERENT							, 1	  , 0    ,   0  ,  1   ,       0 ,    0,     1,        1);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_FINE_GRAINED_COHERENT						    , 0   , 0    ,   1  ,  1   ,       0 ,    0,     1,        1);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_FINE_GRAINED_COHERENT_MULTI_WRITE			    , 0   , 0    ,   1  ,  1   ,       0 ,    0,     1,        0);
-
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_FINE_GRAINED_COHERENT_VIA_PAT					, 0   , 0    ,   1  ,  1   ,       0 ,    0,     1,        1);
 
 #include "GmmCachePolicyUndefineConditionals.h"

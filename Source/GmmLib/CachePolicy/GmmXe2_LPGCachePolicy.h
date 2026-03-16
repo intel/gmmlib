@@ -298,7 +298,8 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COPY_DEST                               
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DEFAULT                                         , 1,         0,     0 ,      0,	     0,       0,        1   ,	  NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COARSE_GRAINED_COHERENT                         , 1,         0,     0 ,      0,	     0,       1,        1   ,	  NoP);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_FINE_GRAINED_COHERENT                           , 1,         0,     0 ,      0,	     0,       2,        1   ,	  NoP);
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_FINE_GRAINED_COHERENT_MULTI_WRITE               , 1,         0,     0 ,      0,	     0,       2,        IgPAT,	  NoP);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_FINE_GRAINED_COHERENT_MULTI_WRITE               , 1,         0,     0 ,      0,	     0,       2,       IgPAT,	  NoP);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_FINE_GRAINED_COHERENT_VIA_PAT                   , 1,         0,     0 ,      0,      0,       2,        0   ,     NoP);
 
 // clang-format on
 
