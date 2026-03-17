@@ -65,6 +65,11 @@ void CTestXe_LPGCachePolicy::SetUpXe_LPGVariant(PRODUCT_FAMILY platform)
     {
         GfxPlatform.eRenderCoreFamily = IGFX_XE3_CORE;
     }
+	
+    if (platform >= IGFX_NVL)
+    {
+        GfxPlatform.eRenderCoreFamily = IGFX_XE3P_CORE;
+    }	
 
     pGfxAdapterInfo = (ADAPTER_INFO *)malloc(sizeof(ADAPTER_INFO));
     if(pGfxAdapterInfo)
@@ -80,6 +85,9 @@ void CTestXe_LPGCachePolicy::SetUpXe_LPGVariant(PRODUCT_FAMILY platform)
         pGfxAdapterInfo->SkuTable.FtrL4Cache               = 1;
         pGfxAdapterInfo->SkuTable.FtrL3TransientDataFlush  = 0;
 
+        pGfxAdapterInfo->WaTable.Wa_14018976079 = 1;
+        pGfxAdapterInfo->WaTable.Wa_14018984349 = 1;
+
         if (platform == IGFX_BMG)
         {
             pGfxAdapterInfo->SkuTable.FtrLocalMemory = 1;
@@ -89,9 +97,11 @@ void CTestXe_LPGCachePolicy::SetUpXe_LPGVariant(PRODUCT_FAMILY platform)
         if (platform >= IGFX_BMG)
         {
             pGfxAdapterInfo->SkuTable.FtrL3TransientDataFlush = 1;
-	    pGfxAdapterInfo->WaTable.Wa_14018976079           = 1;
-	    pGfxAdapterInfo->WaTable.Wa_14018984349           = 1;
-	}
+        }
+        if (platform >= IGFX_NVL)
+        {
+            pGfxAdapterInfo->SkuTable.FtrAppTransientCaching = 1;
+        }
 
         CommonULT::SetUpTestCase();
     }
@@ -142,6 +152,74 @@ TEST_F(CTestXe_LPGCachePolicy, TestXe3CachePolicy_FtrL4CacheEnabled)
     Check_Xe2_HPG_PATCompressed();
     TearDownXe_LPGVariant();
 }
+
+TEST_F(CTestXe_LPGCachePolicy, TestXe3PCachePolicy_FtrAppTransient)
+{
+    SetUpXe_LPGVariant(IGFX_NVL);
+    CheckXe2_HPGVirtualL3CachePolicy();
+    CheckPAT(); // Has both L3 and PAT within
+    Check_Xe2_HPG_PATCompressed();
+    Check_Xe3P_AppTransientPAT();
+    TearDownXe_LPGVariant();
+}
+
+void CTestXe_LPGCachePolicy::Check_Xe3P_AppTransientPAT()
+{
+
+    for (uint32_t Cacheable = 0; Cacheable <= 1; Cacheable++)
+    {
+        for (uint32_t CompressionEnable = 0; CompressionEnable <= 1; CompressionEnable++)
+        {
+            for (uint32_t Usage = GMM_RESOURCE_USAGE_BATCH_BUFFER; Usage < GMM_RESOURCE_USAGE_UMD_OCA_BUFFER; Usage++)
+            {
+                GMM_CACHE_POLICY_ELEMENT ClientRequest = pGmmULTClientContext->GetCachePolicyElement((GMM_RESOURCE_USAGE_TYPE)Usage);
+                if (ClientRequest.Initialized == false) // undefined resource in platform
+                {
+                    continue;
+                }
+
+                GMM_RESCREATE_PARAMS GmmParams     = {};
+                GmmParams.Type                     = RESOURCE_2D;
+                GmmParams.NoGfxMemory              = 1;
+                GmmParams.Format                   = GMM_FORMAT_GENERIC_32BIT;
+                GmmParams.BaseWidth64              = 0x1;
+                GmmParams.BaseHeight               = 0x1;
+                GmmParams.Usage                    = (GMM_RESOURCE_USAGE_TYPE)Usage;
+                GmmParams.Flags.Info.Linear        = 1;
+                GmmParams.Flags.Gpu.Texture        = 1;
+                GmmParams.Flags.Info.NotCompressed = (CompressionEnable == 0) ? true : false;
+                GmmParams.Flags.Info.Cacheable     = Cacheable;
+
+                GMM_RESOURCE_INFO *pResourceInfo = pGmmULTClientContext->CreateResInfoObject(&GmmParams);
+
+                bool CompressionEnReq = (CompressionEnable == 0) ? false : true;
+
+                uint32_t PATIndex = pGmmULTClientContext->CachePolicyGetPATIndex(pResourceInfo, GmmParams.Usage, &CompressionEnReq, GmmParams.Flags.Info.Cacheable);
+
+                if (CompressionEnReq)
+                {
+                    EXPECT_NE(PAT18, PATIndex) << "Usage# " << Usage << ": Incorrect XA PAT 18 for compressed resource";
+                    EXPECT_NE(PAT19, PATIndex) << "Usage# " << Usage << ": Incorrect XA PAT 19 for compressed resource";
+                }
+                else
+                {
+                    if (ClientRequest.L3CC == GMM_WB || ClientRequest.L3CC == GMM_WBTA)
+                    {
+                        if (Cacheable)
+                        {
+                            EXPECT_EQ(PAT19, PATIndex) << "Usage# " << Usage << ": Incorrect XA PAT 19 for coherent XA resource";
+                        }
+                        else
+                        {
+                            EXPECT_EQ(PAT18, PATIndex) << "Usage# " << Usage << ": Incorrect XA PAT 18 for Non-coherent XA resource";
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 void CTestXe_LPGCachePolicy::CheckVirtualL3CachePolicy()
 {

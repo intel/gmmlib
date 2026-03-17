@@ -118,6 +118,7 @@ typedef struct _SKU_FEATURE_TABLE
 	    unsigned int   Ftr3DSamplerRemoved              : 1;
 	    unsigned int   FtrEfficient64BitAddressing      : 1;  // Efficient 64bit addressing (Xe3P) feature.
 		unsigned int   FtrPATCentricCachePolicy         : 1;  // Flag to enable the PAT centric cache policy.
+        unsigned int   FtrAppTransientCaching : 1; // App-Transient Attribute
     };
 
 
@@ -488,7 +489,7 @@ typedef struct _WA_TABLE
         WA_BUG_TYPE_PERF,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_UNKNOWN)
 
-	WA_DECLARE(
+	    WA_DECLARE(
         WaAuxTable64KGranular,
         "AuxTable map granularity changed to 64K ..Remove once Neo switches reference to WaAuxTable16KGranular",
         WA_BUG_TYPE_PERF,
@@ -506,7 +507,7 @@ typedef struct _WA_TABLE
         WA_BUG_TYPE_FUNCTIONAL,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
 
-	WA_DECLARE(
+	    WA_DECLARE(
         Wa64kbMappingAt2mbGranularity,
         "WA to force 2MB alignment for 64KB-LMEM pages",
         WA_BUG_TYPE_FUNCTIONAL,
@@ -518,13 +519,13 @@ typedef struct _WA_TABLE
         WA_BUG_TYPE_UNKNOWN,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
 
-	WA_DECLARE(
+	    WA_DECLARE(
         Wa_1606955757,
         "[GPSSCLT] [XeHP] Multicontext (LB) : out-of-order write-read access to scratch space from hdctlbunit",
         WA_BUG_TYPE_UNKNOWN,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_OGL)
 
-	WA_DECLARE(
+	    WA_DECLARE(
         WaTile64Optimization,
         "Tile64 wastge a lot of memory so WA provides optimization to fall back to Tile4 when waste is relatively higher",
         WA_BUG_TYPE_UNKNOWN,
@@ -560,7 +561,7 @@ typedef struct _WA_TABLE
         WA_BUG_TYPE_UNKNOWN,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
 		
-	WA_DECLARE(
+	    WA_DECLARE(
         Wa_14020040029,
         "Misalignment on Depth buffer for Zplanes",
         WA_BUG_TYPE_UNKNOWN,
@@ -572,7 +573,7 @@ typedef struct _WA_TABLE
         WA_BUG_TYPE_FUNCTIONAL,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_UNKNOWN)	
 	
-	WA_DECLARE(
+	    WA_DECLARE(
         WaNoCpuCoherentCompression,
         "Deny compression for coherent surfaces",
         WA_BUG_TYPE_UNKNOWN,
@@ -583,6 +584,12 @@ typedef struct _WA_TABLE
         "[DG2] - Handle tile4 when Compressed surface not aligned to 64Kb",
         WA_BUG_TYPE_CORRUPTION,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
+
+        WA_DECLARE(
+        Wa_14022942107,
+        "[Xe3p][NVL-P] JPEGXS gt timing increasd",
+        WA_BUG_TYPE_UNKNOWN,
+        WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)		
 
 } WA_TABLE, *PWA_TABLE;
 

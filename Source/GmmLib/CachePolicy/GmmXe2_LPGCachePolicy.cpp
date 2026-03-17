@@ -47,7 +47,7 @@ GMM_STATUS GmmLib::GmmXe2_LPGCachePolicy::InitCachePolicy()
     // Define index of cache element
     uint32_t Usage          = 0;
     uint32_t ReservedPATIdx = 16; /* Rsvd PAT section 16-19 */
-    uint32_t ReservedPATIdxEnd = 20;
+    uint32_t ReservedPATIdxEnd = pGmmLibContext->GetSkuTable().FtrAppTransientCaching ? 18 : 20;
 
 #if (_WIN32 && (_DEBUG || _RELEASE_INTERNAL))
     void *pKmdGmmContext = NULL;
@@ -381,6 +381,7 @@ uint32_t GMM_STDCALL GmmLib::GmmXe2_LPGCachePolicy::CachePolicyGetPATIndex(GMM_R
     uint32_t                 PATIndex             = pGmmLibContext->GetCachePolicyElement(Usage).PATIndex;
     GMM_CACHE_POLICY_ELEMENT TempElement          = pGmmLibContext->GetCachePolicyElement(Usage);
     uint32_t                 TempCoherentPATIndex = 0;
+    bool                     IsAppTransientEligible = ((TempElement.L3CC == GMM_WB) || (TempElement.L3CC == GMM_WBTA)) ? true : false;
 
     // This is to check if PATIndexCompressed, CoherentPATIndex are valid
     // Increment by 1 to have the rollover and value resets to 0 if the PAT in not valid.
@@ -458,9 +459,35 @@ uint32_t GMM_STDCALL GmmLib::GmmXe2_LPGCachePolicy::CachePolicyGetPATIndex(GMM_R
     /* No valid PAT Index found */
     if (GMM_PAT_ERROR == ReturnPATIndex)
     {
-        ReturnPATIndex    = GMM_XE2_DEFAULT_PAT_INDEX; //default to uncached PAT index 2: GMM_CP_NON_COHERENT_UC
+        ReturnPATIndex    = GMM_XE2_DEFAULT_PAT_INDEX; //default to uncached PAT index 3: GMM_CP_NON_COHERENT_UC
         CompressionEnable = false;
         __GMM_ASSERT(false);
+    }
+
+    if (pCompressionEnable)
+    {
+	    if (CompressionEnable)
+        {
+            IsAppTransientEligible = false;
+        }
+    }
+
+#define APP_TRANSIENT_NONCOHERENT_PATIDX 18
+#define APP_TRANSIENT_COHERENT_PATIDX    19
+
+    if (pGmmLibContext->GetSkuTable().FtrAppTransientCaching && IsAppTransientEligible &&
+        ((pResInfo && (!pResInfo->GetResFlags().Info.NotLockable || pResInfo->GetResFlags().Gpu.CameraCapture || pResInfo->GetResFlags().Info.XAdapter)) ||
+         (!pResInfo && (Usage == GMM_RESOURCE_USAGE_QUERY))))
+    {
+        // If CpuCacheable, choose 1-way Coherent PatIdx
+        if (IsCpuCacheable)
+        {
+            ReturnPATIndex = APP_TRANSIENT_COHERENT_PATIDX;
+        }
+        else
+        {
+            ReturnPATIndex = APP_TRANSIENT_NONCOHERENT_PATIDX;
+        }
     }
 
     if (pCompressionEnable)
@@ -471,7 +498,6 @@ uint32_t GMM_STDCALL GmmLib::GmmXe2_LPGCachePolicy::CachePolicyGetPATIndex(GMM_R
     return ReturnPATIndex;
 }
 
-#define IS_MEDIA_USAGE(Usage) ((Usage >= GMM_RESOURCE_USAGE_MEDIA_BATCH_BUFFERS && Usage <= GMM_RESOURCE_USAGE_CP_INTERNAL_WRITE) || (Usage >= CM_RESOURCE_USAGE_SurfaceState && Usage <= MHW_RESOURCE_USAGE_Sfc_IefLineBufferSurface))
 /////////////////////////////////////////////////////////////////////////////////////
 ///      A simple getter function returning the MOCS (cache policy) for a given
 ///      use Usage of the named resource pResInfo.
@@ -669,6 +695,13 @@ GMM_STATUS GmmLib::GmmXe2_LPGCachePolicy::SetupPAT()
 
     CurrentMaxPATIndex = 31;
 
+
+    if (pGmmLibContext->GetSkuTable().FtrAppTransientCaching)
+    {
+        GMM_DEFINE_PAT_ELEMENT( 18     , 0      , L4_UC              , L3_XA           , 0          , 0             , 1)    // PATRegValue = 0x42C
+        GMM_DEFINE_PAT_ELEMENT( 19     , 2      , L4_UC              , L3_XA           , 0          , 0             , 1)    // PATRegValue = 0x42E
+    }
+		
     if (ONE_WAY_COHERENT_COMPRESSION_MODE(pGmmLibContext->GetPlatformInfo().Platform.eProductFamily, pGmmLibContext->GetWaTable().WaNoCpuCoherentCompression))
     {
         GMM_DEFINE_PAT_ELEMENT( 16      , 2      , L4_UC              , L3_WB           , 0          , 1             , 0)    //          | L3_WB | 1 way coherent | Compression

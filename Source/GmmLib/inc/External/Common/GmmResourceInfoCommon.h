@@ -1943,24 +1943,11 @@ namespace GmmLib
                 {
                     __GMM_ASSERT(false);
                 }
-
-                if((CachePolicy[Usage].Override & CachePolicy[Usage].IDCode) ||
-                   (CachePolicy[Usage].Override == ALWAYS_OVERRIDE))
-                {
-					if (GetGmmLibContext()->GetSkuTable().FtrPATCentricCachePolicy && (Usage == GMM_RESOURCE_USAGE_UNKNOWN) && (ClientType == GMM_OCL_VISTA))
-		            {
-// To support PAT centric approach for "UNKNOWN" resource usage.
-// OCL overrides with "UNKNOWN" usages to get desired cacheability.
-#define DEFER_TO_PAT_UNCACHED_MOCS_INDEX 0
-		                ReturnValueMOCSOverride.XE_HP.Index = DEFER_TO_PAT_UNCACHED_MOCS_INDEX;
-		                return ReturnValueMOCSOverride;
-		            }
-
-                    return CachePolicy[Usage].MemoryObjectOverride;
-                }
-
-                return CachePolicy[Usage].MemoryObjectNoOverride;
-            }
+				
+				ReturnValueMOCSOverride = GetGmmLibContext()->GetCachePolicyObj()->CachePolicyGetMemoryObject((GMM_RESOURCE_INFO *)this, Usage);
+				
+				return ReturnValueMOCSOverride;
+		    }
 
             /////////////////////////////////////////////////////////////////////////////////////
             /// Returns the surface state value for Standard Tiling Mode Extension

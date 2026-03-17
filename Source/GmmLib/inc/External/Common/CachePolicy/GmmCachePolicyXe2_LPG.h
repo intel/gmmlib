@@ -24,8 +24,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #ifdef __cplusplus
 #include "../GmmCachePolicyCommon.h"
 
-#define GMM_XE2_NUM_MOCS_ENTRIES  (16)
-#define GMM_XE2_DEFAULT_PAT_INDEX (PAT2)
+#define GMM_XE2_NUM_MOCS_ENTRIES      (16)
+#define GMM_XE2_DEFAULT_PAT_INDEX     (PAT3)
 
 
 #ifdef __cplusplus

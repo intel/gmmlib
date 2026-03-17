@@ -594,12 +594,29 @@ GMM_STATUS GmmLib::GmmTextureCalc::FillTexPitchAndSize(GMM_TEXTURE_INFO * pTexIn
             pTexInfo->Pitch = GFX_ALIGN(pTexInfo->Pitch, GMM_KBYTE(4));
         }
     }
-
-    if((GFX_GET_CURRENT_PRODUCT(pPlatform->Platform) >= IGFX_METEORLAKE))
+	
+	// Wa_14022942107
+    // linear tiling + compressible surface + Y210/216/Y410/416 formats with Pitch (in pixels) multiple of 4k , then add 64B to the linear pitch.
+    if (pGmmLibContext->GetWaTable().Wa_14022942107 && pTexInfo->Type == RESOURCE_2D &&
+        (pTexInfo->Format == GMM_FORMAT_Y210 || pTexInfo->Format == GMM_FORMAT_Y216 ||
+         pTexInfo->Format == GMM_FORMAT_Y410 || pTexInfo->Format == GMM_FORMAT_Y416) &&
+        pTexInfo->Flags.Info.Linear && !pTexInfo->Flags.Info.NotCompressed &&
+        ((pTexInfo->Pitch % GMM_KBYTE(4)) == 0))
     {
-        pTexInfo->OffsetInfo.PlaneXe_LPG.PhysicalPitch = pTexInfo->Pitch;
-    }
-
+        pTexInfo->Pitch += 64;
+        // Max pitch supported in the cmd buffer instruction is 128k for 2D resources, hence limiting it to 128k
+        if (pTexInfo->Pitch > GMM_KBYTE(128))
+        {
+            pTexInfo->Pitch = GMM_KBYTE(128);
+		}
+	}
+	
+	
+	if((GFX_GET_CURRENT_PRODUCT(pPlatform->Platform) >= IGFX_METEORLAKE))
+    {
+	    pTexInfo->OffsetInfo.PlaneXe_LPG.PhysicalPitch = pTexInfo->Pitch;
+	}	
+		
     { // Surface Sizes
         int64_t Size;
 

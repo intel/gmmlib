@@ -381,7 +381,7 @@ uint32_t GMM_STDCALL GmmLib::GmmXe3P_XPCCachePolicy::CachePolicyGetPATIndex(GMM_
     /* No valid PAT Index found */
     if (GMM_PAT_ERROR == ReturnPATIndex)
     {
-        ReturnPATIndex    = GMM_XE2_DEFAULT_PAT_INDEX; //default to uncached PAT index 2: GMM_CP_NON_COHERENT_UC
+        ReturnPATIndex    = GMM_XE3P_DEFAULT_PAT_INDEX; //default to uncached PAT index 3: GMM_CP_NON_COHERENT_UC
         CompressionEnable = false;
         __GMM_ASSERT(false);
     }

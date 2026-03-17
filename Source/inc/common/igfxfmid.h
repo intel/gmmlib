@@ -81,6 +81,7 @@ typedef enum {
     IGFX_LUNARLAKE = 1275,
     IGFX_PTL = 1300,
     IGFX_NVL_XE3G = 1340,
+    IGFX_NVL  = 1360,
     IGFX_CRI = 1380,
 
     IGFX_MAX_PRODUCT,
@@ -2035,6 +2036,13 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_D743                             0xD743
 #define DEV_ID_D744                             0xD744
 #define DEV_ID_D745                             0xD745
+
+// NVL-P
+#define DEV_ID_D750                             0xD750
+#define DEV_ID_D751                             0xD751
+#define DEV_ID_D752                             0xD752
+#define DEV_ID_D753                             0xD753
+#define DEV_ID_D75F                             0xD75F
 
 // CRI
 #define DEV_ID_674C                             0x674C
