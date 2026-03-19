@@ -27,6 +27,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 extern "C" {
 #endif /*__cplusplus*/
 
+// Set packing alignment
+#pragma pack(push, 8)
+
 typedef struct {
     int(*pfnAllocate)(void *bufMgr, size_t size, size_t alignment, void **bo, void **cpuAddr, uint64_t *gpuAddr);
     void(*pfnDeallocate)(void *bo);
@@ -88,6 +91,9 @@ typedef struct GMM_UMD_SYNCCONTEXT_REC
     HANDLE              BBFenceObj;             // BatchBuffer Last Fence, for CPU to wait on before destroying TT pages
     uint64_t            BBLastFence;            // BatchBuffer Last Fence for TT
 } GMM_UMD_SYNCCONTEXT;
+
+// Reset packing alignment to project default
+#pragma pack(pop)
 
 #ifdef __cplusplus
 }
