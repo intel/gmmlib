@@ -167,6 +167,8 @@ endif()
 
 if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^aarch")
     set(GMMLIB_MARCH "armv8-a+fp+simd")
+elseif (${CMAKE_SYSTEM_PROCESSOR} MATCHES "riscv")
+    set(GMMLIB_MARCH "rv64g")
 elseif("${GMMLIB_MARCH}" STREQUAL "")
     set(GMMLIB_MARCH "corei7")
 endif()
@@ -305,6 +307,7 @@ set(SOURCES_
   ${BS_DIR_GMMLIB}/Texture/GmmTextureSpecialCases.cpp
   ${BS_DIR_GMMLIB}/Texture/GmmTextureOffset.cpp
   ${BS_DIR_GMMLIB}/GlobalInfo/GmmInfo.cpp
+  ${BS_DIR_GMMLIB}/Utility/CpuSwizzleBlt/riscv_sse2_support.h
   ${BS_DIR_GMMLIB}/Utility/CpuSwizzleBlt/CpuSwizzleBlt.c
   ${BS_DIR_GMMLIB}/Utility/GmmLog/GmmLog.cpp
   ${BS_DIR_GMMLIB}/Utility/GmmUtility.cpp
@@ -583,6 +586,9 @@ if(UNIX)
     install (DIRECTORY ${BS_DIR_UTIL} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/igdgmm COMPONENT gmmlib-devel
         FILES_MATCHING PATTERN "*.h"
         PATTERN "*.hpp")
+
+    install (FILES ${BS_DIR_GMMLIB}/Utility/CpuSwizzleBlt/riscv_sse2_support.h
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/igdgmm/GmmLib/Utility/CpuSwizzleBlt/ COMPONENT gmmlib-devel)
 
     install (FILES ${BS_DIR_GMMLIB}/Utility/CpuSwizzleBlt/CpuSwizzleBlt.c
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/igdgmm/GmmLib/Utility/CpuSwizzleBlt/ COMPONENT gmmlib-devel)
