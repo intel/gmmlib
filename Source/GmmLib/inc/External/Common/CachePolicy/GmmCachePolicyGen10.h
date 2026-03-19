@@ -31,7 +31,7 @@ namespace GmmLib
     {
         protected:
             /* Function prototypes */
-            uint32_t BestMatchingPATIdx(GMM_CACHE_POLICY_ELEMENT CachePolicy);
+            uint32_t BestMatchingPATIdx(const GMM_CACHE_POLICY_ELEMENT &CachePolicy);
 
         public:
             /* Constructors */
