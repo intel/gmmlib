@@ -96,6 +96,8 @@ Xe3_LPG/Xe3P_LPM (Panther Lake, NVL-S: Nova Lake S, NVL-U: Nova Lake U, NVL-H: N
 
 Xe3P-XPC/Xe3P_HPM (CRI: Crescent Island)
 
+Xe3P-LPG (NVL-P: Nova Lake P)
+
 No code changes may be introduced knowingly, that would regress for any currently supported hardware.
 All contributions must ensure continued compatibility and functionality across all supported hardware platforms.
 Failure to maintain hardware compatibility may result in the rejection or reversion of the contribution.
