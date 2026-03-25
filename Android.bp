@@ -109,7 +109,6 @@ cc_library_shared {
         "-Wno-missing-braces",
         "-Wno-unknown-pragmas",
         "-Wno-parentheses",
-        "-Wno-pragma-pack",
         "-fexceptions",
         "-std=c++11",
         "-fvisibility-inlines-hidden",
@@ -117,6 +116,7 @@ cc_library_shared {
         "-fno-rtti",
         "-fcheck-new",
         "-pthread",
+        "-Wpragma-pack-suspicious-include",
     ],
 
     local_include_dirs: [
