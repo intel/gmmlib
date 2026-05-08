@@ -167,12 +167,13 @@ endif()
 
 if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^aarch")
     set(GMMLIB_MARCH "armv8-a+fp+simd")
-elseif (${CMAKE_SYSTEM_PROCESSOR} MATCHES "riscv")
-    set(GMMLIB_MARCH "rv64g")
+elseif (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^riscv")
+    set(GMMLIB_MARCH "rv64gc")
 elseif("${GMMLIB_MARCH}" STREQUAL "")
     set(GMMLIB_MARCH "corei7")
 endif()
 
+MESSAGE("cmake system processor: ${CMAKE_SYSTEM_PROCESSOR}")
 MESSAGE("platform: ${CMAKE_HOST_SYSTEM_NAME}")
 MESSAGE("source_dir: ${BS_DIR_GMMLIB}")
 MESSAGE("arch: ${GMMLIB_ARCH}")
@@ -307,7 +308,6 @@ set(SOURCES_
   ${BS_DIR_GMMLIB}/Texture/GmmTextureSpecialCases.cpp
   ${BS_DIR_GMMLIB}/Texture/GmmTextureOffset.cpp
   ${BS_DIR_GMMLIB}/GlobalInfo/GmmInfo.cpp
-  ${BS_DIR_GMMLIB}/Utility/CpuSwizzleBlt/riscv_sse2_support.h
   ${BS_DIR_GMMLIB}/Utility/CpuSwizzleBlt/CpuSwizzleBlt.c
   ${BS_DIR_GMMLIB}/Utility/GmmLog/GmmLog.cpp
   ${BS_DIR_GMMLIB}/Utility/GmmUtility.cpp
@@ -587,9 +587,6 @@ if(UNIX)
         FILES_MATCHING PATTERN "*.h"
         PATTERN "*.hpp")
 
-    install (FILES ${BS_DIR_GMMLIB}/Utility/CpuSwizzleBlt/riscv_sse2_support.h
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/igdgmm/GmmLib/Utility/CpuSwizzleBlt/ COMPONENT gmmlib-devel)
-
     install (FILES ${BS_DIR_GMMLIB}/Utility/CpuSwizzleBlt/CpuSwizzleBlt.c
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/igdgmm/GmmLib/Utility/CpuSwizzleBlt/ COMPONENT gmmlib-devel)
 
@@ -624,6 +621,7 @@ if(UNIX)
     set(CPACK_PACKAGE_RELOCATABLE FALSE)
 
     set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+    set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "riscv64")
     set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Intel")
     set(CPACK_DEBIAN_COMPRESSION_TYPE "xz")
     set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_BINARY_DIR}/postinst;${CMAKE_CURRENT_BINARY_DIR}/postrm")

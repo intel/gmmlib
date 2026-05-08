@@ -55,7 +55,7 @@ if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^aarch")
     -fPIC
     -g
     )
-elseif (${CMAKE_SYSTEM_PROCESSOR} MATCHES "riscv")
+elseif (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^riscv")
     SET (GMMLIB_COMPILER_FLAGS_COMMON
     #general warnings
     #-Wall
@@ -88,6 +88,7 @@ elseif (${CMAKE_SYSTEM_PROCESSOR} MATCHES "riscv")
     -fvisibility=hidden
     -fPIC
     -g
+    -Wno-attributes
     )
 else()
     SET (GMMLIB_COMPILER_FLAGS_COMMON
@@ -209,6 +210,9 @@ foreach (flag ${GMMLIB_COMPILER_CXX_FLAGS_COMMON})
 endforeach()
 
 if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^aarch")
+    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
+    SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}")
+elseif (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^riscv")
     SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
     SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}")
 else()
