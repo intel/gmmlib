@@ -500,6 +500,13 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmGen12TextureCalc::FillTex2D(GMM_TEXTURE_INFO *
     // Align height to even row to avoid hang if HW over-fetch
     BlockHeight = GFX_ALIGN(BlockHeight, __GMM_EVEN_ROW);
 
+    // slice pitch padding to 64KB
+    if (pTexInfo->Flags.Wa.SlicePitchPadding64KB && (ExpandedArraySize > 1))
+    {
+	BlockHeight                = GFX_CEIL_DIV(GFX_ALIGN_NP2(BlockHeight * Pitch, GMM_KBYTE(64)), Pitch);
+        pTexInfo->Alignment.QPitch = BlockHeight;
+    }
+
     if((Status = // <-- Note assignment.
         FillTexPitchAndSize(
         pTexInfo, Pitch, BlockHeight, pRestrictions)) == GMM_SUCCESS)

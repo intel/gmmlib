@@ -1461,9 +1461,6 @@ TEST_F(CTestGen12dGPUResource, DISABLED_TestPlanarYCompressedResource)
 TEST_F(CTestGen12dGPUResource, TestPlanarTile64CompressedResource)
 {
 
-    const uint32_t TileSize[TEST_BPP_MAX][2] = {
-    {256, 256}, {512, 128}, {512, 128}, {1024, 64}, {1024, 64}}; // TileYS
-
     GMM_RESCREATE_PARAMS gmmParams = {};
     gmmParams.Type                 = RESOURCE_2D;
     gmmParams.NoGfxMemory          = 1;
@@ -3124,17 +3121,6 @@ TEST_F(CTestGen12dGPUResource, DISABLED_Test2DTileYfAMFSResource)
 /// @brief ULT for MSAA Resource - adddepth MSAA, MCS surf param verificaton, compression case
 TEST_F(CTestGen12dGPUResource, DISABLED_TestColorMSAA)
 {
-    //Tile dimensions in Bytes
-    const uint32_t MCSTileSize[1][2] = {128, 32}; //MCS is TileY
-
-    const uint32_t TestDimensions[4][2] = {
-    //Input dimensions in #Tiles
-    {15, 20}, //16 Tiles x 20 <Max Width: Depth MSS crosses Pitch limit beyond this>
-    {0, 0},   //1x1x1
-    {1, 0},   //2 Tilesx1
-    {1, 1},   //2 Tiles x 2
-    };
-
     uint32_t TestArraySize[2] = {1, 5};
     uint32_t MinPitch         = 32;
 

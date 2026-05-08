@@ -2353,10 +2353,6 @@ TEST_F(CTestGen9Resource, Test3DTileYsResource)
 /// @brief ULT for 3D TileYs Mipped Resource
 TEST_F(CTestGen9Resource, Test3DTileYsMippedResource)
 {
-    // Horizontal/Vertical pixel alignment
-    const uint32_t HAlign[TEST_BPP_MAX] = {64, 32, 32, 32, 16};
-    const uint32_t VAlign[TEST_BPP_MAX] = {32, 32, 32, 16, 16};
-
     const uint32_t TileSize[TEST_BPP_MAX][3] = {{64, 32, 32},
                                                 {64, 32, 32},
                                                 {128, 32, 16},

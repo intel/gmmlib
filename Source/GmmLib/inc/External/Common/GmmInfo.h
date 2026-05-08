@@ -316,8 +316,7 @@ namespace GmmLib
         /////////////////////////////////////////////////////////////////////////
         /// Set padding  limit for 64k pages
         /////////////////////////////////////////////////////////////////////////
-
-        GMM_INLINE void SetAllowedPaddingFor64KBTileSurf(uint32_t Value)
+	GMM_INLINE void SetAllowedPaddingFor64KBTileSurf(uint32_t Value)
         {
             AllowedPaddingFor64KBTileSurf = Value;
         }
@@ -588,8 +587,40 @@ namespace GmmLib
     {
         return (&PrivatePATTable[0]);
     }
-    
+
+    private:
+        uint32_t               UsageBasedPaddingFor64KBTileSurf;
+        uint8_t                MultiEngineAccessCompressedWAEnable;
+
+    public:
+	/////////////////////////////////////////////////////////////////////////
+        uint32_t GetUsageBasedPaddingFor64KBTileSurf()
+        {
+            return (UsageBasedPaddingFor64KBTileSurf);
+        }
+
+        /////////////////////////////////////////////////////////////////////////
+        /// Set usage based padding percentage limit for 64KB tile
+        /////////////////////////////////////////////////////////////////////////
+        GMM_INLINE void SetUsageBasedPaddingFor64KBTileSurf(uint32_t Value)
+        {
+            UsageBasedPaddingFor64KBTileSurf = Value;
+        }
+
+        /////////////////////////////////////////////////////////////////////////
+        /// Get Multi Engine Compression WA Flag
+        /////////////////////////////////////////////////////////////////////////
+        uint8_t IsMultiEngineAccessCompressedWAEnabled()
+        {
+            if (MultiEngineAccessCompressedWAEnable || this->WaTable.Wa_22015614752)
+            {
+                return true;
+            }
+
+            return false;
+        }
     };
+
 
 // Max number of Multi-Adapters allowed in the system
 #define MAX_NUM_ADAPTERS      9

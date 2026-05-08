@@ -106,3 +106,4 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define GMM_OVERRIDE_SIZE_64KB_ALLOC(pGmmLibContext)  if(((GmmClientContext*)pClientContext)->GetSkuTable().FtrPpgtt64KBWalkOptimization){ return (this->GetSizeAllocation());}
 #endif
 
+#define ONE_WAY_COHERENT_COMPRESSION_MODE(Platform, WaNoCpuCoherentCompression) ((Platform >= IGFX_PTL) && (!WaNoCpuCoherentCompression))

@@ -351,6 +351,12 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmXe_LPGTextureCalc::FillTexPlanar(GMM_TEXTURE_I
             pTexInfo->Flags.Gpu.CCS               = 0;
             pTexInfo->Flags.Gpu.UnifiedAuxSurface = 0;
             pTexInfo->Flags.Gpu.__NonMsaaTileYCcs = 0;
+            if (pGmmLibContext->GetSkuTable().FtrXe2Compression)
+            {
+                pTexInfo->Flags.Info.NotCompressed     = 1;
+                pTexInfo->Flags.Gpu.MCS                = 0;
+                pTexInfo->Flags.Gpu.IndirectClearColor = 0;
+            }
         }
     }
 
@@ -557,7 +563,6 @@ void GmmLib::GmmXe_LPGTextureCalc::FillPlanarOffsetAddress(GMM_TEXTURE_INFO *pTe
     pTexInfo->OffsetInfo.PlaneXe_LPG.X[GMM_PLANE_Y] = 0;
     pTexInfo->OffsetInfo.PlaneXe_LPG.Y[GMM_PLANE_Y] = 0;
 
-    pTexInfo->OffsetInfo.PlaneXe_LPG.UnAligned.Height[GMM_PLANE_Y] = 0;
     pTexInfo->OffsetInfo.PlaneXe_LPG.UnAligned.Height[GMM_PLANE_Y] = 0;
 
     Height = pTexInfo->BaseHeight;

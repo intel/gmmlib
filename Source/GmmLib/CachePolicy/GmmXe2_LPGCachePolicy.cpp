@@ -38,13 +38,16 @@ GMM_STATUS GmmLib::GmmXe2_LPGCachePolicy::InitCachePolicy()
 
 #include "GmmXe2_LPGCachePolicy.h"
 
+// To support PAT centric approach for "UNKNOWN" resource usage.
+// UMD overrides with "UNKNOWN" usages to get desired cacheability.
+#define MOCS_CENTRIC_UNCACHED_MOCS_INDEX 3
     SetUpMOCSTable();
     SetupPAT();
 
     // Define index of cache element
     uint32_t Usage          = 0;
     uint32_t ReservedPATIdx = 16; /* Rsvd PAT section 16-19 */
-    uint32_t ReservedPATIdxEnd = 20;
+    uint32_t ReservedPATIdxEnd = pGmmLibContext->GetSkuTable().FtrAppTransientCaching ? 18 : 20;
 
 #if (_WIN32 && (_DEBUG || _RELEASE_INTERNAL))
     void *pKmdGmmContext = NULL;
@@ -248,7 +251,7 @@ GMM_STATUS GmmLib::GmmXe2_LPGCachePolicy::InitCachePolicy()
         pCachePolicy[Usage].PATIndexCompressed                       = PATIdxCompressed;
         pCachePolicy[Usage].PTE.DwordValue                           = GMM_GET_PTE_BITS_FROM_PAT_IDX(PATIdx) & 0xFFFFFFFF;
         pCachePolicy[Usage].PTE.HighDwordValue                       = GMM_GET_PTE_BITS_FROM_PAT_IDX(PATIdx) >> 32;
-        pCachePolicy[Usage].MemoryObjectOverride.XE_HP.Index         = CPTblIdx;
+        pCachePolicy[Usage].MemoryObjectOverride.XE_HP.Index         = (pGmmLibContext->GetSkuTable().FtrPATCentricCachePolicy && (Usage == GMM_RESOURCE_USAGE_UNKNOWN)) ? MOCS_CENTRIC_UNCACHED_MOCS_INDEX : CPTblIdx;
         pCachePolicy[Usage].MemoryObjectOverride.XE_HP.EncryptedData = 0;
         pCachePolicy[Usage].Override                                 = ALWAYS_OVERRIDE;
 
@@ -260,6 +263,9 @@ GMM_STATUS GmmLib::GmmXe2_LPGCachePolicy::InitCachePolicy()
             return GMM_INVALIDPARAM;
         }
     }
+
+#undef MOCS_CENTRIC_UNCACHED_MOCS_INDEX
+
     return GMM_SUCCESS;
 }
 
@@ -375,6 +381,7 @@ uint32_t GMM_STDCALL GmmLib::GmmXe2_LPGCachePolicy::CachePolicyGetPATIndex(GMM_R
     uint32_t                 PATIndex             = pGmmLibContext->GetCachePolicyElement(Usage).PATIndex;
     GMM_CACHE_POLICY_ELEMENT TempElement          = pGmmLibContext->GetCachePolicyElement(Usage);
     uint32_t                 TempCoherentPATIndex = 0;
+    bool                     IsAppTransientEligible = ((TempElement.L3CC == GMM_WB) || (TempElement.L3CC == GMM_WBTA)) ? true : false;
 
     // This is to check if PATIndexCompressed, CoherentPATIndex are valid
     // Increment by 1 to have the rollover and value resets to 0 if the PAT in not valid.
@@ -400,10 +407,20 @@ uint32_t GMM_STDCALL GmmLib::GmmXe2_LPGCachePolicy::CachePolicyGetPATIndex(GMM_R
     // requested compressed and coherent
     if (CompressionEnable && IsCpuCacheable)
     {
-	// return coherent uncompressed
-	ReturnPATIndex    = CoherentPATIndex;
-	CompressionEnable = false;
-	GMM_ASSERTDPF(false, "Coherent Compressed is not supported on Xe2. However, respecting the coherency and returning CoherentPATIndex");
+        if (ONE_WAY_COHERENT_COMPRESSION_MODE(pGmmLibContext->GetPlatformInfo().Platform.eProductFamily, pGmmLibContext->GetWaTable().WaNoCpuCoherentCompression))
+        {
+#define COHERENT_COMPRESSED_PATIDX 16
+            // return coherent compressed PAT which is 16
+            ReturnPATIndex    = COHERENT_COMPRESSED_PATIDX;
+            CompressionEnable = true;
+        }
+        else
+        {
+            // return coherent uncompressed
+            ReturnPATIndex    = CoherentPATIndex;
+            CompressionEnable = false;
+            GMM_ASSERTDPF(false, "For Coherent Compressed resources combination on Xe2, respecting the coherency and returning CoherentPATIndex");
+        }
     }
     // requested compressed only
     else if (CompressionEnable)
@@ -442,9 +459,35 @@ uint32_t GMM_STDCALL GmmLib::GmmXe2_LPGCachePolicy::CachePolicyGetPATIndex(GMM_R
     /* No valid PAT Index found */
     if (GMM_PAT_ERROR == ReturnPATIndex)
     {
-        ReturnPATIndex    = GMM_XE2_DEFAULT_PAT_INDEX; //default to uncached PAT index 2: GMM_CP_NON_COHERENT_UC
+        ReturnPATIndex    = GMM_XE2_DEFAULT_PAT_INDEX; //default to uncached PAT index 3: GMM_CP_NON_COHERENT_UC
         CompressionEnable = false;
         __GMM_ASSERT(false);
+    }
+
+    if (pCompressionEnable)
+    {
+	    if (CompressionEnable)
+        {
+            IsAppTransientEligible = false;
+        }
+    }
+
+#define APP_TRANSIENT_NONCOHERENT_PATIDX 18
+#define APP_TRANSIENT_COHERENT_PATIDX    19
+
+    if (pGmmLibContext->GetSkuTable().FtrAppTransientCaching && IsAppTransientEligible &&
+        ((pResInfo && (!pResInfo->GetResFlags().Info.NotLockable || pResInfo->GetResFlags().Gpu.CameraCapture || pResInfo->GetResFlags().Info.XAdapter)) ||
+         (!pResInfo && (Usage == GMM_RESOURCE_USAGE_QUERY))))
+    {
+        // If CpuCacheable, choose 1-way Coherent PatIdx
+        if (IsCpuCacheable)
+        {
+            ReturnPATIndex = APP_TRANSIENT_COHERENT_PATIDX;
+        }
+        else
+        {
+            ReturnPATIndex = APP_TRANSIENT_NONCOHERENT_PATIDX;
+        }
     }
 
     if (pCompressionEnable)
@@ -453,6 +496,53 @@ uint32_t GMM_STDCALL GmmLib::GmmXe2_LPGCachePolicy::CachePolicyGetPATIndex(GMM_R
     }
 
     return ReturnPATIndex;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+///      A simple getter function returning the MOCS (cache policy) for a given
+///      use Usage of the named resource pResInfo.
+///      Typically used to populate a SURFACE_STATE for a GPU task.
+///
+/// @param[in]     pResInfo: Resource info for resource, can be NULL.
+/// @param[in]     Usage: Current usage for resource.
+///
+/// @return        MEMORY_OBJECT_CONTROL_STATE: Gen adjusted MOCS structure (cache
+///                                             policy) for the given buffer use.
+/////////////////////////////////////////////////////////////////////////////////////
+MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL GmmLib::GmmXe2_LPGCachePolicy::CachePolicyGetMemoryObject(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage)
+{
+    __GMM_ASSERT(pCachePolicy[Usage].Initialized);
+    MEMORY_OBJECT_CONTROL_STATE ReturnValueMOCSOverride = pCachePolicy[Usage].MemoryObjectOverride;
+
+    // Prevent wrong Usage for XAdapter resources. Assert if GetMemoryObject is called for cross adapter resources
+    if (pResInfo &&
+        pResInfo->GetResFlags().Info.XAdapter &&
+        (Usage != GMM_RESOURCE_USAGE_XADAPTER_SHARED_RESOURCE))
+    {
+        __GMM_ASSERT(false);
+    }
+
+    if (!pResInfo ||
+        (pCachePolicy[Usage].Override & pCachePolicy[Usage].IDCode) ||
+        (pCachePolicy[Usage].Override == ALWAYS_OVERRIDE))
+    {
+
+        ReturnValueMOCSOverride = pCachePolicy[Usage].MemoryObjectOverride;
+
+        if ((pGmmLibContext->GetSkuTable().FtrPATCentricCachePolicy && (Usage == GMM_RESOURCE_USAGE_UNKNOWN)) && ((pResInfo && (pResInfo->GetClientType() == GMM_OCL_VISTA)) || (pGmmLibContext->GetClientType() == GMM_OCL_VISTA)))
+        {
+// To support PAT centric approach for "UNKNOWN" resource usage.
+// OCL overrides with "UNKNOWN" usages to get desired cacheability.
+#define DEFER_TO_PAT_UNCACHED_MOCS_INDEX 0
+            ReturnValueMOCSOverride.XE_HP.Index = DEFER_TO_PAT_UNCACHED_MOCS_INDEX;
+        }
+    }
+    else
+    {
+        ReturnValueMOCSOverride = pCachePolicy[Usage].MemoryObjectNoOverride;
+    }
+
+    return ReturnValueMOCSOverride;
 }
 
 //=============================================================================
@@ -604,6 +694,18 @@ GMM_STATUS GmmLib::GmmXe2_LPGCachePolicy::SetupPAT()
     GMM_DEFINE_PAT_ELEMENT( 31      , 3      , L4_UC             , L3_WB           , 3          , 0             , 0)    //          | L3_WB | 2 way coherent 
 
     CurrentMaxPATIndex = 31;
+
+
+    if (pGmmLibContext->GetSkuTable().FtrAppTransientCaching)
+    {
+        GMM_DEFINE_PAT_ELEMENT( 18     , 0      , L4_UC              , L3_XA           , 0          , 0             , 1)    // PATRegValue = 0x42C
+        GMM_DEFINE_PAT_ELEMENT( 19     , 2      , L4_UC              , L3_XA           , 0          , 0             , 1)    // PATRegValue = 0x42E
+    }
+		
+    if (ONE_WAY_COHERENT_COMPRESSION_MODE(pGmmLibContext->GetPlatformInfo().Platform.eProductFamily, pGmmLibContext->GetWaTable().WaNoCpuCoherentCompression))
+    {
+        GMM_DEFINE_PAT_ELEMENT( 16      , 2      , L4_UC              , L3_WB           , 0          , 1             , 0)    //          | L3_WB | 1 way coherent | Compression
+    }
 
 // clang-format on
 #undef GMM_DEFINE_PAT

@@ -32,7 +32,7 @@ protected:
     virtual void CheckPAT();
     virtual void Check_Xe2_HPG_PATCompressed();
     virtual void CheckXe2_HPGVirtualL3CachePolicy();
-
+    virtual void Check_Xe3P_AppTransientPAT();
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();

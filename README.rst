@@ -22,20 +22,20 @@ https://opensource.org/licenses/MIT
 Building
 ========
 1) Get gmmlib repository
-   
-   git clone https://github.com/intel/gmmlib.git
+
+   ``$ git clone https://github.com/intel/gmmlib.git``
 
 2) Change it to root directory
 
    ``$ cd gmmlib``
 
 3) Make a build directory
-   
+
    ``$ mkdir build && cd build``
 
 4) Run the cmake command to prepare build files
 
-|        ``$ cmake [-DCMAKE_BUILD_TYPE=Release | Debug | ReleaseInternal] ..``  
+|        ``$ cmake [-DCMAKE_BUILD_TYPE=Release | Debug | ReleaseInternal] ..``
 |        where,
 |        -DCMAKE_BUILD_TYPE can be set to one build type flag at a time.
 |        Example:
@@ -44,7 +44,7 @@ Building
 5) Build the project
 
    ``$ make -j"$(nproc)" (Also performs compile time ULT)``
- 
+
 Install
 =======
 ``$ sudo make install``
@@ -54,7 +54,7 @@ This will install the following files (e.g. on Ubuntu):
 | -- Install configuration: "Release"
 | -- Installing: /usr/local/lib/libigdgmm.so.12.1.0
 | -- Installing: /usr/local/lib/libigdgmm.so.12
-| 
+|
 
 
 Not a stand alone software component.
@@ -92,7 +92,25 @@ Xe_LPG (MTL: Meteor Lake, ARL: Arrow Lake)
 
 Xe2_HPG (BMG: Battlemage, LNL: Lunar Lake)
 
-Xe3_LPG (Panther Lake)
+Xe3_LPG/Xe3P_LPM (Panther Lake, NVL-S: Nova Lake S, NVL-U: Nova Lake U, NVL-H: Nova Lake H, NVL-HX: Nova Lake HX, NVL-UL: Nova Lake UL)
+
+Xe3P-XPC/Xe3P_HPM (CRI: Crescent Island)
+
+Xe3P-LPG (NVL-P: Nova Lake P)
+
+No code changes may be introduced knowingly, that would regress for any currently supported hardware.
+All contributions must ensure continued compatibility and functionality across all supported hardware platforms.
+Failure to maintain hardware compatibility may result in the rejection or reversion of the contribution.
+
+Any deliberate modifications or removal of hardware support will be transparently communicated.
+
+API options are solely considered as a stable interface.
+Any debug parameters, environmental variables and internal data structures are not considered as an interface and may be changed or removed at any time.
+
+To contribute, Create a pull request on https://github.com/intel/gmmlib with your changes. Ensure that your modifications build without errors.
+A maintainer will get in touch with you if there are any inquiries or concerns.
+
+If you have any feedback or questions, please open an issue through our repository interface: https://github.com/intel/gmmlib/issues
 
 Release Tags
 ============
@@ -103,7 +121,7 @@ Gmmlib Release tag versioning schema follows:
 | x = GMMLIB_API_MAJOR_VERSION + 10,
 | y = GMMLIB_API_MINOR_VERSION,
 | z = RELEASE NUMBER which is incremented as 0,1,2,...n for changes including new flag, bug fixes, etc.
-| 
+|
 | Example:
 |   For GMM library ``libigdgmm.so.12.0.0``,
 |   Tag = ``intel-gmmlib-22.0.0`` where,

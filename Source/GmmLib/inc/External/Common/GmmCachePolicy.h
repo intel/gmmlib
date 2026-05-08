@@ -232,7 +232,23 @@ typedef enum GMM_GFX_PAT_IDX_REC
     PAT12,
     PAT13,
     PAT14,
-    PAT15
+    PAT15,
+    PAT16,
+    PAT17,
+    PAT18,
+    PAT19,
+    PAT20,
+    PAT21,
+    PAT22,
+    PAT23,
+    PAT24,
+    PAT25,
+    PAT26,
+    PAT27,
+    PAT28,
+    PAT29,
+    PAT30,
+    PAT31
 } GMM_GFX_PAT_IDX;
 
 #define GFX_IS_ATOM_PLATFORM(pGmmLibContext) (GmmGetSkuTable(pGmmLibContext)->FtrLCIA)

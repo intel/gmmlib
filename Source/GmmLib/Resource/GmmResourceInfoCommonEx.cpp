@@ -265,6 +265,20 @@ bool GmmLib::GmmResourceInfoCommon::CopyClientParams(GMM_RESCREATE_PARAMS &Creat
     Surf.Flags.Info.SVM &&
     !(GetGmmLibContext()->GetSkuTable().FtrWddm2GpuMmu ||
       GetGmmLibContext()->GetSkuTable().FtrWddm2Svm);
+    
+    if (GetGmmLibContext()->GetSkuTable().FtrXe2Compression && 
+		    !(ONE_WAY_COHERENT_COMPRESSION_MODE(GetGmmLibContext()->GetPlatformInfo().Platform.eProductFamily, GetGmmLibContext()->GetWaTable().WaNoCpuCoherentCompression)))
+    {
+        if (!CreateParams.Flags.Info.NotCompressed && CreateParams.Flags.Info.Cacheable)
+        {
+            // Disable compression
+            Surf.Flags.Info.NotCompressed     = 1;
+            Surf.Flags.Gpu.CCS                = 0;
+            Surf.Flags.Gpu.UnifiedAuxSurface  = 0;
+            Surf.Flags.Gpu.IndirectClearColor = 0;
+            Surf.Flags.Gpu.MCS                = 0;
+        }
+    }    
 
 #if !__GMM_KMD__ && LHDM
     if(GetGmmLibContext()->GetWaTable().WaLLCCachingUnsupported)
@@ -1021,6 +1035,14 @@ uint8_t GMM_STDCALL GmmLib::GmmResourceInfoCommon::ValidateParams()
                 goto ERROR_CASE;
             }
             break;
+    }
+
+    if (GetGmmLibContext()->GetSkuTable().FtrXe2Compression && 
+		    !(ONE_WAY_COHERENT_COMPRESSION_MODE(GetGmmLibContext()->GetPlatformInfo().Platform.eProductFamily, GetGmmLibContext()->GetWaTable().WaNoCpuCoherentCompression)) && 
+		    Surf.Flags.Info.Cacheable && !Surf.Flags.Info.NotCompressed)
+    {
+        GMM_ASSERTDPF(0, "Invalid combination Cpu Cacheable and Compression set on a platform");
+        goto ERROR_CASE;
     }
 
     GMM_DPF_EXIT;

@@ -1,5 +1,5 @@
 /*==============================================================================
-Copyright(c) 2024 Intel Corporation
+Copyright(c) 2025 Intel Corporation
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files(the "Software"),
 to deal in the Software without restriction, including without limitation
@@ -18,43 +18,20 @@ OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 ============================================================================*/
-
 #pragma once
 
 #ifdef __cplusplus
 #include "../GmmCachePolicyCommon.h"
 
-#define GMM_XE2_NUM_MOCS_ENTRIES      (16)
-#define GMM_XE2_DEFAULT_PAT_INDEX     (PAT3)
+#define GMM_XE3P_NUM_MOCS_ENTRIES      (16)
+#define GMM_XE3P_DEFAULT_PAT_INDEX     (PAT3)
 
 
 #ifdef __cplusplus
 extern "C" {
 #endif /*__cplusplus*/
 
-typedef enum GMM_GFX_PHY_L4_MEMORY_TYPE_REC
-{
-    GMM_GFX_PHY_L4_MT_WB = 0x0,
-    GMM_GFX_PHY_L4_MT_WT = 0x1,
-    GMM_GFX_PHY_L4_MT_UC = 0x3,
-} GMM_GFX_PHY_L4_MEMORY_TYPE;
-
-typedef enum GMM_GFX_PHY_L3_MEMORY_TYPE_REC
-{
-    GMM_GFX_PHY_L3_MT_WB    = 0x0,
-    GMM_GFX_PHY_L3_MT_WB_XD = 0x1, // Transient Flush Display
-    GMM_GFX_PHY_L3_MT_UC    = 0x3,
-} GMM_GFX_PHY_L3_MEMORY_TYPE;
-
-typedef enum GMM_GFX_PHY_CACHE_COHERENCY_TYPE_REC
-{
-    GMM_GFX_PHY_NON_COHERENT_NO_SNOOP         = 0x0,
-    GMM_GFX_PHY_NON_COHERENT                  = 0x1,
-    GMM_GFX_PHY_COHERENT_ONE_WAY_IA_SNOOP     = 0x2,
-    GMM_GFX_PHY_COHERENT_TWO_WAY_IA_GPU_SNOOP = 0x3
-} GMM_GFX_PHY_CACHE_COHERENCY_TYPE;
-
-typedef union GMM_XE2_PRIVATE_PAT_REC
+typedef union GMM_XE3P_PRIVATE_PAT_REC
 {
     struct
     {
@@ -65,27 +42,27 @@ typedef union GMM_XE2_PRIVATE_PAT_REC
         uint32_t Reserved1            : 1;
         uint32_t LosslessCompressionEn: 1;
         uint32_t Reserved2            : 22;
-    } Xe2;
+    } Xe3P;
     uint32_t Value;
-} GMM_XE2_PRIVATE_PAT;
+} GMM_XE3P_PRIVATE_PAT;
 
 namespace GmmLib
 {
-    class NON_PAGED_SECTION GmmXe2_LPGCachePolicy : public GmmXe_LPGCachePolicy
+    class NON_PAGED_SECTION GmmXe3P_XPCCachePolicy : public GmmXe2_LPGCachePolicy
     {
     protected:
 
     public:
         /* Constructors */
-        GmmXe2_LPGCachePolicy(GMM_CACHE_POLICY_ELEMENT *pCachePolicyContext, Context *pGmmLibContext)
-            : GmmXe_LPGCachePolicy(pCachePolicyContext, pGmmLibContext)
+        GmmXe3P_XPCCachePolicy(GMM_CACHE_POLICY_ELEMENT *pCachePolicyContext, Context *pGmmLibContext)
+            : GmmXe2_LPGCachePolicy(pCachePolicyContext, pGmmLibContext)
         {
             NumPATRegisters     = GMM_NUM_PAT_ENTRIES;
-            NumMOCSRegisters    = GMM_XE2_NUM_MOCS_ENTRIES;
+            NumMOCSRegisters    = GMM_XE3P_NUM_MOCS_ENTRIES;
             CurrentMaxPATIndex  = 0;
             CurrentMaxMocsIndex = 0;
         }
-        virtual ~GmmXe2_LPGCachePolicy()
+        virtual ~GmmXe3P_XPCCachePolicy()
         {
         }
 
@@ -93,10 +70,8 @@ namespace GmmLib
         GMM_STATUS           InitCachePolicy();
         GMM_STATUS           SetupPAT();
         void                 SetUpMOCSTable();
-        void                 GetL3L4(GMM_CACHE_POLICY_TBL_ELEMENT *pUsageEle, GMM_XE2_PRIVATE_PAT *pUsagePATElement, uint32_t Usage);
+        void                 GetL3L4(GMM_CACHE_POLICY_TBL_ELEMENT *pUsageEle, GMM_XE3P_PRIVATE_PAT *pUsagePATElement, uint32_t Usage);
         uint32_t GMM_STDCALL CachePolicyGetPATIndex(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage, bool *pCompressionEnable, bool IsCpuCacheable);
-        MEMORY_OBJECT_CONTROL_STATE GMM_STDCALL CachePolicyGetMemoryObject(GMM_RESOURCE_INFO *pResInfo, GMM_RESOURCE_USAGE_TYPE Usage);
-
     };
 } // namespace GmmLib
 #endif // #ifdef __cplusplus
@@ -104,3 +79,4 @@ namespace GmmLib
 #ifdef __cplusplus
 }
 #endif /* end__cplusplus*/
+

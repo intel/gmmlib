@@ -87,7 +87,7 @@ typedef struct _SKU_FEATURE_TABLE
         unsigned int   FtrUserModeTranslationTable      : 1;  // User mode managed Translation Table support for Tiled Resources.
         unsigned int   FtrNullPages                     : 1;  // Support for PTE-based Null pages for Sparse/Tiled Resources).
         unsigned int   FtrEDram                         : 1;  // embedded DRAM enable
-	unsigned int   FtrLLCBypass                     : 1;  // Partial tunneling of UC memory traffic via CCF (LLC Bypass)
+	    unsigned int   FtrLLCBypass                     : 1;  // Partial tunneling of UC memory traffic via CCF (LLC Bypass)
         unsigned int   FtrCrystalwell                   : 1;  // Crystalwell Sku
         unsigned int   FtrCentralCachePolicy            : 1;  // Centralized Cache Policy
         unsigned int   FtrWddm2GpuMmu                   : 1;  // WDDMv2 GpuMmu Model (Set in platform SKU files, but disabled by GMM as appropriate for given system.)
@@ -105,17 +105,20 @@ typedef struct _SKU_FEATURE_TABLE
         unsigned int   FtrFlatPhysCCS                   : 1;  // XeHP compression ie flat physical CCS
         unsigned int   FtrDisplayXTiling                : 1;  // Fallback to Legacy TileX Display, used for Pre-SI platforms.
         unsigned int   FtrMultiTileArch                 : 1;
-	unsigned int   FtrDisplayPageTables             : 1;  // Display Page Tables: 2-Level Page walk for Displayable Frame buffers in GGTT.
+	    unsigned int   FtrDisplayPageTables             : 1;  // Display Page Tables: 2-Level Page walk for Displayable Frame buffers in GGTT.
         unsigned int   Ftr57bGPUAddressing              : 1;  // 57b GPUVA support eg: PVC
-	unsigned int   FtrUnified3DMediaCompressionFormats : 1; // DG2 has unified Render/media compression(versus TGLLP/XeHP_SDV 's multiple instances) and requires changes to RC format h/w encodings.
+	    unsigned int   FtrUnified3DMediaCompressionFormats : 1; // DG2 has unified Render/media compression(versus TGLLP/XeHP_SDV 's multiple instances) and requires changes to RC format h/w encodings.
         unsigned int   FtrForceTile4                    : 1;  // Flag to force Tile4 usage as default in Tile64 supported platforms.
         unsigned int   FtrTile64Optimization            : 1;
         unsigned int   FtrDiscrete                      : 1;  // Discrete-gfx
         unsigned int   FtrXe2Compression                : 1;  // Xe2 Stateless Compression
-	unsigned int   FtrXe2PlusTiling                 : 1;  // Tile64 MSAA Layout
+	    unsigned int   FtrXe2PlusTiling                 : 1;  // Tile64 MSAA Layout
         unsigned int   FtrL4Cache                       : 1;  // L4 cache support
-        unsigned int   FtrPml5Support                   : 1;  // xe2 page tables		
-		
+        unsigned int   FtrPml5Support                   : 1;  // xe2 page tables
+	    unsigned int   Ftr3DSamplerRemoved              : 1;
+	    unsigned int   FtrEfficient64BitAddressing      : 1;  // Efficient 64bit addressing (Xe3P) feature.
+		unsigned int   FtrPATCentricCachePolicy         : 1;  // Flag to enable the PAT centric cache policy.
+        unsigned int   FtrAppTransientCaching : 1; // App-Transient Attribute
     };
 
 
@@ -486,7 +489,7 @@ typedef struct _WA_TABLE
         WA_BUG_TYPE_PERF,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_UNKNOWN)
 
-	WA_DECLARE(
+	    WA_DECLARE(
         WaAuxTable64KGranular,
         "AuxTable map granularity changed to 64K ..Remove once Neo switches reference to WaAuxTable16KGranular",
         WA_BUG_TYPE_PERF,
@@ -504,7 +507,7 @@ typedef struct _WA_TABLE
         WA_BUG_TYPE_FUNCTIONAL,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
 
-	WA_DECLARE(
+	    WA_DECLARE(
         Wa64kbMappingAt2mbGranularity,
         "WA to force 2MB alignment for 64KB-LMEM pages",
         WA_BUG_TYPE_FUNCTIONAL,
@@ -516,13 +519,13 @@ typedef struct _WA_TABLE
         WA_BUG_TYPE_UNKNOWN,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
 
-	WA_DECLARE(
+	    WA_DECLARE(
         Wa_1606955757,
         "[GPSSCLT] [XeHP] Multicontext (LB) : out-of-order write-read access to scratch space from hdctlbunit",
         WA_BUG_TYPE_UNKNOWN,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_OGL)
 
-	WA_DECLARE(
+	    WA_DECLARE(
         WaTile64Optimization,
         "Tile64 wastge a lot of memory so WA provides optimization to fall back to Tile4 when waste is relatively higher",
         WA_BUG_TYPE_UNKNOWN,
@@ -558,7 +561,7 @@ typedef struct _WA_TABLE
         WA_BUG_TYPE_UNKNOWN,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
 		
-	WA_DECLARE(
+	    WA_DECLARE(
         Wa_14020040029,
         "Misalignment on Depth buffer for Zplanes",
         WA_BUG_TYPE_UNKNOWN,
@@ -569,6 +572,24 @@ typedef struct _WA_TABLE
         "WA for supporting failure seen in BMG with Mufasa",
         WA_BUG_TYPE_FUNCTIONAL,
         WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_UNKNOWN)	
+	
+	    WA_DECLARE(
+        WaNoCpuCoherentCompression,
+        "Deny compression for coherent surfaces",
+        WA_BUG_TYPE_UNKNOWN,
+        WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_UNKNOWN)
+
+        WA_DECLARE(
+        Wa_22015614752,
+        "[DG2] - Handle tile4 when Compressed surface not aligned to 64Kb",
+        WA_BUG_TYPE_CORRUPTION,
+        WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)
+
+        WA_DECLARE(
+        Wa_14022942107,
+        "[Xe3p][NVL-P] JPEGXS gt timing increasd",
+        WA_BUG_TYPE_UNKNOWN,
+        WA_BUG_PERF_IMPACT_UNKNOWN, WA_COMPONENT_GMM)		
 
 } WA_TABLE, *PWA_TABLE;
 

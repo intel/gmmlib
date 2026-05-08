@@ -1930,9 +1930,11 @@ namespace GmmLib
             {
                 const GMM_CACHE_POLICY_ELEMENT *CachePolicy = GetGmmLibContext()->GetCachePolicyUsage();
 
-            GMM_RESOURCE_USAGE_TYPE Usage = GetCachePolicyUsage();
+                GMM_RESOURCE_USAGE_TYPE Usage = GetCachePolicyUsage();
 
 		        __GMM_ASSERT(CachePolicy[Usage].Initialized);
+				
+				MEMORY_OBJECT_CONTROL_STATE ReturnValueMOCSOverride = CachePolicy[Usage].MemoryObjectOverride;
 
                 // Prevent wrong Usage for XAdapter resources. UMD does not call GetMemoryObject on shader resources but,
                 // when they add it someone could call it without knowing the restriction.
@@ -1941,15 +1943,11 @@ namespace GmmLib
                 {
                     __GMM_ASSERT(false);
                 }
-
-                if((CachePolicy[Usage].Override & CachePolicy[Usage].IDCode) ||
-                   (CachePolicy[Usage].Override == ALWAYS_OVERRIDE))
-                {
-                    return CachePolicy[Usage].MemoryObjectOverride;
-                }
-
-                return CachePolicy[Usage].MemoryObjectNoOverride;
-            }
+				
+				ReturnValueMOCSOverride = GetGmmLibContext()->GetCachePolicyObj()->CachePolicyGetMemoryObject((GMM_RESOURCE_INFO *)this, Usage);
+				
+				return ReturnValueMOCSOverride;
+		    }
 
             /////////////////////////////////////////////////////////////////////////////////////
             /// Returns the surface state value for Standard Tiling Mode Extension

@@ -80,7 +80,10 @@ typedef enum {
     IGFX_BMG = 1274,
     IGFX_LUNARLAKE = 1275,
     IGFX_PTL = 1300,
-    
+    IGFX_NVL_XE3G = 1340,
+    IGFX_NVL  = 1360,
+    IGFX_CRI = 1380,
+
     IGFX_MAX_PRODUCT,
     IGFX_GENNEXT               = 0x7ffffffe,
     PRODUCT_FAMILY_FORCE_ULONG = 0x7fffffff
@@ -143,6 +146,8 @@ typedef enum {
     IGFX_XE2_LPG_CORE    = 0x0c09,  // XE2_LPG Family
     IGFX_XE2_HPG_CORE    = IGFX_XE2_LPG_CORE,  //XE2_HPG Family
     IGFX_XE3_CORE        = 0x1e00,  // XE3 Family
+    IGFX_XE3P_CORE       = 0x2300,  // XE3P Family
+    IGFX_XE3P_HPM        = 0x2301,  // XE3P HPM Family
 
     //Please add new GENs BEFORE THIS !
     IGFX_MAX_CORE,
@@ -303,7 +308,8 @@ typedef enum __NATIVEGTTYPE
 #define GFX_IS_DISCRETE_PRODUCT(pf)    ( ( pf == IGFX_DG1 )             ||   \
                                          ( pf == IGFX_DG2 )             ||   \
                                          ( pf == IGFX_XE_HP_SDV )       ||   \
-                                         ( pf == IGFX_BMG ) )
+                                         ( pf == IGFX_BMG )             ||   \
+					 ( pf == IGFX_CRI) )
 
 #define GFX_IS_DISCRETE_FAMILY(p)      GFX_IS_DISCRETE_PRODUCT(GFX_GET_CURRENT_PRODUCT(p))
 
@@ -2004,6 +2010,10 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_E211                             0xE211	
 #define DEV_ID_E212                             0xE212
 #define DEV_ID_E216                             0xE216
+#define DEV_ID_E220                             0xE220
+#define DEV_ID_E221                             0xE221
+#define DEV_ID_E222                             0xE222
+#define DEV_ID_E223                             0xE223
 
 // PTL
 #define DEV_ID_B080                             0xB080
@@ -2014,6 +2024,28 @@ typedef enum __NATIVEGTTYPE
 #define DEV_ID_B090                             0xB090
 #define DEV_ID_B0A0                             0xB0A0
 #define DEV_ID_B0B0                             0xB0B0
+	
+// WCL
+#define DEV_ID_FD80                             0xFD80
+#define DEV_ID_FD81                             0xFD81
+
+// NVL
+#define DEV_ID_D740                             0xD740
+#define DEV_ID_D741                             0xD741
+#define DEV_ID_D742                             0xD742
+#define DEV_ID_D743                             0xD743
+#define DEV_ID_D744                             0xD744
+#define DEV_ID_D745                             0xD745
+
+// NVL-P
+#define DEV_ID_D750                             0xD750
+#define DEV_ID_D751                             0xD751
+#define DEV_ID_D752                             0xD752
+#define DEV_ID_D753                             0xD753
+#define DEV_ID_D75F                             0xD75F
+
+// CRI
+#define DEV_ID_674C                             0x674C
 
 #define MGM_HAS     0
 

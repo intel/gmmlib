@@ -172,7 +172,7 @@ DEFINE_CACHE_ELEMENT(MHW_RESOURCE_USAGE_Sfc_IefLineBufferSurface,               
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_BUFFER                                            , 1 ,  0   ,       0,   1,         1,      0    , 1      ,  0     );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_BUFFER_CONST                                      , 1 ,  0   ,       0,   1,         0,      0    , 1      ,  0     );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_BUFFER_CSR_UC                                     , 0 ,  0   ,       1,   1,         1,      0    , 0      ,  0     );
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_BUFFER_CACHELINE_MISALIGNED                       , 0 ,  0   ,       0,   1,         1,      0    , 1      ,  0     ); 
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_BUFFER_CACHELINE_MISALIGNED                       , 0 ,  0   ,       0,   1,         1,      0    , 1      ,  0     );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_IMAGE                                             , 1 ,  0   ,       0,   1,         1,      0    , 1      ,  0     );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_INLINE_CONST                                      , 1 ,  0   ,       0,   1,         1,      0    , 1      ,  0     );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_INLINE_CONST_HDC                                  , 1 ,  0   ,       0,   1,         0,      0    , 1      ,  0     );
@@ -181,7 +181,7 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_PRIVATE_MEM                         
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_PRINTF_BUFFER                                     , 1 ,  0   ,       0,   1,         1,      0    , 1      ,  0     );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_STATE_HEAP_BUFFER                                 , 1 ,  0   ,       0,   1,         1,      0    , 1      ,  0     );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_SYSTEM_MEMORY_BUFFER                              , 1 ,  0   ,       0,   1,         1,      0    , 1      ,  0     );
-DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_SYSTEM_MEMORY_BUFFER_CACHELINE_MISALIGNED         , 0 ,  0   ,       0,   1,         1,      0    , 1      ,  0     ); 
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_SYSTEM_MEMORY_BUFFER_CACHELINE_MISALIGNED         , 0 ,  0   ,       0,   1,         1,      0    , 1      ,  0     );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_ISH_HEAP_BUFFER                                   , 1 ,  0   ,       0,   1,         1,      0    , 1      ,  0     );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_TAG_MEMORY_BUFFER                                 , 1 ,  0   ,       0,   1,         1,      0    , 1      ,  0     );
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_OCL_TEXTURE_BUFFER                                    , 1 ,  0   ,       0,   1,         1,      0    , 1      ,  0     );
@@ -252,5 +252,12 @@ DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COMMAND_STREAMER                        
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COPY_SOURCE                                     , 0   , 0    ,   1  ,  0   ,       1 ,    0,     0,        0);
 DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COPY_DEST                                       , 0   , 0    ,   1  ,  0   ,       1 ,    0,     0,        0);
 
+//Usages for command streamer instructions
+//                   USAGE TYPE                                                        , L3, L3_SCC,     GO, UcLookup,   L1CC,   L2CC,   L4CC,     Coherency)
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_DEFAULT											, 1   , 0    ,   0  ,  1   ,       0 ,    0,     1,        0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_COARSE_GRAINED_COHERENT							, 1	  , 0    ,   0  ,  1   ,       0 ,    0,     1,        1);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_FINE_GRAINED_COHERENT						    , 0   , 0    ,   1  ,  1   ,       0 ,    0,     1,        1);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_FINE_GRAINED_COHERENT_MULTI_WRITE			    , 0   , 0    ,   1  ,  1   ,       0 ,    0,     1,        0);
+DEFINE_CACHE_ELEMENT(GMM_RESOURCE_USAGE_FINE_GRAINED_COHERENT_VIA_PAT					, 0   , 0    ,   1  ,  1   ,       0 ,    0,     1,        1);
 
 #include "GmmCachePolicyUndefineConditionals.h"

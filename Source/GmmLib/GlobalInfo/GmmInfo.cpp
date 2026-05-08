@@ -827,6 +827,8 @@ GmmLib::Context::Context()
     AllowedPaddingFor64KbPagesPercentage = 10;
     InternalGpuVaMax                     = 0;
     AllowedPaddingFor64KBTileSurf        = 10;
+    UsageBasedPaddingFor64KBTileSurf         = 50;
+    MultiEngineAccessCompressedWAEnable      = 0;
 
 #if(!defined(__GMM_KMD__) && !defined(GMM_UNIFIED_LIB))
     pGmmGlobalClientContext = NULL;
@@ -1096,8 +1098,12 @@ GMM_CACHE_POLICY *GMM_STDCALL GmmLib::Context::CreateCachePolicyCommon()
     {
         return GetCachePolicyObj();
     }
-	
-    if(ProductFamily >= IGFX_BMG)
+
+    if (ProductFamily == IGFX_CRI)
+    {
+        pGmmCachePolicy = new GmmLib::GmmXe3P_XPCCachePolicy(CachePolicy, this);
+    }
+    else if(ProductFamily >= IGFX_BMG)
     {
         pGmmCachePolicy = new GmmLib::GmmXe2_LPGCachePolicy(CachePolicy, this);
     }
@@ -1111,6 +1117,7 @@ GMM_CACHE_POLICY *GMM_STDCALL GmmLib::Context::CreateCachePolicyCommon()
         {
             case IGFX_XE2_HPG_CORE:
             case IGFX_XE3_CORE:
+            case IGFX_XE3P_CORE:
                 pGmmCachePolicy = new GmmLib::GmmXe2_LPGCachePolicy(CachePolicy, this);
                 break;
             case IGFX_GEN12LP_CORE:
@@ -1191,8 +1198,9 @@ GMM_TEXTURE_CALC *GMM_STDCALL GmmLib::Context::CreateTextureCalc(PLATFORM Platfo
                  return new GmmGen12TextureCalc(this);
 				 break;
             case IGFX_XE2_HPG_CORE:
-	    case IGFX_XE3_CORE:
-            default:
+	        case IGFX_XE3_CORE:
+	        case IGFX_XE3P_CORE:
+	    default:
                 return new GmmXe_LPGTextureCalc(this);
                 break;
         }
@@ -1227,7 +1235,8 @@ GMM_PLATFORM_INFO_CLASS *GMM_STDCALL GmmLib::Context::CreatePlatformInfo(PLATFOR
         case IGFX_XE_HPG_CORE:
         case IGFX_XE_HPC_CORE:
         case IGFX_XE2_HPG_CORE:
-	case IGFX_XE3_CORE:
+	    case IGFX_XE3_CORE:
+	    case IGFX_XE3P_CORE:
             return new GmmLib::PlatformInfoGen12(Platform, (GMM_LIB_CONTEXT *)this);
             break;
         case IGFX_GEN11_CORE:

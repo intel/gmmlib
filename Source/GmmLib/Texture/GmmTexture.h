@@ -270,8 +270,11 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo,GMM_LI
         {
             UnitAlignWidth = 64;
 
-            // Tile4/64
-            SET_ALIGN_FACTOR(Width, 128);
+            // 1D resources are always linear.
+            if (pTexInfo->Flags.Info.Linear)
+            {
+				SET_ALIGN_FACTOR(Width, 128);
+            }
         }
         /// CCS ///////////////////////////////////////////////////////////
         else if (pTexInfo->Flags.Gpu.CCS &&
@@ -390,7 +393,6 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo,GMM_LI
             UnitAlignWidth  = 16;
             UnitAlignHeight = 4;
 
-            SET_ALIGN_FACTOR(Width, 128);
         }
         else if(pTexInfo->Flags.Wa.__ForceOtherHVALIGN4)
         {
@@ -421,7 +423,17 @@ GMM_INLINE GMM_STATUS __GmmTexFillHAlignVAlign(GMM_TEXTURE_INFO *pTexInfo,GMM_LI
                     UnitAlignWidth = 8;
                 }
 
-                SET_ALIGN_FACTOR(Width, 128);
+                // Linear surfaces, or any surface with 24/48/96 bpp, require HALIGN=128
+                if (pTexInfo->Flags.Info.Linear || (pTexInfo->BitsPerPixel == 24 || pTexInfo->BitsPerPixel == 48 || pTexInfo->BitsPerPixel == 96))
+                {
+                    SET_ALIGN_FACTOR(Width, 128);
+                }
+
+                // Non linear surfaces with 64/128 bpp, require HALIGN=64
+                if (!pTexInfo->Flags.Info.Linear && (pTexInfo->BitsPerPixel == 64 || pTexInfo->BitsPerPixel == 128))
+                {
+                    SET_ALIGN_FACTOR(Width, 64);
+                }
             }
             else if(pTexInfo->MSAA.NumSamples <= 1)
             {
