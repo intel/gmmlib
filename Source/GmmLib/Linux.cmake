@@ -55,6 +55,41 @@ if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^aarch")
     -fPIC
     -g
     )
+elseif (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^riscv")
+    SET (GMMLIB_COMPILER_FLAGS_COMMON
+    #general warnings
+    #-Wall
+    -Winit-self
+    -Winvalid-pch
+    -Wpointer-arith
+    -Wno-unused
+    -Wno-unknown-pragmas
+    -Wno-comments
+    -Wno-narrowing
+    -Wno-overflow
+    -Wno-parentheses
+    -Wno-missing-braces
+    -Wno-sign-compare
+    -Werror=address
+    -Werror=format-security
+    -Werror=return-type
+
+    # General optimization options
+    -march=${GMMLIB_MARCH}
+    -finline-functions
+    -fno-short-enums
+    -Wa,--noexecstack
+    -fno-strict-aliasing
+    # Other common flags
+    -fstack-protector
+    -fdata-sections
+    -ffunction-sections
+    -fmessage-length=0
+    -fvisibility=hidden
+    -fPIC
+    -g
+    -Wno-attributes
+    )
 else()
     SET (GMMLIB_COMPILER_FLAGS_COMMON
     #general warnings
@@ -175,6 +210,9 @@ foreach (flag ${GMMLIB_COMPILER_CXX_FLAGS_COMMON})
 endforeach()
 
 if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^aarch")
+    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
+    SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}")
+elseif (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^riscv")
     SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
     SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}")
 else()
