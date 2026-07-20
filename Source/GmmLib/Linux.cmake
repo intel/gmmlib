@@ -19,94 +19,64 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 
 #this file should contain only compiler and linker flags
+
+SET (GMMLIB_COMPILER_FLAGS_COMMON
+    -Winit-self
+    -Winvalid-pch
+    -Wpointer-arith
+    -Wno-unused
+    -Wno-unknown-pragmas
+    -Wno-comments
+    -Wno-narrowing
+    -Wno-overflow
+    -Wno-parentheses
+    -Wno-missing-braces
+    -Wno-sign-compare
+    -Werror=address
+    -Werror=format-security
+    -Werror=return-type
+
+    # General optimization options
+    -march=${GMMLIB_MARCH}
+    -finline-functions
+    -fno-short-enums
+    -Wa,--noexecstack
+    -fno-strict-aliasing
+    # Other common flags
+    -fstack-protector
+    -fdata-sections
+    -ffunction-sections
+    -fmessage-length=0
+    -fvisibility=hidden
+    -fPIC
+    -g
+)
+
 if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^aarch")
-    SET (GMMLIB_COMPILER_FLAGS_COMMON
-    #general warnings
-    #-Wall
-    -Winit-self
-    -Winvalid-pch
-    -Wpointer-arith
-    -Wno-unused
-    -Wno-unknown-pragmas
-    -Wno-comments
-    -Wno-narrowing
-    -Wno-overflow
-    -Wno-parentheses
-    -Wno-missing-braces
-    -Wno-sign-compare
-    -Werror=address
-    -Werror=format-security
-    -Werror=return-type
-
-    # General optimization options
-    -march=${GMMLIB_MARCH}
-    -finline-functions
-    -fno-short-enums
-    -Wa,--noexecstack
-    -fno-strict-aliasing
-    # Common defines
-    -DUSE_NEON
-    # Other common flags
-    -fstack-protector
-    -fdata-sections
-    -ffunction-sections
-    -fmessage-length=0
-    -fvisibility=hidden
-    -fPIC
-    -g
-    )
+    list(APPEND GMMLIB_COMPILER_FLAGS_COMMON "-DUSE_NEON")
+elseif (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^loongarch")
+    list(APPEND GMMLIB_COMPILER_FLAGS_COMMON "-Wno-attributes")
 else()
-    SET (GMMLIB_COMPILER_FLAGS_COMMON
-    #general warnings
-    -Wall
-    -Winit-self
-    -Winvalid-pch
-    -Wpointer-arith
-    -Wno-unused
-    -Wno-unknown-pragmas
-    -Wno-comments
-    -Wno-narrowing
-    -Wno-overflow
-    -Wno-parentheses
-    -Wno-missing-braces
-    -Wno-sign-compare
-    -Wno-enum-compare
-    -Werror=address
-    -Werror=format-security
-    -Werror=return-type
-
-    # General optimization options
-    -march=${GMMLIB_MARCH}
-    -mpopcnt
-    -msse
-    -msse2
-    -msse3
-    -mssse3
-    -msse4
-    -msse4.1
-    -msse4.2
-    -mfpmath=sse
-    -finline-functions
-    -fno-short-enums
-    -Wa,--noexecstack
-    -fno-strict-aliasing
-    # Common defines
-    -DUSE_MMX
-    -DUSE_SSE
-    -DUSE_SSE2
-    -DUSE_SSE3
-    -DUSE_SSSE3
-    # Other common flags
-    -fstack-protector
-    -fdata-sections
-    -ffunction-sections
-    -fmessage-length=0
-    -fvisibility=hidden
-    -fPIC
-    -g
-    # -m32 or -m64
-    -m${GMMLIB_ARCH}
-    )
+    list (APPEND GMMLIB_COMPILER_FLAGS_COMMON
+        -Wall
+        -Wno-enum-compare
+        -mpopcnt
+        -msse
+        -msse2
+        -msse3
+        -mssse3
+        -msse4
+        -msse4.1
+        -msse4.2
+        -mfpmath=sse
+        -DUSE_MMX
+        -DUSE_SSE
+        -DUSE_SSE2
+        -DUSE_SSE3
+        -DUSE_SSSE3
+        # -m32 or -m64
+        -m${GMMLIB_ARCH}
+        )
 endif()
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -175,6 +145,9 @@ foreach (flag ${GMMLIB_COMPILER_CXX_FLAGS_COMMON})
 endforeach()
 
 if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^aarch")
+    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
+    SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}")
+elseif (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^loongarch")
     SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
     SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}")
 else()
