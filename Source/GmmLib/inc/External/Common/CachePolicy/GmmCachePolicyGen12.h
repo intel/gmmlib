@@ -60,7 +60,7 @@ namespace GmmLib
             /* Function prototypes */
             GMM_STATUS InitCachePolicy();
             uint8_t SelectNewPATIdx(GMM_GFX_MEMORY_TYPE WantedMT, GMM_GFX_MEMORY_TYPE MT1, GMM_GFX_MEMORY_TYPE MT2);
-            uint32_t BestMatchingPATIdx(GMM_CACHE_POLICY_ELEMENT CachePolicy);
+            uint32_t BestMatchingPATIdx(const GMM_CACHE_POLICY_ELEMENT &CachePolicy);
             GMM_STATUS SetPATInitWA();
             GMM_STATUS SetupPAT();
             void       SetUpMOCSTable();

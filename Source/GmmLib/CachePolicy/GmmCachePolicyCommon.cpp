@@ -42,7 +42,7 @@ GmmLib::GmmCachePolicyCommon::GmmCachePolicyCommon(GMM_CACHE_POLICY_ELEMENT *pCa
 ///
 /// @return         wanted memory type
 /////////////////////////////////////////////////////////////////////////////////////
-GMM_GFX_MEMORY_TYPE GmmLib::GmmCachePolicyCommon::GetWantedMemoryType(GMM_CACHE_POLICY_ELEMENT CachePolicy)
+GMM_GFX_MEMORY_TYPE GmmLib::GmmCachePolicyCommon::GetWantedMemoryType(const GMM_CACHE_POLICY_ELEMENT &CachePolicy)
 {
     GMM_GFX_MEMORY_TYPE WantedMemoryType = GMM_GFX_UC_WITH_FENCE;
     if(CachePolicy.WT)

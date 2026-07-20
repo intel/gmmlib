@@ -408,7 +408,7 @@ EXIT:
 ///
 /// @return        PAT Idx to use in the PTE
 /////////////////////////////////////////////////////////////////////////////////////
-uint32_t GmmLib::GmmGen12CachePolicy::BestMatchingPATIdx(GMM_CACHE_POLICY_ELEMENT CachePolicy)
+uint32_t GmmLib::GmmGen12CachePolicy::BestMatchingPATIdx(const GMM_CACHE_POLICY_ELEMENT &CachePolicy)
 {
     uint32_t            i;
     uint32_t            PATIdx           = 0;
