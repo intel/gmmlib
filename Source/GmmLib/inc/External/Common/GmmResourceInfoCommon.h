@@ -748,7 +748,10 @@ namespace GmmLib
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_RESOURCE_MMC_HINT GMM_STDCALL GetMmcHint(uint32_t ArrayIndex)
             {
                 __GMM_ASSERT(ArrayIndex < GMM_MAX_MMC_INDEX);
-                return Surf.MmcHint[ArrayIndex] ? GMM_MMC_HINT_OFF : GMM_MMC_HINT_ON;
+
+                return (ArrayIndex < GMM_MAX_MMC_INDEX) ?
+                    (Surf.MmcHint[ArrayIndex] ? GMM_MMC_HINT_OFF : GMM_MMC_HINT_ON) :
+                    GMM_MMC_HINT_ON;
             }
 
             /////////////////////////////////////////////////////////////////////////////////////
@@ -763,7 +766,10 @@ namespace GmmLib
                 __GMM_ASSERT(GMM_MMC_HINT_ON == 0);
                 __GMM_ASSERT(GMM_MMC_HINT_OFF == 1);
 
-                Surf.MmcHint[ArrayIndex] = static_cast<uint8_t>(Hint);
+                if (ArrayIndex < GMM_MAX_MMC_INDEX)
+                {
+                    Surf.MmcHint[ArrayIndex] = (uint8_t)Hint;
+                }
             }
 
             /////////////////////////////////////////////////////////////////////////////////////
@@ -792,7 +798,7 @@ namespace GmmLib
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T GMM_STDCALL GetPlanarXOffset(GMM_YUV_PLANE Plane)
             {
                 __GMM_ASSERT(Plane < GMM_MAX_PLANE);
-                return Surf.OffsetInfo.Plane.X[Plane];
+                return (static_cast<uint32_t>(Plane) < GMM_MAX_PLANE) ? Surf.OffsetInfo.Plane.X[Plane] : 0;
             }
 
             /////////////////////////////////////////////////////////////////////////////////////
@@ -803,7 +809,7 @@ namespace GmmLib
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED GMM_GFX_SIZE_T GMM_STDCALL GetPlanarYOffset(GMM_YUV_PLANE Plane)
             {
                 __GMM_ASSERT(Plane < GMM_MAX_PLANE);
-                return Surf.OffsetInfo.Plane.Y[Plane];
+                return (static_cast<uint32_t>(Plane) < GMM_MAX_PLANE) ? Surf.OffsetInfo.Plane.Y[Plane] : 0;
             }
 
             /////////////////////////////////////////////////////////////////////////////////////
@@ -1835,7 +1841,10 @@ namespace GmmLib
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverridePlanarXOffset(GMM_YUV_PLANE Plane, GMM_GFX_SIZE_T XOffset)
             {
                 __GMM_ASSERT(Plane < GMM_MAX_PLANE);
-                Surf.OffsetInfo.Plane.X[Plane] = XOffset;
+                if (static_cast<uint32_t>(Plane) < GMM_MAX_PLANE)
+                {
+                    Surf.OffsetInfo.Plane.X[Plane] = XOffset;
+                }
             }
 
             /////////////////////////////////////////////////////////////////////////////////////
@@ -1846,7 +1855,10 @@ namespace GmmLib
             GMM_INLINE_VIRTUAL GMM_INLINE_EXPORTED void GMM_STDCALL OverridePlanarYOffset(GMM_YUV_PLANE Plane, GMM_GFX_SIZE_T YOffset)
             {
                 __GMM_ASSERT(Plane < GMM_MAX_PLANE);
-                Surf.OffsetInfo.Plane.Y[Plane] = YOffset;
+                if (static_cast<uint32_t>(Plane) < GMM_MAX_PLANE)
+                {
+                    Surf.OffsetInfo.Plane.Y[Plane] = YOffset;
+                }
             }
 
             GMM_VIRTUAL GMM_STATUS              GMM_STDCALL CreateCustomRes(Context& GmmLibContext, GMM_RESCREATE_CUSTOM_PARAMS& CreateParams);
