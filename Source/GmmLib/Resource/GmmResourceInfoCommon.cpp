@@ -142,6 +142,13 @@ GMM_STATUS GMM_STDCALL GmmLib::GmmResourceInfoCommon::CreateCustomRes(Context &G
         goto ERROR_CASE;
     }
 
+    if (GmmIsPlanar(CreateParams.Format) && (CreateParams.NoOfPlanes == 0 || CreateParams.NoOfPlanes >= GMM_MAX_PLANE))
+    {
+        GMM_ASSERTDPF(0, "Invalid number of planes");
+        Status = GMM_INVALIDPARAM;
+        goto ERROR_CASE;
+    }
+
     pPlatform    = GMM_OVERRIDE_PLATFORM_INFO(&Surf, GetGmmLibContext());
     pTextureCalc = GMM_OVERRIDE_TEXTURE_CALC(&Surf, GetGmmLibContext());
 
