@@ -43,6 +43,7 @@ cc_library_shared {
         "Source/GmmLib/CachePolicy/GmmGen8CachePolicy.cpp",
         "Source/GmmLib/CachePolicy/GmmGen9CachePolicy.cpp",
         "Source/GmmLib/CachePolicy/GmmXe2_LPGCachePolicy.cpp",
+		"Source/GmmLib/CachePolicy/GmmXe3P_XPCCachePolicy.cpp",
         "Source/GmmLib/CachePolicy/GmmXe_LPGCachePolicy.cpp",
         "Source/GmmLib/GlobalInfo/GmmClientContext.cpp",
         "Source/GmmLib/GlobalInfo/GmmInfo.cpp",
