@@ -59,7 +59,7 @@ namespace GmmLib
             GmmCachePolicyCommon(GMM_CACHE_POLICY_ELEMENT *pCachePolicy, Context *pGmmLibContext);
 
             /* Function prototypes */
-            GMM_GFX_MEMORY_TYPE GetWantedMemoryType(GMM_CACHE_POLICY_ELEMENT CachePolicy);
+            GMM_GFX_MEMORY_TYPE GetWantedMemoryType(const GMM_CACHE_POLICY_ELEMENT &CachePolicy);
 
             #define DEFINE_CP_ELEMENT(Usage, llc, ellc, l3, wt, age, aom, lecc_scc, l3_scc, scf, sso, cos, hdcl1, l3evict, segov, glbgo, uclookup, l1cc, l2cc, l4cc, coherency, l3cc, l3clos, igPAT)\
             do {                                                                                                                                                                                    \
