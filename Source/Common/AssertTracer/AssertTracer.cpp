@@ -180,7 +180,7 @@ void __stdcall ReportAssertETW( const unsigned short     compId,
 #endif
 }
 
-#elif defined( __linux__ ) && defined( _RELEASE_INTERNAL ) && !defined( __ANDROID__ )
+#elif defined( _RELEASE_INTERNAL ) && !defined( _WIN32 ) && !defined( __ANDROID__ )
 #include <algorithm>
 #include <syslog.h>
 #include <execinfo.h>
