@@ -375,6 +375,8 @@ extern void CpuSwizzleBlt(CPU_SWIZZLE_BLT_SURFACE *pDest, CPU_SWIZZLE_BLT_SURFAC
     #include <intrin.h>
 #elif defined(__ARM_ARCH)
     #include <sse2neon.h>
+#elif defined(__riscv)
+    #include "riscv_sse2_support.h"
 #elif((defined __clang__) ||(__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 5)))
     #include <cpuid.h>
     #include <x86intrin.h>
@@ -427,7 +429,10 @@ int SwizzleOffset( // ##########################################################
 
     if(PDepSupported == -1)
     {
-        #if(_MSC_VER >= 1700)
+        #if defined(__riscv)
+            #define PDEP(Src, Mask) 0
+            PDepSupported = 0;
+        #elif(_MSC_VER >= 1700)
             #define PDEP(Src, Mask) _pdep_u32((Src), (Mask))
             int CpuInfo[4];
             __cpuidex(CpuInfo, 7, 0);
@@ -692,21 +697,34 @@ void CpuSwizzleBlt( // #########################################################
             } __m24; // 24-bit/3-byte memory element.
 
             // Macros intended to compile to various types of "load register from memory" instructions...
+#if defined(__riscv)
+            #define MOVB_R(  Reg, Src) memcpy((uint8_t  *)&(Reg), (uint8_t  *)(Src), sizeof(__m128i))
+            #define MOVW_R(  Reg, Src) memcpy((uint16_t *)&(Reg), (uint16_t *)(Src), sizeof(__m128i))
+            #define MOV3_R(  Reg, Src) memcpy((__m24    *)&(Reg), (__m24 *)(Src), sizeof(__m24))
+            #define MOVD_R(  Reg, Src) memcpy((uint32_t *)&(Reg), (uint32_t *)(Src), sizeof(__m128i))
+#else
             #define MOVB_R(  Reg, Src) (*(uint8_t  *)&(Reg) = *(uint8_t  *)(Src))
             #define MOVW_R(  Reg, Src) (*(uint16_t *)&(Reg) = *(uint16_t *)(Src))
             #define MOV3_R(  Reg, Src) (*(__m24    *)&(Reg) = *(__m24 *)(Src))
             #define MOVD_R(  Reg, Src) (*(uint32_t *)&(Reg) = *(uint32_t *)(Src))
+#endif
 
             #define MOVQ_R(  Reg, Src) ((Reg) = _mm_loadl_epi64((__m128i *)(Src)))
             #define MOVDQ_R( Reg, Src) ((Reg) = _mm_load_si128( (__m128i *)(Src)))
             #define MOVDQU_R(Reg, Src) ((Reg) = _mm_loadu_si128((__m128i *)(Src)))
 
             // As above, but the other half: "store to memory from register"...
+#if defined(__riscv)
+            #define MOVB_M(    Dest, Reg) memcpy((uint8_t  *)(Dest), (uint8_t  *)&(Reg), sizeof(__m128i))
+            #define MOVW_M(    Dest, Reg) memcpy((uint16_t *)(Dest), (uint16_t *)&(Reg), sizeof(__m128i))
+            #define MOV3_M(    Dest, Reg) memcpy((__m24    *)(Dest), (__m24    *)&(Reg), sizeof(__m24))
+            #define MOVD_M(    Dest, Reg) memcpy((uint32_t *)(Dest), (uint32_t *)&(Reg), sizeof(__m128i))
+#else
             #define MOVB_M(    Dest, Reg)(*(uint8_t  *)(Dest) = *(uint8_t  *)&(Reg))
             #define MOVW_M(    Dest, Reg)(*(uint16_t *)(Dest) = *(uint16_t *)&(Reg))
             #define MOV3_M(    Dest, Reg)(*(__m24    *)(Dest) = *(__m24    *)&(Reg))
             #define MOVD_M(    Dest, Reg)(*(uint32_t *)(Dest) = *(uint32_t *)&(Reg))
-
+#endif
             #define MOVQ_M(    Dest, Reg)(_mm_storel_epi64((__m128i *)(Dest), (Reg)))
             #define MOVDQ_M(   Dest, Reg)(_mm_store_si128( (__m128i *)(Dest), (Reg)))
             #define MOVDQU_M(  Dest, Reg)(_mm_storeu_si128((__m128i *)(Dest), (Reg)))
@@ -748,6 +766,9 @@ void CpuSwizzleBlt( // #########################################################
                     StreamingLoadSupported = ((CpuInfo[2] & (1 << 19)) != 0); // ECX[19] = SSE4.1
                 #elif(defined(__ARM_ARCH))
                     #define MOVNTDQA_R(Reg, Src) ((Reg) = (Reg))
+                    StreamingLoadSupported = 0;
+               #elif(defined(__riscv))
+                    #define MOVNTDQA_R(Reg, Src) ((Reg) = _mm_stream_load_si128((__m128i *)(Src)))
                     StreamingLoadSupported = 0;
                 #elif((defined __clang__) || (__GNUC__ > 4) || (__GNUC__ == 4) && (__GNUC_MINOR__ >= 5))
                     #define MOVNTDQA_R(Reg, Src) ((Reg) = _mm_stream_load_si128((__m128i *)(Src)))
